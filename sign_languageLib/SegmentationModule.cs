@@ -8,126 +8,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
 
-using LearningSystem.StaticTools;
-
-public class SegmentationModule : ISubject
+public class SegmentationModule 
 {
     protected Classifier m_classifier;
     protected DataWarehouse m_dataWarehouse;
-    protected List<Vector3> m_player1LatestPositions;
-    private int m_inspectWindowSize = 30;
-    private int m_startFrame = -1;
-    private int m_endFrame = -1;
-    private bool m_isMoving = false;
     public SegmentationModule(Classifier classifier)
     {
         m_classifier = classifier;
         m_dataWarehouse = classifier.m_dataProcessor.m_dataWarehouse;
     }
-    public void OnDataTransfer(Object sender, EventArgs args)
+    public void OnDataTransfer(Object sender, DataTransferEventArgs args)
     {
-        try
-        {
-            DataTransferEventArgs arg = (DataTransferEventArgs)args;
-            Console.WriteLine("segmentation callback:" + arg.m_data);
-        }
-        catch (Exception)
-        {
-            Console.WriteLine("segmentation callback: invalid args");
-        }
-
+        VisualFeatureModule vf = (VisualFeatureModule)sender;
+        Console.WriteLine("segmentation callback:"+args.m_data);
     }
 
-    public void OnNewFrameDataReady(Object sender, EventArgs args)
+    public void OnNewFrameDataReady(Object sender, DataTransferEventArgs args)
     {
-        DataTransferEventArgs arg = (DataTransferEventArgs)args;
-        if (m_player1LatestPositions == null)//first time initial
-        {
-            m_player1LatestPositions = m_dataWarehouse.GetLatestPlayer1Positions(m_inspectWindowSize);//TODO: specify accurate time
-
-        }
-        else //set data
-        {
-            if (m_player1LatestPositions.Count < m_inspectWindowSize)
-            {
-                m_player1LatestPositions.Add(m_dataWarehouse.m_frameData[arg.m_data].m_Player1.m_position);
-                return;
-            }
-            else
-            {
-                m_player1LatestPositions.RemoveAt(0);
-                m_player1LatestPositions.Add(m_dataWarehouse.m_frameData[arg.m_data].m_Player1.m_position);
-            }
-            //make decision
-            if (isPlayer1MovesInLatestFrame() && !m_isMoving)//split start point 
-            {
-
-                Console.WriteLine("moving");
-                m_isMoving = true;
-
-                m_startFrame = arg.m_data;
-
-
-
-            }
-            if (!isPlayer1MovesInLatestFrame() && m_isMoving)//stop moving
-            {
-                m_isMoving = false;
-                //notify gesture module
-                m_endFrame = arg.m_data;
-                NofityAll(new DataTransferEventArgs(arg.m_data)
-                {
-                    m_startFrame = this.m_startFrame - m_inspectWindowSize,
-                    m_endFrame = this.m_endFrame
-                });
-
-                Console.WriteLine("stop");
-            }
-           
-
-        }
-
+        //Console.WriteLine("New frame callback from segmentation current frame:" + args.m_data);
     }
-
-
-
-    #region ISubject 成员
-
-    public event DataTransferEventHandler m_dataTransferEvent;
-
-    public void NofityAll(DataTransferEventArgs e)
-    {
-        if (m_dataTransferEvent != null)
-        {
-            m_dataTransferEvent(this, e);
-        }
-        else
-        {
-            Console.WriteLine("no boundler from segmentation");
-        }
-    }
-
-    #endregion
-
-    private bool isPlayer1MovesInLatestFrame()
-    {
-        float distanceSum = 0;
-        for (int i = 1; i < m_inspectWindowSize; i++)
-        {
-            distanceSum += Vector3.Distance(m_player1LatestPositions[i], m_player1LatestPositions[i - 1]);
-
-        }
-        // Console.WriteLine(distanceSum.ToString("F"));
-        if (distanceSum > StaticParams.MOVING_SENSETIVITY * m_inspectWindowSize)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+   
 }
 

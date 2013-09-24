@@ -8,72 +8,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Xna.Framework;
 
 public class GestureModule : VisualFeatureModule
 {
 
     public GestureModule(Classifier classifier) : base(classifier) { }
 
-    public void OnNewFrameDataReady(Object sender, EventArgs args)
+    public void OnNewFrameDataReady(Object sender, DataTransferEventArgs args)
     {
-        DataTransferEventArgs arg = (DataTransferEventArgs)args;
-        //Console.WriteLine("gesture current frame: " + arg.m_data +
-        //                  "  x=" + m_dataWarehouse.GetPlayer1CurrentPosition().X.ToString("f")+
-        //                  "  y=" + m_dataWarehouse.GetPlayer1CurrentPosition().Y.ToString("f")+
-        //                  "  z=" + m_dataWarehouse.GetPlayer1CurrentPosition().Z.ToString("f"));
+        Console.WriteLine("New frame callback from gesture current frame:" + args.m_data);
+        Console.WriteLine("x="+m_dataWarehouse.GetPlayer1CurrentPosition().X+
+                          "  y="+m_dataWarehouse.GetPlayer1CurrentPosition().Y+
+                          "  z="+m_dataWarehouse.GetPlayer1CurrentPosition().Z);
 
     }
 
-    public void OnDataTransfer(Object sender, EventArgs args)
-    {
-        if (sender is SegmentationModule)
-        {
-            DataTransferEventArgs arg = (DataTransferEventArgs)args;
-            List<Vector3> list = m_dataWarehouse.GetPlayer1PositionBetweenFrames(arg.m_startFrame, arg.m_endFrame);
-            recognizeGesture(list);
-        }
-    }
-
-    private void recognizeGesture(List<Vector3> positions)
-    {
-        Vector3 diff = positions[positions.Count - 1] - positions[0];
-        if (Math.Abs(diff.X) > Math.Abs(diff.Y) && Math.Abs(diff.X) > Math.Abs(diff.Z))
-        {
-            if (diff.X > 0) 
-            {
-                Console.WriteLine("moving->right");
-            }
-            else
-            {
-                Console.WriteLine("moving->left");
-
-            }
-        }
-        else if (Math.Abs(diff.Y) > Math.Abs(diff.Z))
-        {
-            if (diff.Y > 0)
-            {
-                Console.WriteLine("moving->up");
-            }
-            else
-            {
-                Console.WriteLine("moving->down");
-            }
-        }
-        else
-        {
-            if (diff.Z > 0)
-            {
-                Console.WriteLine("moving->away");
-            }
-            else
-            {
-                Console.WriteLine("moving->near");
-            }
-        }
-
-    }
 
 }
 

@@ -58,10 +58,8 @@ public class Classifier
         _featureSelector = new FeatureSelector();
         _NLPModule = new NLPModule();
         m_gestureModule.m_dataTransferEvent += m_segmentationModule.OnDataTransfer;
-        m_segmentationModule.m_dataTransferEvent += m_gestureModule.OnDataTransfer;
         m_dataProcessor.m_dataTransferEvent += m_segmentationModule.OnNewFrameDataReady;
         m_dataProcessor.m_dataTransferEvent += m_gestureModule.OnNewFrameDataReady;
-        
     }
 
     public void Begin()
