@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-public delegate void DataTransferEventHandler(Object sender, DataTransferEventArgs args);
+public delegate void DataTransferEventHandler(Object sender, EventArgs args);
 
 public interface ISubject 
 {

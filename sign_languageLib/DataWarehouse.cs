@@ -29,11 +29,17 @@ public class DataWarehouse
     {
         m_frameData = new List<FrameData>();
         m_frameData.Add(new FrameData(0));
-        
+
     }
+
+    /// <summary>
+    /// set frame data to data warehouse and return whether the data is valid
+    /// </summary>
+    /// <param name="sf"></param>
+    /// <returns>whether the data is successfully stored</returns>
     public bool SetSkeletonFrameData(SkeletonFrame sf)
     {
-        Skeleton[]  skeletons = new Skeleton[sf.SkeletonArrayLength];
+        Skeleton[] skeletons = new Skeleton[sf.SkeletonArrayLength];
         sf.CopySkeletonDataTo(skeletons);
         foreach (Skeleton sk in skeletons)
         {
@@ -44,26 +50,58 @@ public class DataWarehouse
                 m_frameData[m_currentFrame].m_Player1.m_skeleton = sk;
                 return true;
             }
-            
+
         }
         return false;
-       
 
     }
 
     public Vector3 GetPlayer1CurrentPosition()
     {
-        return GetCurrentFrameData().m_Player1.m_position;
+        return GetCurrentFrameData() == null ? Vector3.Zero : GetCurrentFrameData().m_Player1.m_position;
+
     }
 
     public FrameData GetCurrentFrameData()
     {
-        if (m_currentFrame == 0)
-        {
-            //TODO: not recognize
-            return m_frameData[m_currentFrame];
-        }
-        return m_frameData[m_currentFrame];
+        return m_currentFrame == 0 ? null : m_frameData[m_currentFrame];
     }
+
+    public List<Vector3> GetLatestPlayer1Positions(int frames)
+    {
+        if (frames <= 0)
+        {
+            return null;
+        }
+        List<Vector3> results = new List<Vector3>(frames);
+        if (frames < m_currentFrame)
+        {
+            List<FrameData> l = m_frameData.GetRange(m_currentFrame - frames, frames);
+            l.ForEach(i => results.Add(i.m_Player1.m_position));
+            return results;
+        }
+        else
+        {
+            List<FrameData> l = m_frameData.GetRange(1, m_currentFrame);
+            l.ForEach(i => results.Add(i.m_Player1.m_position));
+            return results;
+        }
+
+    }
+
+    public List<Vector3> GetPlayer1PositionBetweenFrames(int start, int end)
+    {
+        if (end - start <= 0 || start <= 0)
+        {
+            return null;
+        }
+        List<Vector3> results = new List<Vector3>(end - start);
+
+        List<FrameData> l = m_frameData.GetRange(start, Math.Min(m_currentFrame - start + 1, end - start +1));
+        l.ForEach(i => results.Add(i.m_Player1.m_position));
+        return results;
+
+    }
+
 
 }
