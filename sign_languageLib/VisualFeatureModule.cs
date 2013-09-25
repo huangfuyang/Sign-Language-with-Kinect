@@ -31,6 +31,11 @@ public class VisualFeatureModule : ISubject
         }
     }
 
+    public virtual void OnDataTransfer(Object sender, DataTransferEventArgs args)
+    {
+        Console.WriteLine("visual callback:" + args.m_data);
+    }
+
     public event DataTransferEventHandler m_dataTransferEvent;
 
     public void NofityAll(DataTransferEventArgs e)
@@ -41,8 +46,9 @@ public class VisualFeatureModule : ISubject
         }
         else
         {
-            Console.WriteLine("no boundler");
+            Console.WriteLine("no boundler from visual");
         }
     }
+
 }
 
