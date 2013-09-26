@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-public class VisualFeatureModule : ISubject
+public class VisualFeatureModule 
 {
     protected Classifier m_classifier;
     protected DataWarehouse m_dataWarehouse;
@@ -18,17 +18,6 @@ public class VisualFeatureModule : ISubject
     {
         m_classifier = classifier;
         m_dataWarehouse = classifier.m_dataProcessor.m_dataWarehouse;
-    }
-    public void BeginTest()
-    {
-        for (int i = 0; i < 10; i++)
-        {
-            Console.WriteLine("visual test:" + i);
-            if (i == 8)
-            {
-                NofityAll(new DataTransferEventArgs(i));
-            }
-        }
     }
 
     public virtual void OnDataTransfer(Object sender, DataTransferEventArgs args)
