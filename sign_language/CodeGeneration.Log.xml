@@ -6,77 +6,25 @@
   <MessageClass Name="Error" Label="错误" Option="显示错误" />
   <MessageClass Name="Property" Label="属性" Option="显示元数据" />
   <MessageClass Name="Diagnostic" Label="消息" Option="显示诊断消息" />
-  <Message Timestamp="2013-09-18T15:57:47" Importance="High" Text="已启动代码生成或文本转换。" />
-  <Message Timestamp="2013-09-18T15:57:47" Importance="Diagnostic" Text="名称 = ClassTemplate" />
-  <Message Timestamp="2013-09-18T15:57:47" Importance="Diagnostic" Text="覆盖 = True" />
-  <Message Timestamp="2013-09-18T15:57:47" Importance="Diagnostic" Text="ProjectPath = ..\sign_languageLib\sign_languageLib.csproj" />
-  <Message Timestamp="2013-09-18T15:57:47" Importance="Diagnostic" Text="TargetDirectory = GeneratedCode\{PackageStructure}" />
-  <Message Timestamp="2013-09-18T15:57:47" Importance="Diagnostic" Text="TargetName = {Name}" />
-  <Message Timestamp="2013-09-18T15:57:47" Importance="Diagnostic" Text="TemplateFilePath = G:\PROGRAM FILES (X86)\MICROSOFT VISUAL STUDIO 11.0\COMMON7\IDE\EXTENSIONS\MICROSOFT\ARCHITECTURE TOOLS\EXTENSIBILITY\Templates\Text\ClassTemplate.t4" />
-  <Message Timestamp="2013-09-18T15:57:47" Importance="Diagnostic" Text="ResolvedTemplateFilePath = G:\PROGRAM FILES (X86)\MICROSOFT VISUAL STUDIO 11.0\COMMON7\IDE\EXTENSIONS\MICROSOFT\ARCHITECTURE TOOLS\EXTENSIBILITY\Templates\Text\ClassTemplate.t4" />
-  <Message Timestamp="2013-09-18T15:57:47" Importance="Medium" Text="sign_language 的文本模板绑定:“ClassTemplate”会将 ClassTemplate.t4 应用于: “sign_language::LearningController”-  (Class), “sign_language::DataEventArgs”-  (Class), “sign_language::Preprocessor”-  (Class), “sign_language::Classifier”-  (Class), “sign_language::FeatureSelector”-  (Class), “sign_language::Postprocessor”-  (Class), “sign_language::VisualFeatureModule”-  (Class), “sign_language::SegmentationModule”-  (Class), “sign_language::NLPModule”-  (Class), “sign_language::LeariningModel”-  (Class), “sign_language::FacialExpressionModule”-  (Class), “sign_language::MotionTrackingModule”-  (Class), “sign_language::GestureModule”-  (Class), “sign_language::HMM”-  (Class), “sign_language::SVM”-  (Class) " />
-  <Message Timestamp="2013-09-18T15:57:49" Importance="Medium" Text="“sign_language::LearningController”-  (Class) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\LearningController.cs" />
-  <Message Timestamp="2013-09-18T15:57:49" Importance="Medium" Text="“sign_language::DataEventArgs”-  (Class) : 成功(已创建文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\DataEventArgs.cs" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Medium" Text="“sign_language::Preprocessor”-  (Class) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\Preprocessor.cs" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Medium" Text="“sign_language::Classifier”-  (Class) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\Classifier.cs" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Medium" Text="“sign_language::FeatureSelector”-  (Class) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\FeatureSelector.cs" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Medium" Text="“sign_language::Postprocessor”-  (Class) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\Postprocessor.cs" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Medium" Text="“sign_language::VisualFeatureModule”-  (Class) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\VisualFeatureModule.cs" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Medium" Text="“sign_language::SegmentationModule”-  (Class) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\SegmentationModule.cs" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Medium" Text="“sign_language::NLPModule”-  (Class) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\NLPModule.cs" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Medium" Text="“sign_language::LeariningModel”-  (Class) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\LeariningModel.cs" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Medium" Text="“sign_language::FacialExpressionModule”-  (Class) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\FacialExpressionModule.cs" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Medium" Text="“sign_language::MotionTrackingModule”-  (Class) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\MotionTrackingModule.cs" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Medium" Text="“sign_language::GestureModule”-  (Class) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\GestureModule.cs" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Medium" Text="“sign_language::HMM”-  (Class) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\HMM.cs" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Medium" Text="“sign_language::SVM”-  (Class) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\SVM.cs" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Diagnostic" Text="名称 = InterfaceTemplate" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Diagnostic" Text="覆盖 = True" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Diagnostic" Text="ProjectPath = ..\sign_languageLib\sign_languageLib.csproj" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Diagnostic" Text="TargetDirectory = GeneratedCode\{PackageStructure}" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Diagnostic" Text="TargetName = {Name}" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Diagnostic" Text="TemplateFilePath = G:\PROGRAM FILES (X86)\MICROSOFT VISUAL STUDIO 11.0\COMMON7\IDE\EXTENSIONS\MICROSOFT\ARCHITECTURE TOOLS\EXTENSIBILITY\Templates\Text\InterfaceTemplate.t4" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Diagnostic" Text="ResolvedTemplateFilePath = G:\PROGRAM FILES (X86)\MICROSOFT VISUAL STUDIO 11.0\COMMON7\IDE\EXTENSIONS\MICROSOFT\ARCHITECTURE TOOLS\EXTENSIBILITY\Templates\Text\InterfaceTemplate.t4" />
-  <Message Timestamp="2013-09-18T15:57:50" Importance="Medium" Text="sign_language 的文本模板绑定:“InterfaceTemplate”会将 InterfaceTemplate.t4 应用于: “sign_language::ISubject”-  (Interface), “sign_language::IObserver”-  (Interface) " />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Medium" Text="“sign_language::ISubject”-  (Interface) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\ISubject.cs" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Medium" Text="“sign_language::IObserver”-  (Interface) : 成功(已替换文件) - C:\Users\Administrator\Documents\Visual Studio 2012\Projects\Project1\sign_languageLib\GeneratedCode\IObserver.cs" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="名称 = StructTemplate" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="覆盖 = True" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="ProjectPath = ..\sign_languageLib\sign_languageLib.csproj" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="TargetDirectory = GeneratedCode\{PackageStructure}" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="TargetName = {Name}" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="TemplateFilePath = G:\PROGRAM FILES (X86)\MICROSOFT VISUAL STUDIO 11.0\COMMON7\IDE\EXTENSIONS\MICROSOFT\ARCHITECTURE TOOLS\EXTENSIBILITY\Templates\Text\StructTemplate.t4" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="ResolvedTemplateFilePath = G:\PROGRAM FILES (X86)\MICROSOFT VISUAL STUDIO 11.0\COMMON7\IDE\EXTENSIONS\MICROSOFT\ARCHITECTURE TOOLS\EXTENSIBILITY\Templates\Text\StructTemplate.t4" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Medium" Text="sign_language 的文本模板绑定:“StructTemplate”会将 StructTemplate.t4 应用于: “sign_language::LearningController”-  (Class), “sign_language::DataEventArgs”-  (Class), “sign_language::Preprocessor”-  (Class), “sign_language::Classifier”-  (Class), “sign_language::FeatureSelector”-  (Class), “sign_language::Postprocessor”-  (Class), “sign_language::VisualFeatureModule”-  (Class), “sign_language::SegmentationModule”-  (Class), “sign_language::NLPModule”-  (Class), “sign_language::LeariningModel”-  (Class), “sign_language::FacialExpressionModule”-  (Class), “sign_language::MotionTrackingModule”-  (Class), “sign_language::GestureModule”-  (Class), “sign_language::HMM”-  (Class), “sign_language::SVM”-  (Class) " />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="“sign_language::LearningController”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="“sign_language::DataEventArgs”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="“sign_language::Preprocessor”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="“sign_language::Classifier”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="“sign_language::FeatureSelector”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="“sign_language::Postprocessor”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="“sign_language::VisualFeatureModule”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="“sign_language::SegmentationModule”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="“sign_language::NLPModule”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="“sign_language::LeariningModel”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="“sign_language::FacialExpressionModule”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
-  <Message Timestamp="2013-09-18T15:57:51" Importance="Diagnostic" Text="“sign_language::MotionTrackingModule”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“sign_language::GestureModule”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“sign_language::HMM”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“sign_language::SVM”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="选定内容包含未绑定到模板的 14 元素。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“sign_language::”-  (Association): 没有绑定的模板。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“sign_language::”-  (Association): 没有绑定的模板。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“sign_language::”-  (Association): 没有绑定的模板。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“sign_language::”-  (Association): 没有绑定的模板。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“sign_language::”-  (Association): 没有绑定的模板。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“sign_language::”-  (Association): 没有绑定的模板。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“sign_language::”-  (Association): 没有绑定的模板。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“sign_language::”-  (Association): 没有绑定的模板。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“c9a60f8e-7435-4d3b-93f2-85beade0f1fc”-  (Comment): 没有绑定的模板。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“895e92e5-e5c7-493f-adca-ab6946b2c19a”-  (Generalization): 没有绑定的模板。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“aba262f0-3bb1-4573-b626-b0e53e63c1f8”-  (Generalization): 没有绑定的模板。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“a5b406eb-5098-44ec-b826-e4d5cf8e5cdd”-  (Generalization): 没有绑定的模板。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“d4b0a7ee-1432-4d5e-ade0-49b3b4a559a7”-  (Generalization): 没有绑定的模板。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="Diagnostic" Text="“8bb00e77-679c-44de-89ca-608bc1f2409b”-  (Generalization): 没有绑定的模板。" />
-  <Message Timestamp="2013-09-18T15:57:52" Importance="High" Text="代码生成完成。错误: 0。警告: 0。" />
+  <Message Timestamp="2013-09-25T17:54:04" Importance="High" Text="已启动代码生成或文本转换。" />
+  <Message Timestamp="2013-09-25T17:54:04" Importance="Diagnostic" Text="名称 = ClassTemplate" />
+  <Message Timestamp="2013-09-25T17:54:04" Importance="Diagnostic" Text="覆盖 = True" />
+  <Message Timestamp="2013-09-25T17:54:04" Importance="Diagnostic" Text="ProjectPath = ..\sign_languageLib\sign_languageLib.csproj" />
+  <Message Timestamp="2013-09-25T17:54:04" Importance="Diagnostic" Text="TargetDirectory = GeneratedCode\{PackageStructure}" />
+  <Message Timestamp="2013-09-25T17:54:04" Importance="Diagnostic" Text="TargetName = {Name}" />
+  <Message Timestamp="2013-09-25T17:54:04" Importance="Diagnostic" Text="TemplateFilePath = G:\PROGRAM FILES (X86)\MICROSOFT VISUAL STUDIO 11.0\COMMON7\IDE\EXTENSIONS\MICROSOFT\ARCHITECTURE TOOLS\EXTENSIBILITY\Templates\Text\ClassTemplate.t4" />
+  <Message Timestamp="2013-09-25T17:54:04" Importance="Diagnostic" Text="ResolvedTemplateFilePath = G:\PROGRAM FILES (X86)\MICROSOFT VISUAL STUDIO 11.0\COMMON7\IDE\EXTENSIONS\MICROSOFT\ARCHITECTURE TOOLS\EXTENSIBILITY\Templates\Text\ClassTemplate.t4" />
+  <Message Timestamp="2013-09-25T17:54:04" Importance="Medium" Text="sign_language 的文本模板绑定:“ClassTemplate”会将 ClassTemplate.t4 应用于: “sign_language::MotionTrackingModule”-  (Class) " />
+  <Error Timestamp="2013-09-25T17:54:06" Importance="High" Text="无法创建以下项目，因为另一个项目可能存在于相同的位置，或者解决方案可能具有名称相同的项目: C:\Users\Administrator\documents\visual studio 2012\Projects\Project1\sign_languageLib\sign_languageLib.csproj" />
+  <Message Timestamp="2013-09-25T17:54:06" Importance="Diagnostic" Text="“sign_language::MotionTrackingModule”-  (Class): 没有生成任何文件，因为模板“ClassTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
+  <Message Timestamp="2013-09-25T17:54:06" Importance="Diagnostic" Text="名称 = StructTemplate" />
+  <Message Timestamp="2013-09-25T17:54:06" Importance="Diagnostic" Text="覆盖 = True" />
+  <Message Timestamp="2013-09-25T17:54:06" Importance="Diagnostic" Text="ProjectPath = ..\sign_languageLib\sign_languageLib.csproj" />
+  <Message Timestamp="2013-09-25T17:54:06" Importance="Diagnostic" Text="TargetDirectory = GeneratedCode\{PackageStructure}" />
+  <Message Timestamp="2013-09-25T17:54:06" Importance="Diagnostic" Text="TargetName = {Name}" />
+  <Message Timestamp="2013-09-25T17:54:06" Importance="Diagnostic" Text="TemplateFilePath = G:\PROGRAM FILES (X86)\MICROSOFT VISUAL STUDIO 11.0\COMMON7\IDE\EXTENSIONS\MICROSOFT\ARCHITECTURE TOOLS\EXTENSIBILITY\Templates\Text\StructTemplate.t4" />
+  <Message Timestamp="2013-09-25T17:54:06" Importance="Diagnostic" Text="ResolvedTemplateFilePath = G:\PROGRAM FILES (X86)\MICROSOFT VISUAL STUDIO 11.0\COMMON7\IDE\EXTENSIONS\MICROSOFT\ARCHITECTURE TOOLS\EXTENSIBILITY\Templates\Text\StructTemplate.t4" />
+  <Message Timestamp="2013-09-25T17:54:06" Importance="Medium" Text="sign_language 的文本模板绑定:“StructTemplate”会将 StructTemplate.t4 应用于: “sign_language::MotionTrackingModule”-  (Class) " />
+  <Message Timestamp="2013-09-25T17:54:07" Importance="Diagnostic" Text="“sign_language::MotionTrackingModule”-  (Class): 没有生成任何文件，因为模板“StructTemplate.t4”的“AppliesToElement”方法的计算结果为 false。" />
+  <Message Timestamp="2013-09-25T17:54:07" Importance="High" Text="代码生成完成。错误: 1。警告: 0。" />
 </Log>

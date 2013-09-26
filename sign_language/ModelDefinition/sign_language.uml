@@ -1050,13 +1050,6 @@
         </appliedStereotypesInternal>
         <suppliersInternal>
           <interfaceRealization
-            Id="f481aecc-8957-49db-b5c3-220c50aac823">
-            <interfaceMoniker
-              Id="c70d7d6c-ffa7-4b95-b2cb-40731b0b6cb5"
-              LastKnownName="ISubject"
-              LastKnownLocation="sign_language.uml" />
-          </interfaceRealization>
-          <interfaceRealization
             Id="cead1843-6848-4147-9971-9c8c076f03de">
             <interfaceMoniker
               Id="0d7b9f73-96b8-4cba-87c4-55483482ba87"
@@ -1157,13 +1150,6 @@
         </appliedStereotypesInternal>
         <suppliersInternal>
           <interfaceRealization
-            Id="a524b4ef-fdc8-4715-a1ba-6623df93219a">
-            <interfaceMoniker
-              Id="c70d7d6c-ffa7-4b95-b2cb-40731b0b6cb5"
-              LastKnownName="ISubject"
-              LastKnownLocation="sign_language.uml" />
-          </interfaceRealization>
-          <interfaceRealization
             Id="0eae2f0c-4ce7-4ff0-b11f-9f14dd0dd3fc">
             <interfaceMoniker
               Id="0d7b9f73-96b8-4cba-87c4-55483482ba87"
@@ -1263,13 +1249,6 @@
           </stereotypeInstance>
         </appliedStereotypesInternal>
         <suppliersInternal>
-          <interfaceRealization
-            Id="b034de0a-64ed-46ef-b214-d92ec83be1fc">
-            <interfaceMoniker
-              Id="c70d7d6c-ffa7-4b95-b2cb-40731b0b6cb5"
-              LastKnownName="ISubject"
-              LastKnownLocation="sign_language.uml" />
-          </interfaceRealization>
           <interfaceRealization
             Id="fa6465a2-79a3-4979-9f15-f92e08b790c9">
             <interfaceMoniker
@@ -1595,7 +1574,17 @@
         name="DataWarehouse"
         isAbstract="false"
         isLeaf="false"
-        isActiveClass="false" />
+        isActiveClass="false">
+        <suppliersInternal>
+          <interfaceRealization
+            Id="f8bf5518-a7f7-4b31-9fe5-23282dc5e424">
+            <interfaceMoniker
+              Id="c70d7d6c-ffa7-4b95-b2cb-40731b0b6cb5"
+              LastKnownName="ISubject"
+              LastKnownLocation="sign_language.uml" />
+          </interfaceRealization>
+        </suppliersInternal>
+      </class>
     </packageHasNamedElement>
   </packagedElements>
   <primitiveType

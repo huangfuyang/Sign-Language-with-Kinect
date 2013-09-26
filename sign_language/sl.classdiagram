@@ -669,12 +669,6 @@
           </stereotypeInstance>
         </appliedStereotypesInternal>
         <elementDefinition Id="e74064e6-aa12-4223-b65b-2f5cfe5cf212" />
-        <suppliersInternal>
-          <interfaceRealization Id="8af3b849-981f-4e86-bbff-9d098837c7e3">
-            <interfaceMoniker Id="86a48754-5f2c-45b2-8e24-aa8f85872381" LastKnownName="ISubject" />
-            <elementDefinition Id="f481aecc-8957-49db-b5c3-220c50aac823" />
-          </interfaceRealization>
-        </suppliersInternal>
         <targetEnds>
           <association Id="a780f93e-83fb-4093-9006-99272c2094d6" isDerived="false" sourceEndRoleName="" targetEndRoleName="" isLeaf="false" isAbstract="false">
             <classMoniker Id="d3bfca51-9f9c-4f20-83a1-15ac1ef37918" LastKnownName="DataWarehouse" />
@@ -735,12 +729,6 @@
           </stereotypeInstance>
         </appliedStereotypesInternal>
         <elementDefinition Id="4474ba88-f7d5-4465-9eec-4d81a3e40be1" />
-        <suppliersInternal>
-          <interfaceRealization Id="60f83515-f18a-444c-a578-060fef015bea">
-            <interfaceMoniker Id="86a48754-5f2c-45b2-8e24-aa8f85872381" LastKnownName="ISubject" />
-            <elementDefinition Id="a524b4ef-fdc8-4715-a1ba-6623df93219a" />
-          </interfaceRealization>
-        </suppliersInternal>
         <targetEnds>
           <association Id="ebaaf128-c566-4c5c-a562-b86d05daa228" isDerived="false" sourceEndRoleName="" targetEndRoleName="" isLeaf="false" isAbstract="false">
             <classMoniker Id="d3bfca51-9f9c-4f20-83a1-15ac1ef37918" LastKnownName="DataWarehouse" />
@@ -801,12 +789,6 @@
           </stereotypeInstance>
         </appliedStereotypesInternal>
         <elementDefinition Id="8270cdbb-be12-45a2-b35f-24b642928fb0" />
-        <suppliersInternal>
-          <interfaceRealization Id="d81e2ede-0ea5-4379-80bf-dc148b0ba79e">
-            <interfaceMoniker Id="86a48754-5f2c-45b2-8e24-aa8f85872381" LastKnownName="ISubject" />
-            <elementDefinition Id="b034de0a-64ed-46ef-b214-d92ec83be1fc" />
-          </interfaceRealization>
-        </suppliersInternal>
         <targetEnds>
           <association Id="f6321ccb-1cf3-4130-b95c-eba52dd21728" isDerived="false" sourceEndRoleName="" targetEndRoleName="" isLeaf="false" isAbstract="false">
             <classMoniker Id="d3bfca51-9f9c-4f20-83a1-15ac1ef37918" LastKnownName="DataWarehouse" />
@@ -1004,6 +986,12 @@
     <logicalClassDesignerModelHasTypes>
       <class Id="d3bfca51-9f9c-4f20-83a1-15ac1ef37918" name="DataWarehouse" isAbstract="false" isLeaf="false" isActiveClass="false">
         <elementDefinition Id="608bf033-33bb-4578-b1bc-31dbc7139072" />
+        <suppliersInternal>
+          <interfaceRealization Id="22e0da7f-6916-4160-b580-25ef5c7d8c66">
+            <interfaceMoniker Id="86a48754-5f2c-45b2-8e24-aa8f85872381" LastKnownName="ISubject" />
+            <elementDefinition Id="f8bf5518-a7f7-4b31-9fe5-23282dc5e424" />
+          </interfaceRealization>
+        </suppliersInternal>
       </class>
     </logicalClassDesignerModelHasTypes>
   </packagedElements>

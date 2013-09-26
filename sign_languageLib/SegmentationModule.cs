@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework;
 
 using LearningSystem.StaticTools;
 
-public class SegmentationModule : ISubject
+public class SegmentationModule 
 {
     protected Classifier m_classifier;
     protected DataWarehouse m_dataWarehouse;

@@ -59,6 +59,7 @@ public class Classifier
         _NLPModule = new NLPModule();
         m_gestureModule.m_dataTransferEvent += m_segmentationModule.OnDataTransfer;
         m_segmentationModule.m_dataTransferEvent += m_gestureModule.OnDataTransfer;
+        //data ready event
         m_dataProcessor.m_dataTransferEvent += m_segmentationModule.OnNewFrameDataReady;
         m_dataProcessor.m_dataTransferEvent += m_gestureModule.OnNewFrameDataReady;
         

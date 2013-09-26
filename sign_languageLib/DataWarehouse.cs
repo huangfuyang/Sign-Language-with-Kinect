@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework;
 using LearningSystem.DataStorage;
 using LearningSystem.StaticTools;
 
-public class DataWarehouse
+public class DataWarehouse :ISubject
 {
     private int _currentFrame;
     public int m_currentFrame
@@ -104,4 +104,15 @@ public class DataWarehouse
     }
 
 
+
+    #region ISubject 成员
+
+    public event DataTransferEventHandler m_dataTransferEvent;
+
+    public void NofityAll(DataTransferEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+
+    #endregion
 }
