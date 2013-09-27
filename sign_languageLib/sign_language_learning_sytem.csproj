@@ -60,7 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classifier.cs" />
+    <Compile Include="RecognitionController.cs" />
     <Compile Include="DataStorage\SegmentationData.cs" />
     <Compile Include="StaticTools\ConsoleManager.cs" />
     <Compile Include="DataProcessor.cs" />
@@ -76,7 +76,7 @@
     <Compile Include="ISubject.cs" />
     <Compile Include="DataStorage\JointType.cs" />
     <Compile Include="LeariningModel.cs" />
-    <Compile Include="LearningController.cs" />
+    <Compile Include="Classifier.cs" />
     <Compile Include="MotionTrackingModule.cs" />
     <Compile Include="NLPModule.cs" />
     <Compile Include="DataStorage\Person.cs" />

@@ -14,7 +14,7 @@ using LearningSystem.StaticTools;
 
 public class SegmentationModule 
 {
-    protected Classifier m_classifier;
+    protected RecognitionController m_recognitionController;
     protected DataWarehouse m_dataWarehouse;
     protected List<Vector3> m_player1LatestPositions;
     private int m_inspectWindowSize = 30;
@@ -22,10 +22,10 @@ public class SegmentationModule
     private int m_endFrame = -1;
     private bool m_isMoving = false;
 
-    public SegmentationModule(Classifier classifier)
+    public SegmentationModule(RecognitionController recognitionController)
     {
-        m_classifier = classifier;
-        m_dataWarehouse = classifier.m_dataProcessor.m_dataWarehouse;
+        m_recognitionController = recognitionController;
+        m_dataWarehouse = m_recognitionController.m_dataProcessor.m_dataWarehouse;
     }
     public void OnDataTransfer(Object sender, EventArgs args)
     {

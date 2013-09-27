@@ -84,7 +84,7 @@
   </appliedStereotypesInternal>
   <packagedElements>
     <logicalClassDesignerModelHasTypes>
-      <class Id="214eba6e-1eb9-4fa9-b8e7-f2b1b7b46b43" name="LearningController" isAbstract="false" isLeaf="false" isActiveClass="false">
+      <class Id="214eba6e-1eb9-4fa9-b8e7-f2b1b7b46b43" name="Classifier" isAbstract="false" isLeaf="false" isActiveClass="false">
         <appliedStereotypesInternal>
           <stereotypeInstance Id="8bba5e86-20fa-4170-ac57-dca7f110ee48" name="class" profile="CSharpProfile">
             <elementDefinition Id="ebb5eee6-87c5-41c1-9174-9557c64eebb7" />
@@ -124,37 +124,21 @@
         </appliedStereotypesInternal>
         <elementDefinition Id="09132051-c217-4ea9-848d-80b7153227cd" />
         <targetEnds>
-          <association Id="0eb841ab-db83-43fb-89b8-3098290e38fa" isDerived="false" sourceEndRoleName="" targetEndRoleName="m_classifier" isLeaf="false" isAbstract="false">
-            <classMoniker Id="bcbdabc6-0fb1-485a-b5f6-ae331c63c753" LastKnownName="Classifier" />
+          <association Id="9f5e3348-7611-421f-9ff7-e2f7c3210ec2" isDerived="false" sourceEndRoleName="" targetEndRoleName="" isLeaf="false" isAbstract="false">
+            <classMoniker Id="ad687b3a-b258-4911-b33e-b8f21da7d69a" LastKnownName="LeariningModel" />
             <relationshipOwnedElementsInternal>
               <associationHasOwnedEnds>
-                <memberEnd Id="eac886ab-1061-465a-bee4-efea9f9275a7" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="Shared" isComposite="false" isNavigableOwned="false">
-                  <elementDefinition Id="c4297115-76d8-415a-bfb9-c93178536953" />
+                <memberEnd Id="3830eea6-90e2-4036-9080-5d4fd5ca0e98" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="Shared" isComposite="false" isNavigableOwned="false">
+                  <elementDefinition Id="f23e14d2-5952-4fca-844d-96c33f47a2a0" />
                 </memberEnd>
               </associationHasOwnedEnds>
               <associationHasOwnedEnds>
-                <memberEnd Id="4b700a19-9a78-4368-8541-8c2e270f8b3f" name="m_classifier" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false">
-                  <elementDefinition Id="6c2b12d3-64d5-4261-bf0a-4f0efb084231" />
+                <memberEnd Id="0694524c-bf42-4899-8db6-f857bb62cc44" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false">
+                  <elementDefinition Id="21d65882-bdda-4e4f-bdb8-a2f6c2f65fd0" />
                 </memberEnd>
               </associationHasOwnedEnds>
             </relationshipOwnedElementsInternal>
-            <elementDefinition Id="2cf51aee-aac5-4032-9fdf-959a1d8cfe1e" />
-          </association>
-          <association Id="15429436-2641-4d2a-b4c7-daa397038fc7" isDerived="false" sourceEndRoleName="" targetEndRoleName="m_postprocessor" isLeaf="false" isAbstract="false">
-            <classMoniker Id="6147fa64-b923-44c9-bc25-ab8d04e699f0" LastKnownName="Postprocessor" />
-            <relationshipOwnedElementsInternal>
-              <associationHasOwnedEnds>
-                <memberEnd Id="7d504545-b0ef-467b-88f4-c55c7ea6519b" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="Shared" isComposite="false" isNavigableOwned="false">
-                  <elementDefinition Id="7717cf20-b3c0-4a41-8d58-4df0ef60ebf9" />
-                </memberEnd>
-              </associationHasOwnedEnds>
-              <associationHasOwnedEnds>
-                <memberEnd Id="c2e7843e-c032-4fc4-884b-275979d69411" name="m_postprocessor" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false">
-                  <elementDefinition Id="579ecabb-b294-4ee9-8648-40c3e4e18265" />
-                </memberEnd>
-              </associationHasOwnedEnds>
-            </relationshipOwnedElementsInternal>
-            <elementDefinition Id="8caafce8-c19e-4921-accf-2d4c307b702b" />
+            <elementDefinition Id="cbace050-69fe-4aa1-acdc-b3091166fedc" />
           </association>
         </targetEnds>
       </class>
@@ -304,7 +288,7 @@
       </class>
     </logicalClassDesignerModelHasTypes>
     <logicalClassDesignerModelHasTypes>
-      <class Id="bcbdabc6-0fb1-485a-b5f6-ae331c63c753" name="Classifier" isAbstract="false" isLeaf="false" isActiveClass="false">
+      <class Id="bcbdabc6-0fb1-485a-b5f6-ae331c63c753" name="RecognitionController" isAbstract="false" isLeaf="false" isActiveClass="false">
         <appliedStereotypesInternal>
           <stereotypeInstance Id="067b0471-4e72-43f7-9479-bd93bc015a49" name="class" profile="CSharpProfile">
             <elementDefinition Id="e060c62b-744c-4df9-896d-22b8cd9f509c" />
@@ -376,22 +360,6 @@
             </relationshipOwnedElementsInternal>
             <elementDefinition Id="c2c406df-4a49-413a-9033-ad5bd16eae2e" />
           </association>
-          <association Id="ca7c07dc-3831-4fb9-83c2-cd406d6d746b" isDerived="false" sourceEndRoleName="" targetEndRoleName="m_leariningModel" isLeaf="false" isAbstract="false">
-            <classMoniker Id="ad687b3a-b258-4911-b33e-b8f21da7d69a" LastKnownName="LeariningModel" />
-            <relationshipOwnedElementsInternal>
-              <associationHasOwnedEnds>
-                <memberEnd Id="b1c0bc9c-2162-4766-9da0-01d844d28088" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="Composite" isComposite="false" isNavigableOwned="false">
-                  <elementDefinition Id="8725b65c-2e83-48f2-840b-15e7104e05a1" />
-                </memberEnd>
-              </associationHasOwnedEnds>
-              <associationHasOwnedEnds>
-                <memberEnd Id="d79ce98f-99ff-4aba-8bbe-0753c1ca5c70" name="m_leariningModel" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="true">
-                  <elementDefinition Id="df95cfaf-55a5-4bf9-adcd-62e4397a2cd4" />
-                </memberEnd>
-              </associationHasOwnedEnds>
-            </relationshipOwnedElementsInternal>
-            <elementDefinition Id="ecd557a5-a47d-4b5f-bb74-6069f9d0b135" />
-          </association>
           <association Id="ea9abdc7-eeff-45b9-96ef-30d5854f8140" isDerived="false" sourceEndRoleName="" targetEndRoleName="m_visualFeatureModule" isLeaf="false" isAbstract="false">
             <classMoniker Id="3cdcd226-4439-4c8c-b988-4b26ff5eec86" LastKnownName="VisualFeatureModule" />
             <relationshipOwnedElementsInternal>
@@ -439,6 +407,38 @@
               </associationHasOwnedEnds>
             </relationshipOwnedElementsInternal>
             <elementDefinition Id="0c3c34f8-f133-4b91-893c-888faa54c51a" />
+          </association>
+          <association Id="2e9effe5-9df5-4211-93b4-6c4ad63e9632" isDerived="false" sourceEndRoleName="" targetEndRoleName="" isLeaf="false" isAbstract="false">
+            <classMoniker Id="214eba6e-1eb9-4fa9-b8e7-f2b1b7b46b43" LastKnownName="Classifier" />
+            <relationshipOwnedElementsInternal>
+              <associationHasOwnedEnds>
+                <memberEnd Id="856f0742-1598-4cf5-8a12-b00aae2e9b8d" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="Shared" isComposite="false" isNavigableOwned="false">
+                  <elementDefinition Id="3f29cde0-e225-485a-8f59-5f6b0fdade16" />
+                </memberEnd>
+              </associationHasOwnedEnds>
+              <associationHasOwnedEnds>
+                <memberEnd Id="3f8a0216-d4f3-436f-81a7-f66f887eed78" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false">
+                  <elementDefinition Id="d81258dc-9c18-4a59-8057-40d48158aa65" />
+                </memberEnd>
+              </associationHasOwnedEnds>
+            </relationshipOwnedElementsInternal>
+            <elementDefinition Id="1f1a25ba-3734-4d23-907d-20e71be97003" />
+          </association>
+          <association Id="72dd7052-e199-4ebe-b5ee-b5c8f0b68237" isDerived="false" sourceEndRoleName="" targetEndRoleName="" isLeaf="false" isAbstract="false">
+            <classMoniker Id="6147fa64-b923-44c9-bc25-ab8d04e699f0" LastKnownName="Postprocessor" />
+            <relationshipOwnedElementsInternal>
+              <associationHasOwnedEnds>
+                <memberEnd Id="bd19471f-d0f8-497a-ae09-0c3305b927df" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="Shared" isComposite="false" isNavigableOwned="false">
+                  <elementDefinition Id="c54e4514-6537-428a-a5ca-4c31955554bc" />
+                </memberEnd>
+              </associationHasOwnedEnds>
+              <associationHasOwnedEnds>
+                <memberEnd Id="c42c4d1b-0ed3-469a-8623-ffb6c36a760e" isLeaf="false" isStatic="false" isReadOnly="false" isDerived="false" isDerivedUnion="false" aggregation="None" isComposite="false">
+                  <elementDefinition Id="42f2e4bc-1aaa-41a0-8279-5d40ac5922a1" />
+                </memberEnd>
+              </associationHasOwnedEnds>
+            </relationshipOwnedElementsInternal>
+            <elementDefinition Id="8d223fd2-a739-447e-bad5-bca59b090f72" />
           </association>
         </targetEnds>
       </class>

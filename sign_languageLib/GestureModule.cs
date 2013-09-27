@@ -15,7 +15,7 @@ using LearningSystem.DataStorage;
 public class GestureModule : VisualFeatureModule
 {
 
-    public GestureModule(Classifier classifier) : base(classifier) { }
+    public GestureModule(RecognitionController recognitionController) : base(recognitionController) { }
 
     public void OnNewFrameDataReady(Object sender, EventArgs args)
     {

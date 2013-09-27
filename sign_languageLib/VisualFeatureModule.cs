@@ -11,13 +11,13 @@ using System.Text;
 
 public class VisualFeatureModule 
 {
-    protected Classifier m_classifier;
+    protected RecognitionController m_recognitionController;
     protected DataWarehouse m_dataWarehouse;
     public VisualFeatureModule() { }
-    public VisualFeatureModule(Classifier classifier)
+    public VisualFeatureModule(RecognitionController recognitionController)
     {
-        m_classifier = classifier;
-        m_dataWarehouse = classifier.m_dataProcessor.m_dataWarehouse;
+        m_recognitionController = recognitionController;
+        m_dataWarehouse = m_recognitionController.m_dataProcessor.m_dataWarehouse;
     }
 
     public virtual void OnDataTransfer(Object sender, DataTransferEventArgs args)
