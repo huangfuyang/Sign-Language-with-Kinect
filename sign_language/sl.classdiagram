@@ -991,6 +991,10 @@
             <interfaceMoniker Id="86a48754-5f2c-45b2-8e24-aa8f85872381" LastKnownName="ISubject" />
             <elementDefinition Id="f8bf5518-a7f7-4b31-9fe5-23282dc5e424" />
           </interfaceRealization>
+          <dependency Id="436ccdcd-f4c2-4d9f-85c3-2a651e570647">
+            <classMoniker Id="5e8984f2-83ee-435d-b806-f9e74857d2ed" LastKnownName="DataEventArgs" />
+            <elementDefinition Id="45849416-74dd-47a2-a0ce-c3dc6519ec8b" />
+          </dependency>
         </suppliersInternal>
       </class>
     </logicalClassDesignerModelHasTypes>

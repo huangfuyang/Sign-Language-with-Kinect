@@ -10,7 +10,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
     using System.Windows;
     using System.Windows.Media;
     using Microsoft.Kinect;
-    
+
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -177,7 +177,6 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
 
                 // Add an event handler to be called whenever there is new color frame data
                 this.sensor.SkeletonFrameReady += this.SensorSkeletonFrameReady;
-                this.sensor.SkeletonFrameReady += m_recognitionController.m_dataProcessor.SensorSkeletonFrameReady;
                 // Start the sensor!
                 try
                 {
@@ -193,20 +192,9 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             {
                 this.statusBarText.Text = Properties.Resources.NoKinectReady;
             }
-            SetSeatedMode();
-            SetNearMode();
+            MyInitialize();
         }
-        private void SetNearMode()
-        {
-            this.sensor.DepthStream.Range = DepthRange.Near; // Depth in near range enabled
-            this.sensor.SkeletonStream.EnableTrackingInNearRange = true; // enable returning skeletons while depth is in Near Range
-        }
-        private void SetSeatedMode()
-        {
-            //set the seated mode
-            this.sensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
-            this.checkBoxSeatedMode.IsChecked = true;
-        }
+        
 
         /// <summary>
         /// Execute shutdown tasks
@@ -236,6 +224,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 {
                     skeletons = new Skeleton[skeletonFrame.SkeletonArrayLength];
                     skeletonFrame.CopySkeletonDataTo(skeletons);
+                    
                 }
             }
 
@@ -395,6 +384,39 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                     this.sensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Default;
                 }
             }
+        }
+
+        private void MyInitialize()
+        {
+            this.sensor.SkeletonFrameReady += m_recognitionController.m_dataProcessor.SensorSkeletonFrameReady;
+            SetNearMode();
+            SetSeatedMode();
+            AddSmooth();
+        }
+
+        private void AddSmooth()
+        {
+            TransformSmoothParameters smoothingParam = new TransformSmoothParameters()
+              {
+                  Smoothing = 0.5f,
+                  Correction = 0.5f,
+                  Prediction = 0.5f,
+                  JitterRadius = 0.05f,
+                  MaxDeviationRadius = 0.04f
+              };
+
+            sensor.SkeletonStream.Enable(smoothingParam);
+        }
+        private void SetNearMode()
+        {
+            this.sensor.DepthStream.Range = DepthRange.Near; // Depth in near range enabled
+            this.sensor.SkeletonStream.EnableTrackingInNearRange = true; // enable returning skeletons while depth is in Near Range
+        }
+        private void SetSeatedMode()
+        {
+            //set the seated mode
+            this.sensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
+            this.checkBoxSeatedMode.IsChecked = true;
         }
     }
 }
