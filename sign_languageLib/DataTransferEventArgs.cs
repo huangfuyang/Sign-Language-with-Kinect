@@ -11,11 +11,9 @@ using System.Text;
 
 public class DataTransferEventArgs : EventArgs
 {
-    public int m_data;
-    public int m_startFrame;
-    public int m_endFrame;
+    public Object m_data;
     
-    public DataTransferEventArgs(int data)
+    public DataTransferEventArgs(Object data)
     {
         m_data = data;
     }

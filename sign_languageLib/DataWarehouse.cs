@@ -30,7 +30,19 @@ public class DataWarehouse :ISubject
         m_frameData = new List<FrameData>();
         m_frameData.Add(new FrameData(0));
 
+        m_segmentationDatas = new List<SegmentationData>();
+
     }
+    /// <summary>
+    /// record segmentation data
+    /// </summary>
+    private List<SegmentationData> _segmentationDatas;
+    public List<SegmentationData> m_segmentationDatas
+    {
+        get { return _segmentationDatas; }
+        set { _segmentationDatas = value; }
+    }
+   
 
     /// <summary>
     /// set frame data to data warehouse and return whether the data is valid
@@ -48,6 +60,7 @@ public class DataWarehouse :ISubject
                 m_frameData.Add(new FrameData(++m_currentFrame));//first frame is frame 1
                 m_frameData[m_currentFrame].m_Player1.m_position = UtilityTools.SkeletonPointToVector3(sk.Position);
                 m_frameData[m_currentFrame].m_Player1.m_skeleton = sk;
+                //Console.WriteLine(sk.Position.X);
                 return true;
             }
 
@@ -103,16 +116,40 @@ public class DataWarehouse :ISubject
 
     }
 
+    /// <summary>
+    /// set the segmentation data to data warehouse.
+    /// </summary>
+    /// <param name="start">start frame</param>
+    /// <param name="end">end frame</param>
+    /// <param name="reliebility">reliebility. from 1.0 = very relieble to 0.0 = very unrelieble </param>
+    public void SetSegmentationData(int start,int end, float reliebility)
+    {
+        m_segmentationDatas.Add(new SegmentationData() { 
+            startFrame = start, 
+            endFrame = end, 
+            reliebility = reliebility 
+        }); 
+
+        //Notify all modules TODO:maybe reduntant
+        NotifyAll(new DataTransferEventArgs(m_segmentationDatas[m_segmentationDatas.Count - 1]));
+
+    }
+
 
 
     #region ISubject 成员
 
     public event DataTransferEventHandler m_dataTransferEvent;
-
-    public void NofityAll(DataTransferEventArgs e)
+    public void NotifyAll(DataTransferEventArgs e)
     {
-        throw new NotImplementedException();
+        if (m_dataTransferEvent != null)
+        {
+            m_dataTransferEvent(this, e);
+        }
+        else
+        {
+            Console.WriteLine("DataWarehouse: no boundler ");
+        }
     }
-
     #endregion
 }

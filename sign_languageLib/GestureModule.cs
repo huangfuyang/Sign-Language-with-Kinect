@@ -10,6 +10,8 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 
+using LearningSystem.DataStorage;
+
 public class GestureModule : VisualFeatureModule
 {
 
@@ -27,11 +29,24 @@ public class GestureModule : VisualFeatureModule
 
     public void OnDataTransfer(Object sender, EventArgs args)
     {
-        if (sender is SegmentationModule)
+        DataTransferEventArgs arg;
+        try 
+	    {	        
+		    arg = (DataTransferEventArgs)args;
+	    }
+	    catch (Exception)
+	    {
+		
+		    throw;
+	    }
+        if (sender is DataWarehouse && arg.m_data is SegmentationData)
         {
-            DataTransferEventArgs arg = (DataTransferEventArgs)args;
-            List<Vector3> list = m_dataWarehouse.GetPlayer1PositionBetweenFrames(arg.m_startFrame, arg.m_endFrame);
-            recognizeGesture(list);
+            SegmentationData data = (SegmentationData)arg.m_data;
+            List<Vector3> list = m_dataWarehouse.GetPlayer1PositionBetweenFrames(data.startFrame, data.endFrame);
+            if (data.reliebility >= 0.8)
+            {
+                recognizeGesture(list);
+            }
         }
     }
 

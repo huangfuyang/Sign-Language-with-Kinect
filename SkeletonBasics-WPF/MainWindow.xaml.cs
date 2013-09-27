@@ -193,6 +193,16 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             {
                 this.statusBarText.Text = Properties.Resources.NoKinectReady;
             }
+            SetSeatedMode();
+            SetNearMode();
+        }
+        private void SetNearMode()
+        {
+            this.sensor.DepthStream.Range = DepthRange.Near; // Depth in near range enabled
+            this.sensor.SkeletonStream.EnableTrackingInNearRange = true; // enable returning skeletons while depth is in Near Range
+        }
+        private void SetSeatedMode()
+        {
             //set the seated mode
             this.sensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
             this.checkBoxSeatedMode.IsChecked = true;

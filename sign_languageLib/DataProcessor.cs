@@ -32,15 +32,11 @@ public class DataProcessor: ISubject
                 if (m_dataWarehouse.SetSkeletonFrameData(skeletonFrame))
                 {
                     //notify modules with updated data.
-                    NofityAll(new DataTransferEventArgs(m_dataWarehouse.m_currentFrame));
+                    NotifyAll(new DataTransferEventArgs(m_dataWarehouse.m_currentFrame));
                 }
                 
             }
         }
-        
-       
-           
-        
     }
 
 
@@ -49,7 +45,7 @@ public class DataProcessor: ISubject
 
     public event DataTransferEventHandler m_dataTransferEvent;
 
-    public void NofityAll(DataTransferEventArgs e)
+    public void NotifyAll(DataTransferEventArgs e)
     {
         if (m_dataTransferEvent != null)
         {

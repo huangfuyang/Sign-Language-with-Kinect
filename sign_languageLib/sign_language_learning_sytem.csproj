@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classifier.cs" />
+    <Compile Include="DataStorage\SegmentationData.cs" />
     <Compile Include="StaticTools\ConsoleManager.cs" />
     <Compile Include="DataProcessor.cs" />
     <Compile Include="DataStorage\FrameData.cs" />

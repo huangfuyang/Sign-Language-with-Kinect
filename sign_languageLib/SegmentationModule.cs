@@ -21,6 +21,7 @@ public class SegmentationModule
     private int m_startFrame = -1;
     private int m_endFrame = -1;
     private bool m_isMoving = false;
+
     public SegmentationModule(Classifier classifier)
     {
         m_classifier = classifier;
@@ -43,6 +44,7 @@ public class SegmentationModule
     public void OnNewFrameDataReady(Object sender, EventArgs args)
     {
         DataTransferEventArgs arg = (DataTransferEventArgs)args;
+        int frame = (int)arg.m_data;
         if (m_player1LatestPositions == null)//first time initial
         {
             m_player1LatestPositions = m_dataWarehouse.GetLatestPlayer1Positions(m_inspectWindowSize);//TODO: specify accurate time
@@ -50,15 +52,16 @@ public class SegmentationModule
         }
         else //set data
         {
+            //initialize data
             if (m_player1LatestPositions.Count < m_inspectWindowSize)
             {
-                m_player1LatestPositions.Add(m_dataWarehouse.m_frameData[arg.m_data].m_Player1.m_position);
+                m_player1LatestPositions.Add(m_dataWarehouse.m_frameData[frame].m_Player1.m_position);
                 return;
             }
             else
             {
                 m_player1LatestPositions.RemoveAt(0);
-                m_player1LatestPositions.Add(m_dataWarehouse.m_frameData[arg.m_data].m_Player1.m_position);
+                m_player1LatestPositions.Add(m_dataWarehouse.m_frameData[frame].m_Player1.m_position);
             }
             //make decision
             if (isPlayer1MovesInLatestFrame() && !m_isMoving)//split start point 
@@ -66,22 +69,15 @@ public class SegmentationModule
 
                 Console.WriteLine("moving");
                 m_isMoving = true;
-
-                m_startFrame = arg.m_data;
-
-
+                m_startFrame = frame;
 
             }
             if (!isPlayer1MovesInLatestFrame() && m_isMoving)//stop moving
             {
                 m_isMoving = false;
-                //notify gesture module
-                m_endFrame = arg.m_data;
-                NofityAll(new DataTransferEventArgs(arg.m_data)
-                {
-                    m_startFrame = this.m_startFrame - m_inspectWindowSize,
-                    m_endFrame = this.m_endFrame
-                });
+                //NOTIFY dataWarehouse
+                m_endFrame = frame;
+                m_dataWarehouse.SetSegmentationData(m_startFrame, m_endFrame, 1.0f);
 
                 Console.WriteLine("stop");
             }
@@ -93,33 +89,15 @@ public class SegmentationModule
 
 
 
-    #region ISubject 成员
-
-    public event DataTransferEventHandler m_dataTransferEvent;
-
-    public void NofityAll(DataTransferEventArgs e)
-    {
-        if (m_dataTransferEvent != null)
-        {
-            m_dataTransferEvent(this, e);
-        }
-        else
-        {
-            Console.WriteLine("no boundler from segmentation");
-        }
-    }
-
-    #endregion
-
     private bool isPlayer1MovesInLatestFrame()
     {
         float distanceSum = 0;
-        for (int i = 1; i < m_inspectWindowSize; i++)
+        for (int i = 3; i < m_inspectWindowSize; i++)
         {
-            distanceSum += Vector3.Distance(m_player1LatestPositions[i], m_player1LatestPositions[i - 1]);
+            distanceSum += Vector3.Distance(m_player1LatestPositions[i], m_player1LatestPositions[i - 3]);
 
         }
-        // Console.WriteLine(distanceSum.ToString("F"));
+         //Console.WriteLine(distanceSum.ToString("F"));.00
         if (distanceSum > StaticParams.MOVING_SENSETIVITY * m_inspectWindowSize)
         {
             return true;

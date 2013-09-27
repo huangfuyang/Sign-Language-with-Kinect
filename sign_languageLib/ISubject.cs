@@ -14,7 +14,7 @@ public delegate void DataTransferEventHandler(Object sender, EventArgs args);
 public interface ISubject 
 {
     event DataTransferEventHandler m_dataTransferEvent;
-    void NofityAll(DataTransferEventArgs e);
+    void NotifyAll(DataTransferEventArgs e);
 
 }
 
