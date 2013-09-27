@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework;
 using LearningSystem.DataStorage;
 using LearningSystem.StaticTools;
 
-public class DataWarehouse :ISubject
+public class DataWarehouse : ISubject
 {
     private int _currentFrame;
     public int m_currentFrame
@@ -42,7 +42,7 @@ public class DataWarehouse :ISubject
         get { return _segmentationDatas; }
         set { _segmentationDatas = value; }
     }
-   
+
 
     /// <summary>
     /// set frame data to data warehouse and return whether the data is valid
@@ -110,7 +110,7 @@ public class DataWarehouse :ISubject
         }
         List<Vector3> results = new List<Vector3>(end - start);
 
-        List<FrameData> l = m_frameData.GetRange(start, Math.Min(m_currentFrame - start + 1, end - start +1));
+        List<FrameData> l = m_frameData.GetRange(start, Math.Min(m_currentFrame - start + 1, end - start + 1));
         l.ForEach(i => results.Add(i.m_Player1.m_position));
         return results;
 
@@ -122,15 +122,16 @@ public class DataWarehouse :ISubject
     /// <param name="start">start frame</param>
     /// <param name="end">end frame</param>
     /// <param name="reliebility">reliebility. from 1.0 = very relieble to 0.0 = very unrelieble </param>
-    public void SetSegmentationData(int start,int end, float reliebility)
+    public void SetSegmentationData(int start, int end, float reliebility)
     {
-        m_segmentationDatas.Add(new SegmentationData() { 
-            startFrame = start, 
-            endFrame = end, 
-            reliebility = reliebility 
-        }); 
+        m_segmentationDatas.Add(new SegmentationData()
+        {
+            startFrame = start,
+            endFrame = end,
+            reliebility = reliebility
+        });
 
-        //Notify all modules TODO:maybe reduntant
+        //Notify all modules TODO:maybe redundant
         NotifyAll(new DataTransferEventArgs(m_segmentationDatas[m_segmentationDatas.Count - 1]));
 
     }

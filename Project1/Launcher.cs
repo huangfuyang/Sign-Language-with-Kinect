@@ -11,9 +11,10 @@ namespace Project1
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("hello world");
-            LearningController lc = new LearningController();
-            lc.Begin();
+            Console.WriteLine("this is a launcher without kinect");
+            RecognitionController lc = new RecognitionController();
+            lc.BeginTest();
+            Console.WriteLine("end");
             Console.Read();
         }
     }

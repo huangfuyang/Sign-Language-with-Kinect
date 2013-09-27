@@ -149,7 +149,7 @@
     <packageHasNamedElement>
       <class
         Id="09132051-c217-4ea9-848d-80b7153227cd"
-        name="LearningController"
+        name="Classifier"
         isAbstract="false"
         isLeaf="false"
         isActiveClass="false">
@@ -198,20 +198,20 @@
         </appliedStereotypesInternal>
         <targetEnds>
           <association
-            Id="2cf51aee-aac5-4032-9fdf-959a1d8cfe1e"
+            Id="cbace050-69fe-4aa1-acdc-b3091166fedc"
             isDerived="false"
             sourceEndRoleName=""
-            targetEndRoleName="m_classifier"
+            targetEndRoleName=""
             isLeaf="false"
             isAbstract="false">
             <classMoniker
-              Id="a9feb736-1fd9-4d2c-bd79-fb6b2a3a7461"
-              LastKnownName="Classifier"
+              Id="9f2af0c9-83bb-4af3-923d-048b8964a8ff"
+              LastKnownName="LeariningModel"
               LastKnownLocation="sign_language.uml" />
             <relationshipOwnedElementsInternal>
               <associationHasOwnedEnds>
                 <memberEnd
-                  Id="c4297115-76d8-415a-bfb9-c93178536953"
+                  Id="f23e14d2-5952-4fca-844d-96c33f47a2a0"
                   isLeaf="false"
                   isStatic="false"
                   isReadOnly="false"
@@ -223,46 +223,7 @@
               </associationHasOwnedEnds>
               <associationHasOwnedEnds>
                 <memberEnd
-                  Id="6c2b12d3-64d5-4261-bf0a-4f0efb084231"
-                  name="m_classifier"
-                  isLeaf="false"
-                  isStatic="false"
-                  isReadOnly="false"
-                  isDerived="false"
-                  isDerivedUnion="false"
-                  aggregation="None"
-                  isComposite="false" />
-              </associationHasOwnedEnds>
-            </relationshipOwnedElementsInternal>
-          </association>
-          <association
-            Id="8caafce8-c19e-4921-accf-2d4c307b702b"
-            isDerived="false"
-            sourceEndRoleName=""
-            targetEndRoleName="m_postprocessor"
-            isLeaf="false"
-            isAbstract="false">
-            <classMoniker
-              Id="fc43ca3a-3ab4-40ce-b51d-1ae0f326483f"
-              LastKnownName="Postprocessor"
-              LastKnownLocation="sign_language.uml" />
-            <relationshipOwnedElementsInternal>
-              <associationHasOwnedEnds>
-                <memberEnd
-                  Id="7717cf20-b3c0-4a41-8d58-4df0ef60ebf9"
-                  isLeaf="false"
-                  isStatic="false"
-                  isReadOnly="false"
-                  isDerived="false"
-                  isDerivedUnion="false"
-                  aggregation="Shared"
-                  isComposite="false"
-                  isNavigableOwned="false" />
-              </associationHasOwnedEnds>
-              <associationHasOwnedEnds>
-                <memberEnd
-                  Id="579ecabb-b294-4ee9-8648-40c3e4e18265"
-                  name="m_postprocessor"
+                  Id="21d65882-bdda-4e4f-bdb8-a2f6c2f65fd0"
                   isLeaf="false"
                   isStatic="false"
                   isReadOnly="false"
@@ -482,7 +443,7 @@
     <packageHasNamedElement>
       <class
         Id="a9feb736-1fd9-4d2c-bd79-fb6b2a3a7461"
-        name="Classifier"
+        name="RecognitionController"
         isAbstract="false"
         isLeaf="false"
         isActiveClass="false">
@@ -607,44 +568,6 @@
             </relationshipOwnedElementsInternal>
           </association>
           <association
-            Id="ecd557a5-a47d-4b5f-bb74-6069f9d0b135"
-            isDerived="false"
-            sourceEndRoleName=""
-            targetEndRoleName="m_leariningModel"
-            isLeaf="false"
-            isAbstract="false">
-            <classMoniker
-              Id="9f2af0c9-83bb-4af3-923d-048b8964a8ff"
-              LastKnownName="LeariningModel"
-              LastKnownLocation="sign_language.uml" />
-            <relationshipOwnedElementsInternal>
-              <associationHasOwnedEnds>
-                <memberEnd
-                  Id="8725b65c-2e83-48f2-840b-15e7104e05a1"
-                  isLeaf="false"
-                  isStatic="false"
-                  isReadOnly="false"
-                  isDerived="false"
-                  isDerivedUnion="false"
-                  aggregation="Composite"
-                  isComposite="false"
-                  isNavigableOwned="false" />
-              </associationHasOwnedEnds>
-              <associationHasOwnedEnds>
-                <memberEnd
-                  Id="df95cfaf-55a5-4bf9-adcd-62e4397a2cd4"
-                  name="m_leariningModel"
-                  isLeaf="false"
-                  isStatic="false"
-                  isReadOnly="false"
-                  isDerived="false"
-                  isDerivedUnion="false"
-                  aggregation="None"
-                  isComposite="true" />
-              </associationHasOwnedEnds>
-            </relationshipOwnedElementsInternal>
-          </association>
-          <association
             Id="f750adf5-2035-4689-86bc-f0a8f71165d6"
             isDerived="false"
             sourceEndRoleName=""
@@ -747,6 +670,80 @@
                 <memberEnd
                   Id="f70fd29f-c18f-4a37-ae00-32af321bbc3d"
                   name="m_preprocessor"
+                  isLeaf="false"
+                  isStatic="false"
+                  isReadOnly="false"
+                  isDerived="false"
+                  isDerivedUnion="false"
+                  aggregation="None"
+                  isComposite="false" />
+              </associationHasOwnedEnds>
+            </relationshipOwnedElementsInternal>
+          </association>
+          <association
+            Id="1f1a25ba-3734-4d23-907d-20e71be97003"
+            isDerived="false"
+            sourceEndRoleName=""
+            targetEndRoleName=""
+            isLeaf="false"
+            isAbstract="false">
+            <classMoniker
+              Id="09132051-c217-4ea9-848d-80b7153227cd"
+              LastKnownName="Classifier"
+              LastKnownLocation="sign_language.uml" />
+            <relationshipOwnedElementsInternal>
+              <associationHasOwnedEnds>
+                <memberEnd
+                  Id="3f29cde0-e225-485a-8f59-5f6b0fdade16"
+                  isLeaf="false"
+                  isStatic="false"
+                  isReadOnly="false"
+                  isDerived="false"
+                  isDerivedUnion="false"
+                  aggregation="Shared"
+                  isComposite="false"
+                  isNavigableOwned="false" />
+              </associationHasOwnedEnds>
+              <associationHasOwnedEnds>
+                <memberEnd
+                  Id="d81258dc-9c18-4a59-8057-40d48158aa65"
+                  isLeaf="false"
+                  isStatic="false"
+                  isReadOnly="false"
+                  isDerived="false"
+                  isDerivedUnion="false"
+                  aggregation="None"
+                  isComposite="false" />
+              </associationHasOwnedEnds>
+            </relationshipOwnedElementsInternal>
+          </association>
+          <association
+            Id="8d223fd2-a739-447e-bad5-bca59b090f72"
+            isDerived="false"
+            sourceEndRoleName=""
+            targetEndRoleName=""
+            isLeaf="false"
+            isAbstract="false">
+            <classMoniker
+              Id="fc43ca3a-3ab4-40ce-b51d-1ae0f326483f"
+              LastKnownName="Postprocessor"
+              LastKnownLocation="sign_language.uml" />
+            <relationshipOwnedElementsInternal>
+              <associationHasOwnedEnds>
+                <memberEnd
+                  Id="c54e4514-6537-428a-a5ca-4c31955554bc"
+                  isLeaf="false"
+                  isStatic="false"
+                  isReadOnly="false"
+                  isDerived="false"
+                  isDerivedUnion="false"
+                  aggregation="Shared"
+                  isComposite="false"
+                  isNavigableOwned="false" />
+              </associationHasOwnedEnds>
+              <associationHasOwnedEnds>
+                <memberEnd
+                  Id="42f2e4bc-1aaa-41a0-8279-5d40ac5922a1"
                   isLeaf="false"
                   isStatic="false"
                   isReadOnly="false"

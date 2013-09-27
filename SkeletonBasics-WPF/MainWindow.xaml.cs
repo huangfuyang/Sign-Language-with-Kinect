@@ -86,11 +86,11 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
         /// 
-        private LearningController _learningController;
+        private RecognitionController _recognitionController;
 
-        public LearningController m_learningController
+        public RecognitionController m_recognitionController
         {
-            get { return _learningController ?? (_learningController = new LearningController()); }
+            get { return _recognitionController ?? (_recognitionController = new RecognitionController()); }
 
         }
 
@@ -177,7 +177,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
 
                 // Add an event handler to be called whenever there is new color frame data
                 this.sensor.SkeletonFrameReady += this.SensorSkeletonFrameReady;
-                this.sensor.SkeletonFrameReady += m_learningController.m_classifier.m_dataProcessor.SensorSkeletonFrameReady;
+                this.sensor.SkeletonFrameReady += m_recognitionController.m_dataProcessor.SensorSkeletonFrameReady;
                 // Start the sensor!
                 try
                 {
