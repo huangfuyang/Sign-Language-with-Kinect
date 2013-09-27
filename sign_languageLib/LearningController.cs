@@ -15,13 +15,17 @@ public class LearningController
 {
 
     private Classifier _classifier;
+
     public Classifier m_classifier
     {
-        get { return _classifier; }
-
+        get {  return _classifier; }      
     }
+    
 
     private Postprocessor _postprocessor;
+    /// <summary>
+    /// data receiver
+    /// </summary>
     public Postprocessor m_postprocessor
     {
         get { return _postprocessor; }

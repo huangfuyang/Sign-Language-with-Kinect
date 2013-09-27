@@ -8,7 +8,7 @@ namespace LearningSystem.StaticTools
     public static class StaticParams
     {
         public static int MAX_NUMBER_OF_PLAYERS = 6;
-        public static float MOVING_SENSETIVITY = 0.007F;
+        public static float MOVING_SENSETIVITY = 0.006F;
 
 
     }
