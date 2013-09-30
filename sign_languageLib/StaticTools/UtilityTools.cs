@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Kinect;
 using Microsoft.Xna.Framework;
-namespace LearningSystem.StaticTools
+namespace RecognitionSystem.StaticTools
 {
     public static class UtilityTools
     {

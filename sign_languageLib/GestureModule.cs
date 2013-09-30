@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 
-using LearningSystem.DataStorage;
+using RecognitionSystem.DataStorage;
 
 public class GestureModule : VisualFeatureModule
 {

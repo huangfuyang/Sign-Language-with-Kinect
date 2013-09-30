@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using LearningSystem.StaticTools;
+using RecognitionSystem.StaticTools;
 
-namespace LearningSystem.DataStorage
+namespace RecognitionSystem.DataStorage
 {
     public class FrameData
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace LearningSystem.StaticTools
+namespace RecognitionSystem.StaticTools
 {
     public static class StaticParams
     {

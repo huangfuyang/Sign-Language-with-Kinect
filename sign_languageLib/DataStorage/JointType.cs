@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace LearningSystem.DataStorage
+namespace RecognitionSystem.DataStorage
 {
     public enum JointType
     {

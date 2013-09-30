@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Kinect;
 using Microsoft.Xna.Framework;
 
-using LearningSystem.DataStorage;
-using LearningSystem.StaticTools;
+using RecognitionSystem.DataStorage;
+using RecognitionSystem.StaticTools;
 
 public class DataWarehouse : ISubject
 {

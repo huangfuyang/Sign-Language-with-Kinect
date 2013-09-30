@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Kinect;
 using Microsoft.Xna.Framework;
 
-using LearningSystem.StaticTools;
-using LearningSystem.DataStorage;
+using RecognitionSystem.StaticTools;
+using RecognitionSystem.DataStorage;
 
 /// <remarks>
 /// Interact with Realtime system module

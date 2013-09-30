@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Kinect;
 using Microsoft.Xna.Framework;
 
-namespace LearningSystem.DataStorage
+namespace RecognitionSystem.DataStorage
 {
     
     public class Person
