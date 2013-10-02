@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.ComponentModel;
 using System.IO;
+
 
 using CURELab.SignLanguage.RecognitionSystem.StaticTools;
 
@@ -52,6 +53,7 @@ namespace VideoPlayer
         string FileName = "";
         int totalFrame;
         int preTimestamp = 0;
+        int graphTime = 0;
 
         public MainWindow()
         {
@@ -75,7 +77,7 @@ namespace VideoPlayer
             // init timer
             Timer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromMilliseconds(200)
+                Interval = TimeSpan.FromMilliseconds(50)
             };
 
             Timer.Tick += TimerTick;
@@ -120,6 +122,7 @@ namespace VideoPlayer
 
                 if (currentTime <= totalDuration)
                 {
+                
                     //FilenameBox.Text = SliderSeek.Value.ToString();
                     SliderSeek.Value = currentTime;
                     ShownData currentData = GetCurrentData(currentTimestamp);
@@ -134,7 +137,7 @@ namespace VideoPlayer
                     // add data to the graph
                     RealtimeGraphItem newItem = new RealtimeGraphItem
                     {
-                        Time = (int)DateTime.Now.TimeOfDay.TotalMilliseconds,
+                        Time = graphTime,
                         Value = accLeft
                     };
 
@@ -143,7 +146,7 @@ namespace VideoPlayer
 
                     newItem = new RealtimeGraphItem
                     {
-                        Time = (int)DateTime.Now.TimeOfDay.TotalMilliseconds,
+                        Time = graphTime,
                         Value = accRight
                     };
 
@@ -153,7 +156,7 @@ namespace VideoPlayer
 
                     newItem = new RealtimeGraphItem
                     {
-                        Time = (int)DateTime.Now.TimeOfDay.TotalMilliseconds,
+                        Time = graphTime,
                         Value = velLeft
                     };
 
@@ -162,7 +165,7 @@ namespace VideoPlayer
 
                     newItem = new RealtimeGraphItem
                     {
-                        Time = (int)DateTime.Now.TimeOfDay.TotalMilliseconds,
+                        Time = graphTime,
                         Value = velRight
                     };
 
@@ -179,6 +182,7 @@ namespace VideoPlayer
                     }
 
                     preTimestamp = currentData.timeStamp;
+                    graphTime += 100;
                 }
             }
         }
