@@ -20,6 +20,7 @@ using Microsoft.Research.DynamicDataDisplay;
 using System.IO;
 using Microsoft.Research.DynamicDataDisplay.PointMarkers;
 
+using CURELab.SignLanguage.RecognitionSystem.StaticTools;
 
 namespace CURELab.SignLanguage.Debugger
 {
@@ -38,19 +39,7 @@ namespace CURELab.SignLanguage.Debugger
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private int _maxVoltage;
-        public int MaxVoltage
-        {
-            get { return _maxVoltage; }
-            set { _maxVoltage = value; this.OnPropertyChanged("MaxVoltage"); }
-        }
-
-        private int _minVoltage;
-        public int MinVoltage
-        {
-            get { return _minVoltage; }
-            set { _minVoltage = value; this.OnPropertyChanged("MinVoltage"); }
-        }
+        
 
         private string _fileName;
         public string FileName
@@ -84,99 +73,99 @@ namespace CURELab.SignLanguage.Debugger
             get { return _currentTime; }
             set
             {
+                sld_progress.Value = value;
                 _currentTime = value;
             }
         }
 
-        List<int> imageTimeStampList;
-        List<ShownData> dataList;
         bool isPauseOnSegment;
 
         double totalDuration;
         int totalFrame;
-        int preTimestamp = 0;
-        int graphTime = 0;
+        private LineGraph lastSigner;
 
-
-        private VoltagePointCollection voltagePointCollection_right;
-        private VoltagePointCollection voltagePointCollection_left;
-        private DispatcherTimer updateCollectionTimer;
+        private DataManager m_dataManager;
+        private DispatcherTimer updateTimer;
 
         public MainWindow()
         {
             InitializeComponent();
+            InitializeModule();
             InitializeParams();
             InitializeChart();
             InitializeTimer();
+
+            ConsoleManager.Show();
         }
 
         private void InitializeParams()
         {
             this.DataContext = this;
-            MaxVoltage = 1;
-            MinVoltage = 0;
+            m_dataManager.MaxVelocity = 1;
+            m_dataManager.MinVelocity = 0;
             FileName = "";
             IsPlaying = false;
             btn_play.IsEnabled = false;
         }
-        private void InitializeTimer()
-        {
-            updateCollectionTimer = new DispatcherTimer();
-            updateCollectionTimer.Interval = TimeSpan.FromMilliseconds(100);
-            updateCollectionTimer.Tick += new EventHandler(updateCollectionTimer_Tick);
-            updateCollectionTimer.Start();
 
+        private void InitializeModule()
+        {
+            m_dataManager = new DataManager();
         }
 
         private void InitializeChart()
         {
-            voltagePointCollection_right = new VoltagePointCollection();
-            var v_right = new EnumerableDataSource<VoltagePoint>(voltagePointCollection_right);
-            v_right.SetXMapping(x => x.TimeStamp);
-            v_right.SetYMapping(y => y.Voltage);
+          
             CircleElementPointMarker pointMaker = new CircleElementPointMarker();
-            pointMaker.Size = 5;
-            pointMaker.Brush = Brushes.Red;
+            pointMaker.Size = 3;
+            pointMaker.Brush = Brushes.Yellow;
             pointMaker.Fill = Brushes.Purple;
-            cht_right.AddLineGraph(v_right, new Pen(Brushes.AliceBlue, 2), pointMaker, new PenDescription("right v"));
-           // cht_right.AddLineGraph(v_right, Colors.DarkBlue, 2, "right velo");
+            var v_right = new EnumerableDataSource<VelocityPoint>(m_dataManager.VelocityPointCollection_right);
+            v_right.SetXMapping(x => x.TimeStamp);
+            v_right.SetYMapping(y => y.Velocity);
+            cht_right.AddLineGraph(v_right, new Pen(Brushes.DarkBlue, 2), pointMaker, new PenDescription("right v"));
+
+            var a_right = new EnumerableDataSource<VelocityPoint>(m_dataManager.AccelerationPointCollection_right);
+            a_right.SetXMapping(x => x.TimeStamp);
+            a_right.SetYMapping(y => y.Velocity);
+            cht_right.AddLineGraph(a_right, new Pen(Brushes.Red, 2), pointMaker, new PenDescription("right a"));
+
+            cht_right.Legend.AutoShowAndHide = false;
+            cht_right.LegendVisible = false;
+        }
+
+        private void InitializeTimer()
+        {
+            updateTimer = new DispatcherTimer();
+            updateTimer.Interval = TimeSpan.FromMilliseconds(100);
+            updateTimer.Tick += new EventHandler(updateTimer_Tick);
+            updateTimer.Start();
 
         }
 
-        void updateCollectionTimer_Tick(object sender, EventArgs e)
+       
+
+        void updateTimer_Tick(object sender, EventArgs e)
         {
-            //i++;
-            //voltagePointCollection.Add(new VoltagePoint(Math.Sin(i * 0.1), DateTime.Now));
-            CurrentTime = me_rawImage.Position.TotalMilliseconds;
-        }
-        private ShownData GetCurrentData(int timestamp)
-        {
-            foreach (ShownData item in dataList)
+            if (me_rawImage.HasVideo)
             {
-                if (item.timeStamp <= timestamp + 35)
+                CurrentTime = me_rawImage.Position.TotalMilliseconds;
+                int currentFrame = (int)(totalFrame * CurrentTime / totalDuration);
+                int currentTimestamp = m_dataManager.GetCurrentTimestamp(currentFrame);
+                ShownData currentData = m_dataManager.GetCurrentData(currentTimestamp);
+                if (lastSigner != null)
                 {
-                    return item;
+                    lastSigner.Remove();
                 }
-            }
-            return dataList[0];
-        }
+                lastSigner = AddSplitLine(cht_right, currentData.timeStamp,1);
 
-        private int GetCurrentTimestamp(int frameNumber)
-        {
-            if (frameNumber >= imageTimeStampList.Count)
-            {
-                return imageTimeStampList.Last();
             }
-            return imageTimeStampList[frameNumber];
         }
-
+  
         private bool OpenDataStreams(string address)
         {
             try
             {
-                imageTimeStampList = new List<int>();
-                dataList = new List<ShownData>();
-                preTimestamp = 0;
                 // read timestamp 
                 StreamReader timeReader = new StreamReader(address + "timestamp.txt");
                 string line = timeReader.ReadLine();
@@ -184,7 +173,7 @@ namespace CURELab.SignLanguage.Debugger
                 while (!String.IsNullOrWhiteSpace(line))
                 {
                     int timeStamp = Convert.ToInt32(line) - firstStamp;
-                    imageTimeStampList.Add(timeStamp);
+                    m_dataManager.ImageTimeStampList.Add(timeStamp);
                     line = timeReader.ReadLine();
                 }
                 timeReader.Close();
@@ -223,7 +212,7 @@ namespace CURELab.SignLanguage.Debugger
                     }
 
 
-                    dataList.Add(new ShownData()
+                    m_dataManager.DataList.Add(new ShownData()
                     {
                         timeStamp = dataTime,
                         a_left = aLeft,
@@ -254,7 +243,7 @@ namespace CURELab.SignLanguage.Debugger
                 //        Console.WriteLine(item.timeStamp.ToString());
                 //    }
                 //}
-                dataList.Reverse();
+                m_dataManager.DataList.Reverse();
                 accReader.Close();
                 accReader = null;
                 veloReader.Close();
@@ -276,25 +265,27 @@ namespace CURELab.SignLanguage.Debugger
 
         private void DrawData()
         {
-            foreach (ShownData item in dataList)
+            foreach (ShownData item in m_dataManager.DataList)
             {
-                voltagePointCollection_right.Add(new VoltagePoint(item.v_right, item.timeStamp));
+                m_dataManager.VelocityPointCollection_right.Add(new VelocityPoint(item.v_right, item.timeStamp));
+                m_dataManager.AccelerationPointCollection_right.Add(new VelocityPoint(item.a_right, item.timeStamp));
                 if (item.isSegmentPoint)
                 {
-                    AddSplitLine(item.timeStamp);
+                    AddSplitLine(cht_right,item.timeStamp,2);
                 }
             }
         }
 
-        private void AddSplitLine(int split)
+        private LineGraph AddSplitLine(ChartPlotter chart, int split, double stroke)
         {
-            var tempPoints = new VoltagePointCollection();
-            var v_right = new EnumerableDataSource<VoltagePoint>(tempPoints);
+            var tempPoints = new VelocityPointCollection();
+            var v_right = new EnumerableDataSource<VelocityPoint>(tempPoints);
             v_right.SetXMapping(x => x.TimeStamp);
-            v_right.SetYMapping(y => y.Voltage);
-            cht_right.AddLineGraph(v_right, Colors.Black, 2, "V right");
-            tempPoints.Add(new VoltagePoint(MaxVoltage, split));
-            tempPoints.Add(new VoltagePoint(MinVoltage, split));
+            v_right.SetYMapping(y => y.Velocity);
+            tempPoints.Add(new VelocityPoint(m_dataManager.MaxVelocity, split));
+            tempPoints.Add(new VelocityPoint(m_dataManager.MinVelocity, split));
+            return chart.AddLineGraph(v_right, Colors.Black, stroke, "seg line");
+            
 
         }
         private void MediaOpened(object sender, RoutedEventArgs e)
@@ -318,10 +309,11 @@ namespace CURELab.SignLanguage.Debugger
             else
             {
                 btn_play.IsEnabled = true;
+                totalDuration = me_rawImage.NaturalDuration.TimeSpan.TotalMilliseconds;
+                totalFrame = (int)totalDuration / 200 + 1;
                 DrawData();
-
                 //TODO: dynamic FPS
-                //totalFrame = (int)SliderSeek.Maximum / 200 + 1;
+
             }
 
         }
@@ -361,22 +353,19 @@ namespace CURELab.SignLanguage.Debugger
 
         private void btn_play_Click(object sender, RoutedEventArgs e)
         {
-            if (me_rawImage.Source != null)
+            if (me_rawImage.HasVideo)
             {
-                if (IsPlaying)
+                if (!IsPlaying)
                 {
-                    IsPlaying = false;
+                    IsPlaying = true;
                     me_rawImage.Play();
                     //Timer.Start();
                 }
                 else
                 {
-                    IsPlaying = true;
+                    IsPlaying = false;
                     me_rawImage.Pause();
-
                 }
-
-
             }
             else
             {
@@ -386,7 +375,7 @@ namespace CURELab.SignLanguage.Debugger
 
         private void btn_Stop_Click(object sender, RoutedEventArgs e)
         {
-            if (me_rawImage.Source != null)
+            if (me_rawImage.HasVideo)
             {
                 me_rawImage.Stop();
             }
@@ -414,8 +403,11 @@ namespace CURELab.SignLanguage.Debugger
 
         private void sld_progress_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            me_rawImage.Position = TimeSpan.FromMilliseconds(sld_progress.Value);
-            CurrentTime = sld_progress.Value;
+            if (me_rawImage.HasVideo)
+            {
+                me_rawImage.Position = TimeSpan.FromMilliseconds(sld_progress.Value);
+                CurrentTime = sld_progress.Value;
+            }
         }
 
         private void sld_progress_DragEnter(object sender, DragEventArgs e)

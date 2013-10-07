@@ -16,28 +16,28 @@ using Microsoft.Research.DynamicDataDisplay.Common;
 namespace CURELab.SignLanguage.Debugger.ViewModel
 {
     /// <summary>
-    /// VoltageViewModel is a data model to be shown in data chart
+    /// VelocityViewModel is a data model to be shown in data chart
     /// </summary>
-    public class VoltagePointCollection : RingArray<VoltagePoint>
+    public class VelocityPointCollection : RingArray<VelocityPoint>
     {
         private const int TOTAL_POINTS = 300;
 
-        public VoltagePointCollection()
+        public VelocityPointCollection()
             : base(TOTAL_POINTS) // here i set how much values to show 
         {
         }
     }
 
-    public class VoltagePoint
+    public class VelocityPoint
     {
         public int TimeStamp { get; set; }
 
-        public double Voltage { get; set; }
+        public double Velocity { get; set; }
 
-        public VoltagePoint(double voltage, int timeStamp)
+        public VelocityPoint(double velocity, int timeStamp)
         {
             this.TimeStamp = timeStamp;
-            this.Voltage = voltage;
+            this.Velocity = velocity;
         }
     }
 }

@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DynamicDataDisplay">
-      <HintPath>..\..\..\Dropbox\Sign Language FYP\Code\sep 25\DynamicDataDisplaySample\DynamicDataDisplaySample\bin\Debug\DynamicDataDisplay.dll</HintPath>
+      <HintPath>F:\dropbox\Sign Language FYP\Code\sep 25\DynamicDataDisplaySample\DynamicDataDisplaySample\bin\Debug\DynamicDataDisplay.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -56,7 +56,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ViewModel\VoltageViewModel.cs" />
+    <Compile Include="DataManager.cs" />
+    <Compile Include="ViewModel\VelocityViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -97,7 +98,12 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\RecognitionSystem\RecognitionSystem.csproj">
+      <Project>{01af7e2c-4d9a-4c47-a9ff-c97be82f7a5d}</Project>
+      <Name>RecognitionSystem</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
