@@ -10,6 +10,8 @@ Project("{F088123C-0E9E-452A-89E6-6BA2F21D5CAC}") = "UML", "UML\UML.modelproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoPlayer", "VideoPlayer\VideoPlayer.csproj", "{FAEE6D24-186F-40A2-81AD-3E56CBBF2629}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SLDebugger", "SLDebugger\SLDebugger.csproj", "{868FEFE2-F015-423B-BEA5-97D64893C005}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +78,16 @@ Global
 		{FAEE6D24-186F-40A2-81AD-3E56CBBF2629}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{FAEE6D24-186F-40A2-81AD-3E56CBBF2629}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{FAEE6D24-186F-40A2-81AD-3E56CBBF2629}.Release|x86.ActiveCfg = Release|Any CPU
+		{868FEFE2-F015-423B-BEA5-97D64893C005}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{868FEFE2-F015-423B-BEA5-97D64893C005}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{868FEFE2-F015-423B-BEA5-97D64893C005}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{868FEFE2-F015-423B-BEA5-97D64893C005}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{868FEFE2-F015-423B-BEA5-97D64893C005}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{868FEFE2-F015-423B-BEA5-97D64893C005}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{868FEFE2-F015-423B-BEA5-97D64893C005}.Release|Any CPU.Build.0 = Release|Any CPU
+		{868FEFE2-F015-423B-BEA5-97D64893C005}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{868FEFE2-F015-423B-BEA5-97D64893C005}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{868FEFE2-F015-423B-BEA5-97D64893C005}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

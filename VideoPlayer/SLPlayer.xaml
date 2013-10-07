@@ -1,7 +1,6 @@
 ﻿<Window x:Class="VideoPlayer.SLPlayer"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:rg="clr-namespace:Righthand.RealtimeGraph;assembly=Righthand.RealtimeGraph"
         Title="SLPlayer" Height="886" Width="1200" ResizeMode="NoResize">
     <Grid>
         <MediaElement x:Name="me_player" HorizontalAlignment="Left" Height="334" Margin="31,31,0,0" VerticalAlignment="Top" Width="394"/>
@@ -14,8 +13,7 @@
         <Label Content="Left_A" HorizontalAlignment="Left" Margin="31,539,0,0" VerticalAlignment="Top"/>
         <Label Content="Right_V" HorizontalAlignment="Left" Margin="31,606,0,0" VerticalAlignment="Top"/>
         <Label Content="Right_A" HorizontalAlignment="Left" Margin="31,676,0,0" VerticalAlignment="Top"/>
+        
 
-        <rg:RealtimeGraphControl x:Name="Graph_1" AxisColor="Blue" AxisWidth="1" VerticalLinesInterval="2" VerticalLabelsStep="2"  SpanX="20"
-                             MaxY="1.2" MinY="0"  HorizontalLinesInterval="2" Margin="65,451,36,324"/>
     </Grid>
 </Window>
