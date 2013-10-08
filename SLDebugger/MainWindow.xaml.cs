@@ -222,13 +222,12 @@ namespace CURELab.SignLanguage.Debugger
                         isSegmentPoint = isSegpoint
                     });
 
-                    //Console.WriteLine(dataTime + " " + segTime + " " + isSegpoint);
                     a_line = accReader.ReadLine();
                     v_line = veloReader.ReadLine();
                     if (isSegpoint)
                     {
                         string newTime = segPointReader.ReadLine();
-                        while (Convert.ToInt32(newTime) == dataTime)
+                        while (Convert.ToInt32(newTime)-firstStamp == dataTime)
                         {
                             newTime = segPointReader.ReadLine();
                         }
@@ -236,13 +235,7 @@ namespace CURELab.SignLanguage.Debugger
 
                     }
                 }
-                //foreach (ShownData item in dataList)
-                //{
-                //    if (item.isSegmentPoint)
-                //    {
-                //        Console.WriteLine(item.timeStamp.ToString());
-                //    }
-                //}
+              
                 m_dataManager.DataList.Reverse();
                 accReader.Close();
                 accReader = null;

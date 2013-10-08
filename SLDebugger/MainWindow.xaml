@@ -8,7 +8,17 @@
         <Button x:Name="btn_openFile" Content="Open" HorizontalAlignment="Left" Margin="112,320,0,0" VerticalAlignment="Top" Width="76" Click="btn_openFile_Click"/>
         <Button x:Name="btn_play" Content="Play" HorizontalAlignment="Left" Margin="232,320,0,0" VerticalAlignment="Top" Width="74" Click="btn_play_Click"/>
         <Button x:Name="btn_Stop" Content="Stop" HorizontalAlignment="Left" Margin="357,320,0,0" VerticalAlignment="Top" Width="76" Click="btn_Stop_Click"/>
-        
+        <d3:ChartPlotter x:Name="cht_bigChart" VerticalAlignment="Bottom" Margin="566,0,37,453" Height="359">
+            <d3:ChartPlotter.HorizontalAxis>
+                <d3:HorizontalIntegerAxis x:Name="xAxisFrame1"/>
+            </d3:ChartPlotter.HorizontalAxis>
+            <d3:Header FontFamily="Georgia" Content="Data to show"/>
+            <d3:VerticalAxisTitle FontFamily="Georgia" Content="Data to show" />
+            <d3:HorizontalAxisTitle FontFamily="Georgia" Content="Frame"/>
+            <d3:HorizontalLine Value="{Binding MaxVelocity}" Stroke="Red" StrokeThickness="2"/>
+            <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
+
+        </d3:ChartPlotter>
         <d3:ChartPlotter x:Name="cht_right" VerticalAlignment="Bottom" Margin="83,0,37,248" Height="200">
             <d3:ChartPlotter.HorizontalAxis>
                 <d3:HorizontalIntegerAxis Name="xAxisFrame"/>
@@ -32,6 +42,7 @@
             <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
         </d3:ChartPlotter>
         <Slider x:Name="sld_progress" HorizontalAlignment="Left" Margin="83,347,0,0" VerticalAlignment="Top" Width="365" ValueChanged="sld_progress_ValueChanged" DragEnter="sld_progress_DragEnter" DragLeave="sld_progress_DragLeave"/>
+       
 
 
     </Grid>
