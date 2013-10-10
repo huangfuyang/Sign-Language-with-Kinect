@@ -27,11 +27,8 @@ namespace CURELab.SignLanguage.Debugger
     public struct ShownData
     {
         public int timeStamp;
-        public double a_right;
-        public double a_left;
-        public double v_right;
-        public double v_left;
-        public bool isSegmentPoint;
+        public double val_right;
+        public double val_left;
     }
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
@@ -101,6 +98,11 @@ namespace CURELab.SignLanguage.Debugger
             InitializeChart();
             InitializeTimer();
 
+            me_rawImage.SpeedRatio = 0.2;
+            cb_data1.IsChecked = true;
+            cb_data2.IsChecked = true;
+            cb_data3.IsChecked = false;
+
             ConsoleManager.Show();
         }
 
@@ -138,22 +140,31 @@ namespace CURELab.SignLanguage.Debugger
 
         void updateTimer_Tick(object sender, EventArgs e)
         {
-            if (me_rawImage.HasVideo && _isPlaying)
+           if (me_rawImage.HasVideo && _isPlaying)
             {
                 CurrentTime = me_rawImage.Position.TotalMilliseconds;
                 int currentFrame = (int)(totalFrame * CurrentTime / totalDuration);
                 int currentTimestamp = m_dataManager.GetCurrentTimestamp(currentFrame);
-                ShownData currentData = m_dataManager.GetCurrentData(currentTimestamp);
 
-                if (isPauseOnSegment && currentData.isSegmentPoint && currentData.timeStamp != preTime)
+                int currentDataTime = m_dataManager.GetCurrentDataTime(currentTimestamp);
+                if (m_dataManager.SegmentTimeStampList.Contains(currentDataTime) && currentDataTime != preTime)
                 {
-                    IsPlaying = false;
-                    me_rawImage.Pause();
-                    preTime = currentData.timeStamp;
+                    if (isPauseOnSegment)
+                    {
+                        IsPlaying = false;
+                        me_rawImage.Pause();
+                        preTime = currentDataTime;
+                    }
+                    
+                    border_media.BorderBrush = Brushes.DimGray;
                 }
-                
-                m_rightGraphView.DrawSigner(currentData.timeStamp, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
-                m_leftGraphView.DrawSigner(currentData.timeStamp, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
+                else
+                {
+
+                    border_media.BorderBrush = Brushes.White;
+                }
+                m_rightGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
+                m_leftGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
             }
         }
   
@@ -161,19 +172,70 @@ namespace CURELab.SignLanguage.Debugger
 
         private void DrawData()
         {
-            foreach (ShownData item in m_dataManager.DataList)
+            foreach (ShownData item in m_dataManager.DataList1)
             {
-                m_dataManager.VelocityPointCollection_right.Add(new VelocityPoint(item.v_right, item.timeStamp));
-                m_dataManager.AccelerationPointCollection_right.Add(new VelocityPoint(item.a_right, item.timeStamp));
-                m_dataManager.VelocityPointCollection_left.Add(new VelocityPoint(item.v_left, item.timeStamp));
-                m_dataManager.AccelerationPointCollection_left.Add(new VelocityPoint(item.a_left, item.timeStamp));
-                if (item.isSegmentPoint)
-                {
-                    m_rightGraphView.AddSplitLine(item.timeStamp, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
-                    m_leftGraphView.AddSplitLine(item.timeStamp, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
-                }
+                m_dataManager.VelocityPointCollection_right_1.Add(new VelocityPoint(item.val_right, item.timeStamp));
+                m_dataManager.VelocityPointCollection_left_1.Add(new VelocityPoint(item.val_left, item.timeStamp));
+            }
+
+            foreach (ShownData item in m_dataManager.DataList2)
+            {
+                m_dataManager.VelocityPointCollection_right_2.Add(new VelocityPoint(item.val_right, item.timeStamp));
+                m_dataManager.VelocityPointCollection_left_2.Add(new VelocityPoint(item.val_left, item.timeStamp));
+            }
+
+            foreach (ShownData item in m_dataManager.DataList3)
+            {
+                m_dataManager.VelocityPointCollection_right_3.Add(new VelocityPoint(item.val_right, item.timeStamp));
+                m_dataManager.VelocityPointCollection_left_3.Add(new VelocityPoint(item.val_left, item.timeStamp));
+            }
+
+
+            foreach (int item in m_dataManager.SegmentTimeStampList)
+            {
+                m_leftGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
+            }
+
+            foreach (int item in m_dataManager.SegmentTimeStampList)
+            {
+                m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
             }
         }
+
+
+        private void SetFilePath()
+        {
+            if (cb_data1.IsChecked == true)
+            {
+                FilePath.DataFile1Postfix = tb_data1.Text;
+            }
+            else
+            {
+                FilePath.DataFile1Postfix = "";
+            }
+
+            if (cb_data2.IsChecked == true)
+            {
+                FilePath.DataFile2Postfix = tb_data2.Text;
+            }
+            else
+            {
+                FilePath.DataFile2Postfix = "";
+            }
+
+            if (cb_data3.IsChecked == true)
+            {
+                FilePath.DataFile3Postfix = tb_data3.Text;
+            }
+            else
+            {
+                FilePath.DataFile3Postfix = "";
+            }
+
+            FilePath.SegmentFilePostfix = tb_segment.Text;
+
+        }
+
 
 
         private void MediaOpened(object sender, RoutedEventArgs e)
@@ -189,7 +251,10 @@ namespace CURELab.SignLanguage.Debugger
             //file addr with file number & _    C:\sss\ss\s\1_
             temp_addr += temp_name.Split('_')[0] + '_';
 
+            SetFilePath();
+            Console.WriteLine("1");
             m_dataReader = new DataReader(temp_addr, m_dataManager);
+
             if (!m_dataReader.ReadData())
             {             
                 btn_play.IsEnabled = false;
@@ -198,18 +263,24 @@ namespace CURELab.SignLanguage.Debugger
             }
             else
             {
+                Console.WriteLine("1");
                 m_rightGraphView.ClearGraph();
                 m_leftGraphView.ClearGraph();
 
-                m_rightGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_right, new Pen(Brushes.DarkBlue, 2), "v right");
-                m_rightGraphView.AppendLineGraph(m_dataManager.AccelerationPointCollection_right, new Pen(Brushes.Red, 2), "a right");
-                m_leftGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_left, new Pen(Brushes.DarkBlue, 2), "v left");
-                m_leftGraphView.AppendLineGraph(m_dataManager.AccelerationPointCollection_left, new Pen(Brushes.Red, 2), "a left");
+                m_rightGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_right_1, new Pen(Brushes.DarkBlue, 2), "v right");
+                m_rightGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_right_2, new Pen(Brushes.Red, 2), "v right");
+                m_rightGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_right_3, new Pen(Brushes.Green, 2), "v right");
+
+                
+                m_leftGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_left_1, new Pen(Brushes.DarkBlue, 2), "v left");
+                m_leftGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_left_2, new Pen(Brushes.Red, 2), "v left");
+                m_leftGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_left_3, new Pen(Brushes.Green, 2), "v left");
+
 
                 IsPlaying = false;
                 btn_play.IsEnabled = true;
                 totalDuration = me_rawImage.NaturalDuration.TimeSpan.TotalMilliseconds;
-                totalFrame = (int)totalDuration / 200 + 1;
+                totalFrame = (int)(totalDuration * 0.03) + 1;
                 DrawData();
                 
                 //TODO: dynamic FPS
@@ -331,6 +402,52 @@ namespace CURELab.SignLanguage.Debugger
         {
             isPauseOnSegment = false;
         }
+        
+        private void cb_data1_checked(object sender, RoutedEventArgs e)
+        {
+            tb_data1.IsEnabled = true;
+        }
 
+        private void cb_data1_unchecked(object sender, RoutedEventArgs e)
+        {
+            tb_data1.IsEnabled = false;
+        }
+        
+        private void cb_data2_checked(object sender, RoutedEventArgs e)
+        {
+            tb_data2.IsEnabled = true;
+        }
+
+        private void cb_data2_unchecked(object sender, RoutedEventArgs e)
+        {
+            tb_data2.IsEnabled = false;
+        }
+       
+        private void cb_data3_checked(object sender, RoutedEventArgs e)
+        {
+            tb_data3.IsEnabled = true;
+        }
+
+        private void cb_data3_unchecked(object sender, RoutedEventArgs e)
+        {
+            tb_data3.IsEnabled = false;
+        }
+
+
+
+        private void cb_split_checked(object sender, RoutedEventArgs e)
+        {
+            m_leftGraphView.ClearSplitLine();
+            m_rightGraphView.ClearSplitLine();
+        }
+
+
+        private void cb_split_unchecked(object sender, RoutedEventArgs e)
+        {
+            m_leftGraphView.ShowSplitLine();
+            m_rightGraphView.ShowSplitLine();
+        }
+        
+        
     }
 }

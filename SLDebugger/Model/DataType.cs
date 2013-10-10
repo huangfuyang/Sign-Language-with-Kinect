@@ -8,7 +8,7 @@ namespace CURELab.SignLanguage.Debugger
 {
     public enum DataType
     {
-        AccelerationVelocityData = 0,
+        TestedData = 0,
         VideoTimestampData = 2,
         SegmentData = 3,
         OtherData = 4,

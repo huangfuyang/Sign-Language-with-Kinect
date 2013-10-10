@@ -4,45 +4,58 @@
         xmlns:d3="http://research.microsoft.com/DynamicDataDisplay/1.0"
         Title="{Binding Path=FileName, StringFormat=Sign Language Debugger {0:S}}"   Height="827" Width="1196" ResizeMode="CanMinimize" HorizontalAlignment="Left" VerticalAlignment="Top" Left="100" Top="0">
     <Grid>
-        <MediaElement x:Name="me_rawImage" HorizontalAlignment="Left" Height="285" Margin="31,20,0,0" VerticalAlignment="Top" Width="365" MediaOpened="MediaOpened" MediaEnded="MediaEnded"/>
+        <Border Name="border_media" BorderBrush="White" BorderThickness="4" SnapsToDevicePixels="True" Margin="29,18,771,483"/>
+        <MediaElement x:Name="me_rawImage" HorizontalAlignment="Left" Height="281" Margin="33,22,0,0" VerticalAlignment="Top" Width="372" MediaOpened="MediaOpened" MediaEnded="MediaEnded"/>
+
         <Button x:Name="btn_openFile" Content="Open" HorizontalAlignment="Left" Margin="31,310,0,0" VerticalAlignment="Top" Width="76" Click="btn_openFile_Click"/>
         <Button x:Name="btn_play" Content="Play" HorizontalAlignment="Left" Margin="174,310,0,0" VerticalAlignment="Top" Width="74" Click="btn_play_Click"/>
         <Button x:Name="btn_Stop" Content="Stop" HorizontalAlignment="Left" Margin="320,310,0,0" VerticalAlignment="Top" Width="76" Click="btn_Stop_Click"/>
-        <d3:ChartPlotter x:Name="cht_bigChart" VerticalAlignment="Bottom" Margin="413,0,48,432" Height="356">
+        <d3:ChartPlotter x:Name="cht_bigChart" VerticalAlignment="Bottom" Margin="419,0,48,432" Height="322">
             <d3:ChartPlotter.HorizontalAxis>
                 <d3:HorizontalIntegerAxis x:Name="xAxisFrame1"/>
             </d3:ChartPlotter.HorizontalAxis>
-            <d3:Header FontFamily="Georgia" Content="Data to show"/>
-            <d3:VerticalAxisTitle FontFamily="Georgia" Content="Data to show" />
+
+         
             <d3:HorizontalAxisTitle FontFamily="Georgia" />
             <d3:HorizontalLine Value="{Binding MaxVelocity}" Stroke="Red" StrokeThickness="2"/>
             <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
 
         </d3:ChartPlotter>
-        <d3:ChartPlotter x:Name="cht_right" VerticalAlignment="Bottom" Margin="20,0,48,225" Height="175">
+        <d3:ChartPlotter x:Name="cht_right" VerticalAlignment="Bottom" Margin="151,0,48,219" Height="181">
             <d3:ChartPlotter.HorizontalAxis>
                 <d3:HorizontalIntegerAxis Name="xAxisFrame"/>
             </d3:ChartPlotter.HorizontalAxis>
             <d3:Header FontFamily="Georgia" />
             <d3:VerticalAxisTitle FontFamily="Georgia" Content="Right" />
-            
+
             <d3:HorizontalLine Value="{Binding MaxVelocity}" Stroke="Red" StrokeThickness="2"/>
             <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
-            
+
         </d3:ChartPlotter>
-        
-        <d3:ChartPlotter x:Name="cht_left" VerticalAlignment="Bottom" Margin="20,0,48,29" Height="170">
+
+        <d3:ChartPlotter x:Name="cht_left" VerticalAlignment="Bottom" Margin="151,0,48,29" Height="170">
             <d3:ChartPlotter.HorizontalAxis>
                 <d3:HorizontalIntegerAxis x:Name="dateAxis1"/>
             </d3:ChartPlotter.HorizontalAxis>
             <d3:Header FontFamily="Georgia" />
             <d3:VerticalAxisTitle FontFamily="Georgia" Content="Left" />
-            
+
             <d3:HorizontalLine Value="{Binding MaxVelocity}" Stroke="Red" StrokeThickness="2"/>
             <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
         </d3:ChartPlotter>
         <Slider x:Name="sld_progress" HorizontalAlignment="Left" Margin="31,334,0,0" VerticalAlignment="Top" Width="365" ValueChanged="sld_progress_ValueChanged" DragEnter="sld_progress_DragEnter" DragLeave="sld_progress_DragLeave"/>
-        <CheckBox Name="cb_autopause" Content="Auto-Pause&#xD;&#xA;&#xD;&#xA;" HorizontalAlignment="Left" Margin="31,357,0,0" VerticalAlignment="Top" Checked="cb_autopause_checked" Unchecked="cb_autopause_unchecked"/>
+        <CheckBox Name="cb_autopause" Content="Auto-Pause" HorizontalAlignment="Left" Margin="31,357,0,0" VerticalAlignment="Top" Checked="cb_autopause_checked" Unchecked="cb_autopause_unchecked"/>
+
+        <Label Content="Segment file postfix:" HorizontalAlignment="Left" Margin="26,599,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.042,-0.545"/>
+        <TextBox Name="tb_segment" HorizontalAlignment="Left" Height="23" Margin="26,629,0,0" TextWrapping="Wrap" Text="output.txt" VerticalAlignment="Top" Width="120"/>
+
+        <CheckBox Name="cb_data1"  Content="Data file 1 postfix:" HorizontalAlignment="Left" Margin="26,425,0,0" VerticalAlignment="Top" Checked="cb_data1_checked" Unchecked="cb_data1_unchecked"/>
+        <TextBox Name="tb_data1" HorizontalAlignment="Left" Height="23" Margin="26,445,0,0" TextWrapping="Wrap" Text="ac_left_right.txt" VerticalAlignment="Top" Width="120"/>
+        <CheckBox Name="cb_data2"  Content="Data file 2 postfix:" HorizontalAlignment="Left" Margin="26,486,0,0" VerticalAlignment="Top"  Checked="cb_data2_checked" Unchecked="cb_data2_unchecked"/>
+        <TextBox Name="tb_data2" HorizontalAlignment="Left" Height="23" Margin="26,506,0,0" TextWrapping="Wrap" Text="vo_left_right.txt" VerticalAlignment="Top" Width="120"/>
+        <TextBox Name="tb_data3" IsEnabled="False" HorizontalAlignment="Left" Height="23" Margin="26,567,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.467,5.414"/>
+        <CheckBox Name="cb_data3"  Content="Data file 3 postfix:" HorizontalAlignment="Left" Margin="26,547,0,0" VerticalAlignment="Top"  Checked="cb_data3_checked" Unchecked="cb_data3_unchecked"/>
+        <CheckBox Name="cb_splitLine" Content="Show split line" HorizontalAlignment="Left" Margin="151,357,0,0" VerticalAlignment="Top" Checked="cb_split_checked" Unchecked="cb_split_unchecked"/>
 
 
 

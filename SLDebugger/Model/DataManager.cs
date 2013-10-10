@@ -53,6 +53,51 @@ namespace CURELab.SignLanguage.Debugger
             set { _velocityPointCollection_right = value; }
         }
 
+        private VelocityPointCollection _velocityPointCollection_left_1;
+        public VelocityPointCollection VelocityPointCollection_left_1
+        {
+            get { return _velocityPointCollection_left_1; }
+            set { _velocityPointCollection_left_1 = value; }
+        }
+
+        private VelocityPointCollection _velocityPointCollection_left_2;
+
+        public VelocityPointCollection VelocityPointCollection_left_2
+        {
+            get { return _velocityPointCollection_left_2; }
+            set { _velocityPointCollection_left_2 = value; }
+        }
+
+        private VelocityPointCollection _velocityPointCollection_left_3;
+
+        public VelocityPointCollection VelocityPointCollection_left_3
+        {
+            get { return _velocityPointCollection_left_3; }
+            set { _velocityPointCollection_left_3 = value; }
+        }
+
+        private VelocityPointCollection _velocityPointCollection_right_1;
+
+        public VelocityPointCollection VelocityPointCollection_right_1
+        {
+            get { return _velocityPointCollection_right_1; }
+            set { _velocityPointCollection_right_1 = value; }
+        }
+        private VelocityPointCollection _velocityPointCollection_right_2;
+
+        public VelocityPointCollection VelocityPointCollection_right_2
+        {
+            get { return _velocityPointCollection_right_2; }
+            set { _velocityPointCollection_right_2 = value; }
+        }
+        private VelocityPointCollection _velocityPointCollection_right_3;
+
+        public VelocityPointCollection VelocityPointCollection_right_3
+        {
+            get { return _velocityPointCollection_right_3; }
+            set { _velocityPointCollection_right_3 = value; }
+        }
+
         private VelocityPointCollection _velocityPointCollection_left;
         public VelocityPointCollection VelocityPointCollection_left
         {
@@ -89,11 +134,25 @@ namespace CURELab.SignLanguage.Debugger
             set { _segmentTimeStampList = value; }
         }
 
-        List<ShownData> _dataList;
-        public List<ShownData> DataList
+        List<ShownData> _dataList1;
+        public List<ShownData> DataList1
         {
-            get { return _dataList; }
-            set { _dataList = value; }
+            get { return _dataList1; }
+            set { _dataList1 = value; }
+        }
+
+        List<ShownData> _dataList2;
+        public List<ShownData> DataList2
+        {
+            get { return _dataList2; }
+            set { _dataList2 = value; }
+        }
+
+        List<ShownData> _dataList3;
+        public List<ShownData> DataList3
+        {
+            get { return _dataList3; }
+            set { _dataList3 = value; }
         }
 
         public DataManager()
@@ -108,33 +167,54 @@ namespace CURELab.SignLanguage.Debugger
             AccelerationPointCollection_left = new VelocityPointCollection();
             AccelerationPointCollection_right = new VelocityPointCollection();
 
+            VelocityPointCollection_left_1 = new VelocityPointCollection();
+
+            VelocityPointCollection_left_2 = new VelocityPointCollection();
+
+            VelocityPointCollection_left_3 = new VelocityPointCollection();
+
+            VelocityPointCollection_right_1 = new VelocityPointCollection();
+            VelocityPointCollection_right_2 = new VelocityPointCollection();
+            VelocityPointCollection_right_3 = new VelocityPointCollection();
+
             ImageTimeStampList = new List<int>();
             SegmentTimeStampList = new List<int>();
-            DataList = new List<ShownData>();
+            DataList1 = new List<ShownData>();
+            DataList2 = new List<ShownData>();
+            DataList3 = new List<ShownData>();
         }
 
-        public ShownData GetCurrentData(int timestamp)
+        public int GetCurrentDataTime(int timestamp)
         {
-            
+            List<ShownData> Datalist = null;
 
-            foreach (ShownData item in DataList)
+            if (DataList1.Count != 0)
             {
-                if (item.timeStamp <= timestamp + 35)
+                Datalist = DataList1;
+            }
+            else if (DataList2.Count != 0)
+            {
+                Datalist = DataList2;
+            }
+            else if (DataList3.Count != 0)
+            {
+                Datalist = DataList3;
+            }
+
+            foreach (ShownData item in Datalist)
+            {
+                if (item.timeStamp <= timestamp + 40)
                 {
-                    return item;
+                    return item.timeStamp;
                 }
             }
-            return DataList[0];
+            return Datalist[0].timeStamp;
         }
+        
 
         public int GetCurrentTimestamp(int frameNumber)
         {
-            if (ImageTimeStampList.Count == 0)
-            {
-                return 0;
-            }
-
-            if (frameNumber >= ImageTimeStampList.Count || frameNumber < 0)
+            if (frameNumber >= ImageTimeStampList.Count)
             {
                 return ImageTimeStampList.Last();
             }
@@ -148,9 +228,19 @@ namespace CURELab.SignLanguage.Debugger
             VelocityPointCollection_right.Clear();
             _accelerationPointCollection_left.Clear();
             AccelerationPointCollection_right.Clear();
+
+            VelocityPointCollection_left_1.Clear();
+            VelocityPointCollection_left_2.Clear();
+            VelocityPointCollection_left_3.Clear();
+            VelocityPointCollection_right_1.Clear();
+            VelocityPointCollection_right_2.Clear();
+            VelocityPointCollection_right_3.Clear();
+
             ImageTimeStampList.Clear();
             SegmentTimeStampList.Clear();
-            DataList.Clear();
+            DataList1.Clear();
+            DataList2.Clear();
+            DataList3.Clear();
         }
 
         #region INotifyPropertyChanged 成员

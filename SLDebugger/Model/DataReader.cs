@@ -13,7 +13,8 @@ namespace CURELab.SignLanguage.Debugger
         DataManager _dataManager;
         int _baseStamp;
 
-        public DataReader(string address, DataManager dataManager){
+        public DataReader(string address, DataManager dataManager)
+        {
             _address = address;
             _dataManager = dataManager;
             _baseStamp = Int32.MaxValue;
@@ -29,10 +30,10 @@ namespace CURELab.SignLanguage.Debugger
             try
             {
                 _dataManager.ClearAll();
-                GetBaseStamp(); 
+                GetBaseStamp();
                 OpenDataStream(DataType.SegmentData);
                 OpenDataStream(DataType.VideoTimestampData);
-                OpenDataStream(DataType.AccelerationVelocityData); 
+                OpenDataStream(DataType.TestedData);
             }
             catch (Exception e)
             {
@@ -47,12 +48,29 @@ namespace CURELab.SignLanguage.Debugger
         private void GetBaseStamp()
         {
             StreamReader timeReader = new StreamReader(_address + FilePath.VideoTimestampFilePostfix);
-            StreamReader accReader = new StreamReader(_address + FilePath.AccelerationFilePostfix);
+            StreamReader dataReader = null;
+
+            if (FilePath.DataFile1Postfix != "")
+            {
+                dataReader = new StreamReader(_address + FilePath.DataFile1Postfix);
+            }
+            else if (FilePath.DataFile2Postfix != "")
+            {
+                dataReader = new StreamReader(_address + FilePath.DataFile2Postfix);
+            }
+            else if (FilePath.DataFile3Postfix != "")
+            {
+                dataReader = new StreamReader(_address + FilePath.DataFile3Postfix);
+            }
+            else
+            {
+                _baseStamp = 0;
+            }
 
             string line = timeReader.ReadLine();
             _baseStamp = Convert.ToInt32(line);
 
-            line = accReader.ReadLine();
+            line = dataReader.ReadLine();
             _baseStamp = Math.Min(Convert.ToInt32(line.Split(' ')[0]), _baseStamp);
         }
 
@@ -68,6 +86,7 @@ namespace CURELab.SignLanguage.Debugger
                 while (!String.IsNullOrWhiteSpace(line))
                 {
                     int timeStamp = Convert.ToInt32(line) - _baseStamp;
+                  
                     _dataManager.ImageTimeStampList.Add(timeStamp);
                     line = timeReader.ReadLine();
                 }
@@ -86,7 +105,7 @@ namespace CURELab.SignLanguage.Debugger
                     if (!_dataManager.SegmentTimeStampList.Contains(segTimestamp))
                     {
                         _dataManager.SegmentTimeStampList.Add(segTimestamp);
-             
+
                     }
                     segLine = segReader.ReadLine();
 
@@ -94,56 +113,53 @@ namespace CURELab.SignLanguage.Debugger
                 segReader.Close();
             }
 
-            // read acceleration
-            if (type == DataType.AccelerationVelocityData)
+            // read data
+            if (type == DataType.TestedData)
             {
-                StreamReader accReader = new StreamReader(_address + FilePath.AccelerationFilePostfix);
-                StreamReader velReader = new StreamReader(_address + FilePath.VelociyFilePostfix);
-                StreamReader segPointReader = new StreamReader(_address + FilePath.SegmentFilePostfix);
-               
-                string aLine = accReader.ReadLine();
-                string vLine = velReader.ReadLine();
-
-                while (!String.IsNullOrWhiteSpace(vLine) && !String.IsNullOrWhiteSpace(aLine))
+                if (FilePath.DataFile1Postfix != "")
                 {
-                    string[] accWords = aLine.Split(' ');
-                    string[] velWords = vLine.Split(' ');
-
-                    // get data timestamp
-                    int dataTime = Convert.ToInt32(accWords[0]) - _baseStamp;
-
-                    // get acceleration
-                    double aLeft = Convert.ToDouble(accWords[1]);
-                    double aRight = Convert.ToDouble(accWords[2]);
-                    
-                    // get velocity
-                    double vLeft = Convert.ToDouble(velWords[1]);
-                    double vRight = Convert.ToDouble(velWords[2]);
-
-                    // get segmentation time;
-                    bool isSegpoint = _dataManager.SegmentTimeStampList.Contains(dataTime);
-
-                    // add data to data manager
-                    _dataManager.DataList.Add(new ShownData()
-                    {
-                        timeStamp = dataTime,
-                        a_left = aLeft,
-                        a_right = aRight,
-                        v_left = vLeft,
-                        v_right = vRight,
-                        isSegmentPoint = isSegpoint
-                    });
-
-                  
-                    // read new line
-                    aLine = accReader.ReadLine();
-                    vLine = velReader.ReadLine();
+                    ReadFileData(_address + FilePath.DataFile1Postfix, _dataManager.DataList1);
                 }
-
-                _dataManager.DataList.Reverse();
-                accReader.Close();
-                velReader.Close();
+                if (FilePath.DataFile2Postfix != "")
+                {
+                    ReadFileData(_address + FilePath.DataFile2Postfix, _dataManager.DataList2);
+                }
+                if (FilePath.DataFile3Postfix != "")
+                {
+                    ReadFileData(_address + FilePath.DataFile3Postfix, _dataManager.DataList3);
+                }
             }
+        }
+
+
+        private void ReadFileData(string fileURL, List<ShownData> target)
+        {
+
+            StreamReader dataReader = new StreamReader(fileURL);
+
+            string line = dataReader.ReadLine();
+
+            while (!String.IsNullOrWhiteSpace(line))
+            {
+                string[] words = line.Split(' ');
+                int dataTime = Convert.ToInt32(words[0]) - _baseStamp;
+               
+                double valLeft = Convert.ToDouble(words[1]);
+                double valRight = Convert.ToDouble(words[2]);
+
+                target.Add(new ShownData()
+                {
+                    timeStamp = dataTime,
+                    val_left = valLeft,
+                    val_right = valRight,
+
+                });
+
+                line = dataReader.ReadLine();
+            }
+            target.Reverse();
+            dataReader.Close();
+
         }
     }
 }
