@@ -1,0 +1,50 @@
+﻿<Window x:Class="CURELab.SignLanguage.Debugger.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d3="http://research.microsoft.com/DynamicDataDisplay/1.0"
+        Title="{Binding Path=FileName, StringFormat=Sign Language Debugger {0:S}}"   Height="827" Width="1196" ResizeMode="CanMinimize" HorizontalAlignment="Left" VerticalAlignment="Top" Left="100" Top="0">
+    <Grid>
+        <MediaElement x:Name="me_rawImage" HorizontalAlignment="Left" Height="285" Margin="31,20,0,0" VerticalAlignment="Top" Width="365" MediaOpened="MediaOpened" MediaEnded="MediaEnded"/>
+        <Button x:Name="btn_openFile" Content="Open" HorizontalAlignment="Left" Margin="31,310,0,0" VerticalAlignment="Top" Width="76" Click="btn_openFile_Click"/>
+        <Button x:Name="btn_play" Content="Play" HorizontalAlignment="Left" Margin="174,310,0,0" VerticalAlignment="Top" Width="74" Click="btn_play_Click"/>
+        <Button x:Name="btn_Stop" Content="Stop" HorizontalAlignment="Left" Margin="320,310,0,0" VerticalAlignment="Top" Width="76" Click="btn_Stop_Click"/>
+        <d3:ChartPlotter x:Name="cht_bigChart" VerticalAlignment="Bottom" Margin="413,0,48,432" Height="356">
+            <d3:ChartPlotter.HorizontalAxis>
+                <d3:HorizontalIntegerAxis x:Name="xAxisFrame1"/>
+            </d3:ChartPlotter.HorizontalAxis>
+            <d3:Header FontFamily="Georgia" Content="Data to show"/>
+            <d3:VerticalAxisTitle FontFamily="Georgia" Content="Data to show" />
+            <d3:HorizontalAxisTitle FontFamily="Georgia" />
+            <d3:HorizontalLine Value="{Binding MaxVelocity}" Stroke="Red" StrokeThickness="2"/>
+            <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
+
+        </d3:ChartPlotter>
+        <d3:ChartPlotter x:Name="cht_right" VerticalAlignment="Bottom" Margin="20,0,48,225" Height="175">
+            <d3:ChartPlotter.HorizontalAxis>
+                <d3:HorizontalIntegerAxis Name="xAxisFrame"/>
+            </d3:ChartPlotter.HorizontalAxis>
+            <d3:Header FontFamily="Georgia" />
+            <d3:VerticalAxisTitle FontFamily="Georgia" Content="Right" />
+            
+            <d3:HorizontalLine Value="{Binding MaxVelocity}" Stroke="Red" StrokeThickness="2"/>
+            <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
+            
+        </d3:ChartPlotter>
+        
+        <d3:ChartPlotter x:Name="cht_left" VerticalAlignment="Bottom" Margin="20,0,48,29" Height="170">
+            <d3:ChartPlotter.HorizontalAxis>
+                <d3:HorizontalIntegerAxis x:Name="dateAxis1"/>
+            </d3:ChartPlotter.HorizontalAxis>
+            <d3:Header FontFamily="Georgia" />
+            <d3:VerticalAxisTitle FontFamily="Georgia" Content="Left" />
+            
+            <d3:HorizontalLine Value="{Binding MaxVelocity}" Stroke="Red" StrokeThickness="2"/>
+            <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
+        </d3:ChartPlotter>
+        <Slider x:Name="sld_progress" HorizontalAlignment="Left" Margin="31,334,0,0" VerticalAlignment="Top" Width="365" ValueChanged="sld_progress_ValueChanged" DragEnter="sld_progress_DragEnter" DragLeave="sld_progress_DragLeave"/>
+        <CheckBox Name="cb_autopause" Content="Auto-Pause&#xD;&#xA;&#xD;&#xA;" HorizontalAlignment="Left" Margin="31,357,0,0" VerticalAlignment="Top" Checked="cb_autopause_checked" Unchecked="cb_autopause_unchecked"/>
+
+
+
+    </Grid>
+</Window>
