@@ -10,7 +10,7 @@
         <Button x:Name="btn_openFile" Content="Open" HorizontalAlignment="Left" Margin="31,310,0,0" VerticalAlignment="Top" Width="76" Click="btn_openFile_Click"/>
         <Button x:Name="btn_play" Content="Play" HorizontalAlignment="Left" Margin="174,310,0,0" VerticalAlignment="Top" Width="74" Click="btn_play_Click"/>
         <Button x:Name="btn_Stop" Content="Stop" HorizontalAlignment="Left" Margin="320,310,0,0" VerticalAlignment="Top" Width="76" Click="btn_Stop_Click"/>
-        <d3:ChartPlotter x:Name="cht_bigChart" VerticalAlignment="Bottom" Margin="419,0,48,432" Height="322">
+        <d3:ChartPlotter x:Name="cht_bigChart" VerticalAlignment="Bottom" Margin="424,0,43,454" Height="322">
             <d3:ChartPlotter.HorizontalAxis>
                 <d3:HorizontalIntegerAxis x:Name="xAxisFrame1"/>
             </d3:ChartPlotter.HorizontalAxis>
@@ -21,7 +21,7 @@
             <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
 
         </d3:ChartPlotter>
-        <d3:ChartPlotter x:Name="cht_right" VerticalAlignment="Bottom" Margin="151,0,48,219" Height="181">
+        <d3:ChartPlotter x:Name="cht_right" VerticalAlignment="Bottom" Margin="164,0,48,219" Height="181">
             <d3:ChartPlotter.HorizontalAxis>
                 <d3:HorizontalIntegerAxis Name="xAxisFrame"/>
             </d3:ChartPlotter.HorizontalAxis>
@@ -33,7 +33,7 @@
 
         </d3:ChartPlotter>
 
-        <d3:ChartPlotter x:Name="cht_left" VerticalAlignment="Bottom" Margin="151,0,48,29" Height="170">
+        <d3:ChartPlotter x:Name="cht_left" VerticalAlignment="Bottom" Margin="164,0,48,29" Height="170">
             <d3:ChartPlotter.HorizontalAxis>
                 <d3:HorizontalIntegerAxis x:Name="dateAxis1"/>
             </d3:ChartPlotter.HorizontalAxis>
@@ -49,12 +49,12 @@
         <Label Content="Segment file postfix:" HorizontalAlignment="Left" Margin="26,599,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.042,-0.545"/>
         <TextBox Name="tb_segment" HorizontalAlignment="Left" Height="23" Margin="26,629,0,0" TextWrapping="Wrap" Text="output.txt" VerticalAlignment="Top" Width="120"/>
 
-        <CheckBox Name="cb_data1"  Content="Data file 1 postfix:" HorizontalAlignment="Left" Margin="26,425,0,0" VerticalAlignment="Top" Checked="cb_data1_checked" Unchecked="cb_data1_unchecked"/>
+        <CheckBox Foreground="Blue"  Name="cb_data1"  Content="Data file 1 postfix:" HorizontalAlignment="Left" Margin="26,425,0,0" VerticalAlignment="Top" Checked="cb_data1_checked" Unchecked="cb_data1_unchecked"/>
         <TextBox Name="tb_data1" HorizontalAlignment="Left" Height="23" Margin="26,445,0,0" TextWrapping="Wrap" Text="ac_left_right.txt" VerticalAlignment="Top" Width="120"/>
-        <CheckBox Name="cb_data2"  Content="Data file 2 postfix:" HorizontalAlignment="Left" Margin="26,486,0,0" VerticalAlignment="Top"  Checked="cb_data2_checked" Unchecked="cb_data2_unchecked"/>
+        <CheckBox Foreground="Red" Name="cb_data2"  Content="Data file 2 postfix:" HorizontalAlignment="Left" Margin="26,486,0,0" VerticalAlignment="Top"  Checked="cb_data2_checked" Unchecked="cb_data2_unchecked"/>
         <TextBox Name="tb_data2" HorizontalAlignment="Left" Height="23" Margin="26,506,0,0" TextWrapping="Wrap" Text="vo_left_right.txt" VerticalAlignment="Top" Width="120"/>
         <TextBox Name="tb_data3" IsEnabled="False" HorizontalAlignment="Left" Height="23" Margin="26,567,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.467,5.414"/>
-        <CheckBox Name="cb_data3"  Content="Data file 3 postfix:" HorizontalAlignment="Left" Margin="26,547,0,0" VerticalAlignment="Top"  Checked="cb_data3_checked" Unchecked="cb_data3_unchecked"/>
+        <CheckBox Foreground="Green" Name="cb_data3"  Content="Data file 3 postfix:" HorizontalAlignment="Left" Margin="26,547,0,0" VerticalAlignment="Top"  Checked="cb_data3_checked" Unchecked="cb_data3_unchecked"/>
         <CheckBox Name="cb_splitLine" Content="Show split line" HorizontalAlignment="Left" Margin="151,357,0,0" VerticalAlignment="Top" Checked="cb_split_checked" Unchecked="cb_split_unchecked"/>
 
 

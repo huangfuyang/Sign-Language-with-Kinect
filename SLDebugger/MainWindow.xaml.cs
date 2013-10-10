@@ -102,7 +102,7 @@ namespace CURELab.SignLanguage.Debugger
             cb_data1.IsChecked = true;
             cb_data2.IsChecked = true;
             cb_data3.IsChecked = false;
-
+            cb_splitLine.IsChecked = true;
             ConsoleManager.Show();
         }
 
@@ -125,7 +125,9 @@ namespace CURELab.SignLanguage.Debugger
         private void InitializeChart()
         {
             m_rightGraphView = new GraphView(cht_right);
-            m_leftGraphView = new GraphView(cht_left);       
+            m_leftGraphView = new GraphView(cht_left);
+        
+
         }
 
         private void InitializeTimer()
@@ -190,15 +192,17 @@ namespace CURELab.SignLanguage.Debugger
                 m_dataManager.VelocityPointCollection_left_3.Add(new VelocityPoint(item.val_left, item.timeStamp));
             }
 
-
-            foreach (int item in m_dataManager.SegmentTimeStampList)
+            if (cb_splitLine.IsChecked == true)
             {
-                m_leftGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
-            }
+                foreach (int item in m_dataManager.SegmentTimeStampList)
+                {
+                    m_leftGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
+                }
 
-            foreach (int item in m_dataManager.SegmentTimeStampList)
-            {
-                m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
+                foreach (int item in m_dataManager.SegmentTimeStampList)
+                {
+                    m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
+                }
             }
         }
 
@@ -263,19 +267,26 @@ namespace CURELab.SignLanguage.Debugger
             }
             else
             {
-                Console.WriteLine("1");
                 m_rightGraphView.ClearGraph();
                 m_leftGraphView.ClearGraph();
 
-                m_rightGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_right_1, new Pen(Brushes.DarkBlue, 2), "v right");
-                m_rightGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_right_2, new Pen(Brushes.Red, 2), "v right");
-                m_rightGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_right_3, new Pen(Brushes.Green, 2), "v right");
+                if (cb_data1.IsChecked == true)
+                {
+                    m_leftGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_left_1, new Pen(Brushes.DarkBlue, 2), "v left");
+                    m_rightGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_right_1, new Pen(Brushes.DarkBlue, 2), "v right");
+                }
 
-                
-                m_leftGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_left_1, new Pen(Brushes.DarkBlue, 2), "v left");
-                m_leftGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_left_2, new Pen(Brushes.Red, 2), "v left");
-                m_leftGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_left_3, new Pen(Brushes.Green, 2), "v left");
+                if (cb_data2.IsChecked == true)
+                {
+                    m_rightGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_right_2, new Pen(Brushes.Red, 2), "v right");
+                    m_leftGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_left_2, new Pen(Brushes.Red, 2), "v left");
+                }
 
+                if (cb_data3.IsChecked == true)
+                {
+                    m_rightGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_right_3, new Pen(Brushes.Green, 2), "v right");
+                    m_leftGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_left_3, new Pen(Brushes.Green, 2), "v left");
+                }
 
                 IsPlaying = false;
                 btn_play.IsEnabled = true;
@@ -437,15 +448,15 @@ namespace CURELab.SignLanguage.Debugger
 
         private void cb_split_checked(object sender, RoutedEventArgs e)
         {
-            m_leftGraphView.ClearSplitLine();
-            m_rightGraphView.ClearSplitLine();
+            m_leftGraphView.ShowSplitLine();
+            m_rightGraphView.ShowSplitLine();
         }
 
 
         private void cb_split_unchecked(object sender, RoutedEventArgs e)
         {
-            m_leftGraphView.ShowSplitLine();
-            m_rightGraphView.ShowSplitLine();
+            m_leftGraphView.ClearSplitLine();
+            m_rightGraphView.ClearSplitLine();
         }
         
         

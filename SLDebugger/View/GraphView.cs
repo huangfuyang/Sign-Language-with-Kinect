@@ -122,6 +122,7 @@ namespace CURELab.SignLanguage.Debugger
 
         public void ClearGraph()
         {
+            _chartPlotter.Children.RemoveAll(typeof(ElementMarkerPointsGraph));
             _chartPlotter.Children.RemoveAll(typeof(LineGraph));
         }
 

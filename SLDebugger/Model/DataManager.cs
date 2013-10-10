@@ -90,6 +90,7 @@ namespace CURELab.SignLanguage.Debugger
             get { return _velocityPointCollection_right_2; }
             set { _velocityPointCollection_right_2 = value; }
         }
+
         private VelocityPointCollection _velocityPointCollection_right_3;
 
         public VelocityPointCollection VelocityPointCollection_right_3
@@ -97,28 +98,6 @@ namespace CURELab.SignLanguage.Debugger
             get { return _velocityPointCollection_right_3; }
             set { _velocityPointCollection_right_3 = value; }
         }
-
-        private VelocityPointCollection _velocityPointCollection_left;
-        public VelocityPointCollection VelocityPointCollection_left
-        {
-            get { return _velocityPointCollection_left; }
-            set { _velocityPointCollection_left = value; }
-        }
-
-        private VelocityPointCollection _accelerationPointCollection_right;
-        public VelocityPointCollection AccelerationPointCollection_right
-        {
-            get { return _accelerationPointCollection_right; }
-            set { _accelerationPointCollection_right = value; }
-        }
-
-        private VelocityPointCollection _accelerationPointCollection_left;
-        public VelocityPointCollection AccelerationPointCollection_left
-        {
-            get { return _accelerationPointCollection_left; }
-            set { _accelerationPointCollection_left = value; }
-        }
-
 
         List<int> _imageTimeStampList;
         public List<int> ImageTimeStampList
@@ -162,11 +141,7 @@ namespace CURELab.SignLanguage.Debugger
 
         private void InitializeChartData()
         {
-            VelocityPointCollection_left = new VelocityPointCollection();
-            VelocityPointCollection_right = new VelocityPointCollection();
-            AccelerationPointCollection_left = new VelocityPointCollection();
-            AccelerationPointCollection_right = new VelocityPointCollection();
-
+        
             VelocityPointCollection_left_1 = new VelocityPointCollection();
 
             VelocityPointCollection_left_2 = new VelocityPointCollection();
@@ -223,12 +198,6 @@ namespace CURELab.SignLanguage.Debugger
 
         public void ClearAll()
         {
-       
-            VelocityPointCollection_left.Clear();
-            VelocityPointCollection_right.Clear();
-            _accelerationPointCollection_left.Clear();
-            AccelerationPointCollection_right.Clear();
-
             VelocityPointCollection_left_1.Clear();
             VelocityPointCollection_left_2.Clear();
             VelocityPointCollection_left_3.Clear();
