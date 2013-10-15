@@ -56,11 +56,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Model\DataManager.cs" />
-    <Compile Include="Model\DataReader.cs" />
-    <Compile Include="Model\DataType.cs" />
-    <Compile Include="Model\FilePath.cs" />
-    <Compile Include="ViewModel\VelocityViewModel.cs" />
+    <Compile Include="Module\DataManager.cs" />
+    <Compile Include="Module\DataReader.cs" />
+    <Compile Include="StaticParams\DataType.cs" />
+    <Compile Include="StaticParams\FilePath.cs" />
+    <Compile Include="ViewModel\TwoDimensionViewModel.cs" />
     <Compile Include="View\ControlComponentView.cs" />
     <Compile Include="View\GraphView.cs" />
     <Page Include="MainWindow.xaml">
@@ -108,6 +108,9 @@
       <Project>{01af7e2c-4d9a-4c47-a9ff-c97be82f7a5d}</Project>
       <Name>RecognitionSystem</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="StaticParams\Config.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

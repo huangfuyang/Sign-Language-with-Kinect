@@ -33,16 +33,16 @@ namespace CURELab.SignLanguage.Debugger
         /// <param name="pen"></param>
         /// <param name="description"></param>
 
-        public void AppendLineGraph(VelocityPointCollection collection, Pen pen, string description)
+        public void AppendLineGraph(TwoDimensionViewPointCollection collection, Pen pen, string description)
         {
             CircleElementPointMarker pointMaker = new CircleElementPointMarker();
             pointMaker.Size = 3;
             pointMaker.Brush = Brushes.Yellow;
             pointMaker.Fill = Brushes.Purple;
 
-            var v = new EnumerableDataSource<VelocityPoint>(collection);
+            var v = new EnumerableDataSource<TwoDimensionViewPoint>(collection);
             v.SetXMapping(x => x.TimeStamp);
-            v.SetYMapping(y => y.Velocity);
+            v.SetYMapping(y => y.Value);
             _chartPlotter.AddLineGraph(v, pen, pointMaker, new PenDescription(description));
             _chartPlotter.Legend.AutoShowAndHide = false;
             _chartPlotter.LegendVisible = false;
@@ -60,12 +60,12 @@ namespace CURELab.SignLanguage.Debugger
 
         public LineGraph AddSplitLine(int split, double stroke, double min, double max, bool isSegment)
         {
-            var tempPoints = new VelocityPointCollection();
-            var v_right = new EnumerableDataSource<VelocityPoint>(tempPoints);
+            var tempPoints = new TwoDimensionViewPointCollection();
+            var v_right = new EnumerableDataSource<TwoDimensionViewPoint>(tempPoints);
             v_right.SetXMapping(x => x.TimeStamp);
-            v_right.SetYMapping(y => y.Velocity);
-            tempPoints.Add(new VelocityPoint(max, split));
-            tempPoints.Add(new VelocityPoint(min, split));
+            v_right.SetYMapping(y => y.Value);
+            tempPoints.Add(new TwoDimensionViewPoint(max, split));
+            tempPoints.Add(new TwoDimensionViewPoint(min, split));
             LineGraph newSplit = _chartPlotter.AddLineGraph(v_right, Colors.Black, stroke, "seg line");
             if (isSegment)
             {

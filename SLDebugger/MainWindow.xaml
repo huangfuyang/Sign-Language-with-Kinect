@@ -44,19 +44,20 @@
             <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
         </d3:ChartPlotter>
         <Slider x:Name="sld_progress" HorizontalAlignment="Left" Margin="31,334,0,0" VerticalAlignment="Top" Width="365" ValueChanged="sld_progress_ValueChanged" DragEnter="sld_progress_DragEnter" DragLeave="sld_progress_DragLeave"/>
-        <CheckBox Name="cb_autopause" Content="Auto-Pause" HorizontalAlignment="Left" Margin="31,357,0,0" VerticalAlignment="Top" Checked="cb_autopause_checked" Unchecked="cb_autopause_unchecked"/>
+        <CheckBox Name="cb_autopause" Content="Auto-Pause" HorizontalAlignment="Left" Margin="31,357,0,0" VerticalAlignment="Top" IsChecked="{Binding IsPauseOnSegment, Mode=TwoWay}" />
+        <CheckBox Name="cb_splitLine" Content="Show split line" HorizontalAlignment="Left" Margin="151,357,0,0" VerticalAlignment="Top" IsChecked="{Binding IsShowSplitLine, Mode=TwoWay}" />
 
         <Label Content="Segment file postfix:" HorizontalAlignment="Left" Margin="26,599,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.042,-0.545"/>
         <TextBox Name="tb_segment" HorizontalAlignment="Left" Height="23" Margin="26,629,0,0" TextWrapping="Wrap" Text="output.txt" VerticalAlignment="Top" Width="120"/>
 
-        <CheckBox Foreground="Blue"  Name="cb_data1"  Content="Data file 1 postfix:" HorizontalAlignment="Left" Margin="26,425,0,0" VerticalAlignment="Top" Checked="cb_data1_checked" Unchecked="cb_data1_unchecked"/>
-        <TextBox Name="tb_data1" HorizontalAlignment="Left" Height="23" Margin="26,445,0,0" TextWrapping="Wrap" Text="ac_left_right.txt" VerticalAlignment="Top" Width="120"/>
-        <CheckBox Foreground="Red" Name="cb_data2"  Content="Data file 2 postfix:" HorizontalAlignment="Left" Margin="26,486,0,0" VerticalAlignment="Top"  Checked="cb_data2_checked" Unchecked="cb_data2_unchecked"/>
-        <TextBox Name="tb_data2" HorizontalAlignment="Left" Height="23" Margin="26,506,0,0" TextWrapping="Wrap" Text="vo_left_right.txt" VerticalAlignment="Top" Width="120"/>
-        <TextBox Name="tb_data3" IsEnabled="False" HorizontalAlignment="Left" Height="23" Margin="26,567,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.467,5.414"/>
-        <CheckBox Foreground="Green" Name="cb_data3"  Content="Data file 3 postfix:" HorizontalAlignment="Left" Margin="26,547,0,0" VerticalAlignment="Top"  Checked="cb_data3_checked" Unchecked="cb_data3_unchecked"/>
-        <CheckBox Name="cb_splitLine" Content="Show split line" HorizontalAlignment="Left" Margin="151,357,0,0" VerticalAlignment="Top" Checked="cb_split_checked" Unchecked="cb_split_unchecked"/>
-
+        <CheckBox Foreground="Blue"  Name="cb_data1"  Content="Data file 1 postfix:" HorizontalAlignment="Left" Margin="26,425,0,0" VerticalAlignment="Top" />
+        <CheckBox Foreground="Red" Name="cb_data2"  Content="Data file 2 postfix:" HorizontalAlignment="Left" Margin="26,486,0,0" VerticalAlignment="Top"  />
+        <CheckBox Foreground="Green" Name="cb_data3"  Content="Data file 3 postfix:" HorizontalAlignment="Left" Margin="26,547,0,0" VerticalAlignment="Top" IsChecked="False"/>
+        <TextBox Name="tb_data1" HorizontalAlignment="Left" Height="23" Margin="26,445,0,0" TextWrapping="Wrap" Text="ac_left_right.txt" VerticalAlignment="Top" Width="120" IsEnabled="{Binding IsChecked, ElementName=cb_data1}"/>
+        <TextBox Name="tb_data2" HorizontalAlignment="Left" Height="23" Margin="26,506,0,0" TextWrapping="Wrap" Text="vo_left_right.txt" VerticalAlignment="Top" Width="120" IsEnabled="{Binding IsChecked, ElementName=cb_data2}"/>
+        <TextBox Name="tb_data3" HorizontalAlignment="Left" Height="23" Margin="26,567,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.467,5.414" IsEnabled="{Binding IsChecked, ElementName=cb_data3}"/>
+        
+       
 
 
     </Grid>

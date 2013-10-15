@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <dataFile>
+    <velocityLeft fileName ="vo_left_right.txt"/>
+  </dataFile>
+  <graph>
+    
+  </graph>
+</configuration>

@@ -35,7 +35,7 @@ namespace CURELab.SignLanguage.Debugger
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        
+
 
         private string _fileName;
         public string FileName
@@ -53,18 +53,38 @@ namespace CURELab.SignLanguage.Debugger
                 _isPlaying = value;
                 if (_isPlaying)
                 {
-                   
+
                     btn_play.Content = "Pause";
                 }
                 else
                 {
-                    
+
                     btn_play.Content = "Play";
                 }
             }
         }
-       
-        
+
+        private bool _isShowSplitLine;
+
+        public bool IsShowSplitLine
+        {
+            get { return _isShowSplitLine; }
+            set
+            {
+                _isShowSplitLine = value;
+                if (_isShowSplitLine)
+                {
+                    m_leftGraphView.ShowSplitLine();
+                    m_rightGraphView.ShowSplitLine();
+                }
+                else
+                {
+                    m_leftGraphView.ClearSplitLine();
+                    m_rightGraphView.ClearSplitLine();
+                }
+            }
+        }
+
         private double _currentTime;
 
         public double CurrentTime
@@ -77,11 +97,18 @@ namespace CURELab.SignLanguage.Debugger
             }
         }
 
-        bool isPauseOnSegment;
+        bool _isPauseOnSegment;
+
+        public bool IsPauseOnSegment
+        {
+            get { return _isPauseOnSegment; }
+            set { _isPauseOnSegment = value; }
+        }
+
         int preTime = 0;
         double totalDuration;
         int totalFrame;
-       
+
 
         private DataManager m_dataManager;
         private DataReader m_dataReader;
@@ -94,15 +121,10 @@ namespace CURELab.SignLanguage.Debugger
         {
             InitializeComponent();
             InitializeModule();
-            InitializeParams();
             InitializeChart();
             InitializeTimer();
+            InitializeParams();
 
-            me_rawImage.SpeedRatio = 0.2;
-            cb_data1.IsChecked = true;
-            cb_data2.IsChecked = true;
-            cb_data3.IsChecked = false;
-            cb_splitLine.IsChecked = true;
             ConsoleManager.Show();
         }
 
@@ -114,7 +136,12 @@ namespace CURELab.SignLanguage.Debugger
             FileName = "";
             IsPlaying = false;
             btn_play.IsEnabled = false;
-            isPauseOnSegment = false;
+            me_rawImage.SpeedRatio = 0.2;
+            cb_data1.IsChecked = true;
+            cb_data2.IsChecked = true;
+            cb_data3.IsChecked = false;
+            IsPauseOnSegment = true;
+            IsShowSplitLine = true;
         }
 
         private void InitializeModule()
@@ -126,7 +153,7 @@ namespace CURELab.SignLanguage.Debugger
         {
             m_rightGraphView = new GraphView(cht_right);
             m_leftGraphView = new GraphView(cht_left);
-        
+
 
         }
 
@@ -138,11 +165,11 @@ namespace CURELab.SignLanguage.Debugger
             updateTimer.Start();
         }
 
-       
+
 
         void updateTimer_Tick(object sender, EventArgs e)
         {
-           if (me_rawImage.HasVideo && _isPlaying)
+            if (me_rawImage.HasVideo && IsPlaying)
             {
                 CurrentTime = me_rawImage.Position.TotalMilliseconds;
                 int currentFrame = (int)(totalFrame * CurrentTime / totalDuration);
@@ -151,13 +178,13 @@ namespace CURELab.SignLanguage.Debugger
                 int currentDataTime = m_dataManager.GetCurrentDataTime(currentTimestamp);
                 if (m_dataManager.SegmentTimeStampList.Contains(currentDataTime) && currentDataTime != preTime)
                 {
-                    if (isPauseOnSegment)
+                    if (IsPauseOnSegment)
                     {
                         IsPlaying = false;
                         me_rawImage.Pause();
                         preTime = currentDataTime;
                     }
-                    
+
                     border_media.BorderBrush = Brushes.DimGray;
                 }
                 else
@@ -169,41 +196,36 @@ namespace CURELab.SignLanguage.Debugger
                 m_leftGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
             }
         }
-  
+
 
 
         private void DrawData()
         {
             foreach (ShownData item in m_dataManager.DataList1)
             {
-                m_dataManager.VelocityPointCollection_right_1.Add(new VelocityPoint(item.val_right, item.timeStamp));
-                m_dataManager.VelocityPointCollection_left_1.Add(new VelocityPoint(item.val_left, item.timeStamp));
+                m_dataManager.VelocityPointCollection_right_1.Add(new TwoDimensionViewPoint(item.val_right, item.timeStamp));
+                m_dataManager.VelocityPointCollection_left_1.Add(new TwoDimensionViewPoint(item.val_left, item.timeStamp));
             }
 
             foreach (ShownData item in m_dataManager.DataList2)
             {
-                m_dataManager.VelocityPointCollection_right_2.Add(new VelocityPoint(item.val_right, item.timeStamp));
-                m_dataManager.VelocityPointCollection_left_2.Add(new VelocityPoint(item.val_left, item.timeStamp));
+                m_dataManager.VelocityPointCollection_right_2.Add(new TwoDimensionViewPoint(item.val_right, item.timeStamp));
+                m_dataManager.VelocityPointCollection_left_2.Add(new TwoDimensionViewPoint(item.val_left, item.timeStamp));
             }
 
             foreach (ShownData item in m_dataManager.DataList3)
             {
-                m_dataManager.VelocityPointCollection_right_3.Add(new VelocityPoint(item.val_right, item.timeStamp));
-                m_dataManager.VelocityPointCollection_left_3.Add(new VelocityPoint(item.val_left, item.timeStamp));
+                m_dataManager.VelocityPointCollection_right_3.Add(new TwoDimensionViewPoint(item.val_right, item.timeStamp));
+                m_dataManager.VelocityPointCollection_left_3.Add(new TwoDimensionViewPoint(item.val_left, item.timeStamp));
             }
 
-            if (cb_splitLine.IsChecked == true)
+            //add split line
+            foreach (int item in m_dataManager.SegmentTimeStampList)
             {
-                foreach (int item in m_dataManager.SegmentTimeStampList)
-                {
-                    m_leftGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
-                }
-
-                foreach (int item in m_dataManager.SegmentTimeStampList)
-                {
-                    m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
-                }
+                m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
+                m_leftGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
             }
+
         }
 
 
@@ -260,7 +282,7 @@ namespace CURELab.SignLanguage.Debugger
             m_dataReader = new DataReader(temp_addr, m_dataManager);
 
             if (!m_dataReader.ReadData())
-            {             
+            {
                 btn_play.IsEnabled = false;
                 PopupWarn("Open Failed");
                 return;
@@ -293,7 +315,7 @@ namespace CURELab.SignLanguage.Debugger
                 totalDuration = me_rawImage.NaturalDuration.TimeSpan.TotalMilliseconds;
                 totalFrame = (int)(totalDuration * 0.03) + 1;
                 DrawData();
-                
+
                 //TODO: dynamic FPS
 
             }
@@ -324,7 +346,7 @@ namespace CURELab.SignLanguage.Debugger
                     FileName = dlg.FileName;
                     me_rawImage.Play();
                     me_rawImage.Pause();
-                   
+
                 }
                 catch (Exception e1)
                 {
@@ -404,61 +426,6 @@ namespace CURELab.SignLanguage.Debugger
             IsPlaying = true;
         }
 
-        private void cb_autopause_checked(object sender, RoutedEventArgs e)
-        {
-            isPauseOnSegment = true;
-        }
 
-        private void cb_autopause_unchecked(object sender, RoutedEventArgs e)
-        {
-            isPauseOnSegment = false;
-        }
-        
-        private void cb_data1_checked(object sender, RoutedEventArgs e)
-        {
-            tb_data1.IsEnabled = true;
-        }
-
-        private void cb_data1_unchecked(object sender, RoutedEventArgs e)
-        {
-            tb_data1.IsEnabled = false;
-        }
-        
-        private void cb_data2_checked(object sender, RoutedEventArgs e)
-        {
-            tb_data2.IsEnabled = true;
-        }
-
-        private void cb_data2_unchecked(object sender, RoutedEventArgs e)
-        {
-            tb_data2.IsEnabled = false;
-        }
-       
-        private void cb_data3_checked(object sender, RoutedEventArgs e)
-        {
-            tb_data3.IsEnabled = true;
-        }
-
-        private void cb_data3_unchecked(object sender, RoutedEventArgs e)
-        {
-            tb_data3.IsEnabled = false;
-        }
-
-
-
-        private void cb_split_checked(object sender, RoutedEventArgs e)
-        {
-            m_leftGraphView.ShowSplitLine();
-            m_rightGraphView.ShowSplitLine();
-        }
-
-
-        private void cb_split_unchecked(object sender, RoutedEventArgs e)
-        {
-            m_leftGraphView.ClearSplitLine();
-            m_rightGraphView.ClearSplitLine();
-        }
-        
-        
     }
 }

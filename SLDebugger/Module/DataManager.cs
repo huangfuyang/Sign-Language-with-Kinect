@@ -38,62 +38,62 @@ namespace CURELab.SignLanguage.Debugger
             set { _minVelocity = value; this.OnPropertyChanged("MinVelocity"); }
         }
 
-        private EnumerableDataSource<VelocityPoint> _shownData_V_Right;
-        public EnumerableDataSource<VelocityPoint> ShownData_V_Right
+        private EnumerableDataSource<TwoDimensionViewPoint> _shownData_V_Right;
+        public EnumerableDataSource<TwoDimensionViewPoint> ShownData_V_Right
         {
             get { return _shownData_V_Right; }
             set { _shownData_V_Right = value; }
         }
 
 
-        private VelocityPointCollection _velocityPointCollection_right;
-        public VelocityPointCollection VelocityPointCollection_right
+        private TwoDimensionViewPointCollection _velocityPointCollection_right;
+        public TwoDimensionViewPointCollection VelocityPointCollection_right
         {
             get { return _velocityPointCollection_right; }
             set { _velocityPointCollection_right = value; }
         }
 
-        private VelocityPointCollection _velocityPointCollection_left_1;
-        public VelocityPointCollection VelocityPointCollection_left_1
+        private TwoDimensionViewPointCollection _velocityPointCollection_left_1;
+        public TwoDimensionViewPointCollection VelocityPointCollection_left_1
         {
             get { return _velocityPointCollection_left_1; }
             set { _velocityPointCollection_left_1 = value; }
         }
 
-        private VelocityPointCollection _velocityPointCollection_left_2;
+        private TwoDimensionViewPointCollection _velocityPointCollection_left_2;
 
-        public VelocityPointCollection VelocityPointCollection_left_2
+        public TwoDimensionViewPointCollection VelocityPointCollection_left_2
         {
             get { return _velocityPointCollection_left_2; }
             set { _velocityPointCollection_left_2 = value; }
         }
 
-        private VelocityPointCollection _velocityPointCollection_left_3;
+        private TwoDimensionViewPointCollection _velocityPointCollection_left_3;
 
-        public VelocityPointCollection VelocityPointCollection_left_3
+        public TwoDimensionViewPointCollection VelocityPointCollection_left_3
         {
             get { return _velocityPointCollection_left_3; }
             set { _velocityPointCollection_left_3 = value; }
         }
 
-        private VelocityPointCollection _velocityPointCollection_right_1;
+        private TwoDimensionViewPointCollection _velocityPointCollection_right_1;
 
-        public VelocityPointCollection VelocityPointCollection_right_1
+        public TwoDimensionViewPointCollection VelocityPointCollection_right_1
         {
             get { return _velocityPointCollection_right_1; }
             set { _velocityPointCollection_right_1 = value; }
         }
-        private VelocityPointCollection _velocityPointCollection_right_2;
+        private TwoDimensionViewPointCollection _velocityPointCollection_right_2;
 
-        public VelocityPointCollection VelocityPointCollection_right_2
+        public TwoDimensionViewPointCollection VelocityPointCollection_right_2
         {
             get { return _velocityPointCollection_right_2; }
             set { _velocityPointCollection_right_2 = value; }
         }
 
-        private VelocityPointCollection _velocityPointCollection_right_3;
+        private TwoDimensionViewPointCollection _velocityPointCollection_right_3;
 
-        public VelocityPointCollection VelocityPointCollection_right_3
+        public TwoDimensionViewPointCollection VelocityPointCollection_right_3
         {
             get { return _velocityPointCollection_right_3; }
             set { _velocityPointCollection_right_3 = value; }
@@ -142,15 +142,15 @@ namespace CURELab.SignLanguage.Debugger
         private void InitializeChartData()
         {
         
-            VelocityPointCollection_left_1 = new VelocityPointCollection();
+            VelocityPointCollection_left_1 = new TwoDimensionViewPointCollection();
 
-            VelocityPointCollection_left_2 = new VelocityPointCollection();
+            VelocityPointCollection_left_2 = new TwoDimensionViewPointCollection();
 
-            VelocityPointCollection_left_3 = new VelocityPointCollection();
+            VelocityPointCollection_left_3 = new TwoDimensionViewPointCollection();
 
-            VelocityPointCollection_right_1 = new VelocityPointCollection();
-            VelocityPointCollection_right_2 = new VelocityPointCollection();
-            VelocityPointCollection_right_3 = new VelocityPointCollection();
+            VelocityPointCollection_right_1 = new TwoDimensionViewPointCollection();
+            VelocityPointCollection_right_2 = new TwoDimensionViewPointCollection();
+            VelocityPointCollection_right_3 = new TwoDimensionViewPointCollection();
 
             ImageTimeStampList = new List<int>();
             SegmentTimeStampList = new List<int>();
