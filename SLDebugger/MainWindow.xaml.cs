@@ -13,23 +13,19 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.IO;
 using System.Windows.Threading;
-using CURELab.SignLanguage.Debugger.ViewModel;
 using Microsoft.Research.DynamicDataDisplay.DataSources;
 using Microsoft.Research.DynamicDataDisplay;
-using System.IO;
 using Microsoft.Research.DynamicDataDisplay.PointMarkers;
+
+using CURELab.SignLanguage.Debugger.ViewModel;
 using CURELab.SignLanguage.RecognitionSystem.StaticTools;
+using CURELab.SignLanguage.Debugger.Module;
 
 namespace CURELab.SignLanguage.Debugger
 {
 
-    public struct ShownData
-    {
-        public int timeStamp;
-        public double val_right;
-        public double val_left;
-    }
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
@@ -112,6 +108,7 @@ namespace CURELab.SignLanguage.Debugger
 
         private DataManager m_dataManager;
         private DataReader m_dataReader;
+        private XMLReader m_configReader;
         private DispatcherTimer updateTimer;
         private GraphView m_rightGraphView;
         private GraphView m_leftGraphView;
@@ -146,7 +143,8 @@ namespace CURELab.SignLanguage.Debugger
 
         private void InitializeModule()
         {
-            m_dataManager = new DataManager();
+            m_dataManager = ModuleManager.CreateDataManager();
+            m_configReader = ModuleManager.CreateConfigReader();
         }
 
         private void InitializeChart()
@@ -201,22 +199,22 @@ namespace CURELab.SignLanguage.Debugger
 
         private void DrawData()
         {
-            foreach (ShownData item in m_dataManager.DataList1)
+            foreach (KeyValuePair<int, DataModel> item in m_dataManager.DataModelDic)
             {
-                m_dataManager.VelocityPointCollection_right_1.Add(new TwoDimensionViewPoint(item.val_right, item.timeStamp));
-                m_dataManager.VelocityPointCollection_left_1.Add(new TwoDimensionViewPoint(item.val_left, item.timeStamp));
+                m_dataManager.V_Right_Points.Add(new TwoDimensionViewPoint(item.Value.v_right, item.Value.timeStamp));
+                m_dataManager.V_Left_Points.Add(new TwoDimensionViewPoint(item.Value.v_left, item.Value.timeStamp));
             }
 
-            foreach (ShownData item in m_dataManager.DataList2)
+            foreach (KeyValuePair<int, DataModel> item in m_dataManager.DataModelDic)
             {
-                m_dataManager.VelocityPointCollection_right_2.Add(new TwoDimensionViewPoint(item.val_right, item.timeStamp));
-                m_dataManager.VelocityPointCollection_left_2.Add(new TwoDimensionViewPoint(item.val_left, item.timeStamp));
+                m_dataManager.VelocityPointCollection_right_2.Add(new TwoDimensionViewPoint(item.Value.a_right, item.Value.timeStamp));
+                m_dataManager.VelocityPointCollection_left_2.Add(new TwoDimensionViewPoint(item.Value.a_left, item.Value.timeStamp));
             }
 
-            foreach (ShownData item in m_dataManager.DataList3)
+            foreach (KeyValuePair<int, DataModel> item in m_dataManager.DataModelDic)
             {
-                m_dataManager.VelocityPointCollection_right_3.Add(new TwoDimensionViewPoint(item.val_right, item.timeStamp));
-                m_dataManager.VelocityPointCollection_left_3.Add(new TwoDimensionViewPoint(item.val_left, item.timeStamp));
+                m_dataManager.VelocityPointCollection_right_3.Add(new TwoDimensionViewPoint(item.Value.angle_right, item.Value.timeStamp));
+                m_dataManager.VelocityPointCollection_left_3.Add(new TwoDimensionViewPoint(item.Value.angle_left, item.Value.timeStamp));
             }
 
             //add split line
@@ -231,34 +229,34 @@ namespace CURELab.SignLanguage.Debugger
 
         private void SetFilePath()
         {
-            if (cb_data1.IsChecked == true)
-            {
-                FilePath.DataFile1Postfix = tb_data1.Text;
-            }
-            else
-            {
-                FilePath.DataFile1Postfix = "";
-            }
+            //if (cb_data1.IsChecked == true)
+            //{
+            //    FilePath.DataFile1Postfix = tb_data1.Text;
+            //}
+            //else
+            //{
+            //    FilePath.DataFile1Postfix = "";
+            //}
 
-            if (cb_data2.IsChecked == true)
-            {
-                FilePath.DataFile2Postfix = tb_data2.Text;
-            }
-            else
-            {
-                FilePath.DataFile2Postfix = "";
-            }
+            //if (cb_data2.IsChecked == true)
+            //{
+            //    FilePath.DataFile2Postfix = tb_data2.Text;
+            //}
+            //else
+            //{
+            //    FilePath.DataFile2Postfix = "";
+            //}
 
-            if (cb_data3.IsChecked == true)
-            {
-                FilePath.DataFile3Postfix = tb_data3.Text;
-            }
-            else
-            {
-                FilePath.DataFile3Postfix = "";
-            }
+            //if (cb_data3.IsChecked == true)
+            //{
+            //    FilePath.DataFile3Postfix = tb_data3.Text;
+            //}
+            //else
+            //{
+            //    FilePath.DataFile3Postfix = "";
+            //}
 
-            FilePath.SegmentFilePostfix = tb_segment.Text;
+            //FilePath.SegmentFilePostfix = tb_segment.Text;
 
         }
 
@@ -277,9 +275,9 @@ namespace CURELab.SignLanguage.Debugger
             //file addr with file number & _    C:\sss\ss\s\1_
             temp_addr += temp_name.Split('_')[0] + '_';
 
-            SetFilePath();
+            //SetFilePath();
             Console.WriteLine("1");
-            m_dataReader = new DataReader(temp_addr, m_dataManager);
+            m_dataReader = ModuleManager.CreateDataReader(temp_addr);
 
             if (!m_dataReader.ReadData())
             {
@@ -294,8 +292,8 @@ namespace CURELab.SignLanguage.Debugger
 
                 if (cb_data1.IsChecked == true)
                 {
-                    m_leftGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_left_1, new Pen(Brushes.DarkBlue, 2), "v left");
-                    m_rightGraphView.AppendLineGraph(m_dataManager.VelocityPointCollection_right_1, new Pen(Brushes.DarkBlue, 2), "v right");
+                    m_leftGraphView.AppendLineGraph(m_dataManager.V_Left_Points, new Pen(Brushes.DarkBlue, 2), "v left");
+                    m_rightGraphView.AppendLineGraph(m_dataManager.V_Right_Points, new Pen(Brushes.DarkBlue, 2), "v right");
                 }
 
                 if (cb_data2.IsChecked == true)

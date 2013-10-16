@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 using CURELab.SignLanguage.Debugger.ViewModel;
 using Microsoft.Research.DynamicDataDisplay.DataSources;
 
-namespace CURELab.SignLanguage.Debugger
+namespace CURELab.SignLanguage.Debugger.Module
 {
     /// <summary>
     /// add summary here
@@ -38,26 +38,19 @@ namespace CURELab.SignLanguage.Debugger
             set { _minVelocity = value; this.OnPropertyChanged("MinVelocity"); }
         }
 
-        private EnumerableDataSource<TwoDimensionViewPoint> _shownData_V_Right;
-        public EnumerableDataSource<TwoDimensionViewPoint> ShownData_V_Right
+
+        private TwoDimensionViewPointCollection _v_rightPoints;
+        public TwoDimensionViewPointCollection V_Right_Points
         {
-            get { return _shownData_V_Right; }
-            set { _shownData_V_Right = value; }
+            get { return _v_rightPoints; }
+            set { _v_rightPoints = value; }
         }
 
-
-        private TwoDimensionViewPointCollection _velocityPointCollection_right;
-        public TwoDimensionViewPointCollection VelocityPointCollection_right
+        private TwoDimensionViewPointCollection _v_leftPoints;
+        public TwoDimensionViewPointCollection V_Left_Points
         {
-            get { return _velocityPointCollection_right; }
-            set { _velocityPointCollection_right = value; }
-        }
-
-        private TwoDimensionViewPointCollection _velocityPointCollection_left_1;
-        public TwoDimensionViewPointCollection VelocityPointCollection_left_1
-        {
-            get { return _velocityPointCollection_left_1; }
-            set { _velocityPointCollection_left_1 = value; }
+            get { return _v_leftPoints; }
+            set { _v_leftPoints = value; }
         }
 
         private TwoDimensionViewPointCollection _velocityPointCollection_left_2;
@@ -76,13 +69,7 @@ namespace CURELab.SignLanguage.Debugger
             set { _velocityPointCollection_left_3 = value; }
         }
 
-        private TwoDimensionViewPointCollection _velocityPointCollection_right_1;
-
-        public TwoDimensionViewPointCollection VelocityPointCollection_right_1
-        {
-            get { return _velocityPointCollection_right_1; }
-            set { _velocityPointCollection_right_1 = value; }
-        }
+        
         private TwoDimensionViewPointCollection _velocityPointCollection_right_2;
 
         public TwoDimensionViewPointCollection VelocityPointCollection_right_2
@@ -113,26 +100,13 @@ namespace CURELab.SignLanguage.Debugger
             set { _segmentTimeStampList = value; }
         }
 
-        List<ShownData> _dataList1;
-        public List<ShownData> DataList1
+        private Dictionary<int , DataModel> _dataModelDic;
+        public Dictionary<int, DataModel> DataModelDic
         {
-            get { return _dataList1; }
-            set { _dataList1 = value; }
+            get { return _dataModelDic; }
+            set { _dataModelDic = value; }
         }
 
-        List<ShownData> _dataList2;
-        public List<ShownData> DataList2
-        {
-            get { return _dataList2; }
-            set { _dataList2 = value; }
-        }
-
-        List<ShownData> _dataList3;
-        public List<ShownData> DataList3
-        {
-            get { return _dataList3; }
-            set { _dataList3 = value; }
-        }
 
         public DataManager()
         {
@@ -142,48 +116,33 @@ namespace CURELab.SignLanguage.Debugger
         private void InitializeChartData()
         {
         
-            VelocityPointCollection_left_1 = new TwoDimensionViewPointCollection();
+            V_Left_Points = new TwoDimensionViewPointCollection();
+            V_Right_Points = new TwoDimensionViewPointCollection();
 
             VelocityPointCollection_left_2 = new TwoDimensionViewPointCollection();
 
             VelocityPointCollection_left_3 = new TwoDimensionViewPointCollection();
 
-            VelocityPointCollection_right_1 = new TwoDimensionViewPointCollection();
             VelocityPointCollection_right_2 = new TwoDimensionViewPointCollection();
             VelocityPointCollection_right_3 = new TwoDimensionViewPointCollection();
 
             ImageTimeStampList = new List<int>();
             SegmentTimeStampList = new List<int>();
-            DataList1 = new List<ShownData>();
-            DataList2 = new List<ShownData>();
-            DataList3 = new List<ShownData>();
+            DataModelDic = new Dictionary<int, DataModel>();
         }
 
         public int GetCurrentDataTime(int timestamp)
         {
-            List<ShownData> Datalist = null;
+            
 
-            if (DataList1.Count != 0)
+            foreach (int key in DataModelDic.Keys)
             {
-                Datalist = DataList1;
-            }
-            else if (DataList2.Count != 0)
-            {
-                Datalist = DataList2;
-            }
-            else if (DataList3.Count != 0)
-            {
-                Datalist = DataList3;
-            }
-
-            foreach (ShownData item in Datalist)
-            {
-                if (item.timeStamp <= timestamp + 40)
+                if (key <= timestamp + 40)
                 {
-                    return item.timeStamp;
+                    return key;
                 }
             }
-            return Datalist[0].timeStamp;
+            return 0;
         }
         
 
@@ -198,18 +157,16 @@ namespace CURELab.SignLanguage.Debugger
 
         public void ClearAll()
         {
-            VelocityPointCollection_left_1.Clear();
+            V_Left_Points.Clear();
             VelocityPointCollection_left_2.Clear();
             VelocityPointCollection_left_3.Clear();
-            VelocityPointCollection_right_1.Clear();
+            V_Right_Points.Clear();
             VelocityPointCollection_right_2.Clear();
             VelocityPointCollection_right_3.Clear();
 
             ImageTimeStampList.Clear();
             SegmentTimeStampList.Clear();
-            DataList1.Clear();
-            DataList2.Clear();
-            DataList3.Clear();
+            DataModelDic.Clear();
         }
 
         #region INotifyPropertyChanged 成员

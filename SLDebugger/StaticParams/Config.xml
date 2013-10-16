@@ -1,9 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <configuration>
   <dataFile>
-    <velocityLeft fileName ="vo_left_right.txt"/>
+    <velocity  fileName ="vo_left_right.txt"/>
+    <acceleration fileName ="ac_left_right.txt"/>
+    <timestamp fileName="timestamp.txt"/>
+    <skeleton fileName ="skeleton.txt"/>
+    <segmentation fileName="output.txt"/>
+    <angle fileName ="angle.txt"/>
   </dataFile>
   <graph>
-    
+
   </graph>
 </configuration>
