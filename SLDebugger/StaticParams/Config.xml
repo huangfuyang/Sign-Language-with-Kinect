@@ -9,6 +9,9 @@
     <angle fileName ="angle.txt"/>
   </dataFile>
   <graph>
+    <line>
+      <velocity color=""/>
+    </line>
 
   </graph>
 </configuration>

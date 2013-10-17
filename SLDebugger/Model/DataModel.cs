@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace CURELab.SignLanguage.Debugger
+namespace CURELab.SignLanguage.Debugger.Model
 {
     /// <summary>
     /// add summary here
@@ -34,6 +34,6 @@ namespace CURELab.SignLanguage.Debugger
 
     public struct Vec3
     {
-        double x, y, z;
+        public double x, y, z;
     }
 }

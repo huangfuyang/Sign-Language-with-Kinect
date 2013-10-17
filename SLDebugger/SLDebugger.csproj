@@ -23,6 +23,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -56,7 +58,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="DataModel.cs" />
+    <Compile Include="Model\DataModel.cs" />
+    <Compile Include="Model\SegmentedWordModel.cs" />
     <Compile Include="Module\DataManager.cs" />
     <Compile Include="Module\DataReader.cs" />
     <Compile Include="Module\ModuleManager.cs" />

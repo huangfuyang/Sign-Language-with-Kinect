@@ -35,5 +35,15 @@ namespace CURELab.SignLanguage.Debugger.Module
             node = node.SelectSingleNode(fn);
             return node.Attributes[0].Value.ToString();            
         }
+
+        public string GetColor(string data)
+        {
+            XmlNode node = xmlDocument.SelectSingleNode("configuration");
+            node = node.SelectSingleNode("graph");
+            node = node.SelectSingleNode("line");
+            node = node.SelectSingleNode(data);
+            
+            return node.Attributes[0].Value.ToString();            
+        }
     }
 }

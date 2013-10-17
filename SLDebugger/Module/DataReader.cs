@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using CURELab.SignLanguage.Debugger.Model;
 
 namespace CURELab.SignLanguage.Debugger.Module
 {
@@ -40,7 +41,7 @@ namespace CURELab.SignLanguage.Debugger.Module
             }
             catch (Exception e)
             {
-
+                Console.WriteLine(e);
                 return false;
             }
 
@@ -97,7 +98,7 @@ namespace CURELab.SignLanguage.Debugger.Module
             }
             segReader.Close();
         }
-        private void LoadData()
+        private void  LoadData()
         {
             
             // read velo
@@ -157,18 +158,73 @@ namespace CURELab.SignLanguage.Debugger.Module
                 }
                 acclReader.Close();
 
-            } 
-            //StreamReader angleReader = new StreamReader(_address + _configReader.GetFileName(FileName.ANGLE));
-            //StreamReader skeletonReader = new StreamReader(_address + _configReader.GetFileName(FileName.SKELETON));
+            }
+            //read angle
+            if (File.Exists(_address + _configReader.GetFileName(FileName.ANGLE)))
+            {
+                StreamReader angleReader = new StreamReader(_address + _configReader.GetFileName(FileName.ANGLE));
+                string line = angleReader.ReadLine();
 
-            
+                while (!String.IsNullOrWhiteSpace(line))
+                {
+                    string[] words = line.Split(' ');
+                    int dataTime = Convert.ToInt32(words[0]) - _baseStamp;
 
-            
+                    double angleleft = Convert.ToDouble(words[1]);
+                    double angleright = Convert.ToDouble(words[2]);
+
+                    if (!_dataManager.DataModelDic.ContainsKey(dataTime))
+                    {
+                        _dataManager.DataModelDic.Add(dataTime, new DataModel()
+                        {
+                            timeStamp = dataTime,
+                        });
+                    }
+
+                    _dataManager.DataModelDic[dataTime].angle_left = angleleft;
+                    _dataManager.DataModelDic[dataTime].angle_right = angleright;
+                    line = angleReader.ReadLine(); 
+                }
+                angleReader.Close();
+
+            }
+            //read skeleton
+            if (File.Exists(_address + _configReader.GetFileName(FileName.SKELETON)))
+            {
+                StreamReader skeletonReader = new StreamReader(_address + _configReader.GetFileName(FileName.SKELETON));
+                string line = skeletonReader.ReadLine();
+
+                while (!String.IsNullOrWhiteSpace(line))
+                {
+                    string[] words = line.Split(',');
+                    int dataTime = Convert.ToInt32(words[0]) - _baseStamp;
+
+                    double leftx = Convert.ToDouble(words[1]);
+                    double lefty = Convert.ToDouble(words[2]);
+                    double leftz = Convert.ToDouble(words[3]);
+
+                    double rightx = Convert.ToDouble(words[4]);
+                    double righty = Convert.ToDouble(words[5]);
+                    double rightz = Convert.ToDouble(words[6]);
+
+                    if (!_dataManager.DataModelDic.ContainsKey(dataTime))
+                    {
+                        _dataManager.DataModelDic.Add(dataTime, new DataModel()
+                        {
+                            timeStamp = dataTime,
+                        });
+                    }
+
+                    _dataManager.DataModelDic[dataTime].position_left = new Vec3() {x = leftx,y = lefty,z = leftz };
+                    _dataManager.DataModelDic[dataTime].position_right = new Vec3() { x = rightx, y = righty, z = rightz };
+                    line = skeletonReader.ReadLine();
+                }
+                skeletonReader.Close();
+
+            }
 
             _dataManager.DataModelDic.Reverse();
 
-            //angleReader.Close();
-            //skeletonReader.Close();
         }
 
     }

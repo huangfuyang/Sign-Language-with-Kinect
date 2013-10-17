@@ -23,6 +23,8 @@ namespace CURELab.SignLanguage.Debugger
         public GraphView(ChartPlotter cht)
         {          
             _chartPlotter = cht;
+            _chartPlotter.Legend.AutoShowAndHide = false;
+            _chartPlotter.LegendVisible = false;
             _splitLineList = new List<LineGraph>();
         }
 
@@ -33,7 +35,7 @@ namespace CURELab.SignLanguage.Debugger
         /// <param name="pen"></param>
         /// <param name="description"></param>
 
-        public void AppendLineGraph(TwoDimensionViewPointCollection collection, Pen pen, string description)
+        public LineAndMarker<ElementMarkerPointsGraph> AppendLineGraph(TwoDimensionViewPointCollection collection, Pen pen, string description)
         {
             CircleElementPointMarker pointMaker = new CircleElementPointMarker();
             pointMaker.Size = 3;
@@ -43,9 +45,8 @@ namespace CURELab.SignLanguage.Debugger
             var v = new EnumerableDataSource<TwoDimensionViewPoint>(collection);
             v.SetXMapping(x => x.TimeStamp);
             v.SetYMapping(y => y.Value);
-            _chartPlotter.AddLineGraph(v, pen, pointMaker, new PenDescription(description));
-            _chartPlotter.Legend.AutoShowAndHide = false;
-            _chartPlotter.LegendVisible = false;
+            return _chartPlotter.AddLineGraph(v, pen, pointMaker, new PenDescription(description));
+            
         }
 
 
@@ -117,13 +118,18 @@ namespace CURELab.SignLanguage.Debugger
 
         /// <summary>
         /// 
-        /// clear the graph
+        /// clear all the graphs
         /// </summary>
 
-        public void ClearGraph()
+        public void ClearAllGraph()
         {
             _chartPlotter.Children.RemoveAll(typeof(ElementMarkerPointsGraph));
             _chartPlotter.Children.RemoveAll(typeof(LineGraph));
+        }
+
+        public void ClearGraph()
+        {
+            
         }
 
 

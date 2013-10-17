@@ -11,7 +11,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using CURELab.SignLanguage.Debugger.Model;
 using CURELab.SignLanguage.Debugger.ViewModel;
 using Microsoft.Research.DynamicDataDisplay.DataSources;
 
@@ -53,37 +53,37 @@ namespace CURELab.SignLanguage.Debugger.Module
             set { _v_leftPoints = value; }
         }
 
-        private TwoDimensionViewPointCollection _velocityPointCollection_left_2;
+        private TwoDimensionViewPointCollection _a_left_Points;
 
-        public TwoDimensionViewPointCollection VelocityPointCollection_left_2
+        public TwoDimensionViewPointCollection A_Left_Points
         {
-            get { return _velocityPointCollection_left_2; }
-            set { _velocityPointCollection_left_2 = value; }
+            get { return _a_left_Points; }
+            set { _a_left_Points = value; }
         }
 
-        private TwoDimensionViewPointCollection _velocityPointCollection_left_3;
+        private TwoDimensionViewPointCollection _angle_left;
 
-        public TwoDimensionViewPointCollection VelocityPointCollection_left_3
+        public TwoDimensionViewPointCollection Angle_Left_Points
         {
-            get { return _velocityPointCollection_left_3; }
-            set { _velocityPointCollection_left_3 = value; }
+            get { return _angle_left; }
+            set { _angle_left = value; }
         }
 
         
-        private TwoDimensionViewPointCollection _velocityPointCollection_right_2;
+        private TwoDimensionViewPointCollection _a_right_points;
 
-        public TwoDimensionViewPointCollection VelocityPointCollection_right_2
+        public TwoDimensionViewPointCollection A_Right_Points
         {
-            get { return _velocityPointCollection_right_2; }
-            set { _velocityPointCollection_right_2 = value; }
+            get { return _a_right_points; }
+            set { _a_right_points = value; }
         }
 
-        private TwoDimensionViewPointCollection _velocityPointCollection_right_3;
+        private TwoDimensionViewPointCollection _angle_right_points;
 
-        public TwoDimensionViewPointCollection VelocityPointCollection_right_3
+        public TwoDimensionViewPointCollection Angle_Right_Points
         {
-            get { return _velocityPointCollection_right_3; }
-            set { _velocityPointCollection_right_3 = value; }
+            get { return _angle_right_points; }
+            set { _angle_right_points = value; }
         }
 
         List<int> _imageTimeStampList;
@@ -119,12 +119,12 @@ namespace CURELab.SignLanguage.Debugger.Module
             V_Left_Points = new TwoDimensionViewPointCollection();
             V_Right_Points = new TwoDimensionViewPointCollection();
 
-            VelocityPointCollection_left_2 = new TwoDimensionViewPointCollection();
+            A_Left_Points = new TwoDimensionViewPointCollection();
 
-            VelocityPointCollection_left_3 = new TwoDimensionViewPointCollection();
+            Angle_Left_Points = new TwoDimensionViewPointCollection();
 
-            VelocityPointCollection_right_2 = new TwoDimensionViewPointCollection();
-            VelocityPointCollection_right_3 = new TwoDimensionViewPointCollection();
+            A_Right_Points = new TwoDimensionViewPointCollection();
+            Angle_Right_Points = new TwoDimensionViewPointCollection();
 
             ImageTimeStampList = new List<int>();
             SegmentTimeStampList = new List<int>();
@@ -137,7 +137,7 @@ namespace CURELab.SignLanguage.Debugger.Module
 
             foreach (int key in DataModelDic.Keys)
             {
-                if (key <= timestamp + 40)
+                if (key > timestamp + 40)
                 {
                     return key;
                 }
@@ -158,11 +158,11 @@ namespace CURELab.SignLanguage.Debugger.Module
         public void ClearAll()
         {
             V_Left_Points.Clear();
-            VelocityPointCollection_left_2.Clear();
-            VelocityPointCollection_left_3.Clear();
+            A_Left_Points.Clear();
+            Angle_Left_Points.Clear();
             V_Right_Points.Clear();
-            VelocityPointCollection_right_2.Clear();
-            VelocityPointCollection_right_3.Clear();
+            A_Right_Points.Clear();
+            Angle_Right_Points.Clear();
 
             ImageTimeStampList.Clear();
             SegmentTimeStampList.Clear();
