@@ -127,6 +127,38 @@ namespace CURELab.SignLanguage.Debugger
             }
         }
 
+
+        bool _isShowVeloLeft;
+        LineAndMarker<ElementMarkerPointsGraph> v_left_graph;
+        public bool IsShowVeloLeft
+        {
+            get { return _isShowVeloLeft; }
+            set
+            {
+                _isShowVeloLeft = value;
+                if (value)
+                {
+                    v_left_graph = m_leftGraphView.AppendLineGraph(m_dataManager.V_Left_Points, new Pen(Brushes.DarkBlue, 2), "v leftt");
+                }
+                else
+                {
+                    if (v_left_graph != null)
+                    {
+                        v_left_graph.LineGraph.Remove();
+                        v_left_graph.MarkerGraph.Remove();
+                        v_left_graph = null;
+                    }
+
+                }
+            }
+        }
+
+
+
+
+
+
+
         bool _isShowAccRight;
         LineAndMarker<ElementMarkerPointsGraph> acc_right_graph;
         public bool IsShowAccRight
@@ -150,6 +182,34 @@ namespace CURELab.SignLanguage.Debugger
                 }
             }
         }
+
+
+
+
+        bool _isShowAccLeft;
+        LineAndMarker<ElementMarkerPointsGraph> acc_left_graph;
+        public bool IsShowAccLeft
+        {
+            get { return _isShowAccLeft; }
+            set
+            {
+                _isShowAccLeft = value;
+                if (value)
+                {
+                    acc_left_graph = m_leftGraphView.AppendLineGraph(m_dataManager.A_Left_Points, new Pen(Brushes.Red, 2), "a left");
+                }
+                else
+                {
+                    if (acc_left_graph != null)
+                    {
+                        acc_left_graph.LineGraph.Remove();
+                        acc_left_graph.MarkerGraph.Remove();
+                        acc_left_graph = null;
+                    }
+                }
+            }
+        }
+
 
         bool _isShowAngleRight;
         LineAndMarker<ElementMarkerPointsGraph> angle_right_graph;
@@ -176,6 +236,188 @@ namespace CURELab.SignLanguage.Debugger
         }
 
 
+        bool _isShowAngleLeft;
+        LineAndMarker<ElementMarkerPointsGraph> angle_left_graph;
+        public bool IsShowAngleLeft
+        {
+            get { return _isShowAngleLeft; }
+            set
+            {
+                _isShowAngleLeft = value;
+                if (value)
+                {
+                    angle_left_graph = m_leftGraphView.AppendLineGraph(m_dataManager.Angle_Left_Points, new Pen(Brushes.ForestGreen, 2), "a left");
+                }
+                else
+                {
+                    if (angle_left_graph != null)
+                    {
+                        angle_left_graph.LineGraph.Remove();
+                        angle_left_graph.MarkerGraph.Remove();
+                        angle_left_graph = null;
+                    }
+                }
+            }
+        }
+
+
+        bool _isShowVeloLeftBig;
+        LineAndMarker<ElementMarkerPointsGraph> v_left_big_graph;
+        public bool IsShowVeloLeftBig
+        {
+            get { return _isShowVeloLeftBig; }
+            set
+            {
+                _isShowVeloLeftBig = value;
+                if (value)
+                {
+                    v_left_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.V_Left_Dynamic_Points, new Pen(Brushes.DarkBlue, 2), "v leftt");
+                }
+                else
+                {
+                    if (v_left_big_graph != null)
+                    {
+                        v_left_big_graph.LineGraph.Remove();
+                        v_left_big_graph.MarkerGraph.Remove();
+                        v_left_big_graph = null;
+                    }
+
+                }
+            }
+        }
+
+
+        bool _isShowVeloRightBig;
+        LineAndMarker<ElementMarkerPointsGraph> v_right_big_graph;
+        public bool IsShowVeloRightBig
+        {
+            get { return _isShowVeloRightBig; }
+            set
+            {
+                _isShowVeloRightBig = value;
+                if (value)
+                {
+                    v_right_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.V_Right_Dynamic_Points, new Pen(Brushes.DarkBlue, 2), "v leftt");
+                }
+                else
+                {
+                    if (v_right_big_graph != null)
+                    {
+                        v_right_big_graph.LineGraph.Remove();
+                        v_right_big_graph.MarkerGraph.Remove();
+                        v_right_big_graph = null;
+                    }
+
+                }
+            }
+        }
+
+
+        bool _isShowAccLeftBig;
+        LineAndMarker<ElementMarkerPointsGraph> a_left_big_graph;
+        public bool IsShowAccLeftBig
+        {
+            get { return _isShowAccLeftBig; }
+            set
+            {
+                _isShowAccLeftBig = value;
+                if (value)
+                {
+                    a_left_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.A_Left_Dynamic_Points, new Pen(Brushes.Red, 2), "v leftt");
+                }
+                else
+                {
+                    if (a_left_big_graph != null)
+                    {
+                        a_left_big_graph.LineGraph.Remove();
+                        a_left_big_graph.MarkerGraph.Remove();
+                        a_left_big_graph = null;
+                    }
+
+                }
+            }
+        }
+
+
+        bool _isShowAccRightBig;
+        LineAndMarker<ElementMarkerPointsGraph> a_right_big_graph;
+        public bool IsShowAccRightBig
+        {
+            get { return _isShowAccRightBig; }
+            set
+            {
+                _isShowAccRightBig = value;
+                if (value)
+                {
+                    a_right_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.A_Right_Dynamic_Points, new Pen(Brushes.Red, 2), "v leftt");
+                }
+                else
+                {
+                    if (a_right_big_graph != null)
+                    {
+                        a_right_big_graph.LineGraph.Remove();
+                        a_right_big_graph.MarkerGraph.Remove();
+                        a_right_big_graph = null;
+                    }
+
+                }
+            }
+        }
+
+        bool _isShowAngleLeftBig;
+        LineAndMarker<ElementMarkerPointsGraph> angle_left_big_graph;
+        public bool IsShowAngleLeftBig
+        {
+            get { return _isShowAngleLeftBig; }
+            set
+            {
+                _isShowAngleLeftBig = value;
+                if (value)
+                {
+                    angle_left_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.Angle_Left_Dynamic_Points, new Pen(Brushes.ForestGreen, 2), "v leftt");
+                }
+                else
+                {
+                    if (angle_left_big_graph != null)
+                    {
+                        angle_left_big_graph.LineGraph.Remove();
+                        angle_left_big_graph.MarkerGraph.Remove();
+                        angle_left_big_graph = null;
+                    }
+
+                }
+            }
+        }
+
+        bool _isShowAngleRightBig;
+        LineAndMarker<ElementMarkerPointsGraph> angle_right_big_graph;
+        public bool IsShowAngleRightBig
+        {
+            get { return _isShowAngleRightBig; }
+            set
+            {
+                _isShowAngleRightBig = value;
+                if (value)
+                {
+                    angle_right_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.Angle_Right_Dynamic_Points, new Pen(Brushes.ForestGreen, 2), "v leftt");
+                }
+                else
+                {
+                    if (angle_right_big_graph != null)
+                    {
+                        angle_right_big_graph.LineGraph.Remove();
+                        angle_right_big_graph.MarkerGraph.Remove();
+                        angle_right_big_graph = null;
+                    }
+
+                }
+            }
+        }
+
+
+
+
+        int xrange = 3000;
         int preTime = 0;
         double totalDuration;
         int totalFrame;
@@ -188,6 +430,7 @@ namespace CURELab.SignLanguage.Debugger
         private GraphView m_rightGraphView;
         private GraphView m_leftGraphView;
         private GraphView m_truthGraphView;
+        private GraphView m_bigGraphView;
 
 
         public MainWindow()
@@ -210,7 +453,8 @@ namespace CURELab.SignLanguage.Debugger
             IsPlaying = false;
             btn_play.IsEnabled = false;
             me_rawImage.SpeedRatio = 0.2;
-          
+            
+
             IsPauseOnSegment = true;
             IsShowSplitLine = true;
 
@@ -228,7 +472,11 @@ namespace CURELab.SignLanguage.Debugger
             m_rightGraphView = new GraphView(cht_right);
             m_leftGraphView = new GraphView(cht_left);
             m_truthGraphView = new GraphView(cht_truth);
-
+            m_bigGraphView = new GraphView(cht_bigChart);
+            ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
+            restr.YRange = new DisplayRange(0, 1);
+            cht_bigChart.Viewport.Restrictions.Add(restr);
+           // cht_bigChart.MinHeight = 0;
         }
 
         private void InitializeTimer()
@@ -272,6 +520,23 @@ namespace CURELab.SignLanguage.Debugger
 
                     border_media.BorderBrush = Brushes.White;
                 }
+
+                try
+                {
+                    m_dataManager.V_Left_Dynamic_Points.Add(new TwoDimensionViewPoint(m_dataManager.DataModelDic[currentDataTime].v_left, currentDataTime));
+                    m_dataManager.V_Right_Dynamic_Points.Add(new TwoDimensionViewPoint(m_dataManager.DataModelDic[currentDataTime].v_right, currentDataTime));
+                    m_dataManager.A_Left_Dynamic_Points.Add(new TwoDimensionViewPoint(m_dataManager.DataModelDic[currentDataTime].a_left, currentDataTime));
+                    m_dataManager.A_Right_Dynamic_Points.Add(new TwoDimensionViewPoint(m_dataManager.DataModelDic[currentDataTime].a_right, currentDataTime));
+                    m_dataManager.Angle_Left_Dynamic_Points.Add(new TwoDimensionViewPoint(m_dataManager.DataModelDic[currentDataTime].angle_left, currentDataTime));
+                    m_dataManager.Angle_Right_Dynamic_Points.Add(new TwoDimensionViewPoint(m_dataManager.DataModelDic[currentDataTime].angle_right, currentDataTime));
+                }
+                catch (Exception E)
+                {
+                }
+                ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
+                restr.XRange = new DisplayRange(currentDataTime - xrange, currentDataTime);
+                cht_bigChart.Viewport.Restrictions.Add(restr);
+                
 
 
                 tbk_Words.Inlines.Clear();
@@ -388,7 +653,7 @@ namespace CURELab.SignLanguage.Debugger
                 m_leftGraphView.ClearAllGraph();
 
                 cb_v_right.IsChecked = true;
-
+                cb_v_left.IsChecked = true;
                // m_leftGraphView.AppendLineGraph(m_dataManager.V_Left_Points, new Pen(Brushes.DarkBlue, 2), "v left");
                // m_leftGraphView.AppendLineGraph(m_dataManager.A_Left_Points, new Pen(Brushes.Red, 2), "v left");
                // m_leftGraphView.AppendLineGraph(m_dataManager.Angle_Left_Points, new Pen(Brushes.Green, 2), "v left");
@@ -406,6 +671,8 @@ namespace CURELab.SignLanguage.Debugger
 
         private void MediaEnded(object sender, RoutedEventArgs e)
         {
+            m_dataManager.ClearDynamicData();
+            sld_progress.Value = 0;
             IsPlaying = false;
         }
 
@@ -465,6 +732,7 @@ namespace CURELab.SignLanguage.Debugger
         {
             if (me_rawImage.HasVideo)
             {
+                m_dataManager.ClearDynamicData();
                 me_rawImage.Stop();
                 IsPlaying = false; 
                 CurrentTime = 0;

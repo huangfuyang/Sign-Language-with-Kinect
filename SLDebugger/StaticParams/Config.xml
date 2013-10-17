@@ -6,7 +6,7 @@
     <timestamp fileName="timestamp.txt"/>
     <skeleton fileName ="skeleton.txt"/>
     <segmentation fileName="output.txt"/>
-    <angle fileName ="angle.txt"/>
+    <angle fileName ="ag_left_right.txt"/>
   </dataFile>
   <graph>
     <line>

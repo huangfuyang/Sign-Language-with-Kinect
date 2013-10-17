@@ -68,7 +68,9 @@
     <Compile Include="StaticParams\FileName.cs" />
     <Compile Include="ViewModel\TwoDimensionViewModel.cs" />
     <Compile Include="View\ControlComponentView.cs" />
+    <Compile Include="View\DisplayRange.cs" />
     <Compile Include="View\GraphView.cs" />
+    <Compile Include="View\ViewportAxesRangeRestriction.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -118,6 +120,7 @@
   <ItemGroup>
     <Resource Include="StaticParams\Config.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
