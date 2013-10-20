@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Research.DynamicDataDisplay.Common;
 
 
 namespace CURELab.SignLanguage.Debugger.Model
@@ -17,10 +18,31 @@ namespace CURELab.SignLanguage.Debugger.Model
     /// <summary>
     /// add summary here
     /// </summary>
-    public struct SegmentedWordModel
+
+    public class SegmentedWordCollection : RingArray<SegmentedWordModel>
     {
-        public int StartTimestamp;
-        public int EndTimestamp;
-        public string Word;
+        private const int TOTAL_POINTS = 300;
+
+        public SegmentedWordCollection()
+            : base(TOTAL_POINTS) // here i set how much values to show 
+        {
+        }
+    }
+
+    public class SegmentedWordModel
+    {
+        
+
+        public string Word { get; set; }
+
+        public int StartTime { get; set; }
+        public int EndTime { get; set; }
+
+        public SegmentedWordModel(string word, int from, int to)
+        {
+            this.Word = word;
+            this.StartTime = from;
+            this.EndTime = to; 
+        }
     }
 }

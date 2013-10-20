@@ -153,12 +153,6 @@ namespace CURELab.SignLanguage.Debugger
             }
         }
 
-
-
-
-
-
-
         bool _isShowAccRight;
         LineAndMarker<ElementMarkerPointsGraph> acc_right_graph;
         public bool IsShowAccRight
@@ -182,9 +176,6 @@ namespace CURELab.SignLanguage.Debugger
                 }
             }
         }
-
-
-
 
         bool _isShowAccLeft;
         LineAndMarker<ElementMarkerPointsGraph> acc_left_graph;
@@ -417,6 +408,7 @@ namespace CURELab.SignLanguage.Debugger
 
 
 
+
         int xrange = 3000;
         int preTime = 0;
         double totalDuration;
@@ -476,7 +468,6 @@ namespace CURELab.SignLanguage.Debugger
             ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
             restr.YRange = new DisplayRange(0, 1);
             cht_bigChart.Viewport.Restrictions.Add(restr);
-           // cht_bigChart.MinHeight = 0;
         }
 
         private void InitializeTimer()
@@ -526,26 +517,23 @@ namespace CURELab.SignLanguage.Debugger
                 cht_bigChart.Viewport.Restrictions.Add(restr);
                 
 
-
-                tbk_Words.Inlines.Clear();
                 
-                if (currentTimestamp < wordList[0].EndTimestamp)
-                {
-                    tbk_Words.Inlines.Add(new Bold(new Run(wordList[0].Word + " ")));
-                    tbk_Words.Inlines.Add(new Run(wordList[1].Word));
-                }
-                else if (currentTimestamp < wordList[1].EndTimestamp)
-                {
-                    tbk_Words.Inlines.Add(new Run(wordList[0].Word + " "));
+                tbk_Words.Inlines.Clear();
 
-                    tbk_Words.Inlines.Add(new Bold(new Run(wordList[1].Word + " ")));
-                }
-                else
+
+                foreach (SegmentedWordModel item in m_dataManager.Segmented_Words)
                 {
-                    tbk_Words.Inlines.Add(new Run(wordList[0].Word + " "));
-                    tbk_Words.Inlines.Add(new Run(wordList[1].Word + " "));
+                    if (currentTimestamp >= item.StartTime && currentDataTime <= item.EndTime)
+                    {
+                        tbk_Words.Inlines.Add(new Bold(new Run(item.Word + " ")));
+                    }
+                    else
+                    {
+                        tbk_Words.Inlines.Add(new Run(item.Word + " "));
+                    }
 
                 }
+    
                 m_rightGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
                 m_leftGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
                 m_truthGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
@@ -582,25 +570,15 @@ namespace CURELab.SignLanguage.Debugger
             m_truthGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
             m_truthGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
 
-            wordList.Add(new SegmentedWordModel()
-            {
-                StartTimestamp = 0,
-                EndTimestamp = 1000,
-                Word = "Mike"
-            });
 
-            wordList.Add(new SegmentedWordModel()
+            foreach (SegmentedWordModel item in m_dataManager.Segmented_Words)
             {
-                StartTimestamp = 1000,
-                EndTimestamp = 8000,
-                Word = "run"
-            });
-            foreach (var item in wordList)
-            {
-                m_truthGraphView.AddSplitLine(item.EndTimestamp, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
-
+                m_truthGraphView.AddSplitLine(item.EndTime, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
+                tbk_Words.Text += item.Word;
             }
-            tbk_Words.Text = wordList[0].Word +" "+ wordList[1].Word;
+
+
+            
             foreach (int item in m_dataManager.SegmentTimeStampList)
             {
                 m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
@@ -655,11 +633,12 @@ namespace CURELab.SignLanguage.Debugger
                 //TODO: dynamic FPS
 
             }
+            IsPlaying = false;
         }
 
         private void MediaEnded(object sender, RoutedEventArgs e)
         {
-            m_dataManager.ClearDynamicData();
+            btn_Stop_Click(new object(), new RoutedEventArgs());
             sld_progress.Value = 0;
             IsPlaying = false;
         }
@@ -720,7 +699,6 @@ namespace CURELab.SignLanguage.Debugger
         {
             if (me_rawImage.HasVideo)
             {
-                m_dataManager.ClearDynamicData();
                 me_rawImage.Stop();
                 IsPlaying = false; 
                 CurrentTime = 0;

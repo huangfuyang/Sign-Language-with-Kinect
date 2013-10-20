@@ -2,15 +2,15 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d3="http://research.microsoft.com/DynamicDataDisplay/1.0"
-        Title="{Binding Path=FileName, StringFormat=Sign Language Debugger {0:S}}"   Height="827" Width="1024" ResizeMode="CanMinimize" HorizontalAlignment="Left" VerticalAlignment="Top" Left="100" Top="0">
+        Title="{Binding Path=FileName, StringFormat=Sign Language Debugger {0:S}}"   Height="842" Width="1024" ResizeMode="CanMinimize" HorizontalAlignment="Left" VerticalAlignment="Top" Left="100" Top="0">
     <Grid>
         <Border Name="border_media" BorderBrush="White" BorderThickness="4" SnapsToDevicePixels="True" Width="360" Height="267" Margin="28,20,630,512"/>
-        <MediaElement x:Name="me_rawImage" HorizontalAlignment="Left" Height="257" Margin="33,22,0,0" VerticalAlignment="Top" Width="349" MediaOpened="MediaOpened" MediaEnded="MediaEnded"/>
+        <MediaElement x:Name="me_rawImage" HorizontalAlignment="Left" Height="257" Margin="10,10,0,0" VerticalAlignment="Top" Width="349" MediaOpened="MediaOpened" MediaEnded="MediaEnded"/>
 
         <Button x:Name="btn_openFile" Content="Open" HorizontalAlignment="Left" Margin="26,286,0,0" VerticalAlignment="Top" Width="76" Click="btn_openFile_Click"/>
         <Button x:Name="btn_play" Content="Play" HorizontalAlignment="Left" Margin="169,286,0,0" VerticalAlignment="Top" Width="74" Click="btn_play_Click"/>
         <Button x:Name="btn_Stop" Content="Stop" HorizontalAlignment="Left" Margin="301,286,0,0" VerticalAlignment="Top" Width="76" Click="btn_Stop_Click"/>
-        <d3:ChartPlotter x:Name="cht_bigChart" VerticalAlignment="Bottom" Margin="507,0,24,482" Height="293">
+        <d3:ChartPlotter x:Name="cht_bigChart" VerticalAlignment="Bottom" Margin="499,0,32,493" Height="293">
             <d3:ChartPlotter.HorizontalAxis>
                 <d3:HorizontalIntegerAxis x:Name="xAxisFrame1"/>
             </d3:ChartPlotter.HorizontalAxis>
@@ -21,7 +21,7 @@
             <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
 
         </d3:ChartPlotter>
-        <d3:ChartPlotter x:Name="cht_right" VerticalAlignment="Bottom" Margin="150,0,62,76" Height="171">
+        <d3:ChartPlotter x:Name="cht_right" VerticalAlignment="Bottom" Margin="150,0,62,100" Height="171">
             <d3:ChartPlotter.HorizontalAxis>
                 <d3:HorizontalIntegerAxis Name="xAxisFrame"/>
             </d3:ChartPlotter.HorizontalAxis>
@@ -33,7 +33,7 @@
 
         </d3:ChartPlotter>
 
-        <d3:ChartPlotter x:Name="cht_left" VerticalAlignment="Bottom" Margin="150,0,62,252" Height="180">
+        <d3:ChartPlotter x:Name="cht_left" VerticalAlignment="Bottom" Margin="150,0,62,276" Height="180">
             <d3:ChartPlotter.HorizontalAxis>
                 <d3:HorizontalIntegerAxis x:Name="dateAxis1"/>
             </d3:ChartPlotter.HorizontalAxis>
@@ -44,7 +44,7 @@
             <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
         </d3:ChartPlotter>
 
-        <d3:ChartPlotter x:Name="cht_truth" VerticalAlignment="Bottom" Margin="150,0,71,19" Height="47">
+        <d3:ChartPlotter x:Name="cht_truth" VerticalAlignment="Bottom" Margin="150,0,62,44" Height="51">
             <d3:ChartPlotter.HorizontalAxis>
                 <d3:HorizontalIntegerAxis x:Name="dateAxis3"/>
             </d3:ChartPlotter.HorizontalAxis>
@@ -62,12 +62,12 @@
             <CheckBox Name="cb_acc_right" Content="Acceleration" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAccRight, Mode=OneWayToSource}"/>
             <CheckBox Name="cb_angle_right" Content="Angle" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAngleRight, Mode=OneWayToSource}"/>
         </ListBox>
-        <ListBox HorizontalAlignment="Left" Height="100" Margin="33,378,0,0" VerticalAlignment="Top" Width="100">
+        <ListBox HorizontalAlignment="Left" Height="100" Margin="33,368,0,0" VerticalAlignment="Top" Width="100">
             <CheckBox Name="cb_v_left" Content="Velocity" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowVeloLeft, Mode=OneWayToSource}"/>
             <CheckBox Name="cb_acc_left" Content="Acceleration" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAccLeft, Mode=OneWayToSource}"/>
             <CheckBox Name="cb_angle_left" Content="Angle" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAngleLeft, Mode=OneWayToSource}"/>
         </ListBox>
-        <ListBox HorizontalAlignment="Left" Height="143" Margin="396,23,0,0" VerticalAlignment="Top" Width="106">
+        <ListBox HorizontalAlignment="Left" Height="143" Margin="377,27,0,0" VerticalAlignment="Top" Width="106">
             <CheckBox Name="cb_v_left_big" Content="Velocity Left" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowVeloLeftBig, Mode=OneWayToSource}"/>
             <CheckBox Name="cb_v_right_big" Content="Velocity Right" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowVeloRightBig, Mode=OneWayToSource}"/>
             <CheckBox x:Name="cb_a_left_big" Content="Acce Left" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAccLeftBig, Mode=OneWayToSource}"/>
@@ -75,7 +75,7 @@
             <CheckBox x:Name="cb_angle_left_big" Content="Angle Left" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAngleLeftBig, Mode=OneWayToSource}"/>
             <CheckBox x:Name="cb_angle_right_big" Content="Angle Right" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAngleRightBig, Mode=OneWayToSource}"/>
         </ListBox>
-        <TextBlock x:Name="tbk_Words" HorizontalAlignment="Left" Margin="47,764,0,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <TextBlock x:Name="tbk_Words" Text=""  HorizontalAlignment="Left" Margin="201,774,0,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
 
 
 

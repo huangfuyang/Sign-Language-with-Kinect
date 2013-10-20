@@ -223,9 +223,33 @@ namespace CURELab.SignLanguage.Debugger.Module
 
             }
 
+            if (File.Exists(_address + _configReader.GetFileName(FileName.WORDS)))
+            {
+                StreamReader wordReader = new StreamReader(_address + _configReader.GetFileName(FileName.WORDS), Encoding.Default);
+                string line = wordReader.ReadLine();
+        
+
+                while (!String.IsNullOrWhiteSpace(line))
+                {
+                    string[] words = line.Split(' ');
+                    string content = words[0];
+                 
+                    int startTime = Convert.ToInt32(words[1]);
+                    int endTime = Convert.ToInt32(words[2]);
+
+                    _dataManager.Segmented_Words.Add(new SegmentedWordModel(content, startTime, endTime));
+                    line = wordReader.ReadLine();
+                }
+
+                wordReader.Close();
+            }
+
+
+
             _dataManager.DataModelDic.Reverse();
 
         }
 
+     
     }
 }

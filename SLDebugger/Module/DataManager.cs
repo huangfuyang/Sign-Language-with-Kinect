@@ -86,61 +86,7 @@ namespace CURELab.SignLanguage.Debugger.Module
             set { _angle_right_points = value; }
         }
 
-        /****************
-         * Dynamic data
-         * 
-         * **************/
-
-        private TwoDimensionViewPointCollection _v_left_dynamic_points;
-
-        public TwoDimensionViewPointCollection V_Left_Dynamic_Points
-        {
-            get { return _v_left_dynamic_points; }
-            set { _v_left_dynamic_points = value; }
-        }
-
-
-        private TwoDimensionViewPointCollection _v_right_dynamic_points;
-
-        public TwoDimensionViewPointCollection V_Right_Dynamic_Points
-        {
-            get { return _v_right_dynamic_points; }
-            set { _v_right_dynamic_points = value; }
-        }
-
-        private TwoDimensionViewPointCollection _a_left_dynamic_points;
-
-        public TwoDimensionViewPointCollection A_Left_Dynamic_Points
-        {
-            get { return _a_left_dynamic_points; }
-            set { _a_left_dynamic_points = value; }
-        }
-
-        private TwoDimensionViewPointCollection _a_right_dynamic_points;
-
-        public TwoDimensionViewPointCollection A_Right_Dynamic_Points
-        {
-            get { return _a_right_dynamic_points; }
-            set { _a_right_dynamic_points = value; }
-        }
-
-        private TwoDimensionViewPointCollection _angle_left_dynamic_points;
-
-        public TwoDimensionViewPointCollection Angle_Left_Dynamic_Points
-        {
-            get { return _angle_left_dynamic_points; }
-            set { _angle_left_dynamic_points = value; }
-        }
-
-
-        private TwoDimensionViewPointCollection _angle_right_dynamic_points;
-
-        public TwoDimensionViewPointCollection Angle_Right_Dynamic_Points
-        {
-            get { return _angle_right_dynamic_points; }
-            set { _angle_right_dynamic_points = value; }
-        }
-
+     
         private TwoDimensionViewPointCollection _y_position_points;
 
         public TwoDimensionViewPointCollection Y_position_points
@@ -150,8 +96,13 @@ namespace CURELab.SignLanguage.Debugger.Module
         }
 
 
+        private SegmentedWordCollection _segmented_words;
 
-        
+        public SegmentedWordCollection Segmented_Words
+        {
+            get { return _segmented_words; }
+            set { _segmented_words = value; }
+        } 
 
 
         List<int> _imageTimeStampList;
@@ -196,13 +147,9 @@ namespace CURELab.SignLanguage.Debugger.Module
             A_Right_Points = new TwoDimensionViewPointCollection();
             Angle_Right_Points = new TwoDimensionViewPointCollection();
 
+            Segmented_Words = new SegmentedWordCollection();
 
-            V_Left_Dynamic_Points = new TwoDimensionViewPointCollection();
-            V_Right_Dynamic_Points = new TwoDimensionViewPointCollection();
-            A_Left_Dynamic_Points = new TwoDimensionViewPointCollection();
-            A_Right_Dynamic_Points = new TwoDimensionViewPointCollection();
-            Angle_Left_Dynamic_Points = new TwoDimensionViewPointCollection();
-            Angle_Right_Dynamic_Points = new TwoDimensionViewPointCollection();
+        
             Y_position_points = new TwoDimensionViewPointCollection();
             ImageTimeStampList = new List<int>();
             SegmentTimeStampList = new List<int>();
@@ -241,28 +188,13 @@ namespace CURELab.SignLanguage.Debugger.Module
             V_Right_Points.Clear();
             A_Right_Points.Clear();
             Angle_Right_Points.Clear();
-            V_Left_Dynamic_Points.Clear();
-            V_Right_Dynamic_Points.Clear();
-            A_Left_Dynamic_Points.Clear();
-            A_Right_Dynamic_Points.Clear();
-            Angle_Left_Dynamic_Points.Clear();
-            Angle_Right_Dynamic_Points.Clear();
-
+            Segmented_Words.Clear();
             ImageTimeStampList.Clear();
             SegmentTimeStampList.Clear();
             DataModelDic.Clear();
         }
 
-        public void ClearDynamicData()
-        {
-            V_Left_Dynamic_Points.Clear();
-            V_Right_Dynamic_Points.Clear();
-            A_Left_Dynamic_Points.Clear();
-            A_Right_Dynamic_Points.Clear();
-            Angle_Left_Dynamic_Points.Clear();
-            Angle_Right_Dynamic_Points.Clear();
-
-        }
+    
 
         #region INotifyPropertyChanged 成员
 
