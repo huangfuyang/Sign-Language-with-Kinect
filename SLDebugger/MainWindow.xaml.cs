@@ -271,7 +271,7 @@ namespace CURELab.SignLanguage.Debugger
                 _isShowVeloLeftBig = value;
                 if (value)
                 {
-                    v_left_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.V_Left_Dynamic_Points, new Pen(Brushes.DarkBlue, 2), "v leftt");
+                    v_left_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.V_Left_Points, new Pen(Brushes.DarkBlue, 2), "v leftt");
                 }
                 else
                 {
@@ -297,7 +297,7 @@ namespace CURELab.SignLanguage.Debugger
                 _isShowVeloRightBig = value;
                 if (value)
                 {
-                    v_right_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.V_Right_Dynamic_Points, new Pen(Brushes.DarkBlue, 2), "v leftt");
+                    v_right_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.V_Right_Points, new Pen(Brushes.DarkBlue, 2), "v leftt");
                 }
                 else
                 {
@@ -323,7 +323,7 @@ namespace CURELab.SignLanguage.Debugger
                 _isShowAccLeftBig = value;
                 if (value)
                 {
-                    a_left_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.A_Left_Dynamic_Points, new Pen(Brushes.Red, 2), "v leftt");
+                    a_left_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.A_Left_Points, new Pen(Brushes.Red, 2), "v leftt");
                 }
                 else
                 {
@@ -349,7 +349,7 @@ namespace CURELab.SignLanguage.Debugger
                 _isShowAccRightBig = value;
                 if (value)
                 {
-                    a_right_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.A_Right_Dynamic_Points, new Pen(Brushes.Red, 2), "v leftt");
+                    a_right_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.A_Right_Points, new Pen(Brushes.Red, 2), "v leftt");
                 }
                 else
                 {
@@ -374,7 +374,7 @@ namespace CURELab.SignLanguage.Debugger
                 _isShowAngleLeftBig = value;
                 if (value)
                 {
-                    angle_left_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.Angle_Left_Dynamic_Points, new Pen(Brushes.ForestGreen, 2), "v leftt");
+                    angle_left_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.Angle_Left_Points, new Pen(Brushes.ForestGreen, 2), "v leftt");
                 }
                 else
                 {
@@ -399,7 +399,7 @@ namespace CURELab.SignLanguage.Debugger
                 _isShowAngleRightBig = value;
                 if (value)
                 {
-                    angle_right_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.Angle_Right_Dynamic_Points, new Pen(Brushes.ForestGreen, 2), "v leftt");
+                    angle_right_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.Angle_Right_Points, new Pen(Brushes.ForestGreen, 2), "v leftt");
                 }
                 else
                 {
@@ -521,18 +521,6 @@ namespace CURELab.SignLanguage.Debugger
                     border_media.BorderBrush = Brushes.White;
                 }
 
-                try
-                {
-                    m_dataManager.V_Left_Dynamic_Points.Add(new TwoDimensionViewPoint(m_dataManager.DataModelDic[currentDataTime].v_left, currentDataTime));
-                    m_dataManager.V_Right_Dynamic_Points.Add(new TwoDimensionViewPoint(m_dataManager.DataModelDic[currentDataTime].v_right, currentDataTime));
-                    m_dataManager.A_Left_Dynamic_Points.Add(new TwoDimensionViewPoint(m_dataManager.DataModelDic[currentDataTime].a_left, currentDataTime));
-                    m_dataManager.A_Right_Dynamic_Points.Add(new TwoDimensionViewPoint(m_dataManager.DataModelDic[currentDataTime].a_right, currentDataTime));
-                    m_dataManager.Angle_Left_Dynamic_Points.Add(new TwoDimensionViewPoint(m_dataManager.DataModelDic[currentDataTime].angle_left, currentDataTime));
-                    m_dataManager.Angle_Right_Dynamic_Points.Add(new TwoDimensionViewPoint(m_dataManager.DataModelDic[currentDataTime].angle_right, currentDataTime));
-                }
-                catch (Exception E)
-                {
-                }
                 ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
                 restr.XRange = new DisplayRange(currentDataTime - xrange, currentDataTime);
                 cht_bigChart.Viewport.Restrictions.Add(restr);

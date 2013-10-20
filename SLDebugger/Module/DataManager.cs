@@ -141,6 +141,14 @@ namespace CURELab.SignLanguage.Debugger.Module
             set { _angle_right_dynamic_points = value; }
         }
 
+        private TwoDimensionViewPointCollection _y_position_points;
+
+        public TwoDimensionViewPointCollection Y_position_points
+        {
+            get { return _y_position_points; }
+            set { _y_position_points = value; }
+        }
+
 
 
         
@@ -195,7 +203,7 @@ namespace CURELab.SignLanguage.Debugger.Module
             A_Right_Dynamic_Points = new TwoDimensionViewPointCollection();
             Angle_Left_Dynamic_Points = new TwoDimensionViewPointCollection();
             Angle_Right_Dynamic_Points = new TwoDimensionViewPointCollection();
-
+            Y_position_points = new TwoDimensionViewPointCollection();
             ImageTimeStampList = new List<int>();
             SegmentTimeStampList = new List<int>();
             DataModelDic = new Dictionary<int, DataModel>();
