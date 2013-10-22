@@ -225,7 +225,7 @@ namespace CURELab.SignLanguage.Debugger.Module
 
             if (File.Exists(_address + _configReader.GetFileName(FileName.WORDS)))
             {
-                StreamReader wordReader = new StreamReader(_address + _configReader.GetFileName(FileName.WORDS), Encoding.Default);
+                StreamReader wordReader = new StreamReader(_address + _configReader.GetFileName(FileName.WORDS), Encoding.UTF8);
                 string line = wordReader.ReadLine();
         
 

@@ -69,6 +69,21 @@ namespace CURELab.SignLanguage.Debugger.Module
             set { _angle_left = value; }
         }
 
+        private TwoDimensionViewPointCollection _y_left;
+
+        public TwoDimensionViewPointCollection Y_Left_Points
+        {
+            get { return _y_left; }
+            set { _y_left = value; }
+        }
+
+        private TwoDimensionViewPointCollection _y_right;
+
+        public TwoDimensionViewPointCollection Y_Right_Points
+        {
+            get { return _y_right; }
+            set { _y_right = value; }
+        }
         
         private TwoDimensionViewPointCollection _a_right_points;
 
@@ -137,16 +152,12 @@ namespace CURELab.SignLanguage.Debugger.Module
         
             V_Left_Points = new TwoDimensionViewPointCollection();
             V_Right_Points = new TwoDimensionViewPointCollection();
-
             A_Left_Points = new TwoDimensionViewPointCollection();
-
-          
-
             Angle_Left_Points = new TwoDimensionViewPointCollection();
-
             A_Right_Points = new TwoDimensionViewPointCollection();
             Angle_Right_Points = new TwoDimensionViewPointCollection();
-
+            Y_Right_Points = new TwoDimensionViewPointCollection();
+            Y_Left_Points = new TwoDimensionViewPointCollection();
             Segmented_Words = new SegmentedWordCollection();
 
         
@@ -191,6 +202,9 @@ namespace CURELab.SignLanguage.Debugger.Module
             Segmented_Words.Clear();
             ImageTimeStampList.Clear();
             SegmentTimeStampList.Clear();
+            Segmented_Words.Clear();
+            Y_Left_Points.Clear();
+            Y_Right_Points.Clear();
             DataModelDic.Clear();
         }
 

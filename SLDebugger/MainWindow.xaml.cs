@@ -251,6 +251,55 @@ namespace CURELab.SignLanguage.Debugger
             }
         }
 
+         bool _isShowYLeft;
+        LineAndMarker<ElementMarkerPointsGraph> y_left_graph;
+        public bool IsShowYLeft
+        {
+            get { return _isShowYLeft; }
+            set
+            {
+                _isShowYLeft = value;
+                if (value)
+                {
+                    y_left_graph = m_leftGraphView.AppendLineGraph(m_dataManager.Y_Left_Points, new Pen(Brushes.Purple, 2), "a left");
+                }
+                else
+                {
+                    if (y_left_graph != null)
+                    {
+                        y_left_graph.LineGraph.Remove();
+                        y_left_graph.MarkerGraph.Remove();
+                        y_left_graph = null;
+                    }
+                }
+            }
+        }
+
+        bool _isShowYRight;
+        LineAndMarker<ElementMarkerPointsGraph> y_right_graph;
+        public bool IsShowYRight
+        {
+            get { return _isShowYRight; }
+            set
+            {
+                _isShowYRight = value;
+                if (value)
+                {
+                    y_right_graph = m_rightGraphView.AppendLineGraph(m_dataManager.Y_Right_Points, new Pen(Brushes.Purple, 2), "a left");
+                }
+                else
+                {
+                    if (y_right_graph != null)
+                    {
+                        y_right_graph.LineGraph.Remove();
+                        y_right_graph.MarkerGraph.Remove();
+                        y_right_graph = null;
+                    }
+                }
+            }
+        }
+        
+
 
         bool _isShowVeloLeftBig;
         LineAndMarker<ElementMarkerPointsGraph> v_left_big_graph;
@@ -548,32 +597,28 @@ namespace CURELab.SignLanguage.Debugger
             {
                 m_dataManager.V_Right_Points.Add(new TwoDimensionViewPoint(item.Value.v_right, item.Value.timeStamp));
                 m_dataManager.V_Left_Points.Add(new TwoDimensionViewPoint(item.Value.v_left, item.Value.timeStamp));
-            }
-
-            foreach (KeyValuePair<int, DataModel> item in m_dataManager.DataModelDic)
-            {
                 m_dataManager.A_Right_Points.Add(new TwoDimensionViewPoint(item.Value.a_right, item.Value.timeStamp));
                 m_dataManager.A_Left_Points.Add(new TwoDimensionViewPoint(item.Value.a_left, item.Value.timeStamp));
-            }
-
-            foreach (KeyValuePair<int, DataModel> item in m_dataManager.DataModelDic)
-            {
                 m_dataManager.Angle_Right_Points.Add(new TwoDimensionViewPoint(item.Value.angle_right, item.Value.timeStamp));
                 m_dataManager.Angle_Left_Points.Add(new TwoDimensionViewPoint(item.Value.angle_left, item.Value.timeStamp));
+                m_dataManager.Y_Right_Points.Add(new TwoDimensionViewPoint(item.Value.position_right.y, item.Value.timeStamp));
+                m_dataManager.Y_Left_Points.Add(new TwoDimensionViewPoint(item.Value.position_left.y, item.Value.timeStamp));
             }
 
+       
             //add split line
-            m_rightGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
-            m_rightGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
-            m_leftGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
-            m_leftGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
-            m_truthGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
-            m_truthGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
+            m_rightGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
+            m_rightGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
+            m_leftGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
+            m_leftGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
+            m_truthGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
+            m_truthGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
 
 
             foreach (SegmentedWordModel item in m_dataManager.Segmented_Words)
             {
-                m_truthGraphView.AddSplitLine(item.EndTime, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
+                m_truthGraphView.AddSplitLine(item.StartTime, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
+                m_truthGraphView.AddSplitLine(item.EndTime, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.DarkBlue);
                 tbk_Words.Text += item.Word;
             }
 
@@ -581,8 +626,8 @@ namespace CURELab.SignLanguage.Debugger
             
             foreach (int item in m_dataManager.SegmentTimeStampList)
             {
-                m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
-                m_leftGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true);
+                m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
+                m_leftGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
             }
 
         }
@@ -617,7 +662,7 @@ namespace CURELab.SignLanguage.Debugger
             {
                 m_rightGraphView.ClearAllGraph();
                 m_leftGraphView.ClearAllGraph();
-
+                m_truthGraphView.ClearAllGraph();
                 cb_v_right.IsChecked = true;
                 cb_v_left.IsChecked = true;
                // m_leftGraphView.AppendLineGraph(m_dataManager.V_Left_Points, new Pen(Brushes.DarkBlue, 2), "v left");

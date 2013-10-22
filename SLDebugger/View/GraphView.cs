@@ -59,7 +59,7 @@ namespace CURELab.SignLanguage.Debugger
         /// <param name="max"></param>
         /// <returns></returns>
 
-        public LineGraph AddSplitLine(int split, double stroke, double min, double max, bool isSegment)
+        public LineGraph AddSplitLine(int split, double stroke, double min, double max, bool isSegment, Color color)
         {
             var tempPoints = new TwoDimensionViewPointCollection();
             var v_right = new EnumerableDataSource<TwoDimensionViewPoint>(tempPoints);
@@ -67,13 +67,17 @@ namespace CURELab.SignLanguage.Debugger
             v_right.SetYMapping(y => y.Value);
             tempPoints.Add(new TwoDimensionViewPoint(max, split));
             tempPoints.Add(new TwoDimensionViewPoint(min, split));
-            LineGraph newSplit = _chartPlotter.AddLineGraph(v_right, Colors.Black, stroke, "seg line");
+            LineGraph newSplit = _chartPlotter.AddLineGraph(v_right, color, stroke, "seg line");
             if (isSegment)
             {
                 _splitLineList.Add(newSplit);
             }
+
+
             return newSplit;
         }
+
+     
 
         /// <summary>
         /// 
@@ -112,7 +116,7 @@ namespace CURELab.SignLanguage.Debugger
             {
                 lastSigner.Remove();
             }
-            lastSigner = AddSplitLine(split, 1, min, max, false);
+            lastSigner = AddSplitLine(split, 1, min, max, false, Colors.Black);
 
         }
 
