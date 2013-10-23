@@ -1,0 +1,115 @@
+﻿<Window x:Class="CURELab.SignLanguage.Debugger.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d3="http://research.microsoft.com/DynamicDataDisplay/1.0"
+        Title="{Binding Path=FileName, StringFormat=Sign Language Debugger {0:S}}"   Height="842" Width="1024" HorizontalAlignment="Left" VerticalAlignment="Top" Left="100" Top="0">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="313*"/>
+            <ColumnDefinition Width="147*"/>
+            <ColumnDefinition Width="556*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="331*"/>
+            <RowDefinition Height="198*"/>
+            <RowDefinition Height="183*"/>
+            <RowDefinition Height="100*"/>
+        </Grid.RowDefinitions>
+        <!-- Row 0-->
+        <Grid Grid.Row="0" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="35"/>
+                <RowDefinition Height="35"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0"  Name="border_media" BorderBrush="LightBlue" BorderThickness="4" HorizontalAlignment="Stretch" Margin="5,5">
+                <MediaElement x:Name="me_rawImage" MediaOpened="MediaOpened" MediaEnded="MediaEnded"/>
+            </Border>
+            <Grid Grid.Row="1">
+                <Button x:Name="btn_openFile" Content="Open" HorizontalAlignment="Left" Margin="5" Click="btn_openFile_Click" MinWidth="50"/>
+                <Button x:Name="btn_play" Content="Play" HorizontalAlignment="Center" Margin="5" Click="btn_play_Click" MinWidth="50"/>
+                <Button x:Name="btn_Stop" Content="Stop" HorizontalAlignment="Right" Margin="5" Click="btn_Stop_Click" MinWidth="50"/>
+            </Grid>
+            <Slider Grid.Row="2" VerticalAlignment="Bottom" x:Name="sld_progress" HorizontalAlignment="Stretch" Margin="5"  ValueChanged="sld_progress_ValueChanged" DragEnter="sld_progress_DragEnter" DragLeave="sld_progress_DragLeave" />
+
+        </Grid>
+
+
+
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical">
+            <ListBox Padding="5" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Width="106" >
+                <CheckBox Name="cb_v_left_big" Content="Velocity Left" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowVeloLeftBig, Mode=OneWayToSource}"/>
+                <CheckBox Name="cb_v_right_big" Content="Velocity Right" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowVeloRightBig, Mode=OneWayToSource}"/>
+                <CheckBox x:Name="cb_a_left_big" Content="Acce Left" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAccLeftBig, Mode=OneWayToSource}"/>
+                <CheckBox x:Name="cb_a_right_big" Content="Acce Right" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAccRightBig, Mode=OneWayToSource}"/>
+                <CheckBox x:Name="cb_angle_left_big" Content="Angle Left" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAngleLeftBig, Mode=OneWayToSource}"/>
+                <CheckBox x:Name="cb_angle_right_big" Content="Angle Right" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAngleRightBig, Mode=OneWayToSource}"/>
+            </ListBox>
+            <CheckBox Name="cb_autopause" Content="Auto-Pause" HorizontalAlignment="Left" Margin="10,5" VerticalAlignment="Top" IsChecked="{Binding IsPauseOnSegment, Mode=TwoWay}" Grid.Column="1" />
+            <CheckBox Name="cb_splitLine" Content="Show split line" HorizontalAlignment="Left" Margin="10,5" VerticalAlignment="Top" IsChecked="{Binding IsShowSplitLine, Mode=TwoWay}" Grid.Column="1" />
+
+        </StackPanel>
+
+        <d3:ChartPlotter Grid.Row="0" Grid.Column="2" x:Name="cht_bigChart" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0" >
+            <d3:ChartPlotter.HorizontalAxis>
+                <d3:HorizontalIntegerAxis x:Name="xAxisFrame1"/>
+            </d3:ChartPlotter.HorizontalAxis>
+            <d3:HorizontalAxisTitle FontFamily="Georgia" />
+            <d3:HorizontalLine Value="{Binding MaxVelocity}" Stroke="Red" StrokeThickness="2"/>
+            <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
+        </d3:ChartPlotter>
+
+
+
+        <!-- Row 1-->
+        <ListBox Padding="5" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left"  Margin="26,10,0,0" VerticalAlignment="Top"  >
+            <CheckBox Name="cb_v_right" Content="Velocity" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowVeloRight, Mode=OneWayToSource}"/>
+            <CheckBox x:Name="cb_acc_right" Content="Acceleration" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAccRight, Mode=OneWayToSource}"/>
+            <CheckBox x:Name="cb_angle_right" Content="Angle" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAngleRight, Mode=OneWayToSource}"/>
+            <CheckBox x:Name="cb_y_right" Content="Y" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowYRight, Mode=OneWayToSource}"/>
+        </ListBox>
+        <d3:ChartPlotter x:Name="cht_right" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="150,10,10,0" Grid.Row="1" Grid.ColumnSpan="3" >
+            <d3:ChartPlotter.HorizontalAxis>
+                <d3:HorizontalIntegerAxis Name="xAxisFrame"/>
+            </d3:ChartPlotter.HorizontalAxis>
+            <d3:Header FontFamily="Georgia" />
+            <d3:VerticalAxisTitle FontFamily="Georgia" Content="Right" />
+            <d3:HorizontalLine Value="{Binding MaxVelocity}" Stroke="Red" StrokeThickness="2"/>
+            <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
+        </d3:ChartPlotter>
+        <!-- Row 2-->
+        <ListBox Padding="5" HorizontalAlignment="Left" Margin="26,10,0,0" VerticalAlignment="Top" Grid.Row="2" >
+            <CheckBox Name="cb_v_left" Content="Velocity" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowVeloLeft, Mode=OneWayToSource}"/>
+            <CheckBox Name="cb_acc_left" Content="Acceleration" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAccLeft, Mode=OneWayToSource}"/>
+            <CheckBox Name="cb_angle_left" Content="Angle" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAngleLeft, Mode=OneWayToSource}"/>
+            <CheckBox x:Name="cb_y_left" Content="Y" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAngleLeft, Mode=OneWayToSource}"/>
+        </ListBox>
+        <d3:ChartPlotter x:Name="cht_left" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="150,10,10,0"  Grid.Row="2" Grid.ColumnSpan="3">
+            <d3:ChartPlotter.HorizontalAxis>
+                <d3:HorizontalIntegerAxis x:Name="dateAxis1"/>
+            </d3:ChartPlotter.HorizontalAxis>
+            <d3:Header FontFamily="Georgia" />
+            <d3:VerticalAxisTitle FontFamily="Georgia" Content="Left" />
+            <d3:HorizontalLine Value="{Binding MaxVelocity}" Stroke="Red" StrokeThickness="2"/>
+            <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
+        </d3:ChartPlotter>
+        <!-- Row 3-->
+        <Grid Grid.Row="3" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="4*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="tbk_Words" Text="splited words"  HorizontalAlignment="Left" Margin="26,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" />
+        </Grid>
+        <d3:ChartPlotter x:Name="cht_truth" VerticalAlignment="Top" Margin="150,10,10,0" Grid.Row="3" Grid.ColumnSpan="3">
+            <d3:ChartPlotter.HorizontalAxis>
+                <d3:HorizontalIntegerAxis x:Name="dateAxis3"/>
+            </d3:ChartPlotter.HorizontalAxis>
+            <d3:Header FontFamily="Georgia" />
+            <d3:VerticalAxisTitle FontFamily="Georgia" Content="T" />
+            <d3:HorizontalLine Value="{Binding MaxVelocity}" Stroke="Red" StrokeThickness="2"/>
+            <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
+        </d3:ChartPlotter>
+
+    </Grid>
+</Window>

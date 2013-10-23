@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <dataFile>
+    <velocity  fileName ="vo_left_right.txt"/>
+    <acceleration fileName ="ac_left_right.txt"/>
+    <timestamp fileName="timestamp.txt"/>
+    <skeleton fileName ="skeleton.txt"/>
+    <segmentation fileName="output.txt"/>
+    <angle fileName ="ag_left_right.txt"/>
+    <words fileName="words.txt"/>
+  </dataFile>
+  <graph>
+    <line>
+      <velocity color=""/>
+    </line>
+
+  </graph>
+</configuration>
