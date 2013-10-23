@@ -477,12 +477,18 @@ namespace CURELab.SignLanguage.Debugger
         public MainWindow()
         {
             InitializeComponent();
+            CustomizeComponent();
             InitializeModule();
             InitializeChart();
             InitializeTimer();
             InitializeParams();
 
             ConsoleManager.Show();
+        }
+
+        private void CustomizeComponent()
+        {
+  
         }
 
         private void InitializeParams()
@@ -552,13 +558,12 @@ namespace CURELab.SignLanguage.Debugger
                         me_rawImage.Pause();
                         preTime = currentDataTime;
                     }
-
                     border_media.BorderBrush = Brushes.DimGray;
                 }
                 else
                 {
 
-                    border_media.BorderBrush = Brushes.White;
+                    border_media.BorderBrush = Brushes.LightBlue;
                 }
 
                 ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
