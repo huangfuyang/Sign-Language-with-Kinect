@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using CURELab.SignLanguage.Debugger.Model;
 using CURELab.SignLanguage.Debugger.ViewModel;
 using Microsoft.Research.DynamicDataDisplay.DataSources;
+using System.Windows;
+using CURELab.SignLanguage.Debugger.Model;
 
 namespace CURELab.SignLanguage.Debugger.Module
 {
@@ -190,6 +192,57 @@ namespace CURELab.SignLanguage.Debugger.Module
             }
             return ImageTimeStampList[frameNumber];
         }
+
+        public List<Vec3> GetLeftPositions(int timestamp)
+        {
+            List<int> keys = new List<int>(DataModelDic.Keys);
+
+            int index = keys.IndexOf(timestamp);
+
+            List<Vec3> result = new List<Vec3>();
+
+            if (index > 0)
+            {
+                int count = 0;
+                while (index >= 0 && count < 8)
+                {
+                    DataModel item = DataModelDic[keys[index]];
+                    result.Add(item.position_left);
+                    count++;
+                    index--;
+                }
+                result.Reverse();
+            }
+
+            return result;
+        }
+
+        public List<Vec3> GetRightPositions(int timestamp)
+        {
+            List<int> keys = new List<int>(DataModelDic.Keys);
+
+            int index = keys.IndexOf(timestamp);
+
+            List<Vec3> result = new List<Vec3>();
+
+            if (index > 0)
+            {
+                int count = 0;
+                while (index >= 0 && count < 8)
+                {
+                    DataModel item = DataModelDic[keys[index]];
+                    result.Add(item.position_right);
+                    count++;
+                    index--;
+                }
+                result.Reverse();
+            }
+
+            return result;
+        }
+
+        
+
 
         public void ClearAll()
         {

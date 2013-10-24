@@ -1,0 +1,11 @@
+﻿<Window x:Class="CURELab.SignLanguage.Debugger.TrajectoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+         Loaded="WindowLoaded"
+        Title="TrajectoryWindow" Height="520" Width="650">
+    <Grid>
+        <Viewbox Grid.Row="1" Stretch="Uniform" HorizontalAlignment="Center">
+            <Image Name="Image" Width="640" Height="480"/>
+        </Viewbox>
+    </Grid>
+</Window>
