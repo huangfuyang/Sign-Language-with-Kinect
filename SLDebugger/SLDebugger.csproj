@@ -62,8 +62,12 @@
     <Compile Include="Model\SegmentedWordModel.cs" />
     <Compile Include="Module\DataManager.cs" />
     <Compile Include="Module\DataReader.cs" />
+    <Compile Include="Module\DBReader.cs" />
     <Compile Include="Module\ModuleManager.cs" />
     <Compile Include="Module\XMLReader.cs" />
+    <Compile Include="SegWordShowBox.xaml.cs">
+      <DependentUpon>SegWordShowBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="StaticParams\DataType.cs" />
     <Compile Include="StaticParams\FileName.cs" />
     <Compile Include="ViewModel\TwoDimensionViewModel.cs" />
@@ -83,6 +87,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="SegWordShowBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

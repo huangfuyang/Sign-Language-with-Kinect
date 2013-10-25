@@ -21,7 +21,7 @@ namespace CURELab.SignLanguage.Debugger.Model
 
     public class SegmentedWordCollection : RingArray<SegmentedWordModel>
     {
-        private const int TOTAL_POINTS = 300;
+        private const int TOTAL_POINTS = 1000;
 
         public SegmentedWordCollection()
             : base(TOTAL_POINTS) // here i set how much values to show 

@@ -298,9 +298,10 @@ namespace CURELab.SignLanguage.Debugger
                 }
             }
         }
-        
 
 
+
+        #region big chart data
         bool _isShowVeloLeftBig;
         LineAndMarker<ElementMarkerPointsGraph> v_left_big_graph;
         public bool IsShowVeloLeftBig
@@ -452,12 +453,11 @@ namespace CURELab.SignLanguage.Debugger
 
                 }
             }
-        }
+        } 
+        #endregion
 
 
-
-
-
+        #region parameter
         int xrange = 3000;
         int preTime = 0;
         double totalDuration;
@@ -470,8 +470,8 @@ namespace CURELab.SignLanguage.Debugger
         private DispatcherTimer updateTimer;
         private GraphView m_rightGraphView;
         private GraphView m_leftGraphView;
-        private GraphView m_truthGraphView;
-        private GraphView m_bigGraphView;
+        private GraphView m_bigGraphView; 
+        #endregion
 
 
         public MainWindow()
@@ -488,6 +488,9 @@ namespace CURELab.SignLanguage.Debugger
 
         private void CustomizeComponent()
         {
+            //ssb_wordBox.Length = 100;
+            //ssb_wordBox.AddNewWord("hello", 100, 300);
+            //ssb_wordBox.AddNewWord("world", 500, 630);
   
         }
 
@@ -518,7 +521,6 @@ namespace CURELab.SignLanguage.Debugger
         {
             m_rightGraphView = new GraphView(cht_right);
             m_leftGraphView = new GraphView(cht_left);
-            m_truthGraphView = new GraphView(cht_truth);
             m_bigGraphView = new GraphView(cht_bigChart);
             ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
             restr.YRange = new DisplayRange(0, 1);
@@ -571,26 +573,10 @@ namespace CURELab.SignLanguage.Debugger
                 cht_bigChart.Viewport.Restrictions.Add(restr);
                 
 
-                
-                tbk_Words.Inlines.Clear();
-
-
-                foreach (SegmentedWordModel item in m_dataManager.Segmented_Words)
-                {
-                    if (currentTimestamp >= item.StartTime && currentDataTime <= item.EndTime)
-                    {
-                        tbk_Words.Inlines.Add(new Bold(new Run(item.Word + " ")));
-                    }
-                    else
-                    {
-                        tbk_Words.Inlines.Add(new Run(item.Word + " "));
-                    }
-
-                }
     
                 m_rightGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
                 m_leftGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
-                m_truthGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
+                //TODO: signer
             }
         }
 
@@ -616,18 +602,9 @@ namespace CURELab.SignLanguage.Debugger
             m_rightGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
             m_leftGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
             m_leftGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
-            m_truthGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
-            m_truthGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
 
-
-            foreach (SegmentedWordModel item in m_dataManager.Segmented_Words)
-            {
-                m_truthGraphView.AddSplitLine(item.StartTime, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
-                m_truthGraphView.AddSplitLine(item.EndTime, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.DarkBlue);
-                tbk_Words.Text += item.Word;
-            }
-
-
+            ssb_wordBox.Length = m_dataManager.DataModelDic.Last().Value.timeStamp;
+            ssb_wordBox.AddWords(m_dataManager.Segmented_Words);
             
             foreach (int item in m_dataManager.SegmentTimeStampList)
             {
@@ -667,7 +644,7 @@ namespace CURELab.SignLanguage.Debugger
             {
                 m_rightGraphView.ClearAllGraph();
                 m_leftGraphView.ClearAllGraph();
-                m_truthGraphView.ClearAllGraph();
+                ssb_wordBox.RemoveAll();
                 cb_v_right.IsChecked = true;
                 cb_v_left.IsChecked = true;
                // m_leftGraphView.AppendLineGraph(m_dataManager.V_Left_Points, new Pen(Brushes.DarkBlue, 2), "v left");
@@ -793,6 +770,8 @@ namespace CURELab.SignLanguage.Debugger
         {
             IsPlaying = true;
         }
+
+
 
 
     }

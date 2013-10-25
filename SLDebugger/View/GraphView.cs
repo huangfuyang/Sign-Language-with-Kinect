@@ -26,6 +26,7 @@ namespace CURELab.SignLanguage.Debugger
             _chartPlotter.Legend.AutoShowAndHide = false;
             _chartPlotter.LegendVisible = false;
             _splitLineList = new List<LineGraph>();
+
         }
 
         /// <summary>
