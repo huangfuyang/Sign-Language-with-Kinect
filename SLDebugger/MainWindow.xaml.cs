@@ -102,12 +102,14 @@ namespace CURELab.SignLanguage.Debugger
             set { _isPauseOnSegment = value; }
         }
 
+        #region chart data
+
         bool _isShowVeloRight;
         LineAndMarker<ElementMarkerPointsGraph> v_right_graph;
         public bool IsShowVeloRight
         {
             get { return _isShowVeloRight; }
-            set 
+            set
             {
                 _isShowVeloRight = value;
                 if (value)
@@ -122,7 +124,7 @@ namespace CURELab.SignLanguage.Debugger
                         v_right_graph.MarkerGraph.Remove();
                         v_right_graph = null;
                     }
-                   
+
                 }
             }
         }
@@ -251,7 +253,7 @@ namespace CURELab.SignLanguage.Debugger
             }
         }
 
-         bool _isShowYLeft;
+        bool _isShowYLeft;
         LineAndMarker<ElementMarkerPointsGraph> y_left_graph;
         public bool IsShowYLeft
         {
@@ -299,7 +301,7 @@ namespace CURELab.SignLanguage.Debugger
             }
         }
 
-
+        #endregion
 
         #region big chart data
         bool _isShowVeloLeftBig;
@@ -453,9 +455,8 @@ namespace CURELab.SignLanguage.Debugger
 
                 }
             }
-        } 
+        }
         #endregion
-
 
         #region parameter
         int xrange = 3000;
@@ -470,7 +471,7 @@ namespace CURELab.SignLanguage.Debugger
         private DispatcherTimer updateTimer;
         private GraphView m_rightGraphView;
         private GraphView m_leftGraphView;
-        private GraphView m_bigGraphView; 
+        private GraphView m_bigGraphView;
         #endregion
 
 
@@ -491,7 +492,7 @@ namespace CURELab.SignLanguage.Debugger
             //ssb_wordBox.Length = 100;
             //ssb_wordBox.AddNewWord("hello", 100, 300);
             //ssb_wordBox.AddNewWord("world", 500, 630);
-  
+
         }
 
         private void InitializeParams()
@@ -503,7 +504,7 @@ namespace CURELab.SignLanguage.Debugger
             IsPlaying = false;
             btn_play.IsEnabled = false;
             me_rawImage.SpeedRatio = 0.2;
-            
+
 
             IsPauseOnSegment = true;
             IsShowSplitLine = true;
@@ -567,13 +568,31 @@ namespace CURELab.SignLanguage.Debugger
 
                     border_media.BorderBrush = Brushes.LightBlue;
                 }
+                
+                tbk_words.Inlines.Clear();
+                if (m_dataManager.Segmented_Words.Count > 0)
+                {
+                    foreach (SegmentedWordModel item in m_dataManager.Segmented_Words)
+                    {
+                        if (currentTimestamp >= item.StartTime && currentDataTime <= item.EndTime)
+                        {
+                            tbk_words.Inlines.Add(new Bold(new Run(item.Word + " ")));
+                        }
+                        else
+                        {
+                            tbk_words.Inlines.Add(new Run(item.Word + " "));
+                        }
+                        
+                    }
+
+                }
 
                 ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
                 restr.XRange = new DisplayRange(currentDataTime - xrange, currentDataTime);
                 cht_bigChart.Viewport.Restrictions.Add(restr);
-                
 
-    
+
+
                 m_rightGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
                 m_leftGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
                 //TODO: signer
@@ -596,7 +615,7 @@ namespace CURELab.SignLanguage.Debugger
                 m_dataManager.Y_Left_Points.Add(new TwoDimensionViewPoint(item.Value.position_left.y, item.Value.timeStamp));
             }
 
-       
+
             //add split line
             m_rightGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
             m_rightGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
@@ -605,11 +624,17 @@ namespace CURELab.SignLanguage.Debugger
 
             ssb_wordBox.Length = m_dataManager.DataModelDic.Last().Value.timeStamp;
             ssb_wordBox.AddWords(m_dataManager.Segmented_Words);
-            
+            tbk_words.Text = "";
+            foreach (var item in m_dataManager.Segmented_Words)
+            {
+                tbk_words.Text += item.Word;
+            }
+
             foreach (int item in m_dataManager.SegmentTimeStampList)
             {
                 m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
                 m_leftGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
+                ssb_wordBox.AddSplitLine(item);
             }
 
         }
@@ -647,9 +672,9 @@ namespace CURELab.SignLanguage.Debugger
                 ssb_wordBox.RemoveAll();
                 cb_v_right.IsChecked = true;
                 cb_v_left.IsChecked = true;
-               // m_leftGraphView.AppendLineGraph(m_dataManager.V_Left_Points, new Pen(Brushes.DarkBlue, 2), "v left");
-               // m_leftGraphView.AppendLineGraph(m_dataManager.A_Left_Points, new Pen(Brushes.Red, 2), "v left");
-               // m_leftGraphView.AppendLineGraph(m_dataManager.Angle_Left_Points, new Pen(Brushes.Green, 2), "v left");
+                // m_leftGraphView.AppendLineGraph(m_dataManager.V_Left_Points, new Pen(Brushes.DarkBlue, 2), "v left");
+                // m_leftGraphView.AppendLineGraph(m_dataManager.A_Left_Points, new Pen(Brushes.Red, 2), "v left");
+                // m_leftGraphView.AppendLineGraph(m_dataManager.Angle_Left_Points, new Pen(Brushes.Green, 2), "v left");
 
                 IsPlaying = false;
                 btn_play.IsEnabled = true;
@@ -727,7 +752,7 @@ namespace CURELab.SignLanguage.Debugger
             if (me_rawImage.HasVideo)
             {
                 me_rawImage.Stop();
-                IsPlaying = false; 
+                IsPlaying = false;
                 CurrentTime = 0;
             }
 
@@ -775,5 +800,5 @@ namespace CURELab.SignLanguage.Debugger
 
 
     }
-    
+
 }

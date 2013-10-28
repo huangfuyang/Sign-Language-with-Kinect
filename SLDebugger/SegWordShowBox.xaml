@@ -11,10 +11,12 @@
             <RowDefinition Height="2*"/>
                 
         </Grid.RowDefinitions>
-        <Border BorderBrush="Black" BorderThickness="2">
+        <Grid Name="grd_Lines" Grid.Row="0" Panel.ZIndex="2" SizeChanged="grd_Lines_SizeChanged" >
+            
+        </Grid>
+        <Border BorderBrush="Black" BorderThickness="2" Panel.ZIndex="1">
             
             <Grid Name="grd_main">
-                <Border Name="brd_Signer" BorderBrush="Black" BorderThickness="1" Width="1"/>
             </Grid>
         </Border>
         <Grid Grid.Row="1">
