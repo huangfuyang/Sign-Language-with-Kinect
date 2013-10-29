@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="CURELab.SignLanguage.Debugger.SegWordShowBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="60" d:DesignWidth="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="2*"/>
+                
+        </Grid.RowDefinitions>
+        <Grid Name="grd_Lines" Grid.Row="0" Panel.ZIndex="2" SizeChanged="grd_Lines_SizeChanged" >
+            
+        </Grid>
+        <Border BorderBrush="Black" BorderThickness="2" Panel.ZIndex="1">
+            
+            <Grid Name="grd_main">
+            </Grid>
+        </Border>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Label Name="lb_time1" Content="0" Grid.Column="0" HorizontalAlignment="Left"/>
+            <Label Name="lb_time2" Content="0" Grid.Column="1" HorizontalAlignment="Center"/>
+            <Label Name="lb_time3" Content="0" Grid.Column="2" HorizontalAlignment="Right"/>
+            
+        </Grid>
+            
+    </Grid>
+</UserControl>
