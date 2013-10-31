@@ -46,6 +46,8 @@ namespace CURELab.SignLanguage.Debugger
             set { _splitLineDic = value; }
         }
 
+        private Line timeSigner;
+
         private int lastEnd;
 
         public SegWordShowBox()
@@ -54,6 +56,7 @@ namespace CURELab.SignLanguage.Debugger
             SplitLineDic = new Dictionary<int, Line>();
             Length = 100;
             lastEnd = 0;
+            timeSigner = AddSigner();
 
         }
 
@@ -74,7 +77,7 @@ namespace CURELab.SignLanguage.Debugger
             lb.SetValue(Grid.ColumnProperty, index);
         }
 
-        public void AddNewWord(string word, int start, int end)
+        private void AddNewWord(string word, int start, int end)
         {
             if (end > Length)
             {
@@ -111,8 +114,9 @@ namespace CURELab.SignLanguage.Debugger
             lastEnd = 0;
             grd_main.ColumnDefinitions.Clear();
             grd_main.Children.RemoveRange(0, grd_main.Children.Count);
-            grd_Lines.Children.RemoveRange(0, grd_Lines.Children.Count);
+            grd_Lines.Children.RemoveRange(1, grd_Lines.Children.Count -1);
             SplitLineDic.Clear();
+            DrawSigner(0);
         }
 
         public void AddSplitLine(int X)
@@ -126,6 +130,29 @@ namespace CURELab.SignLanguage.Debugger
             newLine.StrokeThickness = 2;
             SplitLineDic.Add(X, newLine);
             grd_Lines.Children.Add(newLine);
+        }
+
+        private Line AddSigner()
+        {
+            Line newLine = new Line();
+            newLine.Stroke = System.Windows.Media.Brushes.DarkOliveGreen;
+            newLine.X1 = 0;
+            newLine.Y1 = 0;
+            newLine.X2 = 0;
+            newLine.Y2 = 100;
+            newLine.StrokeThickness = 1;
+            grd_Lines.Children.Add(newLine);
+            return newLine;
+        }
+
+        public void DrawSigner(int time)
+        {
+            if (time<0 || time>Length)
+            {
+                time = 0;
+            }
+            timeSigner.X1 = grd_Lines.ActualWidth * (double)time / (double)Length;
+            timeSigner.X2 = grd_Lines.ActualWidth * (double)time / (double)Length;
         }
 
 

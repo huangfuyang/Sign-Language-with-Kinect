@@ -625,6 +625,7 @@ namespace CURELab.SignLanguage.Debugger
 
                 m_rightGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
                 m_leftGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
+                ssb_wordBox.DrawSigner(currentDataTime);
                 //TODO: signer
                 m_trajectoryWindow.DrawTrajectory(m_dataManager.GetLeftPositions(currentDataTime), m_dataManager.GetRightPositions(currentDataTime));
             }
