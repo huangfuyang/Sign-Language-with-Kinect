@@ -15,50 +15,49 @@ using CURELab.SignLanguage.Debugger.Model;
 
 namespace CURELab.SignLanguage.Debugger
 {
-    /// <summary>
-    /// Interaction logic for TrajectoryWindow.xaml
-    /// </summary>
-    public partial class TrajectoryWindow : Window
+    class TrajectoryView
     {
-        private const float m_renderWidth = 640.0f;
-        private const float m_renderHeight = 480.0f;
+        private Image m_drawboard;
 
-
+        private double m_renderWidth;
+        private double m_renderHeight;
 
         private DrawingGroup m_drawingGroup;
         private DrawingImage m_imageSource;
 
-
-
-        public TrajectoryWindow()
-        {
-            InitializeComponent();
-        }
-
-        private void WindowLoaded(object sender, RoutedEventArgs e)
+        public TrajectoryView(Image img)
         {
             // Create the drawing group we'll use for drawing
             this.m_drawingGroup = new DrawingGroup();
 
             // Create an image source that we can use in our image control
             this.m_imageSource = new DrawingImage(this.m_drawingGroup);
-            
-            // Display the drawing using our image control
-            Image.Source = this.m_imageSource;
-        }
 
-        public void DrawTrajectory(List<Vec3> pointListLeft, List<Vec3> pointListRight){
+            // Display the drawing using our image control
+            img.Source = this.m_imageSource;
+
+            m_drawboard = img;
+            m_renderHeight = img.Height;
+            m_renderWidth = img.Width;
+
+            Console.WriteLine(m_renderWidth + " ", m_renderHeight);
+        }
+    
+
+        public void DrawTrajectory(List<Vec3> pointListLeft, List<Vec3> pointListRight)
+        {
             using (DrawingContext dc = m_drawingGroup.Open())
             {
-                dc.DrawRectangle(Brushes.Black, null, new Rect(0.0, 0.0, m_renderWidth, m_renderHeight));
+                dc.DrawRectangle(Brushes.Transparent, null, new Rect(0.0, 0.0, m_renderWidth, m_renderHeight));
 
-                for (int i = 0; i < pointListLeft.Count;i++)
+                for (int i = 0; i < pointListLeft.Count; i++)
                 {
                     Vec3 item = pointListLeft[i];
-                    DrawPoint(dc, SkeletonToScreen(item), (1 + i) * 0.6 );
-                    
-                    if(i != pointListLeft.Count - 1){
-                        DrawLine(dc, SkeletonToScreen(pointListLeft[i]), SkeletonToScreen(pointListLeft[i + 1]), (i +1) * 1.5);
+                    DrawPoint(dc, SkeletonToScreen(item), (1 + i) * 0.6);
+
+                    if (i != pointListLeft.Count - 1)
+                    {
+                        DrawLine(dc, SkeletonToScreen(pointListLeft[i]), SkeletonToScreen(pointListLeft[i + 1]), (i + 1) * 1.5);
                     }
                 }
 
@@ -69,31 +68,32 @@ namespace CURELab.SignLanguage.Debugger
 
                     if (i != pointListRight.Count - 1)
                     {
-                        DrawLine(dc, SkeletonToScreen(pointListRight[i]), SkeletonToScreen(pointListRight[i + 1]), (i +1)* 1.5);
+                        DrawLine(dc, SkeletonToScreen(pointListRight[i]), SkeletonToScreen(pointListRight[i + 1]), (i + 1) * 1.5);
                     }
                 }
-                    
+
             }
         }
 
 
         private void DrawPoint(DrawingContext dc, Point point, double thickness)
         {
-            dc.DrawEllipse(Brushes.Red, null, point, thickness, thickness);
+            dc.DrawEllipse(Brushes.LightYellow, null, point, thickness, thickness);
         }
 
         private void DrawLine(DrawingContext dc, Point point_i, Point point_j, double thickness)
         {
-            dc.DrawLine(new Pen(Brushes.Green, thickness), point_i, point_j);
+            dc.DrawLine(new Pen(Brushes.SkyBlue, thickness), point_i, point_j);
         }
 
         private Point SkeletonToScreen(Vec3 point)
         {
 
-            double x = Math.Min((point.x + 0.5) / point.z* m_renderWidth * 1.2, m_renderWidth);
+            double x = Math.Min((point.x + 0.5) / point.z * m_renderWidth * 1.2, m_renderWidth);
             double y = Math.Min((-point.y + 0.5) / point.z * m_renderHeight * 1.2, m_renderHeight);
             return new Point(x, y);
         }
+
 
     }
 }
