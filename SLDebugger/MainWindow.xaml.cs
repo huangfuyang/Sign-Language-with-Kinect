@@ -112,6 +112,7 @@ namespace CURELab.SignLanguage.Debugger
             get { return _isPauseOnSegment; }
             set { _isPauseOnSegment = value; }
         }
+        #endregion
 
         #region chart data
 
