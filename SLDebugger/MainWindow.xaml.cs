@@ -34,6 +34,7 @@ namespace CURELab.SignLanguage.Debugger
     {
 
 
+        #region bindings
         private string _fileName;
         public string FileName
         {
@@ -88,21 +89,10 @@ namespace CURELab.SignLanguage.Debugger
         public bool IsShowTrajectory
         {
             get { return _isShowTrajectory; }
-            set { 
-                _isShowTrajectory = value;
-                if (_isShowTrajectory)
-                {
-                    m_trajectoryWindow.Show();
-                }
-                else
-                {
-                    m_trajectoryWindow.Hide();
-                }
-                
-            }
+            set { _isShowTrajectory = value; }
         }
 
-
+ 
         private double _currentTime;
 
         public double CurrentTime
@@ -478,7 +468,7 @@ namespace CURELab.SignLanguage.Debugger
             }
         }
         #endregion
-
+        
         #region parameter
         int xrange = 3000;
         int preTime = 0;
@@ -495,7 +485,7 @@ namespace CURELab.SignLanguage.Debugger
         private GraphView m_bigGraphView;
         #endregion
 
-        private TrajectoryWindow m_trajectoryWindow;
+        private TrajectoryView m_trajectoryWindow;
 
         public MainWindow()
         {
@@ -512,9 +502,9 @@ namespace CURELab.SignLanguage.Debugger
 
         private void CustomizeComponent()
         {
-            m_trajectoryWindow = new TrajectoryWindow();
-            m_trajectoryWindow.Show();
-            m_trajectoryWindow.Hide();  
+            m_trajectoryWindow = new TrajectoryView(im_image);
+          //  m_trajectoryWindow.Show();
+           // m_trajectoryWindow.Hide();  
         }
 
         private void InitializeParams()
@@ -559,13 +549,7 @@ namespace CURELab.SignLanguage.Debugger
         }
 
 
-        private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (m_trajectoryWindow != null)
-            {
-                m_trajectoryWindow.Close();
-            }
-        }
+
 
 
         void updateTimer_Tick(object sender, EventArgs e)
@@ -626,8 +610,10 @@ namespace CURELab.SignLanguage.Debugger
                 m_rightGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
                 m_leftGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
                 ssb_wordBox.DrawSigner(currentDataTime);
-                //TODO: signer
-                m_trajectoryWindow.DrawTrajectory(m_dataManager.GetLeftPositions(currentDataTime), m_dataManager.GetRightPositions(currentDataTime));
+                if (IsShowTrajectory)
+                {
+                    m_trajectoryWindow.DrawTrajectory(m_dataManager.GetLeftPositions(currentDataTime), m_dataManager.GetRightPositions(currentDataTime));
+                }
             }
         }
 
