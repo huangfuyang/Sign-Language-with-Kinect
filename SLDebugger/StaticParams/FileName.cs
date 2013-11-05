@@ -15,6 +15,7 @@ namespace CURELab.SignLanguage.Debugger
         public static string SKELETON = "skeleton";
         public static string ANGLE = "angle";
         public static string WORDS = "words";
+        public static string POSITION = "position";
     }
 
 }

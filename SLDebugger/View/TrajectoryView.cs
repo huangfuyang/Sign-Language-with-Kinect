@@ -44,7 +44,7 @@ namespace CURELab.SignLanguage.Debugger
         }
     
 
-        public void DrawTrajectory(List<Vec3> pointListLeft, List<Vec3> pointListRight)
+        public void DrawTrajectory(List<Point> pointListLeft, List<Point> pointListRight)
         {
             using (DrawingContext dc = m_drawingGroup.Open())
             {
@@ -52,23 +52,23 @@ namespace CURELab.SignLanguage.Debugger
 
                 for (int i = 0; i < pointListLeft.Count; i++)
                 {
-                    Vec3 item = pointListLeft[i];
-                    DrawPoint(dc, SkeletonToScreen(item), (1 + i) * 0.6);
+                    Point item = pointListLeft[i];
+                    DrawPoint(dc, item, (1 + i) * 0.6);
 
                     if (i != pointListLeft.Count - 1)
                     {
-                        DrawLine(dc, SkeletonToScreen(pointListLeft[i]), SkeletonToScreen(pointListLeft[i + 1]), (i + 1) * 1.5);
+                        DrawLine(dc, pointListLeft[i], pointListLeft[i + 1], (i + 1) * 1.5);
                     }
                 }
 
                 for (int i = 0; i < pointListRight.Count; i++)
                 {
-                    Vec3 item = pointListRight[i];
-                    DrawPoint(dc, SkeletonToScreen(item), (1 + i) * 0.6);
+                    Point item = pointListRight[i];
+                    DrawPoint(dc, item, (1 + i) * 0.6);
 
                     if (i != pointListRight.Count - 1)
                     {
-                        DrawLine(dc, SkeletonToScreen(pointListRight[i]), SkeletonToScreen(pointListRight[i + 1]), (i + 1) * 1.5);
+                        DrawLine(dc, pointListRight[i], pointListRight[i + 1], (i + 1) * 1.5);
                     }
                 }
 
@@ -78,22 +78,30 @@ namespace CURELab.SignLanguage.Debugger
 
         private void DrawPoint(DrawingContext dc, Point point, double thickness)
         {
-            dc.DrawEllipse(Brushes.LightYellow, null, point, thickness, thickness);
+
+
+            dc.DrawEllipse(Brushes.LightYellow, null, SkeletonToScreen(point), thickness, thickness);
         }
 
         private void DrawLine(DrawingContext dc, Point point_i, Point point_j, double thickness)
         {
-            dc.DrawLine(new Pen(Brushes.SkyBlue, thickness), point_i, point_j);
+            dc.DrawLine(new Pen(Brushes.SkyBlue, thickness), SkeletonToScreen(point_i), SkeletonToScreen(point_j));
         }
 
-        private Point SkeletonToScreen(Vec3 point)
+        private Point SkeletonToScreen(Point point)
         {
 
-            double x = Math.Min((point.x + 0.5) / point.z * m_renderWidth * 1.2, m_renderWidth);
-            double y = Math.Min((-point.y + 0.5) / point.z * m_renderHeight * 1.2, m_renderHeight);
-            return new Point(x, y);
+            return point;
         }
 
+        public void ClearBoard()
+        {
+            using (DrawingContext dc = m_drawingGroup.Open())
+            {
+                dc.DrawRectangle(Brushes.Transparent, null, new Rect(0.0, 0.0, m_renderWidth, m_renderHeight));
+            }
+
+        }
 
     }
 }

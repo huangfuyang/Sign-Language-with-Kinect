@@ -193,13 +193,13 @@ namespace CURELab.SignLanguage.Debugger.Module
             return ImageTimeStampList[frameNumber];
         }
 
-        public List<Vec3> GetLeftPositions(int timestamp)
+        public List<Point> GetLeftPositions(int timestamp)
         {
             List<int> keys = new List<int>(DataModelDic.Keys);
 
             int index = keys.IndexOf(timestamp);
 
-            List<Vec3> result = new List<Vec3>();
+            List<Point> result = new List<Point>();
 
             if (index > 0)
             {
@@ -207,7 +207,7 @@ namespace CURELab.SignLanguage.Debugger.Module
                 while (index >= 0 && count < 8)
                 {
                     DataModel item = DataModelDic[keys[index]];
-                    result.Add(item.position_left);
+                    result.Add(item.position_2D_left);
                     count++;
                     index--;
                 }
@@ -217,13 +217,13 @@ namespace CURELab.SignLanguage.Debugger.Module
             return result;
         }
 
-        public List<Vec3> GetRightPositions(int timestamp)
+        public List<Point> GetRightPositions(int timestamp)
         {
             List<int> keys = new List<int>(DataModelDic.Keys);
 
             int index = keys.IndexOf(timestamp);
 
-            List<Vec3> result = new List<Vec3>();
+            List<Point> result = new List<Point>();
 
             if (index > 0)
             {
@@ -231,7 +231,7 @@ namespace CURELab.SignLanguage.Debugger.Module
                 while (index >= 0 && count < 8)
                 {
                     DataModel item = DataModelDic[keys[index]];
-                    result.Add(item.position_right);
+                    result.Add(item.position_2D_right);     
                     count++;
                     index--;
                 }

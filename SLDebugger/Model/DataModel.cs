@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Windows;
 
 namespace CURELab.SignLanguage.Debugger.Model
 {
@@ -30,6 +30,8 @@ namespace CURELab.SignLanguage.Debugger.Model
         public Vec3 position_left;
         public bool isSegByAcc;
         public bool isSegByAngle;
+        public Point position_2D_right;
+        public Point position_2D_left;
     }
 
     public struct Vec3

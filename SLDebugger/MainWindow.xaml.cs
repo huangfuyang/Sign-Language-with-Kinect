@@ -89,7 +89,13 @@ namespace CURELab.SignLanguage.Debugger
         public bool IsShowTrajectory
         {
             get { return _isShowTrajectory; }
-            set { _isShowTrajectory = value; }
+            set {
+                if (value == false)
+                {
+                    m_trajectoryWindow.ClearBoard();
+                }
+                _isShowTrajectory = value;
+            }
         }
 
  
@@ -672,8 +678,15 @@ namespace CURELab.SignLanguage.Debugger
             //file name without appendix(.avi)  1_mas
             temp_name = temp_name.Substring(0, temp_name.Length - temp_name.Split('.').Last().Length - 1);
             //file addr with file number & _    C:\sss\ss\s\1_
-            temp_addr += temp_name.Split('_')[0] + '_';
-
+            if (temp_name.IndexOf('_') != -1)
+            {
+                temp_addr += temp_name.Split('_')[0] + '_';
+            }
+            else
+            {
+                temp_addr += temp_name + "_";
+            }
+            Console.WriteLine(temp_addr);
             //SetFilePath();
             //Console.WriteLine("1");
             m_dataReader = ModuleManager.CreateDataReader(temp_addr);
@@ -730,6 +743,7 @@ namespace CURELab.SignLanguage.Debugger
                     me_rawImage.LoadedBehavior = MediaState.Manual;
                     me_rawImage.UnloadedBehavior = MediaState.Manual;
                     string addr = dlg.FileName.Substring(0, dlg.FileName.Length - dlg.SafeFileName.Length);
+
                     string temp_fileName = addr + dlg.SafeFileName.Split('_')[0] + '_';
                     FileName = dlg.FileName;
                     me_rawImage.Play();

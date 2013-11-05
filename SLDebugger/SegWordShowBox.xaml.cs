@@ -100,12 +100,14 @@ namespace CURELab.SignLanguage.Debugger
 
         public void AddWords(SegmentedWordCollection words)
         {
-            foreach (var item in words)
+            if (words.Count > 0)
             {
-                AddNewWord(item.Word, item.StartTime, item.EndTime);
+                foreach (var item in words)
+                {
+                    AddNewWord(item.Word, item.StartTime, item.EndTime);
+                }
+                AddLabel(Length - words.Last().EndTime, "end", Brushes.White);
             }
-            AddLabel(Length - words.Last().EndTime, "end", Brushes.White);
-            
 
         }
         public void RemoveAll()

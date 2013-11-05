@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using CURELab.SignLanguage.Debugger.Model;
+using System.Windows;
 
 
 namespace CURELab.SignLanguage.Debugger.Module
@@ -37,7 +38,10 @@ namespace CURELab.SignLanguage.Debugger.Module
                 _dataManager.ClearAll();
                 GetBaseStamp();
                 LoadImageTimestamp();
+              if (File.Exists(_address + _configReader.GetFileName(FileName.SEGMENTATION)))
+              {
                 LoadSegmentationData();
+              }
                 LoadData();
             }
             catch (Exception e)
@@ -99,6 +103,7 @@ namespace CURELab.SignLanguage.Debugger.Module
             }
             segReader.Close();
         }
+
         private void  LoadData()
         {
             
@@ -218,12 +223,16 @@ namespace CURELab.SignLanguage.Debugger.Module
 
                     _dataManager.DataModelDic[dataTime].position_left = new Vec3() {x = leftx,y = lefty,z = leftz };
                     _dataManager.DataModelDic[dataTime].position_right = new Vec3() { x = rightx, y = righty, z = rightz };
+
+
                     line = skeletonReader.ReadLine();
+
                 }
                 skeletonReader.Close();
 
             }
 
+            // read words
             if (File.Exists(_address + _configReader.GetFileName(FileName.WORDS)))
             {
                 StreamReader wordReader = new StreamReader(_address + _configReader.GetFileName(FileName.WORDS), Encoding.UTF8);
@@ -245,8 +254,41 @@ namespace CURELab.SignLanguage.Debugger.Module
                 wordReader.Close();
             }
 
+            
+            // read 2d position
+            if (File.Exists(_address + _configReader.GetFileName(FileName.POSITION)))
+            {
+                StreamReader positionReader = new StreamReader(_address + _configReader.GetFileName(FileName.POSITION), Encoding.UTF8);
+                string line = positionReader.ReadLine();
 
+                while (!String.IsNullOrWhiteSpace(line))
+                {
+                    string[] words = line.Split(',');
+                    int dataTime = Convert.ToInt32(words[0]) - _baseStamp;
 
+                    double leftx = Convert.ToDouble(words[1]);
+                    double lefty = Convert.ToDouble(words[2]);
+
+                    double rightx = Convert.ToDouble(words[3]);
+                    double righty = Convert.ToDouble(words[4]);
+
+      
+                    if (!_dataManager.DataModelDic.ContainsKey(dataTime))
+                    {
+                        _dataManager.DataModelDic.Add(dataTime, new DataModel()
+                        {
+                            timeStamp = dataTime,
+                        });
+                    }
+
+                    _dataManager.DataModelDic[dataTime].position_2D_left = new Point(leftx, lefty);
+                    _dataManager.DataModelDic[dataTime].position_2D_right = new Point(rightx, righty);
+
+                    line = positionReader.ReadLine();
+                }
+            }
+
+            
             _dataManager.DataModelDic.Reverse();
 
         }

@@ -8,6 +8,7 @@
     <segmentation fileName="output.txt"/>
     <angle fileName ="ag_left_right.txt"/>
     <words fileName="words.txt"/>
+    <position fileName="position.txt"/>
   </dataFile>
   <graph>
     <line>
