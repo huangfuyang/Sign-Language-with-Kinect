@@ -10,6 +10,7 @@ using Microsoft.Research.DynamicDataDisplay.PointMarkers;
 using System.Windows.Media;
 
 using CURELab.SignLanguage.Debugger.ViewModel;
+using Microsoft.Research.DynamicDataDisplay.Charts;
 
 namespace CURELab.SignLanguage.Debugger
 {
@@ -78,6 +79,14 @@ namespace CURELab.SignLanguage.Debugger
             return newSplit;
         }
 
+        public void AddRect(int start, int end)
+        {
+            RectangleHighlight rec = new RectangleHighlight();
+            rec.Bounds = new System.Windows.Rect(start, 0, end - start, 1);
+            rec.Fill = Brushes.LightPink;
+            rec.Opacity = 0.5;
+            _chartPlotter.Children.Add(rec);
+        }
      
 
         /// <summary>
@@ -130,6 +139,7 @@ namespace CURELab.SignLanguage.Debugger
         {
             _chartPlotter.Children.RemoveAll(typeof(ElementMarkerPointsGraph));
             _chartPlotter.Children.RemoveAll(typeof(LineGraph));
+            _chartPlotter.Children.RemoveAll(typeof(RectangleHighlight));
         }
 
         public void ClearGraph()

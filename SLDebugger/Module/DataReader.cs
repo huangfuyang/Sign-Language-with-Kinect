@@ -247,7 +247,7 @@ namespace CURELab.SignLanguage.Debugger.Module
                     int startTime = Convert.ToInt32(words[1]);
                     int endTime = Convert.ToInt32(words[2]);
 
-                    _dataManager.Segmented_Words.Add(new SegmentedWordModel(content, startTime, endTime));
+                    _dataManager.True_Segmented_Words.Add(new SegmentedWordModel(content, startTime, endTime));
                     line = wordReader.ReadLine();
                 }
 

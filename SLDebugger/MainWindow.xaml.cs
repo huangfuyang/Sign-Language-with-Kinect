@@ -543,8 +543,10 @@ namespace CURELab.SignLanguage.Debugger
             m_leftGraphView = new GraphView(cht_left);
             m_bigGraphView = new GraphView(cht_bigChart);
             ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
-            restr.YRange = new DisplayRange(0, 1);
+            restr.YRange = new DisplayRange(-0.1, 1.1);
             cht_bigChart.Viewport.Restrictions.Add(restr);
+            cht_right.Viewport.Restrictions.Add(restr);
+            cht_left.Viewport.Restrictions.Add(restr);
         }
 
         private void InitializeTimer()
@@ -591,9 +593,9 @@ namespace CURELab.SignLanguage.Debugger
                 }   
                 
                 tbk_words.Inlines.Clear();
-                if (m_dataManager.Segmented_Words.Count > 0)
+                if (m_dataManager.True_Segmented_Words.Count > 0)
                 {
-                    foreach (SegmentedWordModel item in m_dataManager.Segmented_Words)
+                    foreach (SegmentedWordModel item in m_dataManager.True_Segmented_Words)
                     {
                         if (currentTimestamp >= item.StartTime && currentDataTime <= item.EndTime)
                         {
@@ -648,11 +650,15 @@ namespace CURELab.SignLanguage.Debugger
             m_leftGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
 
             ssb_wordBox.Length = m_dataManager.DataModelDic.Last().Value.timeStamp;
-            ssb_wordBox.AddWords(m_dataManager.Segmented_Words);
+            ssb_wordBox.AddWords(m_dataManager.True_Segmented_Words);
             tbk_words.Text = "";
-            foreach (var item in m_dataManager.Segmented_Words)
+            foreach (var item in m_dataManager.True_Segmented_Words)
             {
                 tbk_words.Text += item.Word;
+                m_rightGraphView.AddRect(item.StartTime, item.EndTime);
+                m_leftGraphView.AddRect(item.StartTime, item.EndTime);
+                m_bigGraphView.AddRect(item.StartTime, item.EndTime);
+
             }
 
             foreach (int item in m_dataManager.SegmentTimeStampList)

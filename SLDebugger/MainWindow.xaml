@@ -82,9 +82,7 @@
             <d3:ChartPlotter.HorizontalAxis>
                 <d3:HorizontalIntegerAxis Name="xAxisFrame"/>
             </d3:ChartPlotter.HorizontalAxis>
-            <d3:RectangleHighlight Bounds="0,1,10,0" Fill="Black">
-                
-            </d3:RectangleHighlight>
+           
             <d3:Header FontFamily="Georgia" />
             <d3:VerticalAxisTitle FontFamily="Georgia" Content="Right" />
             <d3:HorizontalLine Value="{Binding MaxVelocity}" Stroke="Red" StrokeThickness="2"/>

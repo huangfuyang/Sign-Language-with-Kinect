@@ -115,7 +115,7 @@ namespace CURELab.SignLanguage.Debugger.Module
 
         private SegmentedWordCollection _segmented_words;
 
-        public SegmentedWordCollection Segmented_Words
+        public SegmentedWordCollection True_Segmented_Words
         {
             get { return _segmented_words; }
             set { _segmented_words = value; }
@@ -160,7 +160,7 @@ namespace CURELab.SignLanguage.Debugger.Module
             Angle_Right_Points = new TwoDimensionViewPointCollection();
             Y_Right_Points = new TwoDimensionViewPointCollection();
             Y_Left_Points = new TwoDimensionViewPointCollection();
-            Segmented_Words = new SegmentedWordCollection();
+            True_Segmented_Words = new SegmentedWordCollection();
 
         
             Y_position_points = new TwoDimensionViewPointCollection();
@@ -252,10 +252,10 @@ namespace CURELab.SignLanguage.Debugger.Module
             V_Right_Points.Clear();
             A_Right_Points.Clear();
             Angle_Right_Points.Clear();
-            Segmented_Words.Clear();
+            True_Segmented_Words.Clear();
             ImageTimeStampList.Clear();
             SegmentTimeStampList.Clear();
-            Segmented_Words.Clear();
+            True_Segmented_Words.Clear();
             Y_Left_Points.Clear();
             Y_Right_Points.Clear();
             DataModelDic.Clear();
