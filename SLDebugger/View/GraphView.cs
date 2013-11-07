@@ -18,7 +18,10 @@ namespace CURELab.SignLanguage.Debugger
     {
         private ChartPlotter _chartPlotter;
         private LineGraph lastSigner;
-        private List<LineGraph> _splitLineList;
+        private List<LineGraph> _accSegLineList;
+        private List<LineGraph> _velSegLineList;
+        private List<LineGraph> _angSegLineList;
+        private List<RectangleHighlight> _rectList;
 
 
         public GraphView(ChartPlotter cht)
@@ -26,7 +29,10 @@ namespace CURELab.SignLanguage.Debugger
             _chartPlotter = cht;
             _chartPlotter.Legend.AutoShowAndHide = false;
             _chartPlotter.LegendVisible = false;
-            _splitLineList = new List<LineGraph>();
+            _accSegLineList = new List<LineGraph>();
+            _velSegLineList = new List<LineGraph>();
+            _angSegLineList = new List<LineGraph>();
+            _rectList = new List<RectangleHighlight>();
 
         }
 
@@ -61,7 +67,7 @@ namespace CURELab.SignLanguage.Debugger
         /// <param name="max"></param>
         /// <returns></returns>
 
-        public LineGraph AddSplitLine(int split, double stroke, double min, double max, bool isSegment, Color color)
+        public LineGraph AddSplitLine(int split, double stroke, double min, double max, SegmentType segType, Color color)
         {
             var tempPoints = new TwoDimensionViewPointCollection();
             var v_right = new EnumerableDataSource<TwoDimensionViewPoint>(tempPoints);
@@ -69,12 +75,30 @@ namespace CURELab.SignLanguage.Debugger
             v_right.SetYMapping(y => y.Value);
             tempPoints.Add(new TwoDimensionViewPoint(max, split));
             tempPoints.Add(new TwoDimensionViewPoint(min, split));
-            LineGraph newSplit = _chartPlotter.AddLineGraph(v_right, color, stroke, "seg line");
-            if (isSegment)
-            {
-                _splitLineList.Add(newSplit);
-            }
 
+            LineGraph newSplit;
+            if (segType == SegmentType.NotSegment)
+            {
+                 newSplit = _chartPlotter.AddLineGraph(v_right, color, stroke, "seg line");
+            }
+            else
+            {
+                newSplit = new LineGraph(v_right);
+                newSplit.LinePen = new Pen(new SolidColorBrush(color), stroke);
+            }
+            if (segType == SegmentType.AccSegment)
+            {
+                _accSegLineList.Add(newSplit);
+            }
+            if (segType == SegmentType.VelSegment)
+            {
+                _velSegLineList.Add(newSplit);
+            }
+            if (segType == SegmentType.AngSegment)
+            {
+                _angSegLineList.Add(newSplit);
+            }
+            
 
             return newSplit;
         }
@@ -85,19 +109,53 @@ namespace CURELab.SignLanguage.Debugger
             rec.Bounds = new System.Windows.Rect(start, 0, end - start, 1);
             rec.Fill = Brushes.LightPink;
             rec.Opacity = 0.5;
-            _chartPlotter.Children.Add(rec);
+            _rectList.Add(rec);
+          //  _chartPlotter.Children.Add(rec);
         }
-     
+
+
+        public void RemoveRect()
+        {
+            foreach (RectangleHighlight rect in _rectList)
+            {
+                _chartPlotter.Children.Remove(rect);
+            }
+        }
+
+        public void ShowRect()
+        {
+            foreach (RectangleHighlight rect in _rectList)
+            {
+                _chartPlotter.Children.Add(rect);
+            }
+        }
 
         /// <summary>
         /// 
         /// 
         /// </summary>
-        public void ShowSplitLine()
+        public void ShowSplitLine(bool isShowAcc, bool isShowVel, bool isShowAng)
         {
-            foreach (LineGraph item in _splitLineList)
+            if (isShowAcc)
             {
-                item.AddToPlotter(_chartPlotter);
+                foreach (LineGraph item in _accSegLineList)
+                {
+                    item.AddToPlotter(_chartPlotter);
+                }
+            }
+            if (isShowVel)
+            {
+                foreach (LineGraph item in _velSegLineList)
+                {
+                    item.AddToPlotter(_chartPlotter);
+                }
+            }
+            if (isShowAng)
+            {
+                foreach (LineGraph item in _angSegLineList)
+                {
+                    item.AddToPlotter(_chartPlotter);
+                }
             }
         }
 
@@ -105,11 +163,27 @@ namespace CURELab.SignLanguage.Debugger
         /// 
         /// </summary>
 
-        public void ClearSplitLine()
+        public void ClearSplitLine(bool isClearAcc, bool isClearVel, bool isClearAng)
         {
-            foreach (LineGraph item in _splitLineList)
+            if (isClearAcc)
             {
-                item.Remove();
+                foreach (LineGraph item in _accSegLineList)
+                {
+                    item.Remove();
+                }
+            }
+            if(isClearVel){
+                foreach (LineGraph item in _velSegLineList)
+                {
+                    item.Remove();
+                }
+            }
+            if (isClearAng)
+            {
+                foreach (LineGraph item in _angSegLineList)
+                {
+                    item.Remove();
+                }
             }
         }
 
@@ -126,7 +200,7 @@ namespace CURELab.SignLanguage.Debugger
             {
                 lastSigner.Remove();
             }
-            lastSigner = AddSplitLine(split, 1, min, max, false, Colors.Black);
+            lastSigner = AddSplitLine(split, 1, min, max, SegmentType.NotSegment, Colors.Black);
 
         }
 
@@ -140,6 +214,10 @@ namespace CURELab.SignLanguage.Debugger
             _chartPlotter.Children.RemoveAll(typeof(ElementMarkerPointsGraph));
             _chartPlotter.Children.RemoveAll(typeof(LineGraph));
             _chartPlotter.Children.RemoveAll(typeof(RectangleHighlight));
+            _accSegLineList.Clear();
+            _velSegLineList.Clear();
+            _angSegLineList.Clear();
+            _rectList.Clear();
         }
 
         public void ClearGraph()

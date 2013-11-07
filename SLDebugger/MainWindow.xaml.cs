@@ -72,13 +72,15 @@ namespace CURELab.SignLanguage.Debugger
                 _isShowSplitLine = value;
                 if (_isShowSplitLine)
                 {
-                    m_leftGraphView.ShowSplitLine();
-                    m_rightGraphView.ShowSplitLine();
+                    ssb_wordBox.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
+                    m_leftGraphView.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
+                    m_rightGraphView.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
                 }
                 else
                 {
-                    m_leftGraphView.ClearSplitLine();
-                    m_rightGraphView.ClearSplitLine();
+                    ssb_wordBox.ClearSplitLine(true, true, true);
+                    m_leftGraphView.ClearSplitLine(true, true, true);
+                    m_rightGraphView.ClearSplitLine(true, true, true);
                 }
             }
         }
@@ -98,6 +100,24 @@ namespace CURELab.SignLanguage.Debugger
             }
         }
 
+        private bool _isShowGroundTruth;
+
+        public bool IsShowGroundTruth
+        {
+            get { return _isShowGroundTruth; }
+            set { _isShowGroundTruth = value;
+            if (value == true)
+            {
+                m_leftGraphView.ShowRect();
+                m_rightGraphView.ShowRect();
+            }
+            else
+            {
+                m_leftGraphView.RemoveRect();
+                m_rightGraphView.RemoveRect();
+            }
+            }
+        }
  
         private double _currentTime;
 
@@ -118,6 +138,48 @@ namespace CURELab.SignLanguage.Debugger
             get { return _isPauseOnSegment; }
             set { _isPauseOnSegment = value; }
         }
+
+
+        bool _isSegByAcc;
+
+        public bool IsSegByAcc
+        {
+            get { return _isSegByAcc; }
+            set { _isSegByAcc = value;
+            if (IsShowSplitLine)
+            {
+                RefreshSplitLine();
+            }
+            }
+        }
+
+        bool _isSegByVel;
+
+        public bool IsSegByVel
+        {
+            get { return _isSegByVel; }
+            set { 
+                _isSegByVel = value;
+                if (IsShowSplitLine)
+                {
+                    RefreshSplitLine();
+                }
+            }
+        }
+
+        bool _isSegByAng;
+
+        public bool IsSegByAng
+        {
+            get { return _isSegByAng; }
+            set { _isSegByAng = value;
+            if (IsShowSplitLine)
+            {
+                RefreshSplitLine();
+            }
+            }
+        }
+
         #endregion
 
         #region chart data
@@ -510,8 +572,7 @@ namespace CURELab.SignLanguage.Debugger
         private void CustomizeComponent()
         {
             m_trajectoryWindow = new TrajectoryView(im_image);
-          //  m_trajectoryWindow.Show();
-           // m_trajectoryWindow.Hide();  
+      
         }
 
         private void InitializeParams()
@@ -576,21 +637,18 @@ namespace CURELab.SignLanguage.Debugger
                 int currentTimestamp = m_dataManager.GetCurrentTimestamp(currentFrame);
 
                 int currentDataTime = m_dataManager.GetCurrentDataTime(currentTimestamp);
-                if (m_dataManager.SegmentTimeStampList.Contains(currentDataTime) && currentDataTime != preTime)
+
+                if (IsPauseOnSegment && IsOnSegment(currentDataTime))
                 {
-                    if (IsPauseOnSegment)
-                    {
                         IsPlaying = false;
                         me_rawImage.Pause();
                         preTime = currentDataTime;
-                    }
-                    border_media.BorderBrush = Brushes.DimGray;
+                        border_media.BorderBrush = Brushes.DimGray;
                 }
                 else
                 {
-
                     border_media.BorderBrush = Brushes.LightBlue;
-                }   
+                }
                 
                 tbk_words.Inlines.Clear();
                 if (m_dataManager.True_Segmented_Words.Count > 0)
@@ -628,6 +686,30 @@ namespace CURELab.SignLanguage.Debugger
 
 
 
+        private bool IsOnSegment(int currentDataTime)
+        {
+
+            if (IsSegByAcc && m_dataManager.AcSegmentTimeStampList.Contains(currentDataTime) && currentDataTime != preTime)
+            {
+                return true;
+            }
+            else if (IsSegByVel && m_dataManager.VeSegmentTimeStampList.Contains(currentDataTime) && currentDataTime != preTime)
+            {
+                return true;
+
+            }
+            else if (IsSegByAng && m_dataManager.AngSegmentTimeStampList.Contains(currentDataTime) && currentDataTime != preTime)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
+
         private void DrawData()
         {
             foreach (KeyValuePair<int, DataModel> item in m_dataManager.DataModelDic)
@@ -643,11 +725,18 @@ namespace CURELab.SignLanguage.Debugger
             }
 
 
+            int xrange = m_dataManager.ImageTimeStampList.Last() + 1000;
+   
+            ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
+            restr.XRange = new DisplayRange(0, xrange);
+            cht_left.Viewport.Restrictions.Add(restr);
+            cht_right.Viewport.Restrictions.Add(restr);
+
             //add split line
-            m_rightGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
-            m_rightGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
-            m_leftGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
-            m_leftGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
+      //      m_rightGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AccSegment, Colors.Black);
+      //      m_rightGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AccSegment, Colors.Black);
+      //      m_leftGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AccSegment, Colors.Black);
+       //     m_leftGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity,  SegmentType.AccSegment, Colors.Black);
 
             ssb_wordBox.Length = m_dataManager.DataModelDic.Last().Value.timeStamp;
             ssb_wordBox.AddWords(m_dataManager.True_Segmented_Words);
@@ -661,13 +750,30 @@ namespace CURELab.SignLanguage.Debugger
 
             }
 
-            foreach (int item in m_dataManager.SegmentTimeStampList)
+            foreach (int item in m_dataManager.AcSegmentTimeStampList)
             {
-                m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
-                m_leftGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, true, Colors.Black);
-                ssb_wordBox.AddSplitLine(item);
+                m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AccSegment, Colors.DarkRed);
+                m_leftGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AccSegment, Colors.DarkRed);
+                ssb_wordBox.AddSplitLine(item, 2, SegmentType.AccSegment, Colors.DarkRed);
             }
 
+
+            foreach (int item in m_dataManager.VeSegmentTimeStampList)
+            {
+                m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.VelSegment, Colors.DarkBlue);
+                m_leftGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.VelSegment, Colors.DarkBlue);
+                ssb_wordBox.AddSplitLine(item, 2, SegmentType.VelSegment, Colors.DarkBlue);
+            }
+
+
+            foreach (int item in m_dataManager.AngSegmentTimeStampList)
+            {
+                m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AngSegment, Colors.DarkGreen);
+                m_leftGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AngSegment, Colors.DarkGreen);
+                ssb_wordBox.AddSplitLine(item, 2, SegmentType.AngSegment, Colors.DarkGreen);
+            }
+
+            cb_show_rect.IsChecked = true;
         }
 
 
@@ -710,6 +816,7 @@ namespace CURELab.SignLanguage.Debugger
                 ssb_wordBox.RemoveAll();
                 cb_v_right.IsChecked = true;
                 cb_v_left.IsChecked = true;
+                
                 // m_leftGraphView.AppendLineGraph(m_dataManager.V_Left_Points, new Pen(Brushes.DarkBlue, 2), "v left");
                 // m_leftGraphView.AppendLineGraph(m_dataManager.A_Left_Points, new Pen(Brushes.Red, 2), "v left");
                 // m_leftGraphView.AppendLineGraph(m_dataManager.Angle_Left_Points, new Pen(Brushes.Green, 2), "v left");
@@ -795,6 +902,16 @@ namespace CURELab.SignLanguage.Debugger
                 CurrentTime = 0;
             }
 
+        }
+
+        private void RefreshSplitLine()
+        {
+            m_leftGraphView.ClearSplitLine(true, true, true);
+            m_rightGraphView.ClearSplitLine(true, true, true);
+            ssb_wordBox.ClearSplitLine(true, true, true);
+            m_leftGraphView.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
+            m_rightGraphView.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
+            ssb_wordBox.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
         }
 
         private void PopupWarn(string msg)

@@ -129,12 +129,30 @@ namespace CURELab.SignLanguage.Debugger.Module
             set { _imageTimeStampList = value; }
         }
 
-        List<int> _segmentTimeStampList;
-        public List<int> SegmentTimeStampList
+        List<int> _acSegmentTimeStampList;
+        public List<int> AcSegmentTimeStampList
         {
-            get { return _segmentTimeStampList; }
-            set { _segmentTimeStampList = value; }
+            get { return _acSegmentTimeStampList; }
+            set { _acSegmentTimeStampList = value; }
         }
+
+        List<int> _veSegmentTimeStampList;
+
+        public List<int> VeSegmentTimeStampList
+        {
+            get { return _veSegmentTimeStampList; }
+            set { _veSegmentTimeStampList = value; }
+        }
+
+        List<int> _angSegmentTimeStampList;
+
+        public List<int> AngSegmentTimeStampList
+        {
+            get { return _angSegmentTimeStampList; }
+            set { _angSegmentTimeStampList = value; }
+        }
+        
+
 
         private Dictionary<int , DataModel> _dataModelDic;
         public Dictionary<int, DataModel> DataModelDic
@@ -165,7 +183,9 @@ namespace CURELab.SignLanguage.Debugger.Module
         
             Y_position_points = new TwoDimensionViewPointCollection();
             ImageTimeStampList = new List<int>();
-            SegmentTimeStampList = new List<int>();
+            AcSegmentTimeStampList = new List<int>();
+            VeSegmentTimeStampList = new List<int>();
+            AngSegmentTimeStampList = new List<int>();
             DataModelDic = new Dictionary<int, DataModel>();
         }
 
@@ -254,7 +274,9 @@ namespace CURELab.SignLanguage.Debugger.Module
             Angle_Right_Points.Clear();
             True_Segmented_Words.Clear();
             ImageTimeStampList.Clear();
-            SegmentTimeStampList.Clear();
+            AcSegmentTimeStampList.Clear();
+            VeSegmentTimeStampList.Clear();
+            AngSegmentTimeStampList.Clear();
             True_Segmented_Words.Clear();
             Y_Left_Points.Clear();
             Y_Right_Points.Clear();

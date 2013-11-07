@@ -50,6 +50,11 @@ namespace CURELab.SignLanguage.Debugger
 
         private int lastEnd;
 
+        private List<Line> _accSegLineList;
+        private List<Line> _velSegLineList;
+        private List<Line> _angSegLineList;
+
+
         public SegWordShowBox()
         {
             InitializeComponent();
@@ -58,6 +63,9 @@ namespace CURELab.SignLanguage.Debugger
             lastEnd = 0;
             timeSigner = AddSigner();
 
+            _angSegLineList = new List<Line>();
+            _velSegLineList = new List<Line>();
+            _accSegLineList = new List<Line>();
         }
 
         private void AddLabel(int length, string content, Brush back)
@@ -118,6 +126,9 @@ namespace CURELab.SignLanguage.Debugger
             grd_main.Children.RemoveRange(0, grd_main.Children.Count);
             grd_Lines.Children.RemoveRange(1, grd_Lines.Children.Count -1);
             SplitLineDic.Clear();
+            _accSegLineList.Clear();
+            _angSegLineList.Clear();
+            _velSegLineList.Clear();
             DrawSigner(0);
         }
 
@@ -130,7 +141,10 @@ namespace CURELab.SignLanguage.Debugger
             newLine.X2 = grd_Lines.ActualWidth * (double)X / (double)Length;
             newLine.Y2 = 100;
             newLine.StrokeThickness = 2;
-            SplitLineDic.Add(X, newLine);
+            if (SplitLineDic.ContainsKey(X) == false)
+            {
+                SplitLineDic.Add(X, newLine);
+            }
             grd_Lines.Children.Add(newLine);
         }
 
@@ -166,6 +180,83 @@ namespace CURELab.SignLanguage.Debugger
                 item.Value.X1 = grd_Lines.ActualWidth * (double)item.Key / (double)Length;
                 item.Value.X2 = grd_Lines.ActualWidth * (double)item.Key / (double)Length;
             }
+        }
+
+
+        public void ClearSplitLine(bool isClearAcc, bool isClearVel, bool isClearAng)
+        {
+            if (isClearAcc)
+            {
+                foreach (Line item in _accSegLineList)
+                {
+                    grd_Lines.Children.Remove(item);
+                }
+            }
+            if (isClearVel)
+            {
+                foreach (Line item in _velSegLineList)
+                {
+                    grd_Lines.Children.Remove(item);
+                }
+            }
+            if (isClearAng)
+            {
+                foreach (Line item in _angSegLineList)
+                {
+                    grd_Lines.Children.Remove(item);
+                }
+            }
+        }
+
+
+        public void ShowSplitLine(bool isShowAcc, bool isShowVel, bool isShowAng)
+        {
+            if (isShowAcc)
+            {
+                foreach (Line item in _accSegLineList)
+                {
+                    grd_Lines.Children.Add(item);
+                }
+            }
+            if (isShowVel)
+            {
+                foreach (Line item in _velSegLineList)
+                {
+                    grd_Lines.Children.Add(item);
+                }
+            }
+            if (isShowAng)
+            {
+                foreach (Line item in _angSegLineList)
+                {
+                    grd_Lines.Children.Add(item);
+                }
+            }
+        }
+
+        public void AddSplitLine(int X, double stroke, SegmentType segType, Color color)
+        {
+
+            Line newLine = new Line();
+            newLine.Stroke = new SolidColorBrush(color);
+            newLine.X1 = grd_Lines.ActualWidth * (double)X / (double)Length;
+            newLine.Y1 = 0;
+            newLine.X2 = grd_Lines.ActualWidth * (double)X / (double)Length;
+            newLine.Y2 = 100;
+            newLine.StrokeThickness = stroke;
+ 
+            if (segType == SegmentType.AccSegment)
+            {
+                _accSegLineList.Add(newLine);
+            }
+            if (segType == SegmentType.VelSegment)
+            {
+                _velSegLineList.Add(newLine);
+            }
+            if (segType == SegmentType.AngSegment)
+            {
+                _angSegLineList.Add(newLine);
+            }      
         }
     }
 }

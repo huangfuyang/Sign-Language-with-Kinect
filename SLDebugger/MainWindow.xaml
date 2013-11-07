@@ -4,7 +4,7 @@
         xmlns:cl="clr-namespace:CURELab.SignLanguage.Debugger"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d3="http://research.microsoft.com/DynamicDataDisplay/1.0"
-        Title="{Binding Path=FileName, StringFormat=Sign Language Debugger {0:S}}"   Height="842" Width="1024" HorizontalAlignment="Left" VerticalAlignment="Top" Left="100" Top="0">
+        Title="{Binding Path=FileName, StringFormat=Sign Language Debugger {0:S}}"   Height="867" Width="1032" HorizontalAlignment="Left" VerticalAlignment="Top" Left="100" Top="0">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="313*"/>
@@ -29,9 +29,9 @@
 
             </Border>
             <Border Grid.Row="0"  Name="border_viewbox" BorderBrush="LightBlue" BorderThickness="0" HorizontalAlignment="Stretch" Margin="0,0">
-            <Viewbox Stretch="Uniform" HorizontalAlignment="Center" Margin="10" Width="293">
-                <Image Name="im_image" Width="640" Height="480"/>
-            </Viewbox>
+                <Viewbox Stretch="Uniform" HorizontalAlignment="Center" Margin="10" Width="293">
+                    <Image Name="im_image" Width="640" Height="480"/>
+                </Viewbox>
             </Border>
             <Grid Grid.Row="1">
                 <Button x:Name="btn_openFile" Content="Open" HorizontalAlignment="Left" Margin="5" Click="btn_openFile_Click" MinWidth="50"/>
@@ -39,13 +39,13 @@
                 <Button x:Name="btn_Stop" Content="Stop" HorizontalAlignment="Right" Margin="5" Click="btn_Stop_Click" MinWidth="50"/>
             </Grid>
             <Slider Grid.Row="2" VerticalAlignment="Bottom" x:Name="sld_progress" HorizontalAlignment="Stretch" Margin="5"  ValueChanged="sld_progress_ValueChanged" DragEnter="sld_progress_DragEnter" DragLeave="sld_progress_DragLeave" />
-                
+
         </Grid>
 
 
 
         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical">
-            <ListBox Padding="5" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top" Width="106" >
+            <ListBox Padding="5" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top"  >
                 <CheckBox Name="cb_v_left_big" Content="Velocity Left" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowVeloLeftBig, Mode=OneWayToSource}"/>
                 <CheckBox Name="cb_v_right_big" Content="Velocity Right" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowVeloRightBig, Mode=OneWayToSource}"/>
                 <CheckBox x:Name="cb_a_left_big" Content="Acce Left" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAccLeftBig, Mode=OneWayToSource}"/>
@@ -54,10 +54,14 @@
                 <CheckBox x:Name="cb_angle_right_big" Content="Angle Right" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAngleRightBig, Mode=OneWayToSource}"/>
             </ListBox>
             <CheckBox Name="cb_autopause" Content="Auto-Pause" HorizontalAlignment="Left" Margin="10,5" VerticalAlignment="Top" IsChecked="{Binding IsPauseOnSegment, Mode=TwoWay}" Grid.Column="1" />
-            <CheckBox Name="cb_splitLine" Content="Show split line" HorizontalAlignment="Left" Margin="10,5" VerticalAlignment="Top" IsChecked="{Binding IsShowSplitLine, Mode=TwoWay}" Grid.Column="1" />
-            <CheckBox x:Name="cb_splitLine_Copy" Content="Show trajectory" HorizontalAlignment="Left" Margin="10,5,0,5" VerticalAlignment="Top" IsChecked="{Binding IsShowTrajectory, Mode=TwoWay}" />
-
-
+            <CheckBox x:Name="cb_show_trajectory" Content="Show trajectory" HorizontalAlignment="Left" Margin="10,5,0,5" VerticalAlignment="Top" IsChecked="{Binding IsShowTrajectory, Mode=TwoWay}" />
+            <CheckBox Name="cb_show_rect" Content="Show ground truth" Margin="10,5,0,0" IsChecked="{Binding IsShowGroundTruth, Mode=TwoWay}"/>
+            <CheckBox x:Name="cb_splitLine" Content="Show split line:" HorizontalAlignment="Left" Margin="10,20,0,5" VerticalAlignment="Top" IsChecked="{Binding IsShowSplitLine, Mode=TwoWay}" />
+            <ListBox HorizontalAlignment="Left" Margin="25,5,0,5" VerticalAlignment="Top">
+                <CheckBox x:Name="cb_acc_seg" Content="Acceleration" IsChecked="{Binding IsSegByAcc, Mode=TwoWay}"/>
+                <CheckBox x:Name="cb_vel_seg" Content="Velocity" IsChecked="{Binding IsSegByVel, Mode=TwoWay}"/>
+                <CheckBox x:Name="cb_ang_seg" Content="Angle" IsChecked="{Binding IsSegByAng, Mode=TwoWay}"/>
+            </ListBox>
         </StackPanel>
 
         <d3:ChartPlotter Grid.Row="0" Grid.Column="2" x:Name="cht_bigChart" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0" >
@@ -82,7 +86,7 @@
             <d3:ChartPlotter.HorizontalAxis>
                 <d3:HorizontalIntegerAxis Name="xAxisFrame"/>
             </d3:ChartPlotter.HorizontalAxis>
-           
+
             <d3:Header FontFamily="Georgia" />
             <d3:VerticalAxisTitle FontFamily="Georgia" Content="Right" />
             <d3:HorizontalLine Value="{Binding MaxVelocity}" Stroke="Red" StrokeThickness="2"/>
@@ -105,7 +109,7 @@
             <d3:HorizontalLine Value="{Binding MinVelocity}" Stroke="Red" StrokeThickness="2"/>
         </d3:ChartPlotter>
         <!-- Row 3-->
-        
+
         <cl:SegWordShowBox x:Name="ssb_wordBox" Grid.Row="3" Grid.ColumnSpan="3" Margin="228,10,47,10"  />
         <TextBlock  x:Name="tbk_words"  Text="words" HorizontalAlignment="Left" Margin="26,10,0,0" Grid.Row="3" VerticalAlignment="Top" Height="80" Width="151" FontSize="15" TextWrapping="Wrap"/>
 

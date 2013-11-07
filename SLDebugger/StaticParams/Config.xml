@@ -5,7 +5,9 @@
     <acceleration fileName ="ac_left_right.txt"/>
     <timestamp fileName="timestamp.txt"/>
     <skeleton fileName ="skeleton.txt"/>
-    <segmentation fileName="output.txt"/>
+    <ac_segmentation fileName="ac_segpoint.txt"/>
+    <ve_segmentation fileName="vo_segpoint.txt"/>
+    <ang_segmentation fileName="ag_segpoint.txt"/>
     <angle fileName ="ag_left_right.txt"/>
     <words fileName="words.txt"/>
     <position fileName="position.txt"/>

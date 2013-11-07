@@ -38,10 +38,9 @@ namespace CURELab.SignLanguage.Debugger.Module
                 _dataManager.ClearAll();
                 GetBaseStamp();
                 LoadImageTimestamp();
-              if (File.Exists(_address + _configReader.GetFileName(FileName.SEGMENTATION)))
-              {
+              
                 LoadSegmentationData();
-              }
+              
                 LoadData();
             }
             catch (Exception e)
@@ -87,21 +86,58 @@ namespace CURELab.SignLanguage.Debugger.Module
 
         private void LoadSegmentationData()
         {
-            StreamReader segReader = new StreamReader(_address + _configReader.GetFileName(FileName.SEGMENTATION));
+            StreamReader segReader;
 
-            string segLine = segReader.ReadLine();
-            while (!String.IsNullOrWhiteSpace(segLine))
-            {
-                int segTimestamp = Convert.ToInt32(segLine) - _baseStamp;
-                if (!_dataManager.SegmentTimeStampList.Contains(segTimestamp))
+            if (File.Exists(_address + _configReader.GetFileName(FileName.AC_SEGMENTATION))){
+                segReader = new StreamReader(_address + _configReader.GetFileName(FileName.AC_SEGMENTATION));
+                string segLine = segReader.ReadLine();
+                while (!String.IsNullOrWhiteSpace(segLine))
                 {
-                    _dataManager.SegmentTimeStampList.Add(segTimestamp);
+                    int segTimestamp = Convert.ToInt32(segLine) - _baseStamp;
+                    if (!_dataManager.AcSegmentTimeStampList.Contains(segTimestamp))
+                    {
+                        _dataManager.AcSegmentTimeStampList.Add(segTimestamp);
 
+                    }
+                    segLine = segReader.ReadLine();
                 }
-                segLine = segReader.ReadLine();
-
+                segReader.Close();
             }
-            segReader.Close();
+
+            if (File.Exists(_address + _configReader.GetFileName(FileName.VEL_SEGMENTATION)))
+            {
+                
+                segReader = new StreamReader(_address + _configReader.GetFileName(FileName.VEL_SEGMENTATION));
+                string segLine = segReader.ReadLine();
+                while (!String.IsNullOrWhiteSpace(segLine))
+                {
+                    int segTimestamp = Convert.ToInt32(segLine) - _baseStamp;
+                    if (!_dataManager.VeSegmentTimeStampList.Contains(segTimestamp))
+                    {
+                        _dataManager.VeSegmentTimeStampList.Add(segTimestamp);
+
+                    }
+                    segLine = segReader.ReadLine();
+                }
+                segReader.Close();
+            }
+
+            if (File.Exists(_address + _configReader.GetFileName(FileName.ANG_SEGMENTATION)))
+            {
+                segReader = new StreamReader(_address + _configReader.GetFileName(FileName.ANG_SEGMENTATION));
+                string segLine = segReader.ReadLine();
+                while (!String.IsNullOrWhiteSpace(segLine))
+                {
+                    int segTimestamp = Convert.ToInt32(segLine) - _baseStamp;
+                    if (!_dataManager.AngSegmentTimeStampList.Contains(segTimestamp))
+                    {
+                        _dataManager.AngSegmentTimeStampList.Add(segTimestamp);
+
+                    }
+                    segLine = segReader.ReadLine();
+                }
+                segReader.Close();
+            }
         }
 
         private void  LoadData()
