@@ -626,6 +626,7 @@ namespace CURELab.SignLanguage.Debugger
         {
             if (me_rawImage.HasVideo && IsPlaying)
             {
+                //update time
                 if (CurrentTime == totalDuration)
                 {
                     IsPlaying = false;
@@ -638,6 +639,7 @@ namespace CURELab.SignLanguage.Debugger
 
                 int currentDataTime = m_dataManager.GetCurrentDataTime(currentTimestamp);
 
+                //pause on segment
                 if (IsPauseOnSegment && IsOnSegment(currentDataTime))
                 {
                         IsPlaying = false;
@@ -650,6 +652,7 @@ namespace CURELab.SignLanguage.Debugger
                     border_media.BorderBrush = Brushes.LightBlue;
                 }
                 
+                //update word segmentation show text block
                 tbk_words.Inlines.Clear();
                 if (m_dataManager.True_Segmented_Words.Count > 0)
                 {
@@ -667,16 +670,17 @@ namespace CURELab.SignLanguage.Debugger
                     }
 
                 }
-
+                //update chart data range
                 ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
                 restr.XRange = new DisplayRange(currentDataTime - xrange, currentDataTime);
                 cht_bigChart.Viewport.Restrictions.Add(restr);
 
 
-
+                //update chart signer
                 m_rightGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
                 m_leftGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
                 ssb_wordBox.DrawSigner(currentDataTime);
+                //udpate arm track
                 if (IsShowTrajectory)
                 {
                     m_trajectoryWindow.DrawTrajectory(m_dataManager.GetLeftPositions(currentDataTime), m_dataManager.GetRightPositions(currentDataTime));
