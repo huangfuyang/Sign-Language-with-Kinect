@@ -16,6 +16,7 @@ using CURELab.SignLanguage.Debugger.ViewModel;
 using Microsoft.Research.DynamicDataDisplay.DataSources;
 using System.Windows;
 using CURELab.SignLanguage.Debugger.Model;
+using System.Collections;
 
 namespace CURELab.SignLanguage.Debugger.Module
 {
@@ -39,6 +40,8 @@ namespace CURELab.SignLanguage.Debugger.Module
             get { return _minVelocity; }
             set { _minVelocity = value; this.OnPropertyChanged("MinVelocity"); }
         }
+
+        private List<IList> DataListCollection;
 
 
         private TwoDimensionViewPointCollection _v_rightPoints;
@@ -86,7 +89,7 @@ namespace CURELab.SignLanguage.Debugger.Module
             get { return _y_right; }
             set { _y_right = value; }
         }
-        
+
         private TwoDimensionViewPointCollection _a_right_points;
 
         public TwoDimensionViewPointCollection A_Right_Points
@@ -103,13 +106,53 @@ namespace CURELab.SignLanguage.Debugger.Module
             set { _angle_right_points = value; }
         }
 
-     
-        private TwoDimensionViewPointCollection _y_position_points;
 
-        public TwoDimensionViewPointCollection Y_position_points
+        private TwoDimensionViewPointCollection _X_right_position;
+
+        public TwoDimensionViewPointCollection X_right_position
         {
-            get { return _y_position_points; }
-            set { _y_position_points = value; }
+            get { return _X_right_position; }
+            set { _X_right_position = value; }
+        }
+
+        private TwoDimensionViewPointCollection _Y_filtered_right_position;
+
+        public TwoDimensionViewPointCollection Y_filtered_right_position
+        {
+            get { return _Y_filtered_right_position; }
+            set { _Y_filtered_right_position = value; }
+        }
+
+        private TwoDimensionViewPointCollection _X_filtered_right_position;
+
+        public TwoDimensionViewPointCollection X_filtered_right_position
+        {
+            get { return _X_filtered_right_position; }
+            set { _X_filtered_right_position = value; }
+        }
+
+        private TwoDimensionViewPointCollection _X_left_position;
+
+        public TwoDimensionViewPointCollection X_left_position
+        {
+            get { return _X_left_position; }
+            set { _X_left_position = value; }
+        }
+
+        private TwoDimensionViewPointCollection _Y_filtered_left_position;
+
+        public TwoDimensionViewPointCollection Y_filtered_left_position
+        {
+            get { return _Y_filtered_left_position; }
+            set { _Y_filtered_left_position = value; }
+        }
+
+        private TwoDimensionViewPointCollection _X_filtered_left_position;
+
+        public TwoDimensionViewPointCollection X_filtered_left_position
+        {
+            get { return _X_filtered_left_position; }
+            set { _X_filtered_left_position = value; }
         }
 
 
@@ -119,7 +162,7 @@ namespace CURELab.SignLanguage.Debugger.Module
         {
             get { return _segmented_words; }
             set { _segmented_words = value; }
-        } 
+        }
 
 
         List<int> _imageTimeStampList;
@@ -151,10 +194,10 @@ namespace CURELab.SignLanguage.Debugger.Module
             get { return _angSegmentTimeStampList; }
             set { _angSegmentTimeStampList = value; }
         }
-        
 
 
-        private Dictionary<int , DataModel> _dataModelDic;
+
+        private Dictionary<int, DataModel> _dataModelDic;
         public Dictionary<int, DataModel> DataModelDic
         {
             get { return _dataModelDic; }
@@ -169,19 +212,26 @@ namespace CURELab.SignLanguage.Debugger.Module
 
         private void InitializeChartData()
         {
-        
+            DataListCollection = new List<IList>();
+
             V_Left_Points = new TwoDimensionViewPointCollection();
             V_Right_Points = new TwoDimensionViewPointCollection();
             A_Left_Points = new TwoDimensionViewPointCollection();
             Angle_Left_Points = new TwoDimensionViewPointCollection();
             A_Right_Points = new TwoDimensionViewPointCollection();
             Angle_Right_Points = new TwoDimensionViewPointCollection();
-            Y_Right_Points = new TwoDimensionViewPointCollection();
-            Y_Left_Points = new TwoDimensionViewPointCollection();
+           
             True_Segmented_Words = new SegmentedWordCollection();
 
-        
-            Y_position_points = new TwoDimensionViewPointCollection();
+            Y_Right_Points = new TwoDimensionViewPointCollection();
+            Y_Left_Points = new TwoDimensionViewPointCollection();
+            X_right_position = new TwoDimensionViewPointCollection();
+            X_left_position = new TwoDimensionViewPointCollection();
+            Y_filtered_right_position = new TwoDimensionViewPointCollection();
+            Y_filtered_left_position = new TwoDimensionViewPointCollection();
+            X_filtered_right_position = new TwoDimensionViewPointCollection();
+            X_filtered_left_position = new TwoDimensionViewPointCollection();
+
             ImageTimeStampList = new List<int>();
             AcSegmentTimeStampList = new List<int>();
             VeSegmentTimeStampList = new List<int>();
@@ -191,7 +241,7 @@ namespace CURELab.SignLanguage.Debugger.Module
 
         public int GetCurrentDataTime(int timestamp)
         {
-            
+
 
             foreach (int key in DataModelDic.Keys)
             {
@@ -202,7 +252,7 @@ namespace CURELab.SignLanguage.Debugger.Module
             }
             return 0;
         }
-        
+
 
         public int GetCurrentTimestamp(int frameNumber)
         {
@@ -251,7 +301,7 @@ namespace CURELab.SignLanguage.Debugger.Module
                 while (index >= 0 && count < 8)
                 {
                     DataModel item = DataModelDic[keys[index]];
-                    result.Add(item.position_2D_right);     
+                    result.Add(item.position_2D_right);
                     count++;
                     index--;
                 }
@@ -261,29 +311,38 @@ namespace CURELab.SignLanguage.Debugger.Module
             return result;
         }
 
-        
+
 
 
         public void ClearAll()
         {
+            ImageTimeStampList.Clear();
+
             V_Left_Points.Clear();
             A_Left_Points.Clear();
             Angle_Left_Points.Clear();
             V_Right_Points.Clear();
             A_Right_Points.Clear();
             Angle_Right_Points.Clear();
+
+            Y_Left_Points.Clear();
+            Y_Right_Points.Clear();
+            Y_filtered_right_position.Clear();
+            Y_filtered_left_position.Clear();
+
+            X_right_position.Clear();
+            X_left_position.Clear();
+            X_filtered_right_position.Clear();
+            X_filtered_left_position.Clear();
             True_Segmented_Words.Clear();
-            ImageTimeStampList.Clear();
             AcSegmentTimeStampList.Clear();
             VeSegmentTimeStampList.Clear();
             AngSegmentTimeStampList.Clear();
-            True_Segmented_Words.Clear();
-            Y_Left_Points.Clear();
-            Y_Right_Points.Clear();
+
             DataModelDic.Clear();
         }
 
-    
+
 
         #region INotifyPropertyChanged 成员
 

@@ -3,36 +3,76 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Research.DynamicDataDisplay.DataSources;
-using Microsoft.Research.DynamicDataDisplay;
-using System.IO;
-using Microsoft.Research.DynamicDataDisplay.PointMarkers;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
-
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using Microsoft.Research.DynamicDataDisplay;
 using CURELab.SignLanguage.Debugger.ViewModel;
 using Microsoft.Research.DynamicDataDisplay.Charts;
+using Microsoft.Research.DynamicDataDisplay.DataSources;
+using Microsoft.Research.DynamicDataDisplay.PointMarkers;
 
-namespace CURELab.SignLanguage.Debugger
+namespace CURELab.SignLanguage.Debugger.View
 {
-    class GraphView
+    /// <summary>
+    /// ChartView.xaml 的交互逻辑
+    /// </summary>
+    public partial class ChartView : UserControl
     {
-        private ChartPlotter _chartPlotter;
         private LineGraph lastSigner;
         private List<LineGraph> _accSegLineList;
         private List<LineGraph> _velSegLineList;
         private List<LineGraph> _angSegLineList;
         private List<RectangleHighlight> _rectList;
 
-
-        public GraphView(ChartPlotter cht)
-        {          
-            _chartPlotter = cht;
-            _chartPlotter.Legend.AutoShowAndHide = false;
-            _chartPlotter.LegendVisible = false;
+        public string Title
+        {
+            get
+            {
+                return title.Content.ToString();
+            }
+            set
+            {
+                title.Content = value;
+            }
+        }
+        public ChartView()
+        {
+            InitializeComponent();
+            chart.Legend.AutoShowAndHide = false;
+            chart.LegendVisible = false;
             _accSegLineList = new List<LineGraph>();
             _velSegLineList = new List<LineGraph>();
             _angSegLineList = new List<LineGraph>();
             _rectList = new List<RectangleHighlight>();
+
+        }
+
+        public void AddLineGraph(string name, TwoDimensionViewPointCollection datasource, Pen pen, bool isShow)
+        {
+
+            CheckBox newCheckBox = new CheckBox();
+            newCheckBox.Content = name;
+            newCheckBox.IsChecked = isShow;
+            newCheckBox.Foreground = pen.Brush;
+            lb_main.Items.Add(newCheckBox);
+             
+            LineAndMarker<ElementMarkerPointsGraph> line = AppendLineGraph(datasource, pen, name);
+            Binding binding = new Binding("IsChecked")
+            {
+                Converter = new BoolToVisibilityConverter(),
+                Mode = BindingMode.OneWay,
+                Source = newCheckBox
+            };
+
+            line.LineGraph.SetBinding(LineGraph.VisibilityProperty, binding);
+            line.MarkerGraph.SetBinding(LineGraph.VisibilityProperty, binding);
 
         }
 
@@ -43,7 +83,7 @@ namespace CURELab.SignLanguage.Debugger
         /// <param name="pen"></param>
         /// <param name="description"></param>
 
-        public LineAndMarker<ElementMarkerPointsGraph> AppendLineGraph(TwoDimensionViewPointCollection collection, Pen pen, string description)
+        private LineAndMarker<ElementMarkerPointsGraph> AppendLineGraph(TwoDimensionViewPointCollection collection, Pen pen, string description)
         {
             CircleElementPointMarker pointMaker = new CircleElementPointMarker();
             pointMaker.Size = 3;
@@ -53,8 +93,8 @@ namespace CURELab.SignLanguage.Debugger
             var v = new EnumerableDataSource<TwoDimensionViewPoint>(collection);
             v.SetXMapping(x => x.TimeStamp);
             v.SetYMapping(y => y.Value);
-            return _chartPlotter.AddLineGraph(v, pen, pointMaker, new PenDescription(description));
-            
+            return chart.AddLineGraph(v, pen, pointMaker, new PenDescription(description));
+
         }
 
 
@@ -79,7 +119,7 @@ namespace CURELab.SignLanguage.Debugger
             LineGraph newSplit;
             if (segType == SegmentType.NotSegment)
             {
-                 newSplit = _chartPlotter.AddLineGraph(v_right, color, stroke, "seg line");
+                newSplit = chart.AddLineGraph(v_right, color, stroke, "seg line");
             }
             else
             {
@@ -98,7 +138,7 @@ namespace CURELab.SignLanguage.Debugger
             {
                 _angSegLineList.Add(newSplit);
             }
-            
+
 
             return newSplit;
         }
@@ -110,7 +150,7 @@ namespace CURELab.SignLanguage.Debugger
             rec.Fill = Brushes.LightPink;
             rec.Opacity = 0.5;
             _rectList.Add(rec);
-          //  _chartPlotter.Children.Add(rec);
+            //  _chartPlotter.Children.Add(rec);
         }
 
 
@@ -118,7 +158,7 @@ namespace CURELab.SignLanguage.Debugger
         {
             foreach (RectangleHighlight rect in _rectList)
             {
-                _chartPlotter.Children.Remove(rect);
+                chart.Children.Remove(rect);
             }
         }
 
@@ -126,7 +166,7 @@ namespace CURELab.SignLanguage.Debugger
         {
             foreach (RectangleHighlight rect in _rectList)
             {
-                _chartPlotter.Children.Add(rect);
+                chart.Children.Add(rect);
             }
         }
 
@@ -140,21 +180,21 @@ namespace CURELab.SignLanguage.Debugger
             {
                 foreach (LineGraph item in _accSegLineList)
                 {
-                    item.AddToPlotter(_chartPlotter);
+                    item.AddToPlotter(chart);
                 }
             }
             if (isShowVel)
             {
                 foreach (LineGraph item in _velSegLineList)
                 {
-                    item.AddToPlotter(_chartPlotter);
+                    item.AddToPlotter(chart);
                 }
             }
             if (isShowAng)
             {
                 foreach (LineGraph item in _angSegLineList)
                 {
-                    item.AddToPlotter(_chartPlotter);
+                    item.AddToPlotter(chart);
                 }
             }
         }
@@ -172,7 +212,8 @@ namespace CURELab.SignLanguage.Debugger
                     item.Remove();
                 }
             }
-            if(isClearVel){
+            if (isClearVel)
+            {
                 foreach (LineGraph item in _velSegLineList)
                 {
                     item.Remove();
@@ -211,21 +252,58 @@ namespace CURELab.SignLanguage.Debugger
 
         public void ClearAllGraph()
         {
-            _chartPlotter.Children.RemoveAll(typeof(ElementMarkerPointsGraph));
-            _chartPlotter.Children.RemoveAll(typeof(LineGraph));
-            _chartPlotter.Children.RemoveAll(typeof(RectangleHighlight));
+            chart.Children.RemoveAll(typeof(ElementMarkerPointsGraph));
+            chart.Children.RemoveAll(typeof(LineGraph));
+            chart.Children.RemoveAll(typeof(RectangleHighlight));
+            lb_main.Items.Clear();
             _accSegLineList.Clear();
             _velSegLineList.Clear();
             _angSegLineList.Clear();
             _rectList.Clear();
         }
 
-        public void ClearGraph()
+        public void SetYRestriction(double ylow, double yhigh)
         {
+            ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
+            restr.YRange = new DisplayRange(ylow, yhigh);
+            chart.Viewport.Restrictions.Add(restr);
+        }
+
+        public void SetXRestriction(double xlow, double xhigh)
+        {
+            ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
+            restr.XRange = new DisplayRange(xlow, xhigh);
+            chart.Viewport.Restrictions.Add(restr);
+        }
+    }
+
+    [ValueConversion(typeof(System.Windows.Visibility), typeof(bool))]
+    public class BoolToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if ((bool)value)
+            {
+                return Visibility.Visible;
+            }
+            else
+            {
+                return Visibility.Collapsed;
+            }
             
         }
 
-
-
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            System.Windows.Visibility visi = (System.Windows.Visibility)value;
+            if (visi == Visibility.Visible)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

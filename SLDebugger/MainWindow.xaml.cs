@@ -23,6 +23,8 @@ using CURELab.SignLanguage.Debugger.ViewModel;
 using CURELab.SignLanguage.RecognitionSystem.StaticTools;
 using CURELab.SignLanguage.Debugger.Module;
 using CURELab.SignLanguage.Debugger.Model;
+using CURELab.SignLanguage.Calculator;
+using CURELab.SignLanguage.Debugger.View;
 
 namespace CURELab.SignLanguage.Debugger
 {
@@ -73,14 +75,14 @@ namespace CURELab.SignLanguage.Debugger
                 if (_isShowSplitLine)
                 {
                     ssb_wordBox.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
-                    m_leftGraphView.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
-                    m_rightGraphView.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
+                    cht_left.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
+                    cht_right.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
                 }
                 else
                 {
                     ssb_wordBox.ClearSplitLine(true, true, true);
-                    m_leftGraphView.ClearSplitLine(true, true, true);
-                    m_rightGraphView.ClearSplitLine(true, true, true);
+                    cht_left.ClearSplitLine(true, true, true);
+                    cht_right.ClearSplitLine(true, true, true);
                 }
             }
         }
@@ -108,13 +110,13 @@ namespace CURELab.SignLanguage.Debugger
             set { _isShowGroundTruth = value;
             if (value == true)
             {
-                m_leftGraphView.ShowRect();
-                m_rightGraphView.ShowRect();
+                cht_left.ShowRect();
+                cht_right.ShowRect();
             }
             else
             {
-                m_leftGraphView.RemoveRect();
-                m_rightGraphView.RemoveRect();
+                cht_left.RemoveRect();
+                cht_right.RemoveRect();
             }
             }
         }
@@ -182,362 +184,7 @@ namespace CURELab.SignLanguage.Debugger
 
         #endregion
 
-        #region chart data
 
-        bool _isShowVeloRight;
-        LineAndMarker<ElementMarkerPointsGraph> v_right_graph;
-        public bool IsShowVeloRight
-        {
-            get { return _isShowVeloRight; }
-            set
-            {
-                _isShowVeloRight = value;
-                if (value)
-                {
-                    v_right_graph = m_rightGraphView.AppendLineGraph(m_dataManager.V_Right_Points, new Pen(Brushes.DarkBlue, 2), "v right");
-                }
-                else
-                {
-                    if (v_right_graph != null)
-                    {
-                        v_right_graph.LineGraph.Remove();
-                        v_right_graph.MarkerGraph.Remove();
-                        v_right_graph = null;
-                    }
-
-                }
-            }
-        }
-
-
-        bool _isShowVeloLeft;
-        LineAndMarker<ElementMarkerPointsGraph> v_left_graph;
-        public bool IsShowVeloLeft
-        {
-            get { return _isShowVeloLeft; }
-            set
-            {
-                _isShowVeloLeft = value;
-                if (value)
-                {
-                    v_left_graph = m_leftGraphView.AppendLineGraph(m_dataManager.V_Left_Points, new Pen(Brushes.DarkBlue, 2), "v leftt");
-                }
-                else
-                {
-                    if (v_left_graph != null)
-                    {
-                        v_left_graph.LineGraph.Remove();
-                        v_left_graph.MarkerGraph.Remove();
-                        v_left_graph = null;
-                    }
-
-                }
-            }
-        }
-
-        bool _isShowAccRight;
-        LineAndMarker<ElementMarkerPointsGraph> acc_right_graph;
-        public bool IsShowAccRight
-        {
-            get { return _isShowAccRight; }
-            set
-            {
-                _isShowAccRight = value;
-                if (value)
-                {
-                    acc_right_graph = m_rightGraphView.AppendLineGraph(m_dataManager.A_Right_Points, new Pen(Brushes.Red, 2), "a right");
-                }
-                else
-                {
-                    if (acc_right_graph != null)
-                    {
-                        acc_right_graph.LineGraph.Remove();
-                        acc_right_graph.MarkerGraph.Remove();
-                        acc_right_graph = null;
-                    }
-                }
-            }
-        }
-
-        bool _isShowAccLeft;
-        LineAndMarker<ElementMarkerPointsGraph> acc_left_graph;
-        public bool IsShowAccLeft
-        {
-            get { return _isShowAccLeft; }
-            set
-            {
-                _isShowAccLeft = value;
-                if (value)
-                {
-                    acc_left_graph = m_leftGraphView.AppendLineGraph(m_dataManager.A_Left_Points, new Pen(Brushes.Red, 2), "a left");
-                }
-                else
-                {
-                    if (acc_left_graph != null)
-                    {
-                        acc_left_graph.LineGraph.Remove();
-                        acc_left_graph.MarkerGraph.Remove();
-                        acc_left_graph = null;
-                    }
-                }
-            }
-        }
-
-
-        bool _isShowAngleRight;
-        LineAndMarker<ElementMarkerPointsGraph> angle_right_graph;
-        public bool IsShowAngleRight
-        {
-            get { return _isShowAngleRight; }
-            set
-            {
-                _isShowAngleRight = value;
-                if (value)
-                {
-                    angle_right_graph = m_rightGraphView.AppendLineGraph(m_dataManager.Angle_Right_Points, new Pen(Brushes.ForestGreen, 2), "a right");
-                }
-                else
-                {
-                    if (angle_right_graph != null)
-                    {
-                        angle_right_graph.LineGraph.Remove();
-                        angle_right_graph.MarkerGraph.Remove();
-                        angle_right_graph = null;
-                    }
-                }
-            }
-        }
-
-
-        bool _isShowAngleLeft;
-        LineAndMarker<ElementMarkerPointsGraph> angle_left_graph;
-        public bool IsShowAngleLeft
-        {
-            get { return _isShowAngleLeft; }
-            set
-            {
-                _isShowAngleLeft = value;
-                if (value)
-                {
-                    angle_left_graph = m_leftGraphView.AppendLineGraph(m_dataManager.Angle_Left_Points, new Pen(Brushes.ForestGreen, 2), "a left");
-                }
-                else
-                {
-                    if (angle_left_graph != null)
-                    {
-                        angle_left_graph.LineGraph.Remove();
-                        angle_left_graph.MarkerGraph.Remove();
-                        angle_left_graph = null;
-                    }
-                }
-            }
-        }
-
-        bool _isShowYLeft;
-        LineAndMarker<ElementMarkerPointsGraph> y_left_graph;
-        public bool IsShowYLeft
-        {
-            get { return _isShowYLeft; }
-            set
-            {
-                _isShowYLeft = value;
-                if (value)
-                {
-                    y_left_graph = m_leftGraphView.AppendLineGraph(m_dataManager.Y_Left_Points, new Pen(Brushes.Purple, 2), "a left");
-                }
-                else
-                {
-                    if (y_left_graph != null)
-                    {
-                        y_left_graph.LineGraph.Remove();
-                        y_left_graph.MarkerGraph.Remove();
-                        y_left_graph = null;
-                    }
-                }
-            }
-        }
-
-        bool _isShowYRight;
-        LineAndMarker<ElementMarkerPointsGraph> y_right_graph;
-        public bool IsShowYRight
-        {
-            get { return _isShowYRight; }
-            set
-            {
-                _isShowYRight = value;
-                if (value)
-                {
-                    y_right_graph = m_rightGraphView.AppendLineGraph(m_dataManager.Y_Right_Points, new Pen(Brushes.Purple, 2), "a left");
-                }
-                else
-                {
-                    if (y_right_graph != null)
-                    {
-                        y_right_graph.LineGraph.Remove();
-                        y_right_graph.MarkerGraph.Remove();
-                        y_right_graph = null;
-                    }
-                }
-            }
-        }
-
-        #endregion
-
-        #region big chart data
-        bool _isShowVeloLeftBig;
-        LineAndMarker<ElementMarkerPointsGraph> v_left_big_graph;
-        public bool IsShowVeloLeftBig
-        {
-            get { return _isShowVeloLeftBig; }
-            set
-            {
-                _isShowVeloLeftBig = value;
-                if (value)
-                {
-                    v_left_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.V_Left_Points, new Pen(Brushes.DarkBlue, 2), "v leftt");
-                }
-                else
-                {
-                    if (v_left_big_graph != null)
-                    {
-                        v_left_big_graph.LineGraph.Remove();
-                        v_left_big_graph.MarkerGraph.Remove();
-                        v_left_big_graph = null;
-                    }
-
-                }
-            }
-        }
-
-
-        bool _isShowVeloRightBig;
-        LineAndMarker<ElementMarkerPointsGraph> v_right_big_graph;
-        public bool IsShowVeloRightBig
-        {
-            get { return _isShowVeloRightBig; }
-            set
-            {
-                _isShowVeloRightBig = value;
-                if (value)
-                {
-                    v_right_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.V_Right_Points, new Pen(Brushes.DarkBlue, 2), "v leftt");
-                }
-                else
-                {
-                    if (v_right_big_graph != null)
-                    {
-                        v_right_big_graph.LineGraph.Remove();
-                        v_right_big_graph.MarkerGraph.Remove();
-                        v_right_big_graph = null;
-                    }
-
-                }
-            }
-        }
-
-
-        bool _isShowAccLeftBig;
-        LineAndMarker<ElementMarkerPointsGraph> a_left_big_graph;
-        public bool IsShowAccLeftBig
-        {
-            get { return _isShowAccLeftBig; }
-            set
-            {
-                _isShowAccLeftBig = value;
-                if (value)
-                {
-                    a_left_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.A_Left_Points, new Pen(Brushes.Red, 2), "v leftt");
-                }
-                else
-                {
-                    if (a_left_big_graph != null)
-                    {
-                        a_left_big_graph.LineGraph.Remove();
-                        a_left_big_graph.MarkerGraph.Remove();
-                        a_left_big_graph = null;
-                    }
-
-                }
-            }
-        }
-
-
-        bool _isShowAccRightBig;
-        LineAndMarker<ElementMarkerPointsGraph> a_right_big_graph;
-        public bool IsShowAccRightBig
-        {
-            get { return _isShowAccRightBig; }
-            set
-            {
-                _isShowAccRightBig = value;
-                if (value)
-                {
-                    a_right_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.A_Right_Points, new Pen(Brushes.Red, 2), "v leftt");
-                }
-                else
-                {
-                    if (a_right_big_graph != null)
-                    {
-                        a_right_big_graph.LineGraph.Remove();
-                        a_right_big_graph.MarkerGraph.Remove();
-                        a_right_big_graph = null;
-                    }
-
-                }
-            }
-        }
-
-        bool _isShowAngleLeftBig;
-        LineAndMarker<ElementMarkerPointsGraph> angle_left_big_graph;
-        public bool IsShowAngleLeftBig
-        {
-            get { return _isShowAngleLeftBig; }
-            set
-            {
-                _isShowAngleLeftBig = value;
-                if (value)
-                {
-                    angle_left_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.Angle_Left_Points, new Pen(Brushes.ForestGreen, 2), "v leftt");
-                }
-                else
-                {
-                    if (angle_left_big_graph != null)
-                    {
-                        angle_left_big_graph.LineGraph.Remove();
-                        angle_left_big_graph.MarkerGraph.Remove();
-                        angle_left_big_graph = null;
-                    }
-
-                }
-            }
-        }
-
-        bool _isShowAngleRightBig;
-        LineAndMarker<ElementMarkerPointsGraph> angle_right_big_graph;
-        public bool IsShowAngleRightBig
-        {
-            get { return _isShowAngleRightBig; }
-            set
-            {
-                _isShowAngleRightBig = value;
-                if (value)
-                {
-                    angle_right_big_graph = m_bigGraphView.AppendLineGraph(m_dataManager.Angle_Right_Points, new Pen(Brushes.ForestGreen, 2), "v leftt");
-                }
-                else
-                {
-                    if (angle_right_big_graph != null)
-                    {
-                        angle_right_big_graph.LineGraph.Remove();
-                        angle_right_big_graph.MarkerGraph.Remove();
-                        angle_right_big_graph = null;
-                    }
-
-                }
-            }
-        }
-        #endregion
-        
         #region parameter
         int xrange = 3000;
         int preTime = 0;
@@ -549,12 +196,11 @@ namespace CURELab.SignLanguage.Debugger
         private DataReader m_dataReader;
         private XMLReader m_configReader;
         private DispatcherTimer updateTimer;
-        private GraphView m_rightGraphView;
-        private GraphView m_leftGraphView;
-        private GraphView m_bigGraphView;
+        private TrajectoryView m_trajectoryWindow;
+
+        private IDataProcessor m_csDataProcessor;
         #endregion
 
-        private TrajectoryView m_trajectoryWindow;
 
         public MainWindow()
         {
@@ -564,7 +210,6 @@ namespace CURELab.SignLanguage.Debugger
             InitializeChart();
             InitializeTimer();
             InitializeParams();
-
 
             ConsoleManager.Show();
         }
@@ -594,20 +239,20 @@ namespace CURELab.SignLanguage.Debugger
 
         private void InitializeModule()
         {
-            m_dataManager = ModuleManager.CreateDataManager();
-            m_configReader = ModuleManager.CreateConfigReader();
+
+            m_dataManager = ModuleManager.DataManager;
+            m_configReader = ModuleManager.ConfigReader;
+            m_csDataProcessor = new CSDataProcessor();
         }
 
         private void InitializeChart()
         {
-            m_rightGraphView = new GraphView(cht_right);
-            m_leftGraphView = new GraphView(cht_left);
-            m_bigGraphView = new GraphView(cht_bigChart);
-            ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
-            restr.YRange = new DisplayRange(-0.1, 1.1);
-            cht_bigChart.Viewport.Restrictions.Add(restr);
-            cht_right.Viewport.Restrictions.Add(restr);
-            cht_left.Viewport.Restrictions.Add(restr);
+            cht_right.SetYRestriction(-0.3,1.1);
+            cht_left.SetYRestriction(-0.3, 1.1);
+            cht_right.Title = "Right";
+            cht_left.Title = "Left";
+            cht_big.Title = "Data";
+            
         }
 
         private void InitializeTimer()
@@ -670,15 +315,11 @@ namespace CURELab.SignLanguage.Debugger
                     }
 
                 }
-                //update chart data range
-                ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
-                restr.XRange = new DisplayRange(currentDataTime - xrange, currentDataTime);
-                cht_bigChart.Viewport.Restrictions.Add(restr);
-
-
+                //update chart data range           
+                cht_big.SetXRestriction(currentDataTime - xrange, currentDataTime);
                 //update chart signer
-                m_rightGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
-                m_leftGraphView.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
+                cht_right.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
+                cht_left.DrawSigner(currentDataTime, m_dataManager.MinVelocity, m_dataManager.MaxVelocity);
                 ssb_wordBox.DrawSigner(currentDataTime);
                 //udpate arm track
                 if (IsShowTrajectory)
@@ -712,10 +353,27 @@ namespace CURELab.SignLanguage.Debugger
             }
         }
 
-
-
-        private void DrawData()
+        private void ProcessData()
         {
+            double[] xPosition = new double[m_dataManager.DataModelDic.Count];
+            double[] yPosition = new double[m_dataManager.DataModelDic.Count];
+            double[] zPosition = new double[m_dataManager.DataModelDic.Count];
+            int index = 0;
+            foreach (KeyValuePair<int, DataModel> item in m_dataManager.DataModelDic)
+            {
+                xPosition[index] = item.Value.position_right.x;
+                yPosition[index] = item.Value.position_right.y;
+                zPosition[index] = item.Value.position_right.z;
+                //Math.Sqrt(Math.Pow(item.Value.position_right.x, 2) +
+                //              Math.Pow(item.Value.position_right.y, 2));
+            }
+
+            m_csDataProcessor.MeanFilter(ref xPosition);
+            m_csDataProcessor.MeanFilter(ref yPosition);
+            for (int i = 0; i < m_dataManager.DataModelDic.Count; i++)
+            {
+            }
+            index = 0;
             foreach (KeyValuePair<int, DataModel> item in m_dataManager.DataModelDic)
             {
                 m_dataManager.V_Right_Points.Add(new TwoDimensionViewPoint(item.Value.v_right, item.Value.timeStamp));
@@ -726,54 +384,77 @@ namespace CURELab.SignLanguage.Debugger
                 m_dataManager.Angle_Left_Points.Add(new TwoDimensionViewPoint(item.Value.angle_left, item.Value.timeStamp));
                 m_dataManager.Y_Right_Points.Add(new TwoDimensionViewPoint(item.Value.position_right.y, item.Value.timeStamp));
                 m_dataManager.Y_Left_Points.Add(new TwoDimensionViewPoint(item.Value.position_left.y, item.Value.timeStamp));
+
+                m_dataManager.Y_filtered_left_position.Add(new TwoDimensionViewPoint(yPosition[index], item.Value.timeStamp));
+                index++;
             }
+        }
 
+        private void DrawData()
+        {
+            //draw data
+            Pen veloPen = new Pen(Brushes.DarkBlue, 2);
+            Pen accPen = new Pen(Brushes.Red, 2);
+            Pen anglePen = new Pen(Brushes.ForestGreen, 2);
+            Pen posPen = new Pen(Brushes.Purple, 2);
+            cht_right.AddLineGraph("velocity", m_dataManager.V_Right_Points, veloPen, true);
+            cht_right.AddLineGraph("acceleration", m_dataManager.A_Right_Points, accPen,false);
+            cht_right.AddLineGraph("angle", m_dataManager.Angle_Right_Points, anglePen, false);
+            cht_right.AddLineGraph("Y", m_dataManager.Y_Right_Points, posPen, false);
+            
+            cht_left.AddLineGraph("velocity", m_dataManager.V_Left_Points, veloPen,true);
+            cht_left.AddLineGraph("acceleration", m_dataManager.A_Left_Points, accPen, false);
+            cht_left.AddLineGraph("angle", m_dataManager.Angle_Left_Points, anglePen, false);
+            cht_left.AddLineGraph("Y", m_dataManager.Y_Left_Points, posPen, false);
 
-            int xrange = m_dataManager.ImageTimeStampList.Last() + 1000;
-   
-            ViewportAxesRangeRestriction restr = new ViewportAxesRangeRestriction();
-            restr.XRange = new DisplayRange(0, xrange);
-            cht_left.Viewport.Restrictions.Add(restr);
-            cht_right.Viewport.Restrictions.Add(restr);
+            cht_big.AddLineGraph("r_velocity", m_dataManager.V_Right_Points, veloPen, false);
+            cht_big.AddLineGraph("r_acceleration", m_dataManager.A_Right_Points, accPen, false);
+            cht_big.AddLineGraph("r_angle", m_dataManager.Angle_Right_Points, anglePen, false);
+            cht_big.AddLineGraph("r_Y", m_dataManager.Y_Right_Points, posPen, false);
+            cht_big.AddLineGraph("l_velocity", m_dataManager.V_Left_Points, veloPen, false);
+            cht_big.AddLineGraph("l_acceleration", m_dataManager.A_Left_Points, accPen, false);
+            cht_big.AddLineGraph("l_angle", m_dataManager.Angle_Left_Points, anglePen, false);
+            cht_big.AddLineGraph("l_Y", m_dataManager.Y_Left_Points, posPen, false);
 
-            //add split line
-      //      m_rightGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AccSegment, Colors.Black);
-      //      m_rightGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AccSegment, Colors.Black);
-      //      m_leftGraphView.AddSplitLine(0, 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AccSegment, Colors.Black);
-       //     m_leftGraphView.AddSplitLine(m_dataManager.ImageTimeStampList.Last(), 1, m_dataManager.MinVelocity, m_dataManager.MaxVelocity,  SegmentType.AccSegment, Colors.Black);
+            //custome x range
+            //int xrange = m_dataManager.ImageTimeStampList.Last() + 1000;
+            //cht_left.SetXRestriction(0, xrange);
+            //cht_right.SetXRestriction(0, xrange);
 
+            //add true word split line  
             ssb_wordBox.Length = m_dataManager.DataModelDic.Last().Value.timeStamp;
             ssb_wordBox.AddWords(m_dataManager.True_Segmented_Words);
             tbk_words.Text = "";
+            //add word rect
             foreach (var item in m_dataManager.True_Segmented_Words)
             {
                 tbk_words.Text += item.Word;
-                m_rightGraphView.AddRect(item.StartTime, item.EndTime);
-                m_leftGraphView.AddRect(item.StartTime, item.EndTime);
-                m_bigGraphView.AddRect(item.StartTime, item.EndTime);
+                cht_right.AddRect(item.StartTime, item.EndTime);
+                cht_left.AddRect(item.StartTime, item.EndTime);
+                cht_big.AddRect(item.StartTime, item.EndTime);
 
             }
 
             foreach (int item in m_dataManager.AcSegmentTimeStampList)
             {
-                m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AccSegment, Colors.DarkRed);
-                m_leftGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AccSegment, Colors.DarkRed);
+                cht_right.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AccSegment, Colors.DarkRed);
+                cht_left.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AccSegment, Colors.DarkRed);
                 ssb_wordBox.AddSplitLine(item, 2, SegmentType.AccSegment, Colors.DarkRed);
             }
 
 
             foreach (int item in m_dataManager.VeSegmentTimeStampList)
             {
-                m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.VelSegment, Colors.DarkBlue);
-                m_leftGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.VelSegment, Colors.DarkBlue);
+                cht_right.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.VelSegment, Colors.DarkBlue);
+                cht_left.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.VelSegment, Colors.DarkBlue);
                 ssb_wordBox.AddSplitLine(item, 2, SegmentType.VelSegment, Colors.DarkBlue);
             }
 
 
             foreach (int item in m_dataManager.AngSegmentTimeStampList)
             {
-                m_rightGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AngSegment, Colors.DarkGreen);
-                m_leftGraphView.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AngSegment, Colors.DarkGreen);
+                cht_right.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AngSegment, Colors.DarkGreen);
+                cht_left.AddSplitLine(item, 2, m_dataManager.MinVelocity, m_dataManager.MaxVelocity, SegmentType.AngSegment, Colors.DarkGreen);
                 ssb_wordBox.AddSplitLine(item, 2, SegmentType.AngSegment, Colors.DarkGreen);
             }
 
@@ -815,20 +496,17 @@ namespace CURELab.SignLanguage.Debugger
             }
             else
             {
-                m_rightGraphView.ClearAllGraph();
-                m_leftGraphView.ClearAllGraph();
+                //clear all graph
+                cht_right.ClearAllGraph();
+                cht_left.ClearAllGraph();
+                cht_big.ClearAllGraph();
                 ssb_wordBox.RemoveAll();
-                cb_v_right.IsChecked = true;
-                cb_v_left.IsChecked = true;
-                
-                // m_leftGraphView.AppendLineGraph(m_dataManager.V_Left_Points, new Pen(Brushes.DarkBlue, 2), "v left");
-                // m_leftGraphView.AppendLineGraph(m_dataManager.A_Left_Points, new Pen(Brushes.Red, 2), "v left");
-                // m_leftGraphView.AppendLineGraph(m_dataManager.Angle_Left_Points, new Pen(Brushes.Green, 2), "v left");
-
+           
                 IsPlaying = false;
                 btn_play.IsEnabled = true;
                 totalDuration = me_rawImage.NaturalDuration.TimeSpan.TotalMilliseconds;
                 totalFrame = (int)(totalDuration * 0.03) + 1;
+                ProcessData();
                 DrawData();
 
                 //TODO: dynamic FPS
@@ -910,11 +588,11 @@ namespace CURELab.SignLanguage.Debugger
 
         private void RefreshSplitLine()
         {
-            m_leftGraphView.ClearSplitLine(true, true, true);
-            m_rightGraphView.ClearSplitLine(true, true, true);
+            cht_left.ClearSplitLine(true, true, true);
+            cht_right.ClearSplitLine(true, true, true);
             ssb_wordBox.ClearSplitLine(true, true, true);
-            m_leftGraphView.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
-            m_rightGraphView.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
+            cht_left.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
+            cht_right.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
             ssb_wordBox.ShowSplitLine(IsSegByAcc, IsSegByVel, IsSegByAng);
         }
 
@@ -955,9 +633,6 @@ namespace CURELab.SignLanguage.Debugger
         {
             IsPlaying = true;
         }
-
-
-
 
     }
 

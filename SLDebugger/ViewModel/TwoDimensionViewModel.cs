@@ -20,7 +20,7 @@ namespace CURELab.SignLanguage.Debugger.ViewModel
     /// </summary>
     public class TwoDimensionViewPointCollection : RingArray<TwoDimensionViewPoint>
     {
-        private const int TOTAL_POINTS = 300;
+        private const int TOTAL_POINTS = 1000;
 
         public TwoDimensionViewPointCollection()
             : base(TOTAL_POINTS) // here i set how much values to show 

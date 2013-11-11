@@ -75,16 +75,18 @@
     <Compile Include="Module\DBReader.cs" />
     <Compile Include="Module\ModuleManager.cs" />
     <Compile Include="Module\XMLReader.cs" />
-    <Compile Include="SegWordShowBox.xaml.cs">
+    <Compile Include="View\SegWordShowBox.xaml.cs">
       <DependentUpon>SegWordShowBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="StaticParams\DataType.cs" />
     <Compile Include="StaticParams\FileName.cs" />
     <Compile Include="StaticParams\SegmentType.cs" />
     <Compile Include="ViewModel\TwoDimensionViewModel.cs" />
+    <Compile Include="View\ChartView.xaml.cs">
+      <DependentUpon>ChartView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\ControlComponentView.cs" />
     <Compile Include="View\DisplayRange.cs" />
-    <Compile Include="View\GraphView.cs" />
     <Compile Include="View\TrajectoryView.cs" />
     <Compile Include="View\ViewportAxesRangeRestriction.cs" />
     <Page Include="MainWindow.xaml">
@@ -99,7 +101,11 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="SegWordShowBox.xaml">
+    <Page Include="View\SegWordShowBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ChartView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -132,6 +138,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Calculator\Calculator.csproj">
+      <Project>{8302cdf3-9b8e-476f-81ca-a865e8b1336a}</Project>
+      <Name>Calculator</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RecognitionSystem\RecognitionSystem.csproj">
       <Project>{01af7e2c-4d9a-4c47-a9ff-c97be82f7a5d}</Project>
       <Name>RecognitionSystem</Name>

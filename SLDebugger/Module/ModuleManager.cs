@@ -22,19 +22,38 @@ namespace CURELab.SignLanguage.Debugger.Module
         private static DataManager _dataManager;
         public static DataManager DataManager
         {
-            get { return _dataManager; }
+            get
+            {
+                if (_dataManager == null)
+                {
+                    _dataManager = new DataManager();
+                }
+                return _dataManager;
+            }
         }
 
         private static DataReader _dataReader;
         public static DataReader DataReader
         {
-            get { return ModuleManager._dataReader; }
+            get
+            {
+
+                return ModuleManager._dataReader;
+            }
         }
 
         private static XMLReader _configReader;
         public static XMLReader ConfigReader
         {
-            get { return ModuleManager._configReader; }
+            get
+            {
+                if (_configReader == null)
+                {
+                    string path = @"Config.xml";
+                    _configReader = new XMLReader(path);
+                }
+                return ModuleManager._configReader;
+            }
         }
 
 
@@ -45,17 +64,6 @@ namespace CURELab.SignLanguage.Debugger.Module
             return DataReader;
         }
 
-        public static DataManager CreateDataManager()
-        {
-            _dataManager = new DataManager();
-            return DataManager;
-        }
-
-        public static XMLReader CreateConfigReader()
-        {
-            string path = @"Config.xml";
-            _configReader = new XMLReader(path);
-            return _configReader;
-        }
+       
     }
 }

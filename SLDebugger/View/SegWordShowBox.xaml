@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="CURELab.SignLanguage.Debugger.SegWordShowBox"
+﻿<UserControl x:Class="CURELab.SignLanguage.Debugger.View.SegWordShowBox"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 

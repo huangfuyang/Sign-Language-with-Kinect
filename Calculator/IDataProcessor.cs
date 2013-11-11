@@ -18,13 +18,13 @@ namespace CURELab.SignLanguage.Calculator
     /// </summary>
     public interface IDataProcessor
     {
-        public void GaussianFilter();
+        void GaussianFilter(ref double[] data);
 
-        public void MeanFilter(ref List<Object> dataList);
+        void MeanFilter(ref double[] data);
 
-        public List<Object> CalVelocity(List<Object> dataList);
+         double[] CalVelocity(double[] data);
 
-        public List<Object> CalAcceleration(List<Object> dataList);
+         double[] CalAcceleration(double[] data);
 
     }
 }

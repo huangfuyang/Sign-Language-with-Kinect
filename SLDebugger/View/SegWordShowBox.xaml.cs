@@ -15,7 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CURELab.SignLanguage.Debugger.Model;
 
-namespace CURELab.SignLanguage.Debugger
+namespace CURELab.SignLanguage.Debugger.View
 {
     /// <summary>
     /// SegWordShowBox.xaml 的交互逻辑
