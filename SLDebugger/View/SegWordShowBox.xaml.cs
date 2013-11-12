@@ -13,7 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using CURELab.SignLanguage.Debugger.Model;
+using CURELab.SignLanguage.DataModule;
 
 namespace CURELab.SignLanguage.Debugger.View
 {
@@ -116,8 +116,8 @@ namespace CURELab.SignLanguage.Debugger.View
                 }
                 AddLabel(Length - words.Last().EndTime, "end", Brushes.White);
             }
-
         }
+
         public void RemoveAll()
         {
             Length = 100;

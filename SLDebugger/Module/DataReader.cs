@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using CURELab.SignLanguage.Debugger.Model;
-using System.Windows;
+using CURELab.SignLanguage.DataModule;
 
 
 namespace CURELab.SignLanguage.Debugger.Module
@@ -14,17 +13,18 @@ namespace CURELab.SignLanguage.Debugger.Module
     {
         string _address;
         DataManager _dataManager;
-        XMLReader _configReader;
+        ConfigReader _configReader;
 
         int _baseStamp;
 
         public DataReader(string address)
         {
             _address = address;
-            _dataManager = ModuleManager.DataManager;
-            _configReader = ModuleManager.ConfigReader;
+            _dataManager = DataManager.GetSingletonInstance();
+            _configReader = ConfigReader.GetSingletonConfigReader();
             _baseStamp = Int32.MaxValue;
         }
+
 
 
         /// <summary>
@@ -317,8 +317,8 @@ namespace CURELab.SignLanguage.Debugger.Module
                         });
                     }
 
-                    _dataManager.DataModelDic[dataTime].position_2D_left = new Point(leftx, lefty);
-                    _dataManager.DataModelDic[dataTime].position_2D_right = new Point(rightx, righty);
+                    _dataManager.DataModelDic[dataTime].position_2D_left = new Point { x = leftx, y = lefty };
+                    _dataManager.DataModelDic[dataTime].position_2D_right = new Point { x = rightx, y = righty };
 
                     line = positionReader.ReadLine();
                 }

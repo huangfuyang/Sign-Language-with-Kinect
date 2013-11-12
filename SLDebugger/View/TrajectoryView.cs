@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using CURELab.SignLanguage.Debugger.Model;
+
+using CURELab.SignLanguage.DataModule;
 
 namespace CURELab.SignLanguage.Debugger
 {
@@ -48,7 +47,7 @@ namespace CURELab.SignLanguage.Debugger
         {
             using (DrawingContext dc = m_drawingGroup.Open())
             {
-                dc.DrawRectangle(Brushes.Transparent, null, new Rect(0.0, 0.0, m_renderWidth, m_renderHeight));
+                dc.DrawRectangle(Brushes.Transparent, null, new System.Windows.Rect(0.0, 0.0, m_renderWidth, m_renderHeight));
 
                 for (int i = 0; i < pointListLeft.Count; i++)
                 {
@@ -78,8 +77,6 @@ namespace CURELab.SignLanguage.Debugger
 
         private void DrawPoint(DrawingContext dc, Point point, double thickness)
         {
-
-
             dc.DrawEllipse(Brushes.LightYellow, null, SkeletonToScreen(point), thickness, thickness);
         }
 
@@ -88,17 +85,17 @@ namespace CURELab.SignLanguage.Debugger
             dc.DrawLine(new Pen(Brushes.SkyBlue, thickness), SkeletonToScreen(point_i), SkeletonToScreen(point_j));
         }
 
-        private Point SkeletonToScreen(Point point)
+        private System.Windows.Point SkeletonToScreen(Point point)
         {
-
-            return point;
+            
+            return new System.Windows.Point(point.x,point.y);
         }
 
         public void ClearBoard()
         {
             using (DrawingContext dc = m_drawingGroup.Open())
             {
-                dc.DrawRectangle(Brushes.Transparent, null, new Rect(0.0, 0.0, m_renderWidth, m_renderHeight));
+                dc.DrawRectangle(Brushes.Transparent, null, new System.Windows.Rect(0.0, 0.0, m_renderWidth, m_renderHeight));
             }
 
         }

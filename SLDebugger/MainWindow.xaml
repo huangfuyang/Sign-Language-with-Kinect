@@ -45,33 +45,25 @@
 
 
         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical">
-            <ListBox Padding="5" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Top"  >
-                <CheckBox Name="cb_v_left_big" Content="Velocity Left" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowVeloLeftBig, Mode=OneWayToSource}"/>
-                <CheckBox Name="cb_v_right_big" Content="Velocity Right" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowVeloRightBig, Mode=OneWayToSource}"/>
-                <CheckBox x:Name="cb_a_left_big" Content="Acce Left" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAccLeftBig, Mode=OneWayToSource}"/>
-                <CheckBox x:Name="cb_a_right_big" Content="Acce Right" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAccRightBig, Mode=OneWayToSource}"/>
-                <CheckBox x:Name="cb_angle_left_big" Content="Angle Left" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAngleLeftBig, Mode=OneWayToSource}"/>
-                <CheckBox x:Name="cb_angle_right_big" Content="Angle Right" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsShowAngleRightBig, Mode=OneWayToSource}"/>
-            </ListBox>
             <CheckBox Name="cb_autopause" Content="Auto-Pause" HorizontalAlignment="Left" Margin="10,5" VerticalAlignment="Top" IsChecked="{Binding IsPauseOnSegment, Mode=TwoWay}" Grid.Column="1" />
             <CheckBox x:Name="cb_show_trajectory" Content="Show trajectory" HorizontalAlignment="Left" Margin="10,5,0,5" VerticalAlignment="Top" IsChecked="{Binding IsShowTrajectory, Mode=TwoWay}" />
             <CheckBox Name="cb_show_rect" Content="Show ground truth" Margin="10,5,0,0" IsChecked="{Binding IsShowGroundTruth, Mode=TwoWay}"/>
             <CheckBox x:Name="cb_splitLine" Content="Show split line:" HorizontalAlignment="Left" Margin="10,20,0,5" VerticalAlignment="Top" IsChecked="{Binding IsShowSplitLine, Mode=TwoWay}" />
-            <ListBox HorizontalAlignment="Left" Margin="25,5,0,5" VerticalAlignment="Top">
+            <ListBox HorizontalAlignment="Left" Margin="10,5,0,5" VerticalAlignment="Top" Width="103">
                 <CheckBox x:Name="cb_acc_seg" Content="Acceleration" IsChecked="{Binding IsSegByAcc, Mode=TwoWay}"/>
                 <CheckBox x:Name="cb_vel_seg" Content="Velocity" IsChecked="{Binding IsSegByVel, Mode=TwoWay}"/>
                 <CheckBox x:Name="cb_ang_seg" Content="Angle" IsChecked="{Binding IsSegByAng, Mode=TwoWay}"/>
             </ListBox>
         </StackPanel>
-        <view:ChartView x:Name="cht_big" Margin="0,10,10,0" Grid.Row="0" Grid.Column="2"></view:ChartView>
+        <view:ChartView x:Name="cht_big" Margin="5" Grid.Row="0" Grid.Column="2"/>
         <!-- Row 1-->
         <view:ChartView x:Name="cht_right" Grid.Row="1" Grid.ColumnSpan="3" ></view:ChartView>
         <!-- Row 2-->
         <view:ChartView x:Name="cht_left" Grid.Row="2" Grid.ColumnSpan="3"></view:ChartView>
         <!-- Row 3-->
 
-        <view:SegWordShowBox x:Name="ssb_wordBox" Grid.Row="3" Grid.ColumnSpan="3" Margin="228,10,47,10"  />
-        <TextBlock  x:Name="tbk_words"  Text="words" HorizontalAlignment="Left" Margin="26,10,0,0" Grid.Row="3" VerticalAlignment="Top" Height="80" Width="151" FontSize="15" TextWrapping="Wrap"/>
+        <view:SegWordShowBox x:Name="ssb_wordBox" Grid.Row="3" Grid.ColumnSpan="3" Margin="182,10,47,10"  />
+        <TextBlock  x:Name="tbk_words"  Text="words" HorizontalAlignment="Left" Margin="26,10,0,0" Grid.Row="3" VerticalAlignment="Top" Height="80" Width="138" FontSize="15" TextWrapping="Wrap"/>
 
 
     </Grid>

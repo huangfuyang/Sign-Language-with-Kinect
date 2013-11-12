@@ -10,16 +10,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Research.DynamicDataDisplay.Common;
 
 
-namespace CURELab.SignLanguage.Debugger.Model
+namespace CURELab.SignLanguage.DataModule
 {
     /// <summary>
     /// add summary here
     /// </summary>
 
-    public class SegmentedWordCollection : RingArray<SegmentedWordModel>
+    public class SegmentedWordCollection : List<SegmentedWordModel>
     {
         private const int TOTAL_POINTS = 1000;
 

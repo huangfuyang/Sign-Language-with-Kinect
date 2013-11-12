@@ -21,6 +21,7 @@ namespace CURELab.SignLanguage.Debugger.Module
     /// </summary>
     public class XMLReader
     {
+     
         private XmlDocument xmlDocument;
         public XMLReader(string path)
         {
@@ -45,5 +46,7 @@ namespace CURELab.SignLanguage.Debugger.Module
             
             return node.Attributes[0].Value.ToString();            
         }
+
+       
     }
 }

@@ -10,9 +10,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 
-namespace CURELab.SignLanguage.Debugger.Model
+
+namespace CURELab.SignLanguage.DataModule
 {
     /// <summary>
     /// add summary here
@@ -37,5 +37,9 @@ namespace CURELab.SignLanguage.Debugger.Model
     public struct Vec3
     {
         public double x, y, z;
+    }
+    public struct Point
+    {
+        public double x, y;
     }
 }

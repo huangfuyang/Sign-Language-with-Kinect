@@ -68,12 +68,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Model\DataModel.cs" />
-    <Compile Include="Model\SegmentedWordModel.cs" />
-    <Compile Include="Module\DataManager.cs" />
+    <Compile Include="Module\ConfigReader.cs" />
     <Compile Include="Module\DataReader.cs" />
     <Compile Include="Module\DBReader.cs" />
-    <Compile Include="Module\ModuleManager.cs" />
     <Compile Include="Module\XMLReader.cs" />
     <Compile Include="View\SegWordShowBox.xaml.cs">
       <DependentUpon>SegWordShowBox.xaml</DependentUpon>
@@ -141,6 +138,10 @@
     <ProjectReference Include="..\Calculator\Calculator.csproj">
       <Project>{8302cdf3-9b8e-476f-81ca-a865e8b1336a}</Project>
       <Name>Calculator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataModule\DataModule.csproj">
+      <Project>{e1a45c64-6eda-4dd7-bead-e3f998a89e32}</Project>
+      <Name>DataModule</Name>
     </ProjectReference>
     <ProjectReference Include="..\RecognitionSystem\RecognitionSystem.csproj">
       <Project>{01af7e2c-4d9a-4c47-a9ff-c97be82f7a5d}</Project>

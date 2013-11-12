@@ -33,14 +33,30 @@ namespace CURELab.SignLanguage.Calculator
 
         }
 
-        public double[] CalVelocity(double[] data)
+        public double[] CalVelocity(double[] data, double[] time)
         {
-            return data;
+            if (data.Length < 1)
+            {
+                return data;
+            }
+            double[] result = new double[data.Length];
+            result[0] = 0;
+            for (int i = 1; i < data.Length-1; i++)
+            {
+                //result[i] = Mathdata[i];
+            }
+            return result;
         }
 
         public double[] CalAcceleration(double[] data)
         {
             return data;
+        }
+
+
+        public double[] CalVelocity(double[] data)
+        {
+            throw new NotImplementedException();
         }
     }
 }
