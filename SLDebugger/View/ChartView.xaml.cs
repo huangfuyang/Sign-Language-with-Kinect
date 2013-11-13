@@ -53,7 +53,13 @@ namespace CURELab.SignLanguage.Debugger.View
             _rectList = new List<RectangleHighlight>();
 
         }
-
+        /// <summary>
+        /// add new line graph
+        /// </summary>
+        /// <param name="name">line graph name</param>
+        /// <param name="datasource">graph data source </param>
+        /// <param name="pen">pen color</param>
+        /// <param name="isShow">is show at beginning</param>
         public void AddLineGraph(string name, TwoDimensionViewPointCollection datasource, Pen pen, bool isShow)
         {
 
@@ -143,11 +149,11 @@ namespace CURELab.SignLanguage.Debugger.View
             return newSplit;
         }
 
-        public void AddRect(int start, int end)
+        public void AddRect(int start, int end, Brush color, double height = 1)
         {
             RectangleHighlight rec = new RectangleHighlight();
-            rec.Bounds = new System.Windows.Rect(start, 0, end - start, 1);
-            rec.Fill = Brushes.LightPink;
+            rec.Bounds = new System.Windows.Rect(start, 0, end - start, height);
+            rec.Fill = color;
             rec.Opacity = 0.5;
             _rectList.Add(rec);
             //  _chartPlotter.Children.Add(rec);

@@ -26,6 +26,15 @@ namespace CURELab.SignLanguage.Debugger.ViewModel
             : base(TOTAL_POINTS) // here i set how much values to show 
         {
         }
+        public TwoDimensionViewPointCollection(double[] value, int[] time)
+            : base(TOTAL_POINTS)
+        {
+            int length = Math.Min(value.Length, time.Length);
+            for (int i = 0 ; i < length; i++)
+			{
+                this.Add(new TwoDimensionViewPoint(value[i],time[i]));
+			}
+        }
     }
 
     public class TwoDimensionViewPoint

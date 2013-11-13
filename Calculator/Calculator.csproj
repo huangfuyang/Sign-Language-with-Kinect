@@ -44,6 +44,12 @@
     <Compile Include="IDataProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DataModule\DataModule.csproj">
+      <Project>{e1a45c64-6eda-4dd7-bead-e3f998a89e32}</Project>
+      <Name>DataModule</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

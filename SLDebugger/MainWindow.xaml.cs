@@ -200,7 +200,7 @@ namespace CURELab.SignLanguage.Debugger
         private DispatcherTimer updateTimer;
         private TrajectoryView m_trajectoryWindow;
 
-        private IDataProcessor m_csDataProcessor;
+        private CSDataProcessor m_csDataProcessor;
         #endregion
 
 
@@ -227,7 +227,7 @@ namespace CURELab.SignLanguage.Debugger
 
             m_dataManager = DataManager.GetSingletonInstance();
             m_configReader = ConfigReader.GetSingletonConfigReader();
-            m_csDataProcessor = new CSDataProcessor();
+            m_csDataProcessor = CSDataProcessor.GetSingletonInstance() ;
         }
 
         private void InitializeParams()
@@ -249,7 +249,7 @@ namespace CURELab.SignLanguage.Debugger
 
         private void InitializeChart()
         {
-            cht_right.SetYRestriction(-0.3,1.1);
+            cht_right.SetYRestriction(-0.4,1.1);
             cht_left.SetYRestriction(-0.3, 1.1);
             cht_right.Title = "Right";
             cht_left.Title = "Left";
@@ -364,31 +364,22 @@ namespace CURELab.SignLanguage.Debugger
         private void DrawData()
         {
             //preprocess data
-            double[] xPosition = new double[m_dataManager.DataModelDic.Count];
-            double[] yPosition = new double[m_dataManager.DataModelDic.Count];
-            double[] zPosition = new double[m_dataManager.DataModelDic.Count];
-            int index = 0;
-            foreach (KeyValuePair<int, DataModel> item in m_dataManager.DataModelDic)
-            {
-                xPosition[index] = item.Value.position_right.x;
-                yPosition[index] = item.Value.position_right.y;
-                zPosition[index] = item.Value.position_right.z;
-                //Math.Sqrt(Math.Pow(item.Value.position_right.x, 2) +
-                //              Math.Pow(item.Value.position_right.y, 2));
-            }
 
-            m_csDataProcessor.MeanFilter(ref xPosition);
-            m_csDataProcessor.MeanFilter(ref yPosition);
-            for (int i = 0; i < m_dataManager.DataModelDic.Count; i++)
-            {
-            }
+            double[] y = (from data in m_dataManager.DataModelList
+                          select data.position_right.x).ToArray();
+            int[] time = (from data in m_dataManager.DataModelList
+                          select data.timeStamp).ToArray();
             //draw data
-            index = 0;
-            //right
-            TwoDimensionViewPointCollection V_Right_Points = new TwoDimensionViewPointCollection();
-            TwoDimensionViewPointCollection A_Right_Points = new TwoDimensionViewPointCollection();
+            //processed data
+            double[] y_filter = m_csDataProcessor.MeanFilter(y, time);
+            TwoDimensionViewPointCollection Y_filtered = new TwoDimensionViewPointCollection(y_filter, time);
+            double[] velo = m_csDataProcessor.CalVelocity();
+            TwoDimensionViewPointCollection V_Right_Points = new TwoDimensionViewPointCollection(velo,time);
+            double[] acc = m_csDataProcessor.CalAcceleration(y_filter, time);
+            TwoDimensionViewPointCollection A_Right_Points = new TwoDimensionViewPointCollection(acc,time);
+            TwoDimensionViewPointCollection Y_Right_Points = new TwoDimensionViewPointCollection(y,time);
             TwoDimensionViewPointCollection Angle_Right_Points = new TwoDimensionViewPointCollection();
-            TwoDimensionViewPointCollection Y_Right_Points = new TwoDimensionViewPointCollection();
+            
             //left
             TwoDimensionViewPointCollection V_Left_Points = new TwoDimensionViewPointCollection();
             TwoDimensionViewPointCollection A_Left_Points = new TwoDimensionViewPointCollection();
@@ -397,28 +388,29 @@ namespace CURELab.SignLanguage.Debugger
             
             foreach (KeyValuePair<int, DataModel> item in m_dataManager.DataModelDic)
             {
-                V_Right_Points.Add(new TwoDimensionViewPoint(item.Value.v_right, item.Value.timeStamp));
+                //V_Right_Points.Add(new TwoDimensionViewPoint(item.Value.v_right, item.Value.timeStamp));
                 V_Left_Points.Add(new TwoDimensionViewPoint(item.Value.v_left, item.Value.timeStamp));
-                A_Right_Points.Add(new TwoDimensionViewPoint(item.Value.a_right, item.Value.timeStamp));
+               // A_Right_Points.Add(new TwoDimensionViewPoint(item.Value.a_right, item.Value.timeStamp));
                 A_Left_Points.Add(new TwoDimensionViewPoint(item.Value.a_left, item.Value.timeStamp));
                 Angle_Right_Points.Add(new TwoDimensionViewPoint(item.Value.angle_right, item.Value.timeStamp));
                 Angle_Left_Points.Add(new TwoDimensionViewPoint(item.Value.angle_left, item.Value.timeStamp));
-                Y_Right_Points.Add(new TwoDimensionViewPoint(item.Value.position_right.y, item.Value.timeStamp));
+                //Y_Right_Points.Add(new TwoDimensionViewPoint(item.Value.position_right.y, item.Value.timeStamp));
                 Y_Left_Points.Add(new TwoDimensionViewPoint(item.Value.position_left.y, item.Value.timeStamp));
 
                 //Y_filtered_left_position.Add(new TwoDimensionViewPoint(yPosition[index], item.Value.timeStamp));
-                index++;
             }
             
             Pen veloPen = new Pen(Brushes.DarkBlue, 2);
             Pen accPen = new Pen(Brushes.Red, 2);
             Pen anglePen = new Pen(Brushes.ForestGreen, 2);
             Pen posPen = new Pen(Brushes.Purple, 2);
+            Pen filter = new Pen(Brushes.Blue, 2);
 
             cht_right.AddLineGraph("velocity", V_Right_Points, veloPen, true);
             cht_right.AddLineGraph("acceleration", A_Right_Points, accPen,false);
             cht_right.AddLineGraph("angle", Angle_Right_Points, anglePen, false);
             cht_right.AddLineGraph("Y", Y_Right_Points, posPen, false);
+            cht_right.AddLineGraph("Y filter", Y_filtered, filter, false);
             
             cht_left.AddLineGraph("velocity", V_Left_Points, veloPen,true);
             cht_left.AddLineGraph("acceleration", A_Left_Points, accPen, false);
@@ -438,14 +430,31 @@ namespace CURELab.SignLanguage.Debugger
             ssb_wordBox.Length = m_dataManager.DataModelDic.Last().Value.timeStamp;
             ssb_wordBox.AddWords(m_dataManager.True_Segmented_Words);
             tbk_words.Text = "";
-            //add word rect
+            //add true word rect
             foreach (var item in m_dataManager.True_Segmented_Words)
             {
                 tbk_words.Text += item.Word;
-                cht_right.AddRect(item.StartTime, item.EndTime);
-                cht_left.AddRect(item.StartTime, item.EndTime);
-                cht_big.AddRect(item.StartTime, item.EndTime);
+                cht_right.AddRect(item.StartTime, item.EndTime, Brushes.LightPink);
+                cht_left.AddRect(item.StartTime, item.EndTime, Brushes.LightPink);
+                cht_big.AddRect(item.StartTime, item.EndTime, Brushes.LightPink);
 
+            }
+
+            //add segmentated word rect
+            //principle: 1.static=>1 or more signs or margin
+            //           2.dynamic=>ME or sub-sign or signs.
+            SegmentedWordCollection segmentatedWords = new SegmentedWordCollection();
+            double threshold = 0.4;
+            bool[] bidata = velo.Select(x => x>threshold).ToArray();
+            for (int i = 0; i < velo.Length; i++)
+            {
+
+            }
+            foreach (var item in segmentatedWords)
+            {
+                cht_right.AddRect(item.StartTime, item.EndTime, Brushes.LightGray,0.5);
+                cht_left.AddRect(item.StartTime, item.EndTime, Brushes.LightGray,0.5);
+                cht_big.AddRect(item.StartTime, item.EndTime, Brushes.LightGray,0.5);
             }
 
             foreach (int item in m_dataManager.AcSegmentTimeStampList)

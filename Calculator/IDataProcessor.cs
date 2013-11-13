@@ -20,11 +20,13 @@ namespace CURELab.SignLanguage.Calculator
     {
         void GaussianFilter(ref double[] data);
 
-        void MeanFilter(ref double[] data);
+        double[] MeanFilter(double[] data);
 
          double[] CalVelocity(double[] data);
 
          double[] CalAcceleration(double[] data);
 
+
+     
     }
 }

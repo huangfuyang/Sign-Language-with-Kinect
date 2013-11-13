@@ -69,6 +69,14 @@ namespace CURELab.SignLanguage.DataModule
             set { _dataModelDic = value; }
         }
 
+        public List<DataModel> DataModelList
+        {
+            get
+            {
+                return DataModelDic.Values.ToList();
+            }
+        }
+
         private static DataManager singletonInstance;
 
         private DataManager()
