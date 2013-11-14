@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Windows.Media.Media3D;
 
 namespace CURELab.SignLanguage.DataModule
 {
@@ -26,18 +26,15 @@ namespace CURELab.SignLanguage.DataModule
         public double a_left;
         public double angle_right;
         public double angle_left;
-        public Vec3 position_right;
-        public Vec3 position_left;
+        public Vector3D position_right;
+        public Vector3D position_left;
         public bool isSegByAcc;
         public bool isSegByAngle;
         public Point position_2D_right;
         public Point position_2D_left;
     }
 
-    public struct Vec3
-    {
-        public double x, y, z;
-    }
+
     public struct Point
     {
         public double x, y;

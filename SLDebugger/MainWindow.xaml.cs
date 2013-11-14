@@ -365,19 +365,28 @@ namespace CURELab.SignLanguage.Debugger
         {
             //preprocess data
 
+            double[] x = (from data in m_dataManager.DataModelList
+                          select data.position_right.X).ToArray();
+            double[] x1 = new double[m_dataManager.DataModelList.Count];
             double[] y = (from data in m_dataManager.DataModelList
-                          select data.position_right.x).ToArray();
+                          select data.position_right.Y).ToArray();
             int[] time = (from data in m_dataManager.DataModelList
                           select data.timeStamp).ToArray();
             //draw data
             //processed data
+            double[] x_filter = m_csDataProcessor.MeanFilter(x, time);
+           // x_filter = m_csDataProcessor.MeanFilter(x_filter, time);
             double[] y_filter = m_csDataProcessor.MeanFilter(y, time);
-            TwoDimensionViewPointCollection Y_filtered = new TwoDimensionViewPointCollection(y_filter, time);
+           // y_filter = m_csDataProcessor.MeanFilter(y_filter, time);
             double[] velo = m_csDataProcessor.CalVelocity();
-            TwoDimensionViewPointCollection V_Right_Points = new TwoDimensionViewPointCollection(velo,time);
+            //double[] velo = m_csDataProcessor.CalVelocity(y_filter,time);
             double[] acc = m_csDataProcessor.CalAcceleration(y_filter, time);
+            TwoDimensionViewPointCollection Y_filtered = new TwoDimensionViewPointCollection(y_filter, time);
+            TwoDimensionViewPointCollection X_filtered = new TwoDimensionViewPointCollection(x_filter, time);
+            TwoDimensionViewPointCollection V_Right_Points = new TwoDimensionViewPointCollection(velo,time);
             TwoDimensionViewPointCollection A_Right_Points = new TwoDimensionViewPointCollection(acc,time);
-            TwoDimensionViewPointCollection Y_Right_Points = new TwoDimensionViewPointCollection(y,time);
+            TwoDimensionViewPointCollection X_Right_Points = new TwoDimensionViewPointCollection(x1, time);
+            TwoDimensionViewPointCollection Y_Right_Points = new TwoDimensionViewPointCollection(y, time);
             TwoDimensionViewPointCollection Angle_Right_Points = new TwoDimensionViewPointCollection();
             
             //left
@@ -388,16 +397,12 @@ namespace CURELab.SignLanguage.Debugger
             
             foreach (KeyValuePair<int, DataModel> item in m_dataManager.DataModelDic)
             {
-                //V_Right_Points.Add(new TwoDimensionViewPoint(item.Value.v_right, item.Value.timeStamp));
                 V_Left_Points.Add(new TwoDimensionViewPoint(item.Value.v_left, item.Value.timeStamp));
-               // A_Right_Points.Add(new TwoDimensionViewPoint(item.Value.a_right, item.Value.timeStamp));
                 A_Left_Points.Add(new TwoDimensionViewPoint(item.Value.a_left, item.Value.timeStamp));
                 Angle_Right_Points.Add(new TwoDimensionViewPoint(item.Value.angle_right, item.Value.timeStamp));
                 Angle_Left_Points.Add(new TwoDimensionViewPoint(item.Value.angle_left, item.Value.timeStamp));
-                //Y_Right_Points.Add(new TwoDimensionViewPoint(item.Value.position_right.y, item.Value.timeStamp));
-                Y_Left_Points.Add(new TwoDimensionViewPoint(item.Value.position_left.y, item.Value.timeStamp));
+                Y_Left_Points.Add(new TwoDimensionViewPoint(item.Value.position_left.Y, item.Value.timeStamp));
 
-                //Y_filtered_left_position.Add(new TwoDimensionViewPoint(yPosition[index], item.Value.timeStamp));
             }
             
             Pen veloPen = new Pen(Brushes.DarkBlue, 2);
@@ -411,6 +416,8 @@ namespace CURELab.SignLanguage.Debugger
             cht_right.AddLineGraph("angle", Angle_Right_Points, anglePen, false);
             cht_right.AddLineGraph("Y", Y_Right_Points, posPen, false);
             cht_right.AddLineGraph("Y filter", Y_filtered, filter, false);
+            cht_right.AddLineGraph("X", X_Right_Points, filter, false);
+            cht_right.AddLineGraph("X filter", X_filtered, filter, false);
             
             cht_left.AddLineGraph("velocity", V_Left_Points, veloPen,true);
             cht_left.AddLineGraph("acceleration", A_Left_Points, accPen, false);
@@ -445,7 +452,7 @@ namespace CURELab.SignLanguage.Debugger
             //           2.dynamic=>ME or sub-sign or signs.
             SegmentedWordCollection segmentatedWords = new SegmentedWordCollection();
             double threshold = 0.4;
-            bool[] bidata = velo.Select(x => x>threshold).ToArray();
+            bool[] bidata = velo.Select(d => d>threshold).ToArray();
             for (int i = 0; i < velo.Length; i++)
             {
 

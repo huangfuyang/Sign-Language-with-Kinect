@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using CURELab.SignLanguage.DataModule;
-
+using System.Windows.Media.Media3D;
 
 namespace CURELab.SignLanguage.Debugger.Module
 {
@@ -257,8 +257,8 @@ namespace CURELab.SignLanguage.Debugger.Module
                         });
                     }
 
-                    _dataManager.DataModelDic[dataTime].position_left = new Vec3() {x = leftx,y = lefty,z = leftz };
-                    _dataManager.DataModelDic[dataTime].position_right = new Vec3() { x = rightx, y = righty, z = rightz };
+                    _dataManager.DataModelDic[dataTime].position_left = new Vector3D() {X = leftx,Y = lefty,Z = leftz };
+                    _dataManager.DataModelDic[dataTime].position_right = new Vector3D() { X = rightx, Y= righty, Z = rightz };
 
 
                     line = skeletonReader.ReadLine();
