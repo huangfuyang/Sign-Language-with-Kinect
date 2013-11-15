@@ -364,10 +364,9 @@ namespace CURELab.SignLanguage.Debugger
         private void DrawData()
         {
             //preprocess data
-
             double[] x = (from data in m_dataManager.DataModelList
                           select data.position_right.X).ToArray();
-            double[] x1 = new double[m_dataManager.DataModelList.Count];
+           // double[] x1 = new double[m_dataManager.DataModelList.Count];
             double[] y = (from data in m_dataManager.DataModelList
                           select data.position_right.Y).ToArray();
             int[] time = (from data in m_dataManager.DataModelList
@@ -385,7 +384,7 @@ namespace CURELab.SignLanguage.Debugger
             TwoDimensionViewPointCollection X_filtered = new TwoDimensionViewPointCollection(x_filter, time);
             TwoDimensionViewPointCollection V_Right_Points = new TwoDimensionViewPointCollection(velo,time);
             TwoDimensionViewPointCollection A_Right_Points = new TwoDimensionViewPointCollection(acc,time);
-            TwoDimensionViewPointCollection X_Right_Points = new TwoDimensionViewPointCollection(x1, time);
+            TwoDimensionViewPointCollection X_Right_Points = new TwoDimensionViewPointCollection(x, time);
             TwoDimensionViewPointCollection Y_Right_Points = new TwoDimensionViewPointCollection(y, time);
             TwoDimensionViewPointCollection Angle_Right_Points = new TwoDimensionViewPointCollection();
             

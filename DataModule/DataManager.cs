@@ -60,20 +60,13 @@ namespace CURELab.SignLanguage.DataModule
             set { _angSegmentTimeStampList = value; }
         }
 
-
-
-        private Dictionary<int, DataModel> _dataModelDic;
-        public Dictionary<int, DataModel> DataModelDic
-        {
-            get { return _dataModelDic; }
-            set { _dataModelDic = value; }
-        }
-
+        private List<DataModel> _dataList;
         public List<DataModel> DataModelList
         {
+            set { _dataList = value; }
             get
             {
-                return DataModelDic.Values.ToList();
+                return _dataList;
             }
         }
 
@@ -100,40 +93,24 @@ namespace CURELab.SignLanguage.DataModule
             AcSegmentTimeStampList = new List<int>();
             VeSegmentTimeStampList = new List<int>();
             AngSegmentTimeStampList = new List<int>();
-            DataModelDic = new Dictionary<int, DataModel>();
+            DataModelList = new List<DataModel>();
             True_Segmented_Words = new SegmentedWordCollection();
         }
 
-        public int GetCurrentDataTime(int timestamp)
+        
+        public DataModel GetCurrentData(int timestamp)
         {
-
-
-            foreach (int key in DataModelDic.Keys)
-            {
-                if (key > timestamp + 40)
-                {
-                    return key;
-                }
-            }
-            return 0;
+            int index = (int)Math.Round((double)timestamp / 33);
+            return _dataList[index]; 
+            
         }
 
 
-        public int GetCurrentTimestamp(int frameNumber)
-        {
-            if (frameNumber >= ImageTimeStampList.Count)
-            {
-                return ImageTimeStampList.Last();
-            }
-            return ImageTimeStampList[frameNumber];
-        }
+     
 
         public List<Point> GetLeftPositions(int timestamp)
         {
-            List<int> keys = new List<int>(DataModelDic.Keys);
-
-            int index = keys.IndexOf(timestamp);
-
+            int index = (int)Math.Round((double)timestamp / 33);
             List<Point> result = new List<Point>();
 
             if (index > 0)
@@ -141,7 +118,7 @@ namespace CURELab.SignLanguage.DataModule
                 int count = 0;
                 while (index >= 0 && count < 8)
                 {
-                    DataModel item = DataModelDic[keys[index]];
+                    DataModel item = DataModelList[index];
                     result.Add(item.position_2D_left);
                     count++;
                     index--;
@@ -154,10 +131,7 @@ namespace CURELab.SignLanguage.DataModule
 
         public List<Point> GetRightPositions(int timestamp)
         {
-            List<int> keys = new List<int>(DataModelDic.Keys);
-
-            int index = keys.IndexOf(timestamp);
-
+            int index = (int)Math.Round((double)timestamp / 33);
             List<Point> result = new List<Point>();
 
             if (index > 0)
@@ -165,7 +139,7 @@ namespace CURELab.SignLanguage.DataModule
                 int count = 0;
                 while (index >= 0 && count < 8)
                 {
-                    DataModel item = DataModelDic[keys[index]];
+                    DataModel item = DataModelList[index];
                     result.Add(item.position_2D_right);
                     count++;
                     index--;
@@ -184,7 +158,7 @@ namespace CURELab.SignLanguage.DataModule
             VeSegmentTimeStampList.Clear();
             AngSegmentTimeStampList.Clear();
 
-            DataModelDic.Clear();
+            DataModelList.Clear();
         }
 
     }

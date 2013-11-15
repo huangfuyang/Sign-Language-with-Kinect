@@ -36,9 +36,7 @@ namespace CURELab.SignLanguage.Debugger.Module
             try
             {
                 _dataManager.ClearAll();
-                GetBaseStamp();
-                LoadImageTimestamp();
-              
+                LoadImageTimestamp();             
                 LoadSegmentationData();
               
                 LoadData();
@@ -52,28 +50,11 @@ namespace CURELab.SignLanguage.Debugger.Module
             return true;
         }
 
-
-
-        private void GetBaseStamp()
-        {
-            StreamReader timeReader = new StreamReader(_address + _configReader.GetFileName(FileName.TIMESTAMP));
-            StreamReader dataReader = new StreamReader(_address + _configReader.GetFileName(FileName.VELOCITY));
-
-            string line = timeReader.ReadLine();
-            _baseStamp = Convert.ToInt32(line);
-
-            line = dataReader.ReadLine();
-            _baseStamp = Math.Min(Convert.ToInt32(line.Split(' ')[0]), _baseStamp);
-            timeReader.Close();
-            dataReader.Close();
-
-        }
-
-
         private void LoadImageTimestamp()
         {
             StreamReader timeReader = new StreamReader(_address + _configReader.GetFileName(FileName.TIMESTAMP));
             string line = timeReader.ReadLine();
+            _baseStamp = Convert.ToInt32(line);
             while (!String.IsNullOrWhiteSpace(line))
             {
                 int timeStamp = Convert.ToInt32(line) - _baseStamp;
@@ -157,7 +138,7 @@ namespace CURELab.SignLanguage.Debugger.Module
                     double vl = Convert.ToDouble(words[1]);
                     double vr = Convert.ToDouble(words[2]);
 
-                    if (!_dataManager.DataModelDic.ContainsKey(dataTime))
+                    if (!_dataManager.DataModelList.Count)
                     {
                         _dataManager.DataModelDic.Add(dataTime, new DataModel()
                         {
