@@ -36,9 +36,9 @@ namespace CURELab.SignLanguage.Debugger.Module
             try
             {
                 _dataManager.ClearAll();
-                LoadImageTimestamp();             
+                LoadImageTimestamp();
                 LoadSegmentationData();
-              
+
                 LoadData();
             }
             catch (Exception e)
@@ -69,7 +69,8 @@ namespace CURELab.SignLanguage.Debugger.Module
         {
             StreamReader segReader;
 
-            if (File.Exists(_address + _configReader.GetFileName(FileName.AC_SEGMENTATION))){
+            if (File.Exists(_address + _configReader.GetFileName(FileName.AC_SEGMENTATION)))
+            {
                 segReader = new StreamReader(_address + _configReader.GetFileName(FileName.AC_SEGMENTATION));
                 string segLine = segReader.ReadLine();
                 while (!String.IsNullOrWhiteSpace(segLine))
@@ -87,7 +88,7 @@ namespace CURELab.SignLanguage.Debugger.Module
 
             if (File.Exists(_address + _configReader.GetFileName(FileName.VEL_SEGMENTATION)))
             {
-                
+
                 segReader = new StreamReader(_address + _configReader.GetFileName(FileName.VEL_SEGMENTATION));
                 string segLine = segReader.ReadLine();
                 while (!String.IsNullOrWhiteSpace(segLine))
@@ -121,9 +122,9 @@ namespace CURELab.SignLanguage.Debugger.Module
             }
         }
 
-        private void  LoadData()
+        private void LoadData()
         {
-            
+
             // read velo
             if (File.Exists(_address + _configReader.GetFileName(FileName.VELOCITY)))
             {
@@ -134,20 +135,17 @@ namespace CURELab.SignLanguage.Debugger.Module
                 {
                     string[] words = line.Split(' ');
                     int dataTime = Convert.ToInt32(words[0]) - _baseStamp;
-
+                    int frame = _dataManager.GetFrameNumber(dataTime);
                     double vl = Convert.ToDouble(words[1]);
                     double vr = Convert.ToDouble(words[2]);
 
-                    if (!_dataManager.DataModelList.Count)
+                    if (_dataManager.DataModelList.Count < frame + 1)
                     {
-                        _dataManager.DataModelDic.Add(dataTime, new DataModel()
-                        {
-                            timeStamp = dataTime,
-                        }); 
+                        _dataManager.DataModelList.Add(new DataModel() { timeStamp = frame });
+                        continue;
                     }
-
-                    _dataManager.DataModelDic[dataTime].v_left = vl;
-                    _dataManager.DataModelDic[dataTime].v_right = vr;
+                    _dataManager.DataModelList[frame].v_right = vr;
+                    _dataManager.DataModelList[frame].v_left = vl;
                     line = veloReader.ReadLine();
                 }
                 veloReader.Close();
@@ -163,20 +161,20 @@ namespace CURELab.SignLanguage.Debugger.Module
                 {
                     string[] words = line.Split(' ');
                     int dataTime = Convert.ToInt32(words[0]) - _baseStamp;
+                    int frame = _dataManager.GetFrameNumber(dataTime);
 
                     double al = Convert.ToDouble(words[1]);
                     double ar = Convert.ToDouble(words[2]);
 
-                    if (!_dataManager.DataModelDic.ContainsKey(dataTime))
+
+                    if (_dataManager.DataModelList.Count < frame + 1)
                     {
-                        _dataManager.DataModelDic.Add(dataTime, new DataModel()
-                        {
-                            timeStamp = dataTime,
-                        });
+                        _dataManager.DataModelList.Add(new DataModel() { timeStamp = frame });
+                        continue;
                     }
 
-                    _dataManager.DataModelDic[dataTime].a_left = al;
-                    _dataManager.DataModelDic[dataTime].a_right = ar;
+                    _dataManager.DataModelList[frame].a_left = al;
+                    _dataManager.DataModelList[frame].a_right = ar;
                     line = acclReader.ReadLine();
                 }
                 acclReader.Close();
@@ -192,21 +190,20 @@ namespace CURELab.SignLanguage.Debugger.Module
                 {
                     string[] words = line.Split(' ');
                     int dataTime = Convert.ToInt32(words[0]) - _baseStamp;
+                    int frame = _dataManager.GetFrameNumber(dataTime);
 
                     double angleleft = Convert.ToDouble(words[1]);
                     double angleright = Convert.ToDouble(words[2]);
 
-                    if (!_dataManager.DataModelDic.ContainsKey(dataTime))
+                    if (_dataManager.DataModelList.Count < frame + 1)
                     {
-                        _dataManager.DataModelDic.Add(dataTime, new DataModel()
-                        {
-                            timeStamp = dataTime,
-                        });
+                        _dataManager.DataModelList.Add(new DataModel() { timeStamp = frame });
+                        continue;
                     }
 
-                    _dataManager.DataModelDic[dataTime].angle_left = angleleft;
-                    _dataManager.DataModelDic[dataTime].angle_right = angleright;
-                    line = angleReader.ReadLine(); 
+                    _dataManager.DataModelList[frame].angle_left = angleleft;
+                    _dataManager.DataModelList[frame].angle_right = angleright;
+                    line = angleReader.ReadLine();
                 }
                 angleReader.Close();
 
@@ -221,6 +218,7 @@ namespace CURELab.SignLanguage.Debugger.Module
                 {
                     string[] words = line.Split(',');
                     int dataTime = Convert.ToInt32(words[0]) - _baseStamp;
+                    int frame = _dataManager.GetFrameNumber(dataTime);
 
                     double leftx = Convert.ToDouble(words[1]);
                     double lefty = Convert.ToDouble(words[2]);
@@ -230,16 +228,15 @@ namespace CURELab.SignLanguage.Debugger.Module
                     double righty = Convert.ToDouble(words[5]);
                     double rightz = Convert.ToDouble(words[6]);
 
-                    if (!_dataManager.DataModelDic.ContainsKey(dataTime))
+
+                    if (_dataManager.DataModelList.Count < frame + 1)
                     {
-                        _dataManager.DataModelDic.Add(dataTime, new DataModel()
-                        {
-                            timeStamp = dataTime,
-                        });
+                        _dataManager.DataModelList.Add(new DataModel() { timeStamp = frame });
+                        continue;
                     }
 
-                    _dataManager.DataModelDic[dataTime].position_left = new Vector3D() {X = leftx,Y = lefty,Z = leftz };
-                    _dataManager.DataModelDic[dataTime].position_right = new Vector3D() { X = rightx, Y= righty, Z = rightz };
+                    _dataManager.DataModelList[frame].position_left = new Vector3D() { X = leftx, Y = lefty, Z = leftz };
+                    _dataManager.DataModelList[frame].position_right = new Vector3D() { X = rightx, Y = righty, Z = rightz };
 
 
                     line = skeletonReader.ReadLine();
@@ -254,15 +251,15 @@ namespace CURELab.SignLanguage.Debugger.Module
             {
                 StreamReader wordReader = new StreamReader(_address + _configReader.GetFileName(FileName.WORDS), Encoding.UTF8);
                 string line = wordReader.ReadLine();
-        
+
 
                 while (!String.IsNullOrWhiteSpace(line))
                 {
                     string[] words = line.Split(' ');
                     string content = words[0];
-                 
-                    int startTime = Convert.ToInt32(words[1]);
-                    int endTime = Convert.ToInt32(words[2]);
+
+                    int startTime = _dataManager.GetFrameNumber(Convert.ToInt32(words[1]));
+                    int endTime = _dataManager.GetFrameNumber(Convert.ToInt32(words[2]));
 
                     _dataManager.True_Segmented_Words.Add(new SegmentedWordModel(content, startTime, endTime));
                     line = wordReader.ReadLine();
@@ -271,7 +268,7 @@ namespace CURELab.SignLanguage.Debugger.Module
                 wordReader.Close();
             }
 
-            
+
             // read 2d position
             if (File.Exists(_address + _configReader.GetFileName(FileName.POSITION)))
             {
@@ -282,6 +279,7 @@ namespace CURELab.SignLanguage.Debugger.Module
                 {
                     string[] words = line.Split(',');
                     int dataTime = Convert.ToInt32(words[0]) - _baseStamp;
+                    int frame = _dataManager.GetFrameNumber(dataTime);
 
                     double leftx = Convert.ToDouble(words[1]);
                     double lefty = Convert.ToDouble(words[2]);
@@ -289,27 +287,56 @@ namespace CURELab.SignLanguage.Debugger.Module
                     double rightx = Convert.ToDouble(words[3]);
                     double righty = Convert.ToDouble(words[4]);
 
-      
-                    if (!_dataManager.DataModelDic.ContainsKey(dataTime))
+
+
+                    if (_dataManager.DataModelList.Count < frame + 1)
                     {
-                        _dataManager.DataModelDic.Add(dataTime, new DataModel()
-                        {
-                            timeStamp = dataTime,
-                        });
+                        _dataManager.DataModelList.Add(new DataModel() { timeStamp = frame });
+                        continue;
                     }
 
-                    _dataManager.DataModelDic[dataTime].position_2D_left = new Point { x = leftx, y = lefty };
-                    _dataManager.DataModelDic[dataTime].position_2D_right = new Point { x = rightx, y = righty };
+                    _dataManager.DataModelList[frame].position_2D_left = new Point { x = leftx, y = lefty };
+                    _dataManager.DataModelList[frame].position_2D_right = new Point { x = rightx, y = righty };
 
                     line = positionReader.ReadLine();
                 }
             }
+            // interpolate data
+            bool isInGap = false;
+            int startFrame = 0;
+            foreach (var item in _dataManager.DataModelList)
+            {
 
-            
-            _dataManager.DataModelDic.Reverse();
+                if (!isInGap && item.timeStamp != _dataManager.DataModelList.IndexOf(item))
+                {
+                    isInGap = true;
+                    continue;
+                }
+                if (isInGap && item.timeStamp == _dataManager.DataModelList.IndexOf(item))
+                {
+                    for (int i = startFrame + 1; i < item.timeStamp; i++)
+                    {
+                        double a = (double)(i-startFrame) / (item.timeStamp - startFrame);
+                        _dataManager.DataModelList[i].timeStamp = i;
+                        _dataManager.DataModelList[i].position_2D_left.x = (1 - a) * _dataManager.DataModelList[startFrame].position_2D_left.x + a * item.position_2D_left.x;
+                        _dataManager.DataModelList[i].position_2D_left.y = (1 - a) * _dataManager.DataModelList[startFrame].position_2D_left.y + item.position_2D_left.y * a;
+                        _dataManager.DataModelList[i].position_2D_right.x = (1 - a) * _dataManager.DataModelList[startFrame].position_2D_right.x + item.position_2D_right.x * a;
+                        _dataManager.DataModelList[i].position_2D_right.y = (1 - a) * _dataManager.DataModelList[startFrame].position_2D_right.y + item.position_2D_right.y * a;
+                        _dataManager.DataModelList[i].position_right = (1 - a) * _dataManager.DataModelList[startFrame].position_right + item.position_right * a;
+                        _dataManager.DataModelList[i].position_left = (1 - a) * _dataManager.DataModelList[startFrame].position_left + item.position_left * a;
+                        _dataManager.DataModelList[i].v_right = (1 - a) * _dataManager.DataModelList[startFrame].v_right + item.v_right * a;
+                        _dataManager.DataModelList[i].v_left = (1 - a) * _dataManager.DataModelList[startFrame].v_left + item.v_left * a;
+                    }
+                    isInGap = false;
+                }
+                if (!isInGap)
+                {
+                    startFrame = item.timeStamp;
+                }
+            }
 
         }
 
-     
+
     }
 }

@@ -97,31 +97,34 @@ namespace CURELab.SignLanguage.DataModule
             True_Segmented_Words = new SegmentedWordCollection();
         }
 
+        public int GetFrameNumber(double timestamp)
+        {
+            return (int)Math.Round((double)timestamp * 3 / 100);
+        }
+
         
         public DataModel GetCurrentData(int timestamp)
         {
-            int index = (int)Math.Round((double)timestamp / 33);
-            return _dataList[index]; 
+            return _dataList[GetFrameNumber(timestamp)]; 
             
         }
 
 
      
 
-        public List<Point> GetLeftPositions(int timestamp)
+        public List<Point> GetLeftPositions(int frame)
         {
-            int index = (int)Math.Round((double)timestamp / 33);
             List<Point> result = new List<Point>();
 
-            if (index > 0)
+            if (frame > 0)
             {
                 int count = 0;
-                while (index >= 0 && count < 8)
+                while (frame >= 0 && count < 8)
                 {
-                    DataModel item = DataModelList[index];
+                    DataModel item = DataModelList[frame];
                     result.Add(item.position_2D_left);
                     count++;
-                    index--;
+                    frame--;
                 }
                 result.Reverse();
             }
@@ -129,20 +132,19 @@ namespace CURELab.SignLanguage.DataModule
             return result;
         }
 
-        public List<Point> GetRightPositions(int timestamp)
-        {
-            int index = (int)Math.Round((double)timestamp / 33);
+        public List<Point> GetRightPositions(int frame)
+        {       
             List<Point> result = new List<Point>();
 
-            if (index > 0)
+            if (frame > 0)
             {
                 int count = 0;
-                while (index >= 0 && count < 8)
+                while (frame >= 0 && count < 8)
                 {
-                    DataModel item = DataModelList[index];
+                    DataModel item = DataModelList[frame];
                     result.Add(item.position_2D_right);
                     count++;
-                    index--;
+                    frame--;
                 }
                 result.Reverse();
             }

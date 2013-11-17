@@ -281,10 +281,9 @@ namespace CURELab.SignLanguage.Debugger
                     return;
                 }
                 CurrentTime = me_rawImage.Position.TotalMilliseconds;
-                int currentFrame = (int)(totalFrame * CurrentTime / totalDuration);
-                int currentTimestamp = m_dataManager.GetCurrentTimestamp(currentFrame);
+                int currentFrame = (int)Math.Round((totalFrame-1) * CurrentTime / totalDuration)+1;
 
-                int currentDataTime = m_dataManager.GetCurrentDataTime(currentTimestamp);
+                int currentDataTime = m_dataManager.DataModelList[currentFrame].timeStamp;
 
                 //pause on segment
                 if (IsPauseOnSegment && IsOnSegment(currentDataTime))
@@ -305,7 +304,7 @@ namespace CURELab.SignLanguage.Debugger
                 {
                     foreach (SegmentedWordModel item in m_dataManager.True_Segmented_Words)
                     {
-                        if (currentTimestamp >= item.StartTime && currentDataTime <= item.EndTime)
+                        if (currentDataTime >= item.StartTime && currentDataTime <= item.EndTime)
                         {
                             tbk_words.Inlines.Add(new Bold(new Run(item.Word + " ")));
                         }
@@ -326,7 +325,7 @@ namespace CURELab.SignLanguage.Debugger
                 //udpate arm track
                 if (IsShowTrajectory)
                 {
-                    m_trajectoryWindow.DrawTrajectory(m_dataManager.GetLeftPositions(currentDataTime), m_dataManager.GetRightPositions(currentDataTime));
+                    m_trajectoryWindow.DrawTrajectory(m_dataManager.GetLeftPositions(currentFrame), m_dataManager.GetRightPositions(currentFrame));
                 }
                 Console.WriteLine(currentDataTime);
             }
@@ -377,8 +376,8 @@ namespace CURELab.SignLanguage.Debugger
            // x_filter = m_csDataProcessor.MeanFilter(x_filter, time);
             double[] y_filter = m_csDataProcessor.MeanFilter(y, time);
            // y_filter = m_csDataProcessor.MeanFilter(y_filter, time);
-            double[] velo = m_csDataProcessor.CalVelocity();
-            //double[] velo = m_csDataProcessor.CalVelocity(y_filter,time);
+            //double[] velo = m_csDataProcessor.CalVelocity();
+            double[] velo = m_csDataProcessor.CalVelocity(y_filter,time);
             double[] acc = m_csDataProcessor.CalAcceleration(y_filter, time);
             TwoDimensionViewPointCollection Y_filtered = new TwoDimensionViewPointCollection(y_filter, time);
             TwoDimensionViewPointCollection X_filtered = new TwoDimensionViewPointCollection(x_filter, time);
@@ -394,13 +393,13 @@ namespace CURELab.SignLanguage.Debugger
             TwoDimensionViewPointCollection Angle_Left_Points = new TwoDimensionViewPointCollection();
             TwoDimensionViewPointCollection Y_Left_Points = new TwoDimensionViewPointCollection();
             
-            foreach (KeyValuePair<int, DataModel> item in m_dataManager.DataModelDic)
+            foreach (DataModel item in m_dataManager.DataModelList)
             {
-                V_Left_Points.Add(new TwoDimensionViewPoint(item.Value.v_left, item.Value.timeStamp));
-                A_Left_Points.Add(new TwoDimensionViewPoint(item.Value.a_left, item.Value.timeStamp));
-                Angle_Right_Points.Add(new TwoDimensionViewPoint(item.Value.angle_right, item.Value.timeStamp));
-                Angle_Left_Points.Add(new TwoDimensionViewPoint(item.Value.angle_left, item.Value.timeStamp));
-                Y_Left_Points.Add(new TwoDimensionViewPoint(item.Value.position_left.Y, item.Value.timeStamp));
+                V_Left_Points.Add(new TwoDimensionViewPoint(item.v_left, item.timeStamp));
+                A_Left_Points.Add(new TwoDimensionViewPoint(item.a_left, item.timeStamp));
+                Angle_Right_Points.Add(new TwoDimensionViewPoint(item.angle_right, item.timeStamp));
+                Angle_Left_Points.Add(new TwoDimensionViewPoint(item.angle_left, item.timeStamp));
+                Y_Left_Points.Add(new TwoDimensionViewPoint(item.position_left.Y, item.timeStamp));
 
             }
             
@@ -433,7 +432,7 @@ namespace CURELab.SignLanguage.Debugger
             cht_big.AddLineGraph("l_Y", Y_Left_Points, posPen, false);
 
             //add true word split line  
-            ssb_wordBox.Length = m_dataManager.DataModelDic.Last().Value.timeStamp;
+            ssb_wordBox.Length = m_dataManager.DataModelList.Last().timeStamp;
             ssb_wordBox.AddWords(m_dataManager.True_Segmented_Words);
             tbk_words.Text = "";
             //add true word rect
@@ -533,7 +532,7 @@ namespace CURELab.SignLanguage.Debugger
                 IsPlaying = false;
                 btn_play.IsEnabled = true;
                 totalDuration = me_rawImage.NaturalDuration.TimeSpan.TotalMilliseconds;
-                totalFrame = (int)(totalDuration * 0.03) + 1;
+                totalFrame = (int)Math.Round(totalDuration * 0.03) + 1;
                 ProcessData();
                 DrawData();
 

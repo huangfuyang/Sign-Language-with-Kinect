@@ -32,6 +32,10 @@ namespace CURELab.SignLanguage.DataModule
         public bool isSegByAngle;
         public Point position_2D_right;
         public Point position_2D_left;
+        public DataModel()
+        {
+            timeStamp = -1;
+        }
     }
 
 
