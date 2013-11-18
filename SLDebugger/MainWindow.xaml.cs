@@ -374,14 +374,15 @@ namespace CURELab.SignLanguage.Debugger
             //processed data
             double[] x_filter = m_csDataProcessor.MeanFilter(x, time);
            // x_filter = m_csDataProcessor.MeanFilter(x_filter, time);
-            double[] y_filter = m_csDataProcessor.MeanFilter(y, time);
+            //double[] y_filter = m_csDataProcessor.MeanFilter(y, time);
+            double[] y_filter = m_csDataProcessor.GetSDs(y);
            // y_filter = m_csDataProcessor.MeanFilter(y_filter, time);
             //double[] velo = m_csDataProcessor.CalVelocity();
-            double[] velo = m_csDataProcessor.CalVelocity(y_filter,time);
+            double[] sd = m_csDataProcessor.GetPositionSDs();
             double[] acc = m_csDataProcessor.CalAcceleration(y_filter, time);
             TwoDimensionViewPointCollection Y_filtered = new TwoDimensionViewPointCollection(y_filter, time);
             TwoDimensionViewPointCollection X_filtered = new TwoDimensionViewPointCollection(x_filter, time);
-            TwoDimensionViewPointCollection V_Right_Points = new TwoDimensionViewPointCollection(velo,time);
+            TwoDimensionViewPointCollection V_Right_Points = new TwoDimensionViewPointCollection(sd, time);
             TwoDimensionViewPointCollection A_Right_Points = new TwoDimensionViewPointCollection(acc,time);
             TwoDimensionViewPointCollection X_Right_Points = new TwoDimensionViewPointCollection(x, time);
             TwoDimensionViewPointCollection Y_Right_Points = new TwoDimensionViewPointCollection(y, time);
@@ -449,11 +450,35 @@ namespace CURELab.SignLanguage.Debugger
             //principle: 1.static=>1 or more signs or margin
             //           2.dynamic=>ME or sub-sign or signs.
             SegmentedWordCollection segmentatedWords = new SegmentedWordCollection();
-            double threshold = 0.4;
-            bool[] bidata = velo.Select(d => d>threshold).ToArray();
-            for (int i = 0; i < velo.Length; i++)
+            double threshold = 0.15;
+            bool[] temp = sd.Select(d => d < threshold).ToArray();
+            bool[] bidata = new bool[temp.Length];
+            for (int i = 2; i < bidata.Length - 2; i++)
             {
-
+                if (temp[i])
+                {
+                    bidata[i - 2] = true;
+                    bidata[i - 1] = true;
+                    bidata[i] = true;
+                    bidata[i + 1] = true;
+                    bidata[i + 2] = true;
+                }
+                
+            }
+            bool isInStatic = false;
+            int index = 0;
+            for (int i = 0; i < bidata.Length; i++)
+            {
+                if (!isInStatic && bidata[i])
+                {
+                    isInStatic = true;
+                    index = i;
+                }
+                if (isInStatic && !bidata[i])
+                {
+                    isInStatic = false;
+                    segmentatedWords.Add(new SegmentedWordModel("sd", index, i-1));
+                }
             }
             foreach (var item in segmentatedWords)
             {

@@ -118,6 +118,61 @@ namespace CURELab.SignLanguage.Calculator
 
             return result;
         }
+        public double GetSD(double[] data)
+        {
+            double mean = data.Average();
+            return Math.Sqrt(data.Select(x => (x - mean) * (x - mean)).Sum() / data.Length);
+        }
+
+        public Vector3D GetMeanVector(Vector3D[] data)
+        {
+            Vector3D result = new Vector3D();
+            foreach (var item in data)
+            {
+                result += item;
+            }
+            result /= 5;
+            return result;
+        }
+
+
+        public double GetPositionSD(Vector3D[] data)
+        {
+            Vector3D mean = GetMeanVector(data) ;
+            return Math.Sqrt(data.Select(x => Math.Pow((x - mean).Length, 2)).Sum() / data.Length);
+
+        }
+
+        public double[] GetSDs(double[] data)
+        {
+            int length = 5;
+            if (data.Length < length)
+            {
+                return null;
+            }
+            double[] result = new double[data.Length];
+            for (int i = length / 2; i < data.Length - length/2; i++)
+            {
+                result[i] = GetSD(data.Skip(i-length/2).Take(length).ToArray());
+            }
+            return Normalize(result);
+        }
+
+        public double[] GetPositionSDs()
+        {
+            int length = 5;
+            if (dataManager.DataModelList.Count < length)
+            {
+                return null;
+            }
+            Vector3D[] right = dataManager.DataModelList.Select(x=>x.position_right).ToArray();
+            double[] result = new double[right.Length];
+            for (int i = length / 2; i < right.Length - length / 2; i++)
+            {
+                result[i] = GetPositionSD(right.Skip(i - length / 2).Take(length).ToArray());
+            }
+            return Normalize(result);
+        }
 
         public double[] GetMeanPosition()
         {
