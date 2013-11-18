@@ -118,6 +118,16 @@ namespace CURELab.SignLanguage.Calculator
 
             return result;
         }
+        public double[] GetAngularVelo()
+        {
+            double[] result = new double[dataManager.DataModelList.Count];
+            Vector3D[] right = dataManager.DataModelList.Select(x => x.position_right).ToArray();
+            for (int i = 1; i < result.Length -1; i++)
+            {
+                result[i] = Vector3D.DotProduct((right[i]-right[i-1]),(right[i+1]-right[i]));
+            }
+            return Normalize( result);
+        }
         public double GetSD(double[] data)
         {
             double mean = data.Average();

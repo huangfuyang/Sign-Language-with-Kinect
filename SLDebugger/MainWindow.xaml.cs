@@ -201,6 +201,9 @@ namespace CURELab.SignLanguage.Debugger
         private TrajectoryView m_trajectoryWindow;
 
         private CSDataProcessor m_csDataProcessor;
+
+        private SegmentedWordCollection m_segmentatedStaticClips;
+        private SegmentedWordCollection m_segmentatedDynamicClips;
         #endregion
 
 
@@ -335,24 +338,28 @@ namespace CURELab.SignLanguage.Debugger
 
         private bool IsOnSegment(int currentDataTime)
         {
+            return (m_segmentatedStaticClips.Select(x=>x.StartTime).Contains(currentDataTime) ||
+               m_segmentatedStaticClips.Select(x => x.EndTime).Contains(currentDataTime)||
+               m_segmentatedDynamicClips.Select(x => x.StartTime).Contains(currentDataTime)||
+               m_segmentatedDynamicClips.Select(x => x.EndTime).Contains(currentDataTime)) && currentDataTime != preTime;
 
-            if (IsSegByAcc && m_dataManager.AcSegmentTimeStampList.Contains(currentDataTime) && currentDataTime != preTime)
-            {
-                return true;
-            }
-            else if (IsSegByVel && m_dataManager.VeSegmentTimeStampList.Contains(currentDataTime) && currentDataTime != preTime)
-            {
-                return true;
+            //if (IsSegByAcc && m_dataManager.AcSegmentTimeStampList.Contains(currentDataTime) && currentDataTime != preTime)
+            //{
+            //    return true;
+            //}
+            //else if (IsSegByVel && m_dataManager.VeSegmentTimeStampList.Contains(currentDataTime) && currentDataTime != preTime)
+            //{
+            //    return true;
 
-            }
-            else if (IsSegByAng && m_dataManager.AngSegmentTimeStampList.Contains(currentDataTime) && currentDataTime != preTime)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            //}
+            //else if (IsSegByAng && m_dataManager.AngSegmentTimeStampList.Contains(currentDataTime) && currentDataTime != preTime)
+            //{
+            //    return true;
+            //}
+            //else
+            //{
+            //    return false;
+            //}
         }
 
         private void ProcessData()
@@ -377,12 +384,13 @@ namespace CURELab.SignLanguage.Debugger
             //double[] y_filter = m_csDataProcessor.MeanFilter(y, time);
             double[] y_filter = m_csDataProcessor.GetSDs(y);
            // y_filter = m_csDataProcessor.MeanFilter(y_filter, time);
-            //double[] velo = m_csDataProcessor.CalVelocity();
+            double[] velo = m_csDataProcessor.CalVelocity();
             double[] sd = m_csDataProcessor.GetPositionSDs();
             double[] acc = m_csDataProcessor.CalAcceleration(y_filter, time);
             TwoDimensionViewPointCollection Y_filtered = new TwoDimensionViewPointCollection(y_filter, time);
             TwoDimensionViewPointCollection X_filtered = new TwoDimensionViewPointCollection(x_filter, time);
-            TwoDimensionViewPointCollection V_Right_Points = new TwoDimensionViewPointCollection(sd, time);
+            TwoDimensionViewPointCollection V_Right_Points = new TwoDimensionViewPointCollection(velo, time);
+            TwoDimensionViewPointCollection SD_Right_Points = new TwoDimensionViewPointCollection(sd, time);
             TwoDimensionViewPointCollection A_Right_Points = new TwoDimensionViewPointCollection(acc,time);
             TwoDimensionViewPointCollection X_Right_Points = new TwoDimensionViewPointCollection(x, time);
             TwoDimensionViewPointCollection Y_Right_Points = new TwoDimensionViewPointCollection(y, time);
@@ -410,7 +418,7 @@ namespace CURELab.SignLanguage.Debugger
             Pen posPen = new Pen(Brushes.Purple, 2);
             Pen filter = new Pen(Brushes.Blue, 2);
 
-            cht_right.AddLineGraph("velocity", V_Right_Points, veloPen, true);
+            cht_right.AddLineGraph("SD", SD_Right_Points, veloPen, true);
             cht_right.AddLineGraph("acceleration", A_Right_Points, accPen,false);
             cht_right.AddLineGraph("angle", Angle_Right_Points, anglePen, false);
             cht_right.AddLineGraph("Y", Y_Right_Points, posPen, false);
@@ -446,10 +454,11 @@ namespace CURELab.SignLanguage.Debugger
 
             }
 
-            //add segmentated word rect
+            //segmentate word
             //principle: 1.static=>1 or more signs or margin
             //           2.dynamic=>ME or sub-sign or signs.
-            SegmentedWordCollection segmentatedWords = new SegmentedWordCollection();
+            m_segmentatedStaticClips = new SegmentedWordCollection();
+            m_segmentatedDynamicClips = new SegmentedWordCollection();
             double threshold = 0.15;
             bool[] temp = sd.Select(d => d < threshold).ToArray();
             bool[] bidata = new bool[temp.Length];
@@ -466,26 +475,45 @@ namespace CURELab.SignLanguage.Debugger
                 
             }
             bool isInStatic = false;
-            int index = 0;
+            int index = -1;
             for (int i = 0; i < bidata.Length; i++)
             {
                 if (!isInStatic && bidata[i])
                 {
                     isInStatic = true;
+                    if (index != -1 && i-index-1>0)
+                    {
+                        m_segmentatedDynamicClips.Add(new SegmentedWordModel("dc", index, i - 1));
+                    }
                     index = i;
+
                 }
                 if (isInStatic && !bidata[i])
                 {
                     isInStatic = false;
-                    segmentatedWords.Add(new SegmentedWordModel("sd", index, i-1));
+                    m_segmentatedStaticClips.Add(new SegmentedWordModel("sc", index, i - 1));
+                    index = i;
                 }
             }
-            foreach (var item in segmentatedWords)
+            double[] angVelo = m_csDataProcessor.GetAngularVelo();
+            TwoDimensionViewPointCollection AngularVelo = new TwoDimensionViewPointCollection(angVelo, time);
+            cht_right.AddLineGraph("av", AngularVelo, anglePen, false);
+
+            foreach (var item in m_segmentatedStaticClips)
             {
-                cht_right.AddRect(item.StartTime, item.EndTime, Brushes.LightGray,0.5);
-                cht_left.AddRect(item.StartTime, item.EndTime, Brushes.LightGray,0.5);
-                cht_big.AddRect(item.StartTime, item.EndTime, Brushes.LightGray,0.5);
+                cht_right.AddRect(item.StartTime, item.EndTime, Brushes.LightSkyBlue,0.5);
+                cht_left.AddRect(item.StartTime, item.EndTime, Brushes.LightSkyBlue, 0.5);
+                cht_big.AddRect(item.StartTime, item.EndTime, Brushes.LightSkyBlue, 0.5);
             }
+
+            foreach (var item in m_segmentatedDynamicClips)
+            {
+                cht_right.AddRect(item.StartTime, item.EndTime, Brushes.LightYellow, 0.5);
+                cht_left.AddRect(item.StartTime, item.EndTime, Brushes.LightYellow, 0.5);
+                cht_big.AddRect(item.StartTime, item.EndTime, Brushes.LightYellow, 0.5);
+            }
+
+            #region segmentation data from file
 
             foreach (int item in m_dataManager.AcSegmentTimeStampList)
             {
@@ -511,9 +539,8 @@ namespace CURELab.SignLanguage.Debugger
             }
 
             cb_show_rect.IsChecked = true;
+            #endregion
         }
-
-
 
 
         private void MediaOpened(object sender, RoutedEventArgs e)
