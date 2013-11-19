@@ -120,13 +120,27 @@ namespace CURELab.SignLanguage.Calculator
         }
         public double[] GetAngularVelo()
         {
+            int offset = 3;
+            double highthreshold = 0.02 * offset;
+            double lowthreshold = 0.01 * offset;
             double[] result = new double[dataManager.DataModelList.Count];
             Vector3D[] right = dataManager.DataModelList.Select(x => x.position_right).ToArray();
-            for (int i = 1; i < result.Length -1; i++)
+            for (int i = offset; i < result.Length - offset; i++)
             {
-                result[i] = Vector3D.DotProduct((right[i]-right[i-1]),(right[i+1]-right[i]));
+                Vector3D v1 = right[i] - right[i - offset];
+                Vector3D v2 = right[i + offset] - right[i];
+                if ((v1.Length-lowthreshold)*(v2.Length-lowthreshold)>0 
+                    && (v1.Length>highthreshold || v2.Length>highthreshold))
+                {
+
+                    result[i] = Vector3D.AngleBetween(v1,v2);
+                }
+                //result[i] = Vector3D.DotProduct((right[i] - right[i - offset]), (right[i + offset] - right[i]));
+                //result[i] = (right[i] - right[i - offset]).Length * (right[i + offset] - right[i]).Length;
+                //result[i] = (right[i] - right[i - offset]).Length;
+
             }
-            return Normalize( result);
+            return Normalize(result);
         }
         public double GetSD(double[] data)
         {
@@ -148,7 +162,7 @@ namespace CURELab.SignLanguage.Calculator
 
         public double GetPositionSD(Vector3D[] data)
         {
-            Vector3D mean = GetMeanVector(data) ;
+            Vector3D mean = GetMeanVector(data);
             return Math.Sqrt(data.Select(x => Math.Pow((x - mean).Length, 2)).Sum() / data.Length);
 
         }
@@ -161,9 +175,9 @@ namespace CURELab.SignLanguage.Calculator
                 return null;
             }
             double[] result = new double[data.Length];
-            for (int i = length / 2; i < data.Length - length/2; i++)
+            for (int i = length / 2; i < data.Length - length / 2; i++)
             {
-                result[i] = GetSD(data.Skip(i-length/2).Take(length).ToArray());
+                result[i] = GetSD(data.Skip(i - length / 2).Take(length).ToArray());
             }
             return Normalize(result);
         }
@@ -175,7 +189,7 @@ namespace CURELab.SignLanguage.Calculator
             {
                 return null;
             }
-            Vector3D[] right = dataManager.DataModelList.Select(x=>x.position_right).ToArray();
+            Vector3D[] right = dataManager.DataModelList.Select(x => x.position_right).ToArray();
             double[] result = new double[right.Length];
             for (int i = length / 2; i < right.Length - length / 2; i++)
             {

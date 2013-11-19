@@ -149,7 +149,18 @@ namespace CURELab.SignLanguage.Debugger.View
             return newSplit;
         }
 
-        public void AddRect(int start, int end, Brush color, double height = 1)
+        public void AddSegRect(int start, int end, Brush color, double height = 0.5)
+        {
+            RectangleHighlight rec = new RectangleHighlight();
+            rec.Bounds = new System.Windows.Rect(start, 0, end - start, height);
+            rec.Fill = color;
+            rec.Stroke = Brushes.Green;
+            rec.Opacity = 0.5;
+            _rectList.Add(rec);
+            //  _chartPlotter.Children.Add(rec);
+        }
+
+        public void AddTruthRect(int start, int end, Brush color, double height = 1)
         {
             RectangleHighlight rec = new RectangleHighlight();
             rec.Bounds = new System.Windows.Rect(start, 0, end - start, height);

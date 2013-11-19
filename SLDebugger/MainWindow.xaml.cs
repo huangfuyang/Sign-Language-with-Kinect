@@ -367,6 +367,18 @@ namespace CURELab.SignLanguage.Debugger
             
         }
 
+        private int FindDynamicSegmentPoint(bool[] data, int start, int end)
+        {
+            for (int i = start +1; i < end || i<data.Length; i++)
+            {
+                if (!data[i])
+                {
+                    return (i - 1);
+                }
+            }
+            return end;
+        }
+
         private void DrawData()
         {
             //preprocess data
@@ -448,9 +460,9 @@ namespace CURELab.SignLanguage.Debugger
             foreach (var item in m_dataManager.True_Segmented_Words)
             {
                 tbk_words.Text += item.Word;
-                cht_right.AddRect(item.StartTime, item.EndTime, Brushes.LightPink);
-                cht_left.AddRect(item.StartTime, item.EndTime, Brushes.LightPink);
-                cht_big.AddRect(item.StartTime, item.EndTime, Brushes.LightPink);
+                cht_right.AddTruthRect(item.StartTime, item.EndTime, Brushes.LightPink);
+                cht_left.AddTruthRect(item.StartTime, item.EndTime, Brushes.LightPink);
+                cht_big.AddTruthRect(item.StartTime, item.EndTime, Brushes.LightPink);
 
             }
 
@@ -495,22 +507,41 @@ namespace CURELab.SignLanguage.Debugger
                     index = i;
                 }
             }
+            //split dynamic clips
             double[] angVelo = m_csDataProcessor.GetAngularVelo();
             TwoDimensionViewPointCollection AngularVelo = new TwoDimensionViewPointCollection(angVelo, time);
             cht_right.AddLineGraph("av", AngularVelo, anglePen, false);
-
+            double curveThreshold = 0.45;
+            int offset = 3;
+            temp = angVelo.Select(ang => ang > curveThreshold).ToArray();
+            SegmentedWordModel[] tempList = new SegmentedWordModel[m_segmentatedDynamicClips.Count];
+            m_segmentatedDynamicClips.CopyTo(tempList);
+            foreach (var item in tempList)
+            {
+                int startFrame = item.StartTime;
+                for (int i = item.StartTime + offset; i < item.EndTime - offset; i++)
+                {
+                    if (temp[i])
+                    {
+                        int seg = FindDynamicSegmentPoint(temp, i, item.EndTime);
+                        m_segmentatedDynamicClips.Add(new SegmentedWordModel("split dc", startFrame, seg));
+                        startFrame = seg;
+                        i += offset - 1;
+                    }
+                }
+            }
             foreach (var item in m_segmentatedStaticClips)
             {
-                cht_right.AddRect(item.StartTime, item.EndTime, Brushes.LightSkyBlue,0.5);
-                cht_left.AddRect(item.StartTime, item.EndTime, Brushes.LightSkyBlue, 0.5);
-                cht_big.AddRect(item.StartTime, item.EndTime, Brushes.LightSkyBlue, 0.5);
+                cht_right.AddSegRect(item.StartTime, item.EndTime, Brushes.LightSkyBlue);
+                cht_left.AddSegRect(item.StartTime, item.EndTime, Brushes.LightSkyBlue);
+                cht_big.AddSegRect(item.StartTime, item.EndTime, Brushes.LightSkyBlue);
             }
 
             foreach (var item in m_segmentatedDynamicClips)
             {
-                cht_right.AddRect(item.StartTime, item.EndTime, Brushes.LightYellow, 0.5);
-                cht_left.AddRect(item.StartTime, item.EndTime, Brushes.LightYellow, 0.5);
-                cht_big.AddRect(item.StartTime, item.EndTime, Brushes.LightYellow, 0.5);
+                cht_right.AddSegRect(item.StartTime, item.EndTime, Brushes.LightYellow);
+                cht_left.AddSegRect(item.StartTime, item.EndTime, Brushes.LightYellow);
+                cht_big.AddSegRect(item.StartTime, item.EndTime, Brushes.LightYellow);
             }
 
             #region segmentation data from file
