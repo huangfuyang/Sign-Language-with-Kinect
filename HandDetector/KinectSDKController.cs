@@ -204,36 +204,10 @@ namespace CURELab.SignLanguage.HandDetector
                     }
                     
                     BitmapSource depthBmp = BitmapSource.Create(width, height, 96, 96, PixelFormats.Bgr32, null, colorPixels, width * 4);
-                    Image<Bgr, Byte> openCVImg = new Image<Bgr, byte>(depthBmp.ToBitmap());
-                    Image<Gray, byte> gray_image = openCVImg.Convert<Gray, byte>();
-                    using (MemStorage stor = new MemStorage())
-                    {
-                        //Find contours with no holes try CV_RETR_EXTERNAL to find holes
-                        Contour<System.Drawing.Point> contours = gray_image.FindContours(
-                         Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE,
-                         Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_EXTERNAL,
-                         stor);
-                        int blobCount = 0;
+                    var image = OpenCVController.GetSingletonInstance().RecogBlob(depthBmp);
 
-                        for (int i = 0; contours != null; contours = contours.HNext)
-                        {
-                            i++;
+                    ImageConverter.UpdateWriteBMP(DepthWriteBitmap, image.ToBitmap());
 
-                            if ((contours.Area > Math.Pow(10, 2)) && (contours.Area < Math.Pow(100, 2)))
-                            {
-                                MCvBox2D box = contours.GetMinAreaRect();
-                                openCVImg.Draw(box, new Bgr(System.Drawing.Color.Red), 2);
-                                blobCount++;
-                            }
-                        }
-                    }
-                    ImageConverter.UpdateWriteBMP(DepthWriteBitmap, openCVImg.ToBitmap());
-                    // Write the pixel data into our bitmap
-                    //this.DepthWriteBitmap.WritePixels(
-                    //    new Int32Rect(0, 0, this.DepthWriteBitmap.PixelWidth, this.DepthWriteBitmap.PixelHeight),
-                    //    this.colorPixels,
-                    //    this.DepthWriteBitmap.PixelWidth * sizeof(int),
-                    //    0);
                 }
             }
         }
