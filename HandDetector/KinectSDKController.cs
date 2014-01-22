@@ -46,7 +46,7 @@ namespace CURELab.SignLanguage.HandDetector
         private byte[] colorPixels;
 
 
-        private KinectSDKController()
+        private KinectSDKController():base()
         {
             KinectSensor.KinectSensors.StatusChanged += Kinect_StatusChanged;
         }

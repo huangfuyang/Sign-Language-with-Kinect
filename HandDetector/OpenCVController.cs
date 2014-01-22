@@ -16,6 +16,7 @@ using Emgu.CV.UI;
 using System.Windows.Media.Imaging;
 using Emgu.CV.Structure;
 using System.ComponentModel;
+using System.Drawing;
 
 namespace CURELab.SignLanguage.HandDetector
 {
@@ -24,13 +25,15 @@ namespace CURELab.SignLanguage.HandDetector
     /// </summary>
     public class OpenCVController : INotifyPropertyChanged
     {
-        public int CANNY_LOW_THRESH { get; set; }
-        public int CANNY_HIGH_THRESH { get; set; }
-        private int CANNY_SIZE = 3;
+        public static double CANNY_THRESH;
+        public static double CANNY_CONNECT_THRESH;
+       
+
         private static OpenCVController singletonInstance;
         private OpenCVController()
         {
-
+            CANNY_THRESH = 100;
+            CANNY_CONNECT_THRESH = 200;
         }
 
         public static OpenCVController GetSingletonInstance()
@@ -71,18 +74,21 @@ namespace CURELab.SignLanguage.HandDetector
 
         }
 
-        public Image<Bgr, Byte> RecogEdge(BitmapSource bs)
+        public Image<Gray, Byte> RecogEdge(BitmapSource bs)
         {
-            Image<Bgr, Byte> openCVImg = new Image<Bgr, byte>(bs.ToBitmap());
-            Image<Gray, byte> gray_image = openCVImg.Convert<Gray, byte>();
-            CannyEdge(bs, bs);
+            return RecogEdge(bs.ToBitmap());
         }
 
-        private void CannyEdge(IntPtr imgin, IntPtr imgout)
+        public Image<Gray, Byte> RecogEdge(Bitmap bs)
         {
-            CvInvoke.cvSmooth(imgin, imgout, Emgu.CV.CvEnum.SMOOTH_TYPE.CV_BLUR, 3, 0, 0, 0);
-            CvInvoke.cvCanny(imgin, imgout, CANNY_LOW_THRESH, CANNY_HIGH_THRESH, CANNY_SIZE);
+            Image<Bgr, Byte> openCVImg = new Image<Bgr, byte>(bs);
+            return CannyEdge(openCVImg, CANNY_THRESH,CANNY_CONNECT_THRESH );
+        }
 
+        private Image<Gray, Byte> CannyEdge(Image<Bgr, Byte> img, double cannyThresh, double cannyConnectThresh)
+        {
+            Image<Gray, Byte> gray = img.Convert<Gray, Byte>();
+            return gray.Canny(cannyThresh, cannyConnectThresh);
         }
 
 

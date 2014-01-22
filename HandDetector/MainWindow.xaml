@@ -20,6 +20,11 @@
         <Viewbox Grid.Row="1" Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Center">
             <Image Name="img_depth" Width="640" Height="480" Margin="10,10,10,10"/>
         </Viewbox>
+        <StackPanel x:Name="SPn_right" Grid.Column="1" Grid.Row="2" Margin="10,10,10,10">
+
+
+        </StackPanel>
+       
         <StatusBar Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Name="statusBar" VerticalAlignment="Bottom" Background="White" >
             <StatusBarItem Padding="0 0 0 10">
                 <TextBlock Name="statusBarText" Text="{Binding Path=Status, Mode=OneWay}" Margin="5 2 0 0"></TextBlock>

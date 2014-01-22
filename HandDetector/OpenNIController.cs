@@ -26,15 +26,15 @@ namespace CURELab.SignLanguage.HandDetector
     /// <summary>
     /// OpenNI wrapper
     /// </summary>
-    public class OpenNIController : KinectController,ISubject
+    public class OpenNIController : KinectController, ISubject
     {
         private int eventDepth = 0, eventColor = 0, inlineDepth = 0, inlineColor = 0;
-       
+
         /// <summary>
         /// Bitmap that will hold color information
         /// </summary
         private Bitmap colorBitmap;
- 
+
         private VideoStream m_colorStream;
 
         /// <summary>
@@ -48,12 +48,15 @@ namespace CURELab.SignLanguage.HandDetector
 
 
         private OpenNIController()
+            : base()
         {
             ConsoleManager.Show();
             this.ColorWriteBitmap = new WriteableBitmap(640, 480, 96.0, 96.0, PixelFormats.Bgr24, null);
             colorBitmap = new Bitmap(1, 1);
             this.DepthWriteBitmap = new WriteableBitmap(640, 480, 96.0, 96.0, PixelFormats.Bgr24, null);
             depthBitmap = new Bitmap(1, 1);
+            this.EdgeBitmap = new WriteableBitmap(640, 480, 96.0, 96.0, PixelFormats.Gray8, null);
+            this.ProcessedBitmap = new WriteableBitmap(640, 480, 96.0, 96.0, PixelFormats.Bgr24, null);
         }
 
         public static KinectController GetSingletonInstance()
@@ -76,7 +79,7 @@ namespace CURELab.SignLanguage.HandDetector
             //DeviceInfo[] devices = OpenNI.EnumerateDevices();
             m_device = Device.Open(uri); // lean init and no reset flags           
             SensorInfo sensorInfo = m_device.getSensorInfo(Device.SensorType.DEPTH);
-        
+
             if (m_device.hasSensor(Device.SensorType.DEPTH) &&
                 m_device.hasSensor(Device.SensorType.COLOR))
             {
@@ -153,7 +156,10 @@ namespace CURELab.SignLanguage.HandDetector
                                 depthBitmap = frame.toBitmap(options);
                             }
                         }
-                        AsyncUpdateImage(DepthWriteBitmap,depthBitmap);
+                        Bitmap edgeImg = m_OpenCVController.RecogEdge(depthBitmap).ToBitmap();
+                        Bitmap edgeDepthImg = depthBitmap.Clone(new Rectangle(0, 0, depthBitmap.Width, depthBitmap.Height), depthBitmap.PixelFormat);
+                        AsyncCombineImage(ProcessedBitmap, edgeDepthImg, edgeImg);
+                        AsyncUpdateImage(EdgeBitmap, edgeImg);
 
                         //if (cb_mirrorSoft.Checked)
                         //    bitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
@@ -187,7 +193,7 @@ namespace CURELab.SignLanguage.HandDetector
                                 colorBitmap = frame.toBitmap(options);
                             }
                         }
-                        AsyncUpdateImage(ColorWriteBitmap,colorBitmap);
+                        AsyncUpdateImage(ColorWriteBitmap, colorBitmap);
 
                         //if (cb_mirrorSoft.Checked)
                         //    bitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
@@ -271,6 +277,71 @@ namespace CURELab.SignLanguage.HandDetector
 
         }
 
+        public void AsyncCombineImage(WriteableBitmap wbmp, Bitmap bmp, Bitmap edge)
+        {
+            ColorWriteBitmap.Dispatcher.BeginInvoke(
+               new Action(() => CombineImage(wbmp, bmp, edge)
+           ));
+
+        }
+
+        private void CombineImage(WriteableBitmap wbmp, Bitmap bmp, Bitmap edge)
+        {
+            lock (bmp)
+            {
+                lock (edge)
+                {
+                    System.Drawing.Imaging.BitmapData bmpData;
+                    System.Drawing.Imaging.BitmapData edgeData;
+
+                    Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+                    bmpData = bmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, bmp.PixelFormat);
+                    edgeData = edge.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, edge.PixelFormat);
+                    int stride = bmpData.Stride;
+                    int strideEdge = edgeData.Stride;
+                    try
+                    {
+                        unsafe
+                        {
+                            byte* ptr = (byte*)bmpData.Scan0;
+                            byte* ptrE = (byte*)edgeData.Scan0;
+                            for (int y = 0; y < bmpData.Height; y++)
+                            {
+                                for (int x = 0; x < bmpData.Width; x++)
+                                {
+                                    if (ptrE[x + y * strideEdge] != 0)
+                                    {
+                                        ptr[(x * 3) + y * stride] = 255;
+                                        ptr[(x * 3) + y * stride + 1] = 255;
+                                        ptr[(x * 3) + y * stride + 2] = 255;
+                                    }
+                                }
+                            }
+                        }
+
+                        wbmp.Lock();
+                        wbmp.WritePixels(
+                                              new Int32Rect(0, 0, wbmp.PixelWidth, wbmp.PixelHeight),
+                                              bmpData.Scan0,
+                                              bmpData.Width * bmpData.Height * 3,
+                                              bmpData.Stride);
+                        wbmp.Unlock();
+
+
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                    finally
+                    {
+                        bmp.UnlockBits(bmpData);
+                        edge.UnlockBits(edgeData);
+                    }
+                }
+            }
+        }
+
         private void UpdateImage(WriteableBitmap wbmp, Bitmap bmp)
         {
 
@@ -288,7 +359,7 @@ namespace CURELab.SignLanguage.HandDetector
                     wbmp.WritePixels(
                       new Int32Rect(0, 0, wbmp.PixelWidth, wbmp.PixelHeight),
                       bmpData.Scan0,
-                      bmpData.Width * bmpData.Height * 4,
+                      bmpData.Width * bmpData.Height * 3,
                       bmpData.Stride);
                     wbmp.Unlock();
 

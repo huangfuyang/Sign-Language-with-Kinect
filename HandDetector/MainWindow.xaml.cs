@@ -39,7 +39,7 @@ namespace CURELab.SignLanguage.HandDetector
         /// </summary>
         public WriteableBitmap depthBitmap;
 
-    
+
         private KinectController m_KinectController;
         private OpenCVController m_OpenCVController;
 
@@ -52,15 +52,36 @@ namespace CURELab.SignLanguage.HandDetector
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
+            m_OpenCVController = OpenCVController.GetSingletonInstance();
+
+            RegisterThreshold("canny", ref OpenCVController.CANNY_THRESH, 300, 100);
+            RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 500, 200);
+
 
 
         }
 
-      
+        private unsafe void RegisterThreshold(string valuename, ref double thresh, double max, double initialValue)
+        {
+            
+            fixed (double* ptr = &thresh)
+            {
+                thresh = initialValue;
+                TrackBar tcb = new TrackBar(ptr);
+                tcb.Max = max;
+                tcb.Margin = new Thickness(5);
+                tcb.ValueName = valuename;
+                initialValue = initialValue > max ? max : initialValue;
+                tcb.Value = initialValue;
+                SPn_right.Children.Add(tcb);
+            }
+
+        }
+
+
+
         private void Initialize()
         {
-            m_OpenCVController = OpenCVController.GetSingletonInstance();
-            
         }
 
         /// <summary>
@@ -77,7 +98,7 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
-     
+
         private void Kinect_Setup()
         {
 
@@ -117,7 +138,7 @@ namespace CURELab.SignLanguage.HandDetector
                 statusBar.DataContext = m_KinectController;
                 m_KinectController.Initialize(ofd.FileName);
                 this.img_color.Source = m_KinectController.ColorWriteBitmap;
-                this.img_depth.Source = m_KinectController.DepthWriteBitmap;
+                this.img_depth.Source = m_KinectController.ProcessedBitmap;
                 m_KinectController.Start();
             }
 
