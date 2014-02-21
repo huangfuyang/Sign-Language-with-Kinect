@@ -204,9 +204,9 @@ namespace CURELab.SignLanguage.HandDetector
                     }
                     
                     BitmapSource depthBmp = BitmapSource.Create(width, height, 96, 96, PixelFormats.Bgr32, null, colorPixels, width * 4);
-                    var image = OpenCVController.GetSingletonInstance().RecogBlob(depthBmp);
+                   // var image = OpenCVController.GetSingletonInstance().RecogBlob(depthBmp);
 
-                    ImageConverter.UpdateWriteBMP(DepthWriteBitmap, image.ToBitmap());
+                   // ImageConverter.UpdateWriteBMP(DepthWriteBitmap, image.ToBitmap());
 
                 }
             }

@@ -38,11 +38,18 @@ namespace CURELab.SignLanguage.HandDetector
             protected set { depthWriteBitmap = value; }
         }
 
-        private WriteableBitmap processedBitmap;
-        public WriteableBitmap ProcessedBitmap
+        private WriteableBitmap processedDepthBitmap;
+        public WriteableBitmap ProcessedDepthBitmap
         {
-            get { return processedBitmap; }
-            protected set { processedBitmap = value; }
+            get { return processedDepthBitmap; }
+            protected set { processedDepthBitmap = value; }
+        }
+
+        private WriteableBitmap grayWriteBitmap;
+        public WriteableBitmap GrayWriteBitmap
+        {
+            get { return grayWriteBitmap; }
+            protected set { grayWriteBitmap = value; }
         }
 
         private WriteableBitmap edgeBitmap;
@@ -73,11 +80,13 @@ namespace CURELab.SignLanguage.HandDetector
         public virtual void Start() { }
         public virtual void Shutdown() { }
 
+
+        public virtual void TogglePause() { }
+
         public void Reset()
         {
             singleInstance = null;
         }
-
         #region INotifyPropertyChanged 成员
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -87,5 +96,9 @@ namespace CURELab.SignLanguage.HandDetector
                 this.PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
         }
         #endregion
+
+        public virtual void SetSpeed(double speed)
+        {
+        }
     }
 }

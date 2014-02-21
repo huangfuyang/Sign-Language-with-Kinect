@@ -72,6 +72,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\Debug\NiWrapper.Net.dll</HintPath>
     </Reference>
+    <Reference Include="NiWrapper.NiTE.Net, Version=2.2.0.5, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\x64\Debug\NiWrapper.NiTE.Net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -92,6 +96,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="KalmanFilter.cs" />
     <Compile Include="Threshold.cs" />
     <Compile Include="TrackBar.xaml.cs">
       <DependentUpon>TrackBar.xaml</DependentUpon>

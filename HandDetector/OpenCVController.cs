@@ -45,34 +45,55 @@ namespace CURELab.SignLanguage.HandDetector
             return singletonInstance;
         }
 
-        public Image<Bgr, Byte> RecogBlob(BitmapSource bs)
+        public Rectangle RecogBlob(PointF pos, int radius, Bitmap bmp)
         {
-            Image<Bgr, Byte> openCVImg = new Image<Bgr, byte>(bs.ToBitmap());
-            Image<Gray, byte> gray_image = openCVImg.Convert<Gray, byte>();
+            Image<Bgr, Byte> openCVImg = new Image<Bgr, byte>(bmp);
+            openCVImg.ROI = new Rectangle((int)pos.X - radius, (int)pos.Y - radius, radius * 2, radius * 2);
+            Image<Gray, byte> gray_image = openCVImg.Convert<Gray, byte>().PyrDown().PyrUp();
+            Image<Gray, Byte> cannyEdges = openCVImg.Canny(CANNY_THRESH, CANNY_CONNECT_THRESH);
             using (MemStorage stor = new MemStorage())
             {
                 //Find contours with no holes try CV_RETR_EXTERNAL to find holes
-                Contour<System.Drawing.Point> contours = gray_image.FindContours(
+                Contour<System.Drawing.Point> contours = cannyEdges.FindContours(
                  Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE,
-                 Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_EXTERNAL,
-                 stor);
-                int blobCount = 0;
-
+                 Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_LIST);
+                //Contour<System.Drawing.Point> contours = cannyEdges.FindContours();
+                Rectangle rtn_rec = new Rectangle(0, 0, 0, 0);
+                double max_area= 0;
                 for (int i = 0; contours != null; contours = contours.HNext)
                 {
                     i++;
-
-                    if ((contours.Area > Math.Pow(10, 2)) && (contours.Area < Math.Pow(100, 2)))
+                    if ((contours.Area > Math.Pow(10, 2)) && (contours.Area < Math.Pow(radius*2, 2)) && contours.Area > max_area)
                     {
-                        MCvBox2D box = contours.GetMinAreaRect();
-                        openCVImg.Draw(box, new Bgr(System.Drawing.Color.Red), 2);
-                        blobCount++;
+                       // Console.WriteLine(contours.Area);
+                        rtn_rec = contours.GetMinAreaRect().MinAreaRect();
+                        max_area = contours.Area;
                     }
                 }
+                rtn_rec.X += (int)pos.X-radius;
+                rtn_rec.Y += (int)pos.Y-radius;
+                return rtn_rec;
+
             }
-            return (openCVImg);
 
         }
+
+        public Bitmap Color2Gray(Bitmap bmp)
+        {
+            Image<Bgr, Byte> openCVImg = new Image<Bgr, byte>(bmp);
+            return openCVImg.Convert<Gray, byte>().ToBitmap();            
+        }
+
+        public Bitmap Color2Edge(PointF pos, int radius, Bitmap bmp)
+        {
+            Image<Bgr, Byte> openCVImg = new Image<Bgr, byte>(bmp);
+            Image<Gray, byte> gray_image = openCVImg.Convert<Gray, byte>().PyrDown().PyrUp();
+            gray_image.ROI = new Rectangle((int)pos.X - radius, (int)pos.Y - radius, radius * 2, radius * 2);
+            Image<Gray, Byte> cannyEdges = openCVImg.Canny(50, 150);
+            cannyEdges.ROI = Rectangle.Empty;
+            return cannyEdges.ToBitmap();
+        }
+
 
         public Image<Gray, Byte> RecogEdge(BitmapSource bs)
         {
@@ -87,9 +108,10 @@ namespace CURELab.SignLanguage.HandDetector
 
         private Image<Gray, Byte> CannyEdge(Image<Bgr, Byte> img, double cannyThresh, double cannyConnectThresh)
         {
-            Image<Gray, Byte> gray = img.Convert<Gray, Byte>();
+            Image<Gray, Byte> gray = img.Convert<Gray, Byte>().PyrDown().PyrUp();
             return gray.Canny(cannyThresh, cannyConnectThresh);
         }
+
 
 
 

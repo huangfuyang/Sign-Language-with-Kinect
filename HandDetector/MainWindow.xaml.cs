@@ -39,7 +39,7 @@ namespace CURELab.SignLanguage.HandDetector
         /// </summary>
         public WriteableBitmap depthBitmap;
 
-
+        public WriteableBitmap grayBitmap;
         private KinectController m_KinectController;
         private OpenCVController m_OpenCVController;
 
@@ -54,11 +54,13 @@ namespace CURELab.SignLanguage.HandDetector
         {
             m_OpenCVController = OpenCVController.GetSingletonInstance();
 
-            RegisterThreshold("canny", ref OpenCVController.CANNY_THRESH, 300, 100);
-            RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 500, 200);
+            RegisterThreshold("canny", ref OpenCVController.CANNY_THRESH, 300, 1);
+            RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 500, 10);
+            RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
+            RegisterThreshold("diff", ref OpenNIController.DIFF, 100, 50);
 
 
-
+            Menu_ONI_Click(this, e);
         }
 
         private unsafe void RegisterThreshold(string valuename, ref double thresh, double max, double initialValue)
@@ -122,7 +124,7 @@ namespace CURELab.SignLanguage.HandDetector
             statusBar.DataContext = m_KinectController;
             m_KinectController.Initialize();
             this.img_color.Source = m_KinectController.ColorWriteBitmap;
-            this.img_depth.Source = m_KinectController.DepthWriteBitmap;
+            this.img_depth.Source = m_KinectController.ProcessedDepthBitmap;
             m_KinectController.Start();
         }
 
@@ -138,7 +140,8 @@ namespace CURELab.SignLanguage.HandDetector
                 statusBar.DataContext = m_KinectController;
                 m_KinectController.Initialize(ofd.FileName);
                 this.img_color.Source = m_KinectController.ColorWriteBitmap;
-                this.img_depth.Source = m_KinectController.ProcessedBitmap;
+                this.img_depth.Source = m_KinectController.ProcessedDepthBitmap;
+                this.img_gray.Source = m_KinectController.GrayWriteBitmap;
                 m_KinectController.Start();
             }
 
@@ -163,6 +166,19 @@ namespace CURELab.SignLanguage.HandDetector
                 m_KinectController.Reset();
                 m_KinectController = null;
                 GC.Collect();
+            }
+        }
+
+        private void Window_KeyDown_1(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                        
+                case Key.Space:
+                    m_KinectController.TogglePause();
+                    break;
+                default:
+                    break;
             }
         }
     }
