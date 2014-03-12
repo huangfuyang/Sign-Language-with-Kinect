@@ -33,7 +33,10 @@ namespace CURELab.SignLanguage.HandDetector
         public static float BLOB_SIZE_FACTOR = 100000f; //blob size(pixels) = factor/distance(Z)
 
         public static double SPEED = 1;
-        public static double DIFF = 50;
+        public static double DIFF = 10;
+        public static double Time = 0;
+        private double tempSpeed = 1;
+        public static double ANGLE_TRANSFORM = Math.PI / 9;
 
         private Matrix<UInt16> DepthMatrix;
         private Matrix<UInt16> PreDepthMatrix;
@@ -216,19 +219,21 @@ namespace CURELab.SignLanguage.HandDetector
                     if (user.isNew && user.isVisible)
                         uTracker.StartSkeletonTracking(user.UserId);
                     SkeletonJoint joint = user.Skeleton.getJoint(SkeletonJoint.JointType.RIGHT_HAND);
+                    SkeletonJoint jointHead = user.Skeleton.getJoint(SkeletonJoint.JointType.HEAD);
                     if (user.isVisible &&
                         user.Skeleton.State == Skeleton.SkeletonState.TRACKED &&
                         joint.Position.Z > 0 &&
                         joint.PositionConfidence > 0.5)
                     {
                         handPos = m_uTracker.ConvertJointCoordinatesToDepth(joint.Position);
+                        HeadPos = m_uTracker.ConvertJointCoordinatesToDepth(jointHead.Position);
                         handDepth = (float)joint.Position.Z;
                         bodyDepth = (float)user.Skeleton.getJoint(SkeletonJoint.JointType.HEAD).Position.Z;
-                        Console.WriteLine(bodyDepth);
-                        lock (depthBitmap)
-                        {
-                            //right_hand_contour = m_OpenCVController.RecogBlob(handPos, (int)(BLOB_SIZE_FACTOR / handDepth), depthBitmap);
-                        }
+                        //Console.WriteLine(handDepth);
+                        //lock (depthBitmap)
+                        //{
+                        //    right_hand_contour = m_OpenCVController.RecogBlob(handPos, (int)(BLOB_SIZE_FACTOR / handDepth), depthBitmap);
+                        //}
                     }
                 }
             }
@@ -245,7 +250,7 @@ namespace CURELab.SignLanguage.HandDetector
                     System.Drawing.Point p = new System.Drawing.Point((int)handPos.X - 3, (int)handPos.Y - 3);
                     using (Graphics g = Graphics.FromImage(bitmap))
                     {
-                        g.DrawEllipse(new Pen(Brushes.White, 5),
+                        g.DrawEllipse(new Pen(Brushes.Red, 5),
                                       new Rectangle(p, new System.Drawing.Size(5, 5)));
                         g.Save();
                     }
@@ -306,19 +311,26 @@ namespace CURELab.SignLanguage.HandDetector
                                 depthBitmap = frame.toBitmap(options);
                             }
 
+
                             DepthMatrix = new Matrix<UInt16>(depthBitmap.Height, depthBitmap.Width, frame.Data, frame.DataStrideBytes);
+                            lock (DepthMatrix)
+                            {
+                                DepthMatrix = TransformDepth(DepthMatrix, OpenNIController.ANGLE_TRANSFORM);
+                            }
                             //opencv recognition
                             //Bitmap edgeImg = m_OpenCVController.RecogEdge(depthBitmap).ToBitmap();
                             //draw hand  
                             Bitmap CopyDepthImg = depthBitmap.Clone(new Rectangle(0, 0, depthBitmap.Width, depthBitmap.Height), depthBitmap.PixelFormat);
-                            //DrawHandPosition(CopyDepthImg);
                             lock (CopyDepthImg)
                             {
                                 if (PreDepthMatrix != null)
                                 {
-                                    FrameDiff(PreDepthMatrix, DepthMatrix, CopyDepthImg);
+                                    //FrameDiff(PreDepthMatrix, DepthMatrix, CopyDepthImg);
+                                    //RegionGrow(HeadPos, DepthMatrix, CopyDepthImg);
+                                    RegionGrow(handPos, DepthMatrix, CopyDepthImg);
                                 }
                             }
+                            DrawHandPosition(CopyDepthImg);
                             PreDepthMatrix = DepthMatrix;
                             //AsyncCombineImage(ProcessedDepthBitmap, CopyDepthImg, edgeImg);
                             AsyncUpdateImage(ProcessedDepthBitmap, CopyDepthImg);
@@ -334,6 +346,45 @@ namespace CURELab.SignLanguage.HandDetector
 
                     }
                 }
+            }
+        }
+
+        private Matrix<UInt16> TransformDepth(Matrix<UInt16> mat, double angle)
+        {
+            try
+            {
+                unsafe
+                {
+                    UInt16[,] result = new ushort[mat.Height, mat.Width];
+
+                    fixed (UInt16* pM = &mat.Data[0, 0])
+                    {
+                        for (int y = 0; y < mat.Height; y++)
+                        {
+                            for (int x = 0; x < mat.Width; x++)
+                            {
+                                if (pM[y * 640 + x] == 0)
+                                {
+                                    continue;
+                                }
+
+                                int theta = (240 - y) / 3;
+                                double depth = pM[y * 640 + x] * Math.Sin(Math.PI / 2 - angle) - theta * Math.Sin(angle);
+
+                                result[y, x] = Convert.ToUInt16(depth);
+                            }
+
+
+                        }
+                    }
+                    return new Matrix<ushort>(result);
+                }
+            }
+            catch (Exception e)
+            {
+
+                Console.WriteLine(e);
+                return null;
             }
         }
 
@@ -361,14 +412,22 @@ namespace CURELab.SignLanguage.HandDetector
                             {
                                 colorBitmap = frame.toBitmap(options);
                             }
-                            DrawHandContour(colorBitmap);
-                            //EraseBackground(colorBitmap);
+                            //DrawHandContour(colorBitmap);
+                            if (DepthMatrix != null)
+                            {
+                                lock (DepthMatrix)
+                                {
+                                    EraseBackground(DepthMatrix, colorBitmap);
+                                }
+                            }
+
 
                             lock (grayBitmap)
                             {
                                 grayBitmap = m_OpenCVController.Color2Edge(handPos, (int)BLOB_SIZE_FACTOR / 1000, colorBitmap);
                             }
                         }
+                        DrawHandPosition(colorBitmap);
 
                         AsyncUpdateImage(ColorWriteBitmap, colorBitmap);
                         AsyncUpdateImage(GrayWriteBitmap, grayBitmap);
@@ -380,49 +439,225 @@ namespace CURELab.SignLanguage.HandDetector
                 }
             }
         }
-        private void EraseBackground(Bitmap cbmp)
+        private void EraseBackground(Matrix<UInt16> depthMat, Bitmap cbmp)
         {
-            lock (depthBitmap)
+
+            System.Drawing.Imaging.BitmapData cbmpData;
+            Rectangle rect = new Rectangle(0, 0, cbmp.Width, cbmp.Height);
+            cbmpData = cbmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, cbmp.PixelFormat);
+            int stride = cbmpData.Stride;
+            int step = stride / cbmp.Width;
+            try
             {
-                Bitmap dbmp = depthBitmap;
-                System.Drawing.Imaging.BitmapData cbmpData;
-                System.Drawing.Imaging.BitmapData dbmpData;
-                Rectangle rect = new Rectangle(0, 0, cbmp.Width, cbmp.Height);
-                cbmpData = cbmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, cbmp.PixelFormat);
-                dbmpData = dbmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, dbmp.PixelFormat);
-                int cstride = cbmpData.Stride;
-                int dstride = dbmpData.Stride;
-                int step = dstride / dbmp.Width;
-                try
+                unsafe
                 {
-                    unsafe
+                    byte* ptr = (byte*)cbmpData.Scan0;
+                    fixed (UInt16* pM = &depthMat.Data[0, 0])
                     {
-                        byte* ptr = (byte*)cbmpData.Scan0;
-                        byte* dptr = (byte*)dbmpData.Scan0;
-                        for (int y = 0; y < cbmp.Height; y++)
-                        {
-                            for (int x = 0; x < cbmp.Width; x++)
+                        for (int y = 0; y < depthMat.Height; y++)
+                            for (int x = 0; x < depthMat.Width; x++)
                             {
-                                if (dptr[x * step + y * dstride] > bodyDepth + 5 || dptr[x * step + y * dstride] == 0)
+                                UInt16 a = pM[y * 640 + x];
+                                //if (a != 0)
+                                //{ Console.WriteLine(a); }
+
+                                //int b = preMat.Data[x, y];
+                                if (a == 0 || a > bodyDepth - OpenCVController.CANNY_THRESH)
                                 {
-                                    ptr[x * 3 + y * cstride] = 255;
-                                    ptr[x * 3 + y * cstride + 1] = 255;
-                                    ptr[x * 3 + y * cstride + 2] = 255;
+                                    ptr[x * 3 + y * stride] = 255;
+                                    ptr[x * 3 + y * stride + 1] = 255;
+                                    ptr[x * 3 + y * stride + 2] = 255;
                                 }
                             }
+
+                    }
+
+                }
+            }
+            catch (Exception) { }
+            finally
+            {
+                cbmp.UnlockBits(cbmpData);
+            }
+
+
+        }
+        private void RegionGrow(PointF startPoint, Matrix<UInt16> newMat, Bitmap bmpNew)
+        {
+            System.Drawing.Imaging.BitmapData nbmpData;
+            Rectangle rect = new Rectangle(0, 0, bmpNew.Width, bmpNew.Height);
+            nbmpData = bmpNew.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, bmpNew.PixelFormat);
+            int stride = nbmpData.Stride;
+            int step = stride / bmpNew.Width;
+            int cx = (int)startPoint.X;
+            int cy = (int)startPoint.Y;
+            UInt16 depth = newMat[cx, cy];
+            int thresh = 50;
+            int connectThresh = (int)OpenNIController.DIFF;
+            thresh = cx < thresh ? cx : thresh;
+            thresh = cx + thresh >= bmpNew.Width ? cx + thresh - bmpNew.Width : thresh;
+            thresh = cy < thresh ? cy : thresh;
+            thresh = cy + thresh >= bmpNew.Height ? cy + thresh - bmpNew.Height : thresh;
+            Matrix<Byte> connectivity = new Matrix<byte>(new byte[480, 640]);
+            //connectivity[cx,cy] = 1;
+
+            try
+            {
+                unsafe
+                {
+                    byte* nptr = (byte*)nbmpData.Scan0;
+                    fixed (UInt16* pM1 = &newMat.Data[0, 0])
+                    {
+                        fixed (Byte* cM = &connectivity.Data[0, 0])
+                        {
+                            cM[cx + 640 * cy] = 2;
+                            //Console.WriteLine("new"+pM1[cx + cy * 640] + " " + cx + " " + cy);
+                            for (int i = 1; i <= thresh; i++)
+                            {
+                                //left
+                                // Console.WriteLine(pM1[cx-i + cy * 640] + " " + (cx-i) + " " + cy);
+                                cM[cx + (cy - i) * 640] = 1;
+                                cM[cx + (cy + i) * 640] = 1;
+                                cM[cx + i + cy * 640] = 1;
+                                cM[cx - i + cy * 640] = 1;
+                                IsConnected(pM1, cM, cx - i, cy, Direction.Right, connectThresh);
+                                for (int j = 1; j <= i; j++)
+                                {
+                                    //up
+                                    IsConnected(pM1, cM, cx - i, cy - j, Direction.Right, connectThresh);
+                                    IsConnected(pM1, cM, cx - i, cy - j, Direction.Down, connectThresh);
+                                    //down
+                                    IsConnected(pM1, cM, cx - i, cy + j, Direction.Right, connectThresh);
+                                    IsConnected(pM1, cM, cx - i, cy + j, Direction.Up, connectThresh);
+                                }
+                                //right
+                                IsConnected(pM1, cM, cx + i, cy, Direction.Left, connectThresh);
+                                for (int j = 1; j <= i; j++)
+                                {
+                                    //up
+                                    IsConnected(pM1, cM, cx + i, cy - j, Direction.Left, connectThresh);
+                                    IsConnected(pM1, cM, cx + i, cy - j, Direction.Down, connectThresh);
+                                    //down
+                                    IsConnected(pM1, cM, cx + i, cy + j, Direction.Left, connectThresh);
+                                    IsConnected(pM1, cM, cx + i, cy + j, Direction.Up, connectThresh);
+                                }
+                                //up
+                                IsConnected(pM1, cM, cx, cy - i, Direction.Down, connectThresh);
+                                for (int j = 1; j <= i; j++)
+                                {
+                                    //left
+                                    IsConnected(pM1, cM, cx - j, cy - i, Direction.Down, connectThresh);
+                                    IsConnected(pM1, cM, cx - j, cy - i, Direction.Right, connectThresh);
+                                    //right
+                                    IsConnected(pM1, cM, cx + j, cy - i, Direction.Down, connectThresh);
+                                    IsConnected(pM1, cM, cx + j, cy - i, Direction.Left, connectThresh);
+                                }
+                                //down
+                                IsConnected(pM1, cM, cx, cy + i, Direction.Up, connectThresh);
+                                for (int j = 1; j <= i; j++)
+                                {
+                                    //left
+                                    IsConnected(pM1, cM, cx - j, cy + i, Direction.Up, connectThresh);
+                                    IsConnected(pM1, cM, cx - j, cy + i, Direction.Right, connectThresh);
+                                    //right
+                                    IsConnected(pM1, cM, cx + j, cy + i, Direction.Up, connectThresh);
+                                    IsConnected(pM1, cM, cx + j, cy + i, Direction.Left, connectThresh);
+                                }
+
+
+                            }
+                            DrawConnectedRegion(cM, nptr);
+
                         }
                     }
+                    //UInt16* pM1 = (UInt16*)newMat.Data;
+                    //UInt16* pM2 = (UInt16*)preMat.Ptr;
+
                 }
-                catch (Exception) { }
-                finally
+            }
+            catch (Exception e) { Console.WriteLine(e); }
+            finally
+            {
+                bmpNew.UnlockBits(nbmpData);
+            }
+        }
+        enum Direction
+        {
+            Right,
+            Left,
+            Up,
+            Down
+        }
+        private unsafe void DrawConnectedRegion(Byte* connect, Byte* bmp)
+        {
+            int stride = 640 * 3;
+            for (int y = 0; y < 480; y++)
+            {
+                for (int x = 0; x < 640; x++)
                 {
-                    cbmp.UnlockBits(cbmpData);
-                    dbmp.UnlockBits(dbmpData);
+                    if (connect[x + 640 * y] >= 2)
+                    {
+                        bmp[x * 3 + y * stride] = 0;
+                        bmp[x * 3 + y * stride + 1] = 0;
+                        bmp[x * 3 + y * stride + 2] = 255;
+                    }
+                    if (connect[x + 640 * y] == 1)
+                    {
+                        bmp[x * 3 + y * stride] = 255;
+                        bmp[x * 3 + y * stride + 1] = 0;
+                        bmp[x * 3 + y * stride + 2] = 0;
+                    }
+
                 }
             }
 
-        }
 
+
+        }
+        private unsafe bool IsConnected(UInt16* depth, Byte* connect, int x, int y, Direction dir, int connectThresh, int cthresh = 2)
+        {
+            //Console.WriteLine(depth[x + y * 640] + " " + (x) + " " + y);
+            //Console.WriteLine(depth[x +1+ y * 640] + " " + (x) + " " + y);
+            //Console.WriteLine(Math.Abs(depth[x + y * 640] - depth[x + 1 + y * 640]));
+            //int stride = 640 * 3;
+            switch (dir)
+            {
+                case Direction.Right:
+                    if (Math.Abs(depth[x + y * 640] - depth[x + 1 + y * 640]) < connectThresh &&
+                        connect[x + 1 + y * 640] >= cthresh)
+                    {
+                        connect[x + y * 640]++;
+                        return true;
+                    }
+                    return false;
+                case Direction.Left:
+                    if (Math.Abs(depth[x + y * 640] - depth[x - 1 + y * 640]) < connectThresh &&
+                               connect[x - 1 + y * 640] >= cthresh)
+                    {
+                        connect[x + y * 640]++;
+                        return true;
+                    }
+                    return false;
+                case Direction.Up:
+                    if (Math.Abs(depth[x + y * 640] - depth[x + (y - 1) * 640]) < connectThresh &&
+                               connect[x + (y - 1) * 640] >= cthresh)
+                    {
+                        connect[x + y * 640]++;
+                        return true;
+                    }
+                    return false;
+                case Direction.Down:
+                    if (Math.Abs(depth[x + y * 640] - depth[x + (y + 1) * 640]) < connectThresh &&
+                               connect[x + (y + 1) * 640] >= cthresh)
+                    {
+                        connect[x + y * 640]++;
+                        return true;
+                    }
+                    return false;
+                default:
+                    return false;
+            }
+        }
         private void FrameDiff(Matrix<UInt16> preMat, Matrix<UInt16> newMat, Bitmap bmpNew)
         {
             System.Drawing.Imaging.BitmapData nbmpData;
@@ -448,14 +683,21 @@ namespace CURELab.SignLanguage.HandDetector
                                     //{ Console.WriteLine(a); }
 
                                     //int b = preMat.Data[x, y];
-                                    if (a > 0 &&
-                                        a < bodyDepth + 100 &&
-                                         Math.Abs(a - b) > DIFF)
+                                    if (a == 0 || a > bodyDepth + 100)
                                     {
                                         nptr[x * 3 + y * stride] = 255;
                                         nptr[x * 3 + y * stride + 1] = 255;
                                         nptr[x * 3 + y * stride + 2] = 255;
                                     }
+                                    else if (Math.Abs(a - b) > DIFF)
+                                    {
+                                        nptr[x * 3 + y * stride] = 200;
+                                        nptr[x * 3 + y * stride + 1] = 200;
+                                        nptr[x * 3 + y * stride + 2] = 200;
+                                    }
+
+
+
                                 }
                         }
                     }
@@ -656,17 +898,26 @@ namespace CURELab.SignLanguage.HandDetector
         }
         public override void TogglePause()
         {
-            if (m_playback != null)
+            m_isPause = !m_isPause;
+            if (m_isPause)
             {
-                m_isPause = !m_isPause;
-                m_playback.Speed = m_isPause ? -1.0f : 1.0f;
+                tempSpeed = SPEED;
+                SPEED = -1;
+                SetSpeed(-1f);
             }
+            else
+            {
+                SPEED = tempSpeed;
+                SetSpeed(SPEED);
+            }
+
         }
 
         public override void SetSpeed(double speed)
         {
             if (m_playback != null)
             {
+                speed = speed == 0 ? -1 : speed;
                 m_playback.Speed = (float)speed;
             }
         }
