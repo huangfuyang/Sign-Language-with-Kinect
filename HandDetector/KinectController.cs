@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Media.Imaging;
@@ -20,6 +21,8 @@ namespace CURELab.SignLanguage.HandDetector
     /// </summary>
     public class KinectController : INotifyPropertyChanged
     {
+        public static double DIFF = 10;
+
         protected KinectController()
         {
             m_OpenCVController = OpenCVController.GetSingletonInstance();
@@ -64,7 +67,7 @@ namespace CURELab.SignLanguage.HandDetector
         public string Status
         {
             get { return status; }
-            set 
+            set
             {
                 status = value;
                 OnPropertyChanged("Status");
@@ -79,6 +82,220 @@ namespace CURELab.SignLanguage.HandDetector
         public virtual void Initialize(String uri = null) { }
         public virtual void Start() { }
         public virtual void Shutdown() { }
+
+        protected void DrawHandPosition(Bitmap bitmap, System.Drawing.Point p, System.Drawing.Brush color)
+        {
+            lock (bitmap)
+            {
+                try
+                {
+                    using (Graphics g = Graphics.FromImage(bitmap))
+                    {
+                        g.DrawEllipse(new Pen(color, 5),
+                                      new Rectangle(p, new System.Drawing.Size(5, 5)));
+                        g.Save();
+                    }
+                }
+                catch (Exception) { }
+            }
+
+        }
+
+        protected void RegionGrow(PointF startPoint, short[] depthData, Bitmap bmpNew)
+        {
+            System.Drawing.Imaging.BitmapData nbmpData;
+            Rectangle rect = new Rectangle(0, 0, bmpNew.Width, bmpNew.Height);
+            nbmpData = bmpNew.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, bmpNew.PixelFormat);
+            int stride = nbmpData.Stride;
+            int step = stride / bmpNew.Width;
+            int cx = (int)startPoint.X;
+            int cy = (int)startPoint.Y;
+            //Console.WriteLine(cx + " " + cy);
+            int thresh = 50;
+            //int connectThresh = 2;
+            int connectThresh = (int)KinectController.DIFF;
+            thresh = cx < thresh ? cx : thresh;
+            thresh = cx + thresh >= bmpNew.Width ? cx + thresh - bmpNew.Width : thresh;
+            thresh = cy < thresh ? cy : thresh;
+            thresh = cy + thresh >= bmpNew.Height ? cy + thresh - bmpNew.Height : thresh;
+            short[] connectivity = new short[bmpNew.Width * bmpNew.Height];
+            //connectivity[cx,cy] = 1;
+
+            try
+            {
+                unsafe
+                {
+                    byte* nptr = (byte*)nbmpData.Scan0;
+                    connectivity[cx + 640 * cy] = 2;
+                    //Console.WriteLine("new"+depthData[cx + cy * 640] + " " + cx + " " + cy);
+                    for (int i = 1; i <= thresh; i++)
+                    {
+                        //left
+                        // Console.WriteLine(depthData[cx-i + cy * 640] + " " + (cx-i) + " " + cy);
+                        IsConnected(depthData, connectivity, cx - i, cy, Direction.Right, connectThresh);
+                        IsConnected(depthData, connectivity, cx - i, cy, Direction.Right, connectThresh);
+                        for (int j = 1; j <= i; j++)
+                        {
+                            //up
+                            IsConnected(depthData, connectivity, cx - i, cy - j, Direction.Right, connectThresh);
+                            IsConnected(depthData, connectivity, cx - i, cy - j, Direction.Down, connectThresh);
+                            //down
+                            IsConnected(depthData, connectivity, cx - i, cy + j, Direction.Right, connectThresh);
+                            IsConnected(depthData, connectivity, cx - i, cy + j, Direction.Up, connectThresh);
+                        }
+                        //right
+                        IsConnected(depthData, connectivity, cx + i, cy, Direction.Left, connectThresh);
+                        IsConnected(depthData, connectivity, cx + i, cy, Direction.Left, connectThresh);
+                        for (int j = 1; j <= i; j++)
+                        {
+                            //up
+                            IsConnected(depthData, connectivity, cx + i, cy - j, Direction.Left, connectThresh);
+                            IsConnected(depthData, connectivity, cx + i, cy - j, Direction.Down, connectThresh);
+                            //down
+                            IsConnected(depthData, connectivity, cx + i, cy + j, Direction.Left, connectThresh);
+                            IsConnected(depthData, connectivity, cx + i, cy + j, Direction.Up, connectThresh);
+                        }
+                        //up
+                        IsConnected(depthData, connectivity, cx, cy - i, Direction.Down, connectThresh);
+                        IsConnected(depthData, connectivity, cx, cy - i, Direction.Down, connectThresh);
+                        for (int j = 1; j <= i; j++)
+                        {
+                            //left
+                            IsConnected(depthData, connectivity, cx - j, cy - i, Direction.Down, connectThresh);
+                            IsConnected(depthData, connectivity, cx - j, cy - i, Direction.Right, connectThresh);
+                            //right
+                            IsConnected(depthData, connectivity, cx + j, cy - i, Direction.Down, connectThresh);
+                            IsConnected(depthData, connectivity, cx + j, cy - i, Direction.Left, connectThresh);
+                        }
+                        //down
+                        IsConnected(depthData, connectivity, cx, cy + i, Direction.Up, connectThresh);
+                        IsConnected(depthData, connectivity, cx, cy + i, Direction.Up, connectThresh);
+                        for (int j = 1; j <= i; j++)
+                        {
+                            //left
+                            IsConnected(depthData, connectivity, cx - j, cy + i, Direction.Up, connectThresh);
+                            IsConnected(depthData, connectivity, cx - j, cy + i, Direction.Right, connectThresh);
+                            //right
+                            IsConnected(depthData, connectivity, cx + j, cy + i, Direction.Up, connectThresh);
+                            IsConnected(depthData, connectivity, cx + j, cy + i, Direction.Left, connectThresh);
+                        }
+
+
+                    }
+                    //MeanCenter(connectivity);
+                    DrawConnectedRegion(connectivity, nptr);
+
+
+                    //UInt16* depthDatah = (UInt16*)newMat.Data;
+                    //UInt16* pM2 = (UInt16*)preMat.Ptr;
+
+                }
+            }
+            catch (Exception e) { Console.WriteLine(e); }
+            finally
+            {
+                bmpNew.UnlockBits(nbmpData);
+            }
+        }
+        enum Direction
+        {
+            Right,
+            Left,
+            Up,
+            Down
+        }
+
+        private unsafe void MeanCenter(Byte* connect)
+        {
+            int nx = 0, ny = 0, count = 0;
+            for (int y = 0; y < 480; y++)
+            {
+                for (int x = 0; x < 640; x++)
+                {
+                    if (connect[x + 640 * y] >= 2)
+                    {
+                        nx += x;
+                        ny += y;
+                        count++;
+                    }
+
+                }
+            }
+            nx /= count;
+            ny /= count;
+            //handPos = new PointF(nx, ny);
+        }
+        private unsafe void DrawConnectedRegion(short[] connect, Byte* bmp)
+        {
+            int singleStride = 4;
+            int stride = 640 * singleStride;
+            for (int y = 0; y < 480; y++)
+            {
+                for (int x = 0; x < 640; x++)
+                {
+                    if (connect[x + 640 * y] >= 2)
+                    {
+                        bmp[x * singleStride + y * stride] = 0;
+                        bmp[x * singleStride + y * stride + 1] = 0;
+                        bmp[x * singleStride + y * stride + 2] = 255;
+                    }
+                    if (connect[x + 640 * y] == 1)
+                    {
+                        bmp[x * singleStride + y * stride] = 255;
+                        bmp[x * singleStride + y * stride + 1] = 0;
+                        bmp[x * singleStride + y * stride + 2] = 0;
+                    }
+
+                }
+            }
+
+
+
+        }
+        private bool IsConnected(short[] depth, short[] connect, int x, int y, Direction dir, int connectThresh, int cthresh = 1)
+        {
+            //Console.WriteLine(depth[x + y * 640] + " " + (x) + " " + y);
+            //Console.WriteLine(depth[x +1+ y * 640] + " " + (x) + " " + y);
+            //Console.WriteLine(Math.Abs(depth[x + y * 640] - depth[x + 1 + y * 640]));
+            //int stride = 640 * 3;
+            switch (dir)
+            {
+                case Direction.Right:
+                    if (Math.Abs(depth[x + y * 640] - depth[x + 1 + y * 640]) < connectThresh &&
+                        connect[x + 1 + y * 640] >= cthresh)
+                    {
+                        connect[x + y * 640]++;
+                        return true;
+                    }
+                    return false;
+                case Direction.Left:
+                    if (Math.Abs(depth[x + y * 640] - depth[x - 1 + y * 640]) < connectThresh &&
+                               connect[x - 1 + y * 640] >= cthresh)
+                    {
+                        connect[x + y * 640]++;
+                        return true;
+                    }
+                    return false;
+                case Direction.Up:
+                    if (Math.Abs(depth[x + y * 640] - depth[x + (y - 1) * 640]) < connectThresh &&
+                               connect[x + (y - 1) * 640] >= cthresh)
+                    {
+                        connect[x + y * 640]++;
+                        return true;
+                    }
+                    return false;
+                case Direction.Down:
+                    if (Math.Abs(depth[x + y * 640] - depth[x + (y + 1) * 640]) < connectThresh &&
+                               connect[x + (y + 1) * 640] >= cthresh)
+                    {
+                        connect[x + y * 640]++;
+                        return true;
+                    }
+                    return false;
+                default:
+                    return false;
+            }
+        }
 
 
         public virtual void TogglePause() { }

@@ -85,5 +85,44 @@ namespace CURELab.SignLanguage.HandDetector
                 return bitmap;
             }
         }
+
+        public static int GetRectArea(this Rectangle rect)
+        {
+            return rect.Size.Height * rect.Size.Width;
+        }
+        public static int GetXCenter(this Rectangle rect)
+        {
+            return (rect.Right + rect.Left)/2;
+        }
+        public static int GetYCenter(this Rectangle rect)
+        {
+            return (rect.Top + rect.Bottom) / 2;
+        }
+
+        public static float DistanceTo(this PointF p1, PointF p2)
+        {
+            return (float)Math.Sqrt((p1.X - p2.X) * (p1.X - p2.X) + (p1.Y - p2.Y) * (p1.Y - p2.Y));
+
+        }
+
+        public static PointF add(this PointF p1, PointF p2)
+        {
+            return new PointF(p1.X + p2.X, p1.Y + p2.Y);
+        }
+        public static System.Drawing.Point ToPoint(this PointF p)
+        {
+            try
+            {
+                int x = (int)p.X < 0 ? 0 : (int)p.X;
+                int y = (int)p.Y < 0 ? 0 : (int)p.Y;
+                return new System.Drawing.Point(x, y);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return new System.Drawing.Point(0, 0);
+
+        }
     }
 }

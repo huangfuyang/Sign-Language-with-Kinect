@@ -54,13 +54,15 @@ namespace CURELab.SignLanguage.HandDetector
         {
             m_OpenCVController = OpenCVController.GetSingletonInstance();
 
-            RegisterThreshold("canny", ref OpenCVController.CANNY_THRESH, 300, 1);
-            RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 500, 10);
+            RegisterThreshold("canny", ref OpenCVController.CANNY_THRESH, 100, 8);
+            RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
             RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
-            RegisterThreshold("diff", ref OpenNIController.DIFF, 30, 10);
+            RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
+            RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 10, 2.8);
 
 
-            Menu_ONI_Click(this, e);
+          //  Menu_ONI_Click(this, e);
+            Menu_Kinect_Click(this, e);
         }
 
         private unsafe void RegisterThreshold(string valuename, ref double thresh, double max, double initialValue)
@@ -155,6 +157,8 @@ namespace CURELab.SignLanguage.HandDetector
             m_KinectController.Initialize();
             this.img_color.Source = m_KinectController.ColorWriteBitmap;
             this.img_depth.Source = m_KinectController.DepthWriteBitmap;
+            this.img_gray.Source = m_KinectController.GrayWriteBitmap;
+
             m_KinectController.Start();
         }
 

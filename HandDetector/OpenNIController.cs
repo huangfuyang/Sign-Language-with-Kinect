@@ -33,7 +33,6 @@ namespace CURELab.SignLanguage.HandDetector
         public static float BLOB_SIZE_FACTOR = 100000f; //blob size(pixels) = factor/distance(Z)
 
         public static double SPEED = 1;
-        public static double DIFF = 10;
         public static double Time = 0;
         private double tempSpeed = 1;
         public static double ANGLE_TRANSFORM = Math.PI / 9;
@@ -225,7 +224,8 @@ namespace CURELab.SignLanguage.HandDetector
                         joint.Position.Z > 0 &&
                         joint.PositionConfidence > 0.5)
                     {
-                        handPos = m_uTracker.ConvertJointCoordinatesToDepth(joint.Position);
+                        //if (handPos.X == 0 && handPos.Y == 0)
+                            handPos = m_uTracker.ConvertJointCoordinatesToDepth(joint.Position);
                         HeadPos = m_uTracker.ConvertJointCoordinatesToDepth(jointHead.Position);
                         handDepth = (float)joint.Position.Z;
                         bodyDepth = (float)user.Skeleton.getJoint(SkeletonJoint.JointType.HEAD).Position.Z;
@@ -241,24 +241,7 @@ namespace CURELab.SignLanguage.HandDetector
 
 
 
-        private void DrawHandPosition(Bitmap bitmap)
-        {
-            lock (bitmap)
-            {
-                try
-                {
-                    System.Drawing.Point p = new System.Drawing.Point((int)handPos.X - 3, (int)handPos.Y - 3);
-                    using (Graphics g = Graphics.FromImage(bitmap))
-                    {
-                        g.DrawEllipse(new Pen(Brushes.Red, 5),
-                                      new Rectangle(p, new System.Drawing.Size(5, 5)));
-                        g.Save();
-                    }
-                }
-                catch (Exception) { }
-            }
-
-        }
+     
 
         public override void Start()
         {
@@ -330,7 +313,7 @@ namespace CURELab.SignLanguage.HandDetector
                                     RegionGrow(handPos, DepthMatrix, CopyDepthImg);
                                 }
                             }
-                            DrawHandPosition(CopyDepthImg);
+                            //DrawHandPosition(CopyDepthImg);
                             PreDepthMatrix = DepthMatrix;
                             //AsyncCombineImage(ProcessedDepthBitmap, CopyDepthImg, edgeImg);
                             AsyncUpdateImage(ProcessedDepthBitmap, CopyDepthImg);
@@ -427,7 +410,8 @@ namespace CURELab.SignLanguage.HandDetector
                                 grayBitmap = m_OpenCVController.Color2Edge(handPos, (int)BLOB_SIZE_FACTOR / 1000, colorBitmap);
                             }
                         }
-                        DrawHandPosition(colorBitmap);
+                        System.Drawing.Point p = new System.Drawing.Point((int)handPos.X - 3, (int)handPos.Y - 3);
+                        DrawHandPosition(colorBitmap,p,System.Drawing.Brushes.Yellow);
 
                         AsyncUpdateImage(ColorWriteBitmap, colorBitmap);
                         AsyncUpdateImage(GrayWriteBitmap, grayBitmap);
@@ -491,7 +475,7 @@ namespace CURELab.SignLanguage.HandDetector
             int step = stride / bmpNew.Width;
             int cx = (int)startPoint.X;
             int cy = (int)startPoint.Y;
-            UInt16 depth = newMat[cx, cy];
+            //Console.WriteLine(cx + " " + cy);
             int thresh = 50;
             int connectThresh = (int)OpenNIController.DIFF;
             thresh = cx < thresh ? cx : thresh;
@@ -566,6 +550,7 @@ namespace CURELab.SignLanguage.HandDetector
 
 
                             }
+                            //MeanCenter(cM);
                             DrawConnectedRegion(cM, nptr);
 
                         }
@@ -587,6 +572,27 @@ namespace CURELab.SignLanguage.HandDetector
             Left,
             Up,
             Down
+        }
+
+        private unsafe void MeanCenter(Byte* connect)
+        {
+            int nx = 0, ny = 0, count = 0;
+            for (int y = 0; y < 480; y++)
+            {
+                for (int x = 0; x < 640; x++)
+                {
+                    if (connect[x + 640 * y] >= 2)
+                    {
+                        nx += x;
+                        ny += y;
+                        count++;
+                    }
+
+                }
+            }
+            nx /= count;
+            ny /= count;
+            handPos = new PointF(nx, ny);
         }
         private unsafe void DrawConnectedRegion(Byte* connect, Byte* bmp)
         {
@@ -614,7 +620,7 @@ namespace CURELab.SignLanguage.HandDetector
 
 
         }
-        private unsafe bool IsConnected(UInt16* depth, Byte* connect, int x, int y, Direction dir, int connectThresh, int cthresh = 2)
+        private unsafe bool IsConnected(UInt16* depth, Byte* connect, int x, int y, Direction dir, int connectThresh, int cthresh = 1)
         {
             //Console.WriteLine(depth[x + y * 640] + " " + (x) + " " + y);
             //Console.WriteLine(depth[x +1+ y * 640] + " " + (x) + " " + y);
