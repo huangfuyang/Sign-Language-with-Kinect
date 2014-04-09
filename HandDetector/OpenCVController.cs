@@ -123,7 +123,7 @@ namespace CURELab.SignLanguage.HandDetector
             //Histo.MatND.ManagedArray
             float[] GrayHist = new float[256];
             Histo.MatND.ManagedArray.CopyTo(GrayHist, 0);
-            float max = 0;
+            float max = 1;
             for (int i = 0; i < 256; i++)
             {
                 if (GrayHist[i] > max)

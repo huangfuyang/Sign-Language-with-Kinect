@@ -97,6 +97,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="KalmanFilter.cs" />
+    <Compile Include="PointHelper.cs" />
     <Compile Include="Threshold.cs" />
     <Compile Include="TrackBar.xaml.cs">
       <DependentUpon>TrackBar.xaml</DependentUpon>

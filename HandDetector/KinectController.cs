@@ -85,6 +85,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         protected void DrawHandPosition(Bitmap bitmap, System.Drawing.Point p, System.Drawing.Brush color)
         {
+            return;
             lock (bitmap)
             {
                 try
@@ -93,6 +94,24 @@ namespace CURELab.SignLanguage.HandDetector
                     {
                         g.DrawEllipse(new Pen(color, 5),
                                       new Rectangle(p, new System.Drawing.Size(5, 5)));
+                        g.Save();
+                    }
+                }
+                catch (Exception) { }
+            }
+
+        }
+
+        protected void DrawString(Bitmap bitmap, Font textFont, String text)
+        {
+            lock (bitmap)
+            {
+                try
+                {
+                    using (Graphics g = Graphics.FromImage(bitmap))
+                    {
+                        g.DrawString(text, textFont, Brushes.Red,
+                      100, 20);
                         g.Save();
                     }
                 }
