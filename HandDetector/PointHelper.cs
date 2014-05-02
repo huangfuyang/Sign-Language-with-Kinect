@@ -13,10 +13,10 @@ namespace CURELab.SignLanguage.HandDetector
         public static float DistanceTo(this PointF p1, PointF p2)
         {
             return (float)Math.Sqrt((p1.X - p2.X) * (p1.X - p2.X) + (p1.Y - p2.Y) * (p1.Y - p2.Y));
-        
+
         }
 
-        public static  PointF add(this PointF p1, PointF p2)
+        public static PointF add(this PointF p1, PointF p2)
         {
             return new PointF(p1.X + p2.X, p1.Y + p2.Y);
         }
@@ -43,7 +43,7 @@ namespace CURELab.SignLanguage.HandDetector
 
 
 
-      
+
         public static System.Drawing.Point ToPoint(this PointF p)
         {
             try
@@ -66,7 +66,18 @@ namespace CURELab.SignLanguage.HandDetector
             Rectangle tr2 = new Rectangle(r2.Location.X - minDis, r2.Location.Y - minDis, r2.Width + minDis * 2, r2.Height + minDis * 2);
             return tr1.IntersectsWith(tr2);
         }
-        
+
+        public static Point[] GetPoints(this Rectangle r)
+        {
+            Point[] ps = new Point[4];
+            ps[0] = new Point(r.X, r.Y);
+            ps[1] = new Point(r.X + r.Width, r.Y);
+            ps[2] = new Point(r.X + r.Width, r.Y + r.Height);
+            ps[3] = new Point(r.X, r.Y + r.Height);
+            return ps;
+
+        }
+
 
 
     }

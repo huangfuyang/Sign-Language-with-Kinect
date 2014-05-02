@@ -85,7 +85,6 @@ namespace CURELab.SignLanguage.HandDetector
 
         protected void DrawHandPosition(Bitmap bitmap, System.Drawing.Point p, System.Drawing.Brush color)
         {
-            return;
             lock (bitmap)
             {
                 try

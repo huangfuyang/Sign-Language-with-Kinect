@@ -58,7 +58,7 @@ namespace CURELab.SignLanguage.HandDetector
             RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
             RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
             RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
-            RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 10, 2.8);
+            RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 30);
 
 
           //  Menu_ONI_Click(this, e);
