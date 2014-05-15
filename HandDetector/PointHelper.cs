@@ -15,6 +15,11 @@ namespace CURELab.SignLanguage.HandDetector
             return (float)Math.Sqrt((p1.X - p2.X) * (p1.X - p2.X) + (p1.Y - p2.Y) * (p1.Y - p2.Y));
 
         }
+        public static float DistanceTo(this Point p1, Point p2)
+        {
+            return (float)Math.Sqrt((p1.X - p2.X) * (p1.X - p2.X) + (p1.Y - p2.Y) * (p1.Y - p2.Y));
+
+        }
 
         public static PointF add(this PointF p1, PointF p2)
         {
@@ -44,6 +49,8 @@ namespace CURELab.SignLanguage.HandDetector
 
 
 
+
+
         public static System.Drawing.Point ToPoint(this PointF p)
         {
             try
@@ -57,6 +64,11 @@ namespace CURELab.SignLanguage.HandDetector
                 Console.WriteLine(e);
             }
             return new System.Drawing.Point(0, 0);
+
+        }
+        public static System.Drawing.Point[] ToPoints(this PointF[] p)
+        {
+            return p.Select(x => x.ToPoint()).ToArray();
 
         }
 
@@ -76,6 +88,21 @@ namespace CURELab.SignLanguage.HandDetector
             ps[3] = new Point(r.X, r.Y + r.Height);
             return ps;
 
+        }
+        public static PointF GetCenter(this PointF[] p)
+        {
+            float X = p.Average(x => x.X);
+            float Y = p.Average(x => x.Y);
+            return new PointF(X, Y);
+
+        }
+
+        public static Point GetCenter(this Point[] p)
+        {
+            double X = p.Average(x => x.X);
+            double Y = p.Average(x => x.Y);
+            return new Point((int)X, (int)Y);
+        
         }
 
 

@@ -38,9 +38,11 @@ vector<float> Hog(Mat image)
 		}
 	}
 	Mat s_image(copyBinaryImg,r);
-
 	Mat dst_img_rsize(60,60,s_image.type());
 	resize(s_image,dst_img_rsize,dst_img_rsize.size(),0,0,INTER_LINEAR);
+	pyrDown(dst_img_rsize,dst_img_rsize);
+	pyrUp(dst_img_rsize,dst_img_rsize);
+
 	//imshow("Source",s_image);
 	//imshow("Source",threshold_output);
 	//resize(threshold_output,dst_img_rsize,dst_img_rsize.size(),0,0,INTER_LINEAR);
@@ -77,6 +79,11 @@ int main( int argc, char** argv )
 			hogs[i][j] = Hog(images[i][j]);
 		}
 	}
+
+	for (int i = 0; i < 1000; i++)
+	{
+		printf("%.4f  %.4f \n",hogs[0][0][i],(float)((byte)(hogs[0][0][i]*256))/256.0f);
+	}
 	
 	//blur( src_gray, src_gray, Size(3,3) );
 
@@ -87,14 +94,24 @@ int main( int argc, char** argv )
 
 	createTrackbar( " Threshold:", "Source", &thresh, max_thresh, thresh_callback );
 	//thresh_callback( 0, 0 );
-	
+
+	float s_in = 0,s_out = 0;
+
 	for (int j = 0; j < 16; j++)
 	{
 		for (int i = 0; i < 16; i++)
 		{
+
 			float d = GetDistance(hogs[j/4][j%4],hogs[i/4][i%4]);
-		
-			printf("%.1f ",d*100);
+			if (j/4 == i/4)
+			{
+				s_in+=d;
+			}
+			else
+			{
+				s_out+=d;
+			}
+			printf("%.1f ",d*256);
 			if (i%4 == 3)
 			{
 				printf(" ");
@@ -107,6 +124,7 @@ int main( int argc, char** argv )
 
 		}
 	}
+	printf("in:%.2f  out:%.2f \n",s_in*100/64,s_out*100/192);
 	for (int j = 0; j < 16; j++)
 	{
 		for (int i = 0; i < 16; i++)

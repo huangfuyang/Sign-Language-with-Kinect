@@ -91,17 +91,25 @@ namespace CURELab.SignLanguage.HandDetector
                 colorIndex < colorFrame.Length;
                 depthIndex++, colorIndex += Bgr32BytesPerPixel)
             {
-                short depth = depthFrame[depthIndex].Depth;
-                //transform
-                depth = TwoD_intensityTable[depthIndex / 640, depth];
-                // look up in intensity table
-                byte color = mappingTable[(ushort)depth];
+                try
+                {
+                    short depth = depthFrame[depthIndex].Depth;
+                    //transform
+                    depth = TwoD_intensityTable[depthIndex / 640, depth];
+                    // look up in intensity table
+                    byte color = mappingTable[(ushort)depth];
 
 
-                // Write color pixel to buffer
-                colorFrame[colorIndex + RedIndex] = color;
-                colorFrame[colorIndex + GreenIndex] = color;
-                colorFrame[colorIndex + BlueIndex] = color;
+                    // Write color pixel to buffer
+                    colorFrame[colorIndex + RedIndex] = color;
+                    colorFrame[colorIndex + GreenIndex] = color;
+                    colorFrame[colorIndex + BlueIndex] = color;
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+               
             }
         }
 

@@ -25,6 +25,7 @@ using System.Diagnostics;
 
 namespace CURELab.SignLanguage.HandDetector
 {
+
     /// <summary>
     /// Kinect SDK controller
     /// </summary>
@@ -56,6 +57,10 @@ namespace CURELab.SignLanguage.HandDetector
 
         public static double CullingThresh = 30;
         public const float AngleRotateTan = 0.3f;
+
+        const int handShapeWidth = 60;
+        const int handShapeHeight = 60;
+
         private KinectSDKController()
             : base()
         {
@@ -101,7 +106,8 @@ namespace CURELab.SignLanguage.HandDetector
                 // This is the bitmap we'll display on-screen
                 this.ColorWriteBitmap = new WriteableBitmap(this.sensor.ColorStream.FrameWidth, this.sensor.ColorStream.FrameHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgr32, null);
                 this.DepthWriteBitmap = new WriteableBitmap(this.sensor.DepthStream.FrameWidth, this.sensor.DepthStream.FrameHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgr32, null);
-                this.GrayWriteBitmap = new WriteableBitmap(512, 200, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
+                this.WrtBMP_RightHandFront = new WriteableBitmap(handShapeWidth, handShapeHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
+                this.WrtBMP_LeftHandFront = new WriteableBitmap(handShapeWidth, handShapeHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
 
 
                 // Add an event handler to be called whenever there is new frame data
@@ -160,6 +166,7 @@ namespace CURELab.SignLanguage.HandDetector
         short headDepth = 0;
         private void AllFrameReady(object sender, AllFramesReadyEventArgs e)
         {
+            //Console.Clear();
             using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
             {
                 if (skeletonFrame != null)
@@ -198,7 +205,6 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 if (depthFrame != null)
                 {
-                    Console.Clear();
                     var sw = Stopwatch.StartNew();
                     // Copy the pixel data from the image to a temporary array
                     depthFrame.CopyDepthImagePixelDataTo(this.depthPixels);
@@ -214,7 +220,7 @@ namespace CURELab.SignLanguage.HandDetector
                     //int lowDepth = lowDepths.Count() > 0 ? lowDepths.Min(x => x.Depth) : 0;
                     //float a = CalTiltAngle(headPosition.Y, depthPixels[headPosition.X+headPosition.Y*640].Depth, lowDepth);
                     //Console.WriteLine("head depth :{0} lowDepth:{1}, TiltAngle:{2}", depthPixels[headPosition.X + headPosition.Y * 640].Depth, lowDepth);
-                    Console.WriteLine("get low depth:" + sw.ElapsedMilliseconds);
+                //    Console.WriteLine("get low depth:" + sw.ElapsedMilliseconds);
                     sw.Restart();
 
                     //*********** Convert cull and transform*****************
@@ -225,7 +231,7 @@ namespace CURELab.SignLanguage.HandDetector
                    
 
                     Image<Bgra, byte> depthImg;
-                    Console.WriteLine("iteration:" + sw.ElapsedMilliseconds);
+                    //Console.WriteLine("iteration:" + sw.ElapsedMilliseconds);
                     sw.Restart();
                     
                    
@@ -242,20 +248,40 @@ namespace CURELab.SignLanguage.HandDetector
                     //}
 
                     //*******find hand*****************
-                    unsafe
+                    Image<Gray, Byte> rightFront;
+                    Image<Gray, Byte> leftFront;
+                    depthImg = ImageConverter.Array2Image(colorPixels, width, height, width * 4);
+                    HandShapeModel handModel = m_OpenCVController.FindHandPart(ref depthImg,out rightFront, out leftFront);
+                    // no hands detected
+                    if (handModel == null)
                     {
-                        fixed (byte* p_data = colorPixels)
-                        {
-                            depthImg = new Image<Bgra, byte>(width, height, width * 4, (IntPtr)p_data);
-
-                        }
+                        handModel = new HandShapeModel(0, HandEnum.None);
                     }
-                    m_OpenCVController.FindHandPart(ref depthImg);
-                    Console.WriteLine("Find hand:" + sw.ElapsedMilliseconds);
+                    // database processing
+                    DBManager db = DBManager.GetSingleton();
+                    if (db != null )
+                    {
+                        if (skeletons != null)
+                        {
+                            handModel.SetSkeletonData(skeletons[0]);
+                        }
+                        db.AddFrameData(handModel);
+                    }
+                    // UI update
+                    if (rightFront != null)
+                    {
+                        ImageConverter.UpdateWriteBMP(WrtBMP_RightHandFront, rightFront.ToBitmap());
+                    }
+                    if (leftFront != null)
+                    {
+                        ImageConverter.UpdateWriteBMP(WrtBMP_LeftHandFront, leftFront.ToBitmap());
+                    }
+                    
+                   // Console.WriteLine("Find hand:" + sw.ElapsedMilliseconds);
                     sw.Restart();
 
                     //**************************draw gray histogram
-                    //Bitmap histo = m_OpenCVController.Histogram(depthImg);
+                   // Bitmap histo = m_OpenCVController.Histogram(depthImg);
                     //ImageConverter.UpdateWriteBMP(GrayWriteBitmap, histo);
 
                     //draw hand position from kinect
@@ -263,78 +289,23 @@ namespace CURELab.SignLanguage.HandDetector
                     
                     //*******************upadte UI
                     ImageConverter.UpdateWriteBMP(DepthWriteBitmap, depthImg.ToBitmap());
-                    Console.WriteLine("Update UI:" + sw.ElapsedMilliseconds);
+                   // Console.WriteLine("Update UI:" + sw.ElapsedMilliseconds);
 
                 }
             }
             
+
         }
 
+        public override void Run()
+        {
 
-        //private void RecognizeAndDrawRects(Bitmap bmp, Rectangle[] rects)
-        //{
-        //    var LinqRects =
-        //        from rect in rects
-        //        where rect.GetYCenter() > 50
-        //        orderby rect.GetRectArea() descending
-        //        select rect;
-        //    rects = LinqRects.ToArray();
-        //    Rectangle rightHand;
-        //    Rectangle leftHand;
-        //    Font textFont = new Font(FontFamily.Families[0], 20);
-        //    int textOffset = 40;
-        //    if (rects.Count() >= 2)//two hands
-        //    {
-        //        if (rects[0].GetXCenter() > rects[1].GetXCenter())
-        //        {
-        //            rightHand = rects[0];
-        //            leftHand = rects[1];
-        //        }
-        //        else
-        //        {
-        //            rightHand = rects[1];
-        //            leftHand = rects[0];
-        //        }
-        //        if (rightHand.IntersectsWith(leftHand))
-        //        {
-        //            Intersect = true;
-        //        }
-        //        else
-        //        {
-        //            Intersect = false;
-        //        }
-        //        using (Graphics g = Graphics.FromImage(bmp))
-        //        {
-        //            g.DrawRectangle(new Pen(Brushes.Red, 2), rightHand);
-        //            g.DrawString("right", textFont, Brushes.Red,
-        //                (float)rightHand.X, (float)rightHand.Y - textOffset);
-        //            g.DrawRectangle(new Pen(Brushes.Red, 2), leftHand);
-        //            g.DrawString("left", textFont, Brushes.Red,
-        //                (float)leftHand.X, (float)leftHand.Y - textOffset);
-        //            g.Save();
-        //        }
-
-        //    }
-        //    else if (rects.Count() == 1) // one rectangle
-        //    {
-        //        string text = "";
-        //        using (Graphics g = Graphics.FromImage(bmp))
-        //        {
-        //            if (Intersect)
-        //            {
-        //                text = "Two hands";
-        //            }
-        //            else
-        //            {
-        //                text = "right";
-        //            }
-        //            g.DrawRectangle(new Pen(Brushes.Red, 2), rects[0]);
-        //            g.DrawString(text, textFont, Brushes.Red,
-        //                (float)rects[0].X, (float)rects[0].Y - textOffset);
-        //        }
-        //    }
-        //}
-
+          
+        }
+        public override void Stop()
+        {
+           
+        }
 
         private System.Drawing.Point SkeletonPointToScreen(SkeletonPoint skelpoint)
         {
@@ -343,6 +314,7 @@ namespace CURELab.SignLanguage.HandDetector
             DepthImagePoint depthPoint = this.sensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skelpoint, DepthImageFormat.Resolution640x480Fps30);
             return new System.Drawing.Point(depthPoint.X, depthPoint.Y);
         }
+
 
         static float KinectFOV = 0.8378f;
         float TanTiltAngle = 0;

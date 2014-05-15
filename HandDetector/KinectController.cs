@@ -55,6 +55,11 @@ namespace CURELab.SignLanguage.HandDetector
             protected set { grayWriteBitmap = value; }
         }
 
+        public WriteableBitmap WrtBMP_RightHandFront { get; set; }
+        public WriteableBitmap WrtBMP_LeftHandFront { get; set; }
+        public WriteableBitmap WrtBMP_RightHandSide { get; set; }
+        public WriteableBitmap WrtBMP_LeftHandSide { get; set; }
+
         private WriteableBitmap edgeBitmap;
         public WriteableBitmap EdgeBitmap
         {
@@ -76,6 +81,15 @@ namespace CURELab.SignLanguage.HandDetector
 
 
         protected OpenCVController m_OpenCVController;
+
+        public virtual void Run()
+        {
+
+        }
+        public virtual void Stop()
+        {
+
+        }
 
         protected static KinectController singleInstance;
 

@@ -19,6 +19,10 @@ using System.IO;
 
 using Emgu.CV;
 using Emgu.Util;
+using System.Diagnostics;
+using System.Windows.Forms;
+using System.Threading;
+using System.Data.SQLite;
 namespace CURELab.SignLanguage.HandDetector
 {
 
@@ -42,10 +46,13 @@ namespace CURELab.SignLanguage.HandDetector
         public WriteableBitmap grayBitmap;
         private KinectController m_KinectController;
         private OpenCVController m_OpenCVController;
+        private KinectStudioController m_kinectStudioController;
+        private DBManager m_DBmanager;
 
         public MainWindow()
         {
             InitializeComponent();
+            m_kinectStudioController = KinectStudioController.GetSingleton();
         }
 
 
@@ -61,13 +68,13 @@ namespace CURELab.SignLanguage.HandDetector
             RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 30);
 
 
-          //  Menu_ONI_Click(this, e);
+            //  Menu_ONI_Click(this, e);
             Menu_Kinect_Click(this, e);
         }
 
         private unsafe void RegisterThreshold(string valuename, ref double thresh, double max, double initialValue)
         {
-            
+
             fixed (double* ptr = &thresh)
             {
                 thresh = initialValue;
@@ -143,7 +150,7 @@ namespace CURELab.SignLanguage.HandDetector
                 m_KinectController.Initialize(ofd.FileName);
                 this.img_color.Source = m_KinectController.ColorWriteBitmap;
                 this.img_depth.Source = m_KinectController.ProcessedDepthBitmap;
-                this.img_gray.Source = m_KinectController.GrayWriteBitmap;
+                this.img_leftFront.Source = m_KinectController.GrayWriteBitmap;
                 m_KinectController.Start();
             }
 
@@ -157,8 +164,25 @@ namespace CURELab.SignLanguage.HandDetector
             m_KinectController.Initialize();
             this.img_color.Source = m_KinectController.ColorWriteBitmap;
             this.img_depth.Source = m_KinectController.DepthWriteBitmap;
-            this.img_gray.Source = m_KinectController.GrayWriteBitmap;
+            this.img_leftFront.Source = m_KinectController.WrtBMP_LeftHandFront;
+            this.img_rightFront.Source = m_KinectController.WrtBMP_RightHandFront;
+            this.img_rightSide.Source = m_KinectController.WrtBMP_RightHandSide;
+            this.img_leftSide.Source = m_KinectController.WrtBMP_LeftHandSide;
 
+            m_KinectController.Start();
+        }
+
+
+        private void Menu_Gesture_Click(object sender, RoutedEventArgs e)
+        {
+            ResetAll();
+            m_KinectController = KinectSDKController.GetSingletonInstance();
+            statusBar.DataContext = m_KinectController;
+            m_KinectController.Initialize();
+            this.img_color.Source = m_KinectController.ColorWriteBitmap;
+            this.img_depth.Source = m_KinectController.DepthWriteBitmap;
+            this.img_leftFront.Source = m_KinectController.WrtBMP_LeftHandFront;
+            this.img_rightFront.Source = m_KinectController.WrtBMP_RightHandFront;
             m_KinectController.Start();
         }
 
@@ -173,11 +197,11 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
-        private void Window_KeyDown_1(object sender, KeyEventArgs e)
+        private void Window_KeyDown_1(object sender, System.Windows.Input.KeyEventArgs e)
         {
             switch (e.Key)
             {
-                        
+
                 case Key.Space:
                     m_KinectController.TogglePause();
                     break;
@@ -185,5 +209,111 @@ namespace CURELab.SignLanguage.HandDetector
                     break;
             }
         }
+
+
+        private bool _isConnected;
+
+        public bool IsConnected
+        {
+            get
+            {
+                return _isConnected;
+            }
+            set
+            {
+                _isConnected = value;
+                if (_isConnected)
+                {
+                    statusBarKinectStudio.Text = "Kinect Studio Connected";
+                }
+                else
+                {
+                    statusBarKinectStudio.Text = "Kinect Studio Not Connected";
+                }
+            }
+        }
+        private void MenuItem_Connect_Click(object sender, RoutedEventArgs e)
+        {
+            IsConnected = m_kinectStudioController.Connect();
+        }
+
+        private void MenuItem_Start_Click(object sender, RoutedEventArgs e)
+        {
+            IsConnected = m_kinectStudioController.Start();
+        }
+
+        private List<SignWordModel> wordList;
+        private void MenuItem_Open_Click(object sender, RoutedEventArgs e)
+        {
+            
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            DialogResult result = dialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                string folderName = dialog.SelectedPath;
+                string dbPath = folderName + "\\data.db";
+                m_DBmanager = DBManager.GetSingleton(dbPath);
+                DirectoryInfo folder = new DirectoryInfo(folderName);
+                wordList = new List<SignWordModel>();
+                foreach (var item in folder.GetFiles("*.xed"))
+                {
+                    string fileName = item.Name;
+                    string[] s = fileName.Split();
+                    SignWordModel wordModel = new SignWordModel(s[0],s[1],item.FullName, fileName);
+                    wordList.Add(wordModel);
+                } 
+            }
+           
+        }
+
+        int signIndex = 0;
+        private void MenuItem_Run_Click(object sender, RoutedEventArgs e)
+        {
+            signIndex = 0;
+            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+            timer.Interval = 1000;
+            timer.Tick += timer_Tick;
+            timer.Start();
+
+        }
+        private void MenuItem_Test_Click(object sender, RoutedEventArgs e)
+        {
+
+            m_DBmanager.Test();
+
+        }
+
+       
+        void timer_Tick(object sender, EventArgs e)
+        {
+            //end
+            if (signIndex >= wordList.Count())
+            {
+                Console.WriteLine("finish");
+                ((System.Windows.Forms.Timer)sender).Stop();
+            }
+            if (!m_DBmanager.Begin)
+            {
+                //begin
+                Console.WriteLine("[{0}/{1} {2:P}] \nloading:{3}",
+                    signIndex,wordList.Count(),
+                    (float)signIndex/wordList.Count(),
+                    wordList[signIndex].File);
+                m_DBmanager.AddWordModel(wordList[signIndex]);
+                m_kinectStudioController.Open_File(wordList[signIndex].FullName);
+                m_kinectStudioController.Run();
+                m_DBmanager.Begin = true;
+                signIndex++;
+            }
+            else
+            {
+                //running
+                Console.WriteLine("waiting");
+            }
+        }
+
+ 
+
+
     }
 }
