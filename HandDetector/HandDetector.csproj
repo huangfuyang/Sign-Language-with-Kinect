@@ -119,6 +119,7 @@
     </ApplicationDefinition>
     <Compile Include="Colorizer.cs" />
     <Compile Include="DBManager.cs" />
+    <Compile Include="HandShapeClassifier.cs" />
     <Compile Include="HandShapeModel.cs" />
     <Compile Include="KalmanFilter.cs" />
     <Compile Include="KinectStudioController.cs" />

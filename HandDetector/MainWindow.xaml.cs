@@ -23,6 +23,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Threading;
 using System.Data.SQLite;
+using Emgu.CV.Structure;
 namespace CURELab.SignLanguage.HandDetector
 {
 
@@ -166,8 +167,8 @@ namespace CURELab.SignLanguage.HandDetector
             this.img_depth.Source = m_KinectController.DepthWriteBitmap;
             this.img_leftFront.Source = m_KinectController.WrtBMP_LeftHandFront;
             this.img_rightFront.Source = m_KinectController.WrtBMP_RightHandFront;
-            this.img_rightSide.Source = m_KinectController.WrtBMP_RightHandSide;
-            this.img_leftSide.Source = m_KinectController.WrtBMP_LeftHandSide;
+            this.img_rightSide.Source = m_KinectController.BI_RightHandRecognized;
+            this.img_leftSide.Source = m_KinectController.BI_LeftHandRecognized;
 
             m_KinectController.Start();
         }
@@ -183,6 +184,8 @@ namespace CURELab.SignLanguage.HandDetector
             this.img_depth.Source = m_KinectController.DepthWriteBitmap;
             this.img_leftFront.Source = m_KinectController.WrtBMP_LeftHandFront;
             this.img_rightFront.Source = m_KinectController.WrtBMP_RightHandFront;
+            this.img_rightSide.Source = m_KinectController.BI_RightHandRecognized;
+            this.img_leftSide.Source = m_KinectController.BI_LeftHandRecognized;
             m_KinectController.Start();
         }
 
@@ -278,8 +281,15 @@ namespace CURELab.SignLanguage.HandDetector
         }
         private void MenuItem_Test_Click(object sender, RoutedEventArgs e)
         {
-
-            m_DBmanager.Test();
+            HandShapeClassifier hsc = HandShapeClassifier.GetSingleton();
+            string path = @"C:\Users\Administrator\Desktop\handshapes\";
+            
+            for (int i = 0; i < 16; i++)
+            {
+                Image<Bgr, byte> image = new Image<Bgr, byte>(path + "handshape" + (i/4+1) + "-"+ (i%4+1)+".jpg");
+                hsc.RecognizeGesture(image);
+            }
+            //m_DBmanager.Test();
 
         }
 

@@ -32,13 +32,15 @@ namespace CURELab.SignLanguage.HandDetector
     {
         public static double CANNY_THRESH;
         public static double CANNY_CONNECT_THRESH;
-
+        public HOGDescriptor Hog_Descriptor;
 
         private static OpenCVController singletonInstance;
         private OpenCVController()
         {
             CANNY_THRESH = 10;
             CANNY_CONNECT_THRESH = 20;
+            Hog_Descriptor = new HOGDescriptor(new Size(60, 60), new Size(10, 10), new Size(5, 5), new Size(5, 5), 9, 1, -1, 0.2, false);
+
         }
 
         public static OpenCVController GetSingletonInstance()
@@ -87,36 +89,7 @@ namespace CURELab.SignLanguage.HandDetector
             Image<Gray, Byte> img = new Image<Gray, byte>(bmp);
             // DenseHistogram hist = new DenseHistogram(
         }
-        public Rectangle[] RecogBlob(Bitmap bmp)
-        {
-            Image<Bgra, Byte> openCVImg = new Image<Bgra, byte>(bmp);
-            Image<Gray, byte> gray_image = openCVImg.Convert<Gray, byte>();
-            Image<Gray, Byte> binaryImg = gray_image.ThresholdBinaryInv(new Gray(200), new Gray(255));
-            //Find contours with no holes try CV_RETR_EXTERNAL to find holes
-            Contour<System.Drawing.Point> contours = binaryImg.FindContours(
-             Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE,
-             Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_EXTERNAL);
-            //Contour<System.Drawing.Point> contours = cannyEdges.FindContours();
-            if (contours == null)
-            {
-                return null;
-            }
-            List<Rectangle> recList = new List<Rectangle>();
-            double max_area = 0;
-            for (int i = 0; contours != null; contours = contours.HNext)
-            {
-                if ((contours.Area > Math.Pow(25, 2)) && (contours.Area < Math.Pow(300, 2)))
-                {
-                    // Console.WriteLine(contours.Area);
-                    recList.Add(contours.GetMinAreaRect().MinAreaRect());
-                    //max_area = contours.Area;
-                    i++;
 
-                }
-            }
-
-            return recList.ToArray();
-        }
         public Bitmap Histogram(Image<Bgra, Byte> image)
         {
             Image<Gray, byte> gray_image = image.Convert<Gray, byte>();
@@ -203,15 +176,13 @@ namespace CURELab.SignLanguage.HandDetector
 
         #region Hand recognition
 
-        Image<Gray, Byte> binaryImg;
-        Image<Gray, Byte> grayImg;
-       
+
         private bool Intersect = false;
         int minSize = 1000;
         Point RightHandCenter = new Point();
         Point LeftHandCenter = new Point();
         int hogSize = 4356;
-
+        Image<Gray, Byte> grayImg;
         public unsafe HandShapeModel FindHandPart(
             ref Image<Bgra, Byte> image,
             out Image<Gray, Byte> rightFront,
@@ -221,31 +192,16 @@ namespace CURELab.SignLanguage.HandDetector
             rightFront = new Image<Gray, byte>(new Size(60, 60));
             leftFront = new Image<Gray, byte>(new Size(60, 60));
             HandShapeModel model = null;
-            Image<Gray, byte> gray_image = image.Convert<Gray, byte>();
-            grayImg = gray_image;
-            binaryImg = gray_image.ThresholdBinaryInv(new Gray(200), new Gray(255));
-            //Find contours with no holes try CV_RETR_EXTERNAL to find holes
-            IntPtr Dyncontour = new IntPtr();//存放检测到的图像块的首地址
-
-            IntPtr Dynstorage = CvInvoke.cvCreateMemStorage(0);
-            int n = CvInvoke.cvFindContours(binaryImg.Ptr, Dynstorage, ref Dyncontour, sizeof(MCvContour),
-                Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_EXTERNAL, Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE, new System.Drawing.Point(0, 0));
-            Seq<System.Drawing.Point> DyncontourTemp1 = new Seq<System.Drawing.Point>(Dyncontour, null);//方便对IntPtr类型进行操作
-            Seq<System.Drawing.Point> DyncontourTemp = DyncontourTemp1;
-            List<MCvBox2D> rectList = new List<MCvBox2D>();
-            for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt32() != 0; DyncontourTemp = DyncontourTemp.HNext)
+            //find contour
+            grayImg = image.Convert<Gray, byte>();
+            Image<Gray, Byte> binaryImg = GetBinaryImg(image);
+            List<MCvBox2D> rectList = FindContourMBox(binaryImg);
+            //draw contour
+            foreach (var rect in rectList)
             {
-                //iterate contours
-                if (DyncontourTemp.GetMinAreaRect().GetTrueArea() < minSize)
-                {
-                    continue;
-                }
-                //CvInvoke.cvDrawContours(image, DyncontourTemp, new MCvScalar(255, 255, 255), new MCvScalar(255, 255, 255), 10, 1, Emgu.CV.CvEnum.LINE_TYPE.FOUR_CONNECTED, new System.Drawing.Point(0, 0));
-                PointF[] rect1 = DyncontourTemp.GetMinAreaRect().GetVertices();
-                rectList.Add(DyncontourTemp.GetMinAreaRect());
-
-                DrawPoly(rect1.ToPoints(), image, new MCvScalar(255, 0, 0));
+                DrawPoly(rect.GetVertices().ToPoints(), image, new MCvScalar(255, 0, 0));
             }
+            // find hand
             rectList = rectList.OrderByDescending(x => x.GetTrueArea()).ToList();
             MCvBox2D rightHand;
             MCvBox2D leftHand;
@@ -254,7 +210,6 @@ namespace CURELab.SignLanguage.HandDetector
             // count hands number
             using (Graphics g = Graphics.FromImage(image.Bitmap))
             {
-                HOGDescriptor hog = new HOGDescriptor(new Size(60, 60), new Size(10, 10), new Size(5, 5), new Size(5, 5),9,1,-1,0.2,false);
                 // 3 conditions in total
                 if (rectList.Count() >= 2)//two hands
                 {
@@ -270,17 +225,15 @@ namespace CURELab.SignLanguage.HandDetector
                     }
                     // mark intersect state
                     Intersect = rightHand.MinAreaRect().IsCloseTo(leftHand.MinAreaRect(), 5);
-                   
-
                     //right hand
                     Point[] SplittedRightHand = SplitHand(rightHand, HandEnum.Right);
                     rightFront = GetSubImage<Gray>(binaryImg, SplittedRightHand, rightHand.angle);
-                    float[] rightHog = hog.Compute(rightFront.Convert<Bgr,byte>(), new  Size(1, 1), new Size(0, 0),null);
+                    float[] rightHog = CalHog(binaryImg);
                     DrawHand(SplittedRightHand, image, HandEnum.Right);
                     //left hand
                     Point[] SplittedLeftHand = SplitHand(leftHand, HandEnum.Left);
                     leftFront = GetSubImage<Gray>(binaryImg, SplittedLeftHand, leftHand.angle);
-                    float[] leftHog = hog.Compute(leftFront.Convert<Bgr,byte>(), new  Size(1, 1), new Size(0, 0),null);
+                    float[] leftHog = CalHog(binaryImg);
                     DrawHand(SplittedLeftHand, image, HandEnum.Left);
                     g.DrawString("left and right", textFont, Brushes.Red, 0, 20);
 
@@ -292,7 +245,7 @@ namespace CURELab.SignLanguage.HandDetector
                 {
                     string text = "";
                     leftFront = null;
-                    
+
 
                     if (Intersect)
                     {
@@ -300,7 +253,7 @@ namespace CURELab.SignLanguage.HandDetector
                         Point[] SplittedHand = SplitHand(rectList[0], HandEnum.Intersect);
                         rightFront = GetSubImage<Gray>(binaryImg, SplittedHand, rectList[0].angle);
                         DrawHand(SplittedHand, image, HandEnum.Intersect);
-                        float[] TwoHandHOG = hog.Compute(rightFront.Convert<Bgr, byte>(), new Size(1, 1), new Size(0, 0), null);
+                        float[] TwoHandHOG = CalHog(binaryImg);
                         model = new HandShapeModel(hogSize, HandEnum.Intersect);
                         model.hogRight = TwoHandHOG;
                     }
@@ -310,7 +263,7 @@ namespace CURELab.SignLanguage.HandDetector
                         Point[] SplittedRightHand = SplitHand(rectList[0], HandEnum.Right);
                         rightFront = GetSubImage<Gray>(binaryImg, SplittedRightHand, rectList[0].angle);
                         DrawHand(SplittedRightHand, image, HandEnum.Right);
-                        float[] TwoHandHOG = hog.Compute(rightFront.Convert<Bgr, byte>(), new Size(1, 1), new Size(0, 0), null);
+                        float[] TwoHandHOG = CalHog(binaryImg);
                         model = new HandShapeModel(hogSize, HandEnum.Right);
                         model.hogRight = TwoHandHOG;
                     }
@@ -323,7 +276,87 @@ namespace CURELab.SignLanguage.HandDetector
             return model;
         }
 
-        private Image<T, Byte> GetSubImage<T>(Image<T, Byte> image, Point[] p, float angle) where T:struct, IColor
+        public float[] CalHog(Image<Bgr, byte> image)
+        {
+            Image<Gray, byte> binaryImg = GetBinaryImg(image);
+            List<Rectangle> rectList = FindContourRect(binaryImg);
+            rectList = rectList.OrderByDescending(x => x.GetRectArea()).ToList();
+            if (rectList.Count() >= 1)
+            {
+                Rectangle rect = rectList[0];
+                Image<Gray, byte> s_image = binaryImg.Copy(rect);
+                s_image = s_image.Resize(60, 60, Emgu.CV.CvEnum.INTER.CV_INTER_LINEAR);
+                image = s_image.Convert<Bgr, byte>();
+                return Hog_Descriptor.Compute(image, new Size(1, 1), new Size(0, 0), null);
+
+            }
+            return null;
+        }
+
+        public float[] CalHog(Image<Gray, byte> image)
+        {
+            return CalHog(image.Convert<Bgr, byte>());
+        }
+
+        public Image<Gray, byte> GetBinaryImg(Image<Bgr, byte> image)
+        {
+            return image.Convert<Gray, byte>().ThresholdBinaryInv
+                (new Gray(200), new Gray(255));
+        }
+
+        public Image<Gray, byte> GetBinaryImg(Image<Bgra, byte> image)
+        {
+            return image.Convert<Gray, byte>().ThresholdBinaryInv
+                (new Gray(200), new Gray(255));
+        }
+
+        private unsafe List<Rectangle> FindContourRect(Image<Gray, byte> image)
+        {
+            Seq<System.Drawing.Point> DyncontourTemp = FindContourSeq(image);
+            List<Rectangle> rectList = new List<Rectangle>();
+            for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt32() != 0; DyncontourTemp = DyncontourTemp.HNext)
+            {
+                //iterate contours
+                if (DyncontourTemp.GetMinAreaRect().GetTrueArea() < minSize)
+                {
+                    continue;
+                }
+                rectList.Add(DyncontourTemp.BoundingRectangle);
+            }
+            return rectList;
+        }
+
+        private unsafe List<MCvBox2D> FindContourMBox(Image<Gray, byte> image)
+        {
+            Seq<System.Drawing.Point> DyncontourTemp = FindContourSeq(image);
+            List<MCvBox2D> rectList = new List<MCvBox2D>();
+            for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt32() != 0; DyncontourTemp = DyncontourTemp.HNext)
+            {
+                //iterate contours
+                if (DyncontourTemp.GetMinAreaRect().GetTrueArea() < minSize)
+                {
+                    continue;
+                }
+                rectList.Add(DyncontourTemp.GetMinAreaRect());
+            }
+            return rectList;
+        }
+
+        private unsafe Seq<System.Drawing.Point> FindContourSeq(Image<Gray, byte> image)
+        {
+            //Find contours with no holes try CV_RETR_EXTERNAL to find holes
+            IntPtr Dyncontour = new IntPtr();//存放检测到的图像块的首地址
+            IntPtr Dynstorage = CvInvoke.cvCreateMemStorage(0);
+            int n = CvInvoke.cvFindContours(image.Ptr, Dynstorage, ref Dyncontour, sizeof(MCvContour),
+                Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_EXTERNAL, Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE, new System.Drawing.Point(0, 0));
+            Seq<System.Drawing.Point> DyncontourTemp1 = new Seq<System.Drawing.Point>(Dyncontour, null);//方便对IntPtr类型进行操作
+            Seq<System.Drawing.Point> DyncontourTemp = DyncontourTemp1;
+            return DyncontourTemp;
+        }
+
+
+
+        private Image<T, Byte> GetSubImage<T>(Image<T, Byte> image, Point[] p, float angle) where T : struct, IColor
         {
 
             if (p == null)

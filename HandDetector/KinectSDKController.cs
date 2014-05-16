@@ -65,7 +65,6 @@ namespace CURELab.SignLanguage.HandDetector
             : base()
         {
             KinectSensor.KinectSensors.StatusChanged += Kinect_StatusChanged;
-            ConsoleManager.Show();
         }
 
         public static KinectController GetSingletonInstance()
@@ -92,6 +91,8 @@ namespace CURELab.SignLanguage.HandDetector
                 }
             }
 
+            ConsoleManager.Show();
+
             if (null != this.sensor)
             {
                 // Turn on the color stream to receive color frames
@@ -108,18 +109,14 @@ namespace CURELab.SignLanguage.HandDetector
                 this.DepthWriteBitmap = new WriteableBitmap(this.sensor.DepthStream.FrameWidth, this.sensor.DepthStream.FrameHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgr32, null);
                 this.WrtBMP_RightHandFront = new WriteableBitmap(handShapeWidth, handShapeHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
                 this.WrtBMP_LeftHandFront = new WriteableBitmap(handShapeWidth, handShapeHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
-
-
                 // Add an event handler to be called whenever there is new frame data
                 this.sensor.AllFramesReady += this.AllFrameReady;
                 this.Status = Properties.Resources.Connected;
 
                 this.colorizer = new Colorizer();
-
+                rightHandPosition = new System.Drawing.Point();
             }
 
-            rightHandPosition = new System.Drawing.Point();
-            //ConsoleManager.Show();
             if (null == this.sensor)
             {
                 this.Status = Properties.Resources.NoKinectReady;
@@ -306,6 +303,8 @@ namespace CURELab.SignLanguage.HandDetector
         {
            
         }
+
+       
 
         private System.Drawing.Point SkeletonPointToScreen(SkeletonPoint skelpoint)
         {
