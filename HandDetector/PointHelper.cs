@@ -48,7 +48,14 @@ namespace CURELab.SignLanguage.HandDetector
 
 
 
-
+        public static Rectangle GetBoundingRectangle(this Point[] ps)
+        {
+            int x = ps.Min(a => a.X);
+            int y = ps.Min(a => a.Y);
+            int width = ps.Max(a => a.X) - x;
+            int height = ps.Max(a => a.Y) - y;
+            return new Rectangle(x, y, width, height);
+        }
 
 
         public static System.Drawing.Point ToPoint(this PointF p)

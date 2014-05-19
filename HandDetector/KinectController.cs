@@ -57,8 +57,8 @@ namespace CURELab.SignLanguage.HandDetector
 
         public WriteableBitmap WrtBMP_RightHandFront { get; set; }
         public WriteableBitmap WrtBMP_LeftHandFront { get; set; }
-        public BitmapImage BI_RightHandRecognized { get; set; }
-        public BitmapImage BI_LeftHandRecognized { get; set; }
+        public WriteableBitmap BI_RightHandRecognized { get; set; }
+        public WriteableBitmap BI_LeftHandRecognized { get; set; }
         public WriteableBitmap WrtBMP_RightHandSide { get; set; }
         public WriteableBitmap WrtBMP_LeftHandSide { get; set; }
 

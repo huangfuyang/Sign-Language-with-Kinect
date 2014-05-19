@@ -13,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Media.Imaging;
- using Emgu.CV;
+using Emgu.CV;
 using Emgu.CV.Structure;
 
 namespace CURELab.SignLanguage.HandDetector
@@ -60,7 +60,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         }
 
-        public static Image<Bgra, byte> Array2Image(byte[] data,int width,int height,int stride)
+        public static Image<Bgra, byte> Array2Image(byte[] data, int width, int height, int stride)
         {
             unsafe
             {
@@ -100,16 +100,30 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
+        public static BitmapSource ToBitmapSource(this Bitmap bmp)
+        {
+
+            BitmapSource bitmapSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap
+               (
+                   bmp.GetHbitmap(),
+                   IntPtr.Zero,
+                   Int32Rect.Empty,
+                   BitmapSizeOptions.FromEmptyOptions()
+               );
+
+            return bitmapSource;
+        }
+
         public static byte[] ToByteArray(this float[] array)
         {
-            byte[] byteArray = new byte[array.Length*sizeof(float)];
+            byte[] byteArray = new byte[array.Length * sizeof(float)];
             for (int i = 0; i < array.Length; i++)
             {
-                BitConverter.GetBytes(array[i]).CopyTo(byteArray,i*sizeof(float));
+                BitConverter.GetBytes(array[i]).CopyTo(byteArray, i * sizeof(float));
             }
             return byteArray;
         }
 
- 
+
     }
 }

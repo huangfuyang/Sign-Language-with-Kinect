@@ -71,6 +71,7 @@ namespace CURELab.SignLanguage.HandDetector
 
             //  Menu_ONI_Click(this, e);
             Menu_Kinect_Click(this, e);
+            //MenuItem_Test_Click(this, e);
         }
 
         private unsafe void RegisterThreshold(string valuename, ref double thresh, double max, double initialValue)
@@ -284,10 +285,10 @@ namespace CURELab.SignLanguage.HandDetector
             HandShapeClassifier hsc = HandShapeClassifier.GetSingleton();
             string path = @"C:\Users\Administrator\Desktop\handshapes\";
             
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < 5; i++)
             {
                 Image<Bgr, byte> image = new Image<Bgr, byte>(path + "handshape" + (i/4+1) + "-"+ (i%4+1)+".jpg");
-                hsc.RecognizeGesture(image);
+                this.img_rightSide.Source = hsc.RecognizeGesture(image).ToBitmap().ToBitmapSource();
             }
             //m_DBmanager.Test();
 

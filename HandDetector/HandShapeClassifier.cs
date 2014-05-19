@@ -51,7 +51,7 @@ namespace CURELab.SignLanguage.HandDetector
             for (int i = 0; i < templateImages.Length; i++)
             {
                 templateImages[i] = new Image<Bgr, byte>(path + "handshape" + (i+1) + "-1.jpg");
-                templateHOGs[i] = m_OpenCVController.CalHog(templateImages[i]);
+                templateHOGs[i] = m_OpenCVController.ResizeAndCalHog(ref templateImages[i]);
             }
 
         }
@@ -59,6 +59,10 @@ namespace CURELab.SignLanguage.HandDetector
         private float GetDistance(float[] v1, float[] v2)
         {
             float sum = 0;
+            if (v1 == null)
+            {
+                return float.MaxValue;
+            }
             for (int i = 0; i < v1.Length; i++)
             {
                 float diff = v1[i] - v2[i];
@@ -70,19 +74,32 @@ namespace CURELab.SignLanguage.HandDetector
         }
         public Image<Bgr, byte> RecognizeGesture(Image<Bgr, byte> image)
         {
-            float[] hog = m_OpenCVController.CalHog(image);
+            float[] hog = m_OpenCVController.ResizeAndCalHog(ref image);
+            return RecognizeGesture(hog);
+        }
+
+        public Image<Bgr, byte> RecognizeGesture(float[] hog)
+        {
+            if (hog == null)
+            {
+                return null;
+            }
             float min = float.MaxValue;
             int index = -1;
             for (int i = 0; i < templateHOGs.Length; i++)
             {
-                float dis = GetDistance(hog,templateHOGs[i]);
-                if (dis<min)
+                float dis = GetDistance(hog, templateHOGs[i]);
+                if (dis < min)
                 {
                     min = dis;
                     index = i;
                 }
             }
-            Console.WriteLine(index);
+            Console.Write(index);
+            if (index == -1)
+            {
+                return null;
+            }
             return templateImages[index];
         }
     }

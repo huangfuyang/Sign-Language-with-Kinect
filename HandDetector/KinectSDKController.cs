@@ -109,6 +109,7 @@ namespace CURELab.SignLanguage.HandDetector
                 this.DepthWriteBitmap = new WriteableBitmap(this.sensor.DepthStream.FrameWidth, this.sensor.DepthStream.FrameHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgr32, null);
                 this.WrtBMP_RightHandFront = new WriteableBitmap(handShapeWidth, handShapeHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
                 this.WrtBMP_LeftHandFront = new WriteableBitmap(handShapeWidth, handShapeHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
+                BI_RightHandRecognized = new WriteableBitmap(handShapeWidth, handShapeHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
                 // Add an event handler to be called whenever there is new frame data
                 this.sensor.AllFramesReady += this.AllFrameReady;
                 this.Status = Properties.Resources.Connected;
@@ -249,10 +250,18 @@ namespace CURELab.SignLanguage.HandDetector
                     Image<Gray, Byte> leftFront;
                     depthImg = ImageConverter.Array2Image(colorPixels, width, height, width * 4);
                     HandShapeModel handModel = m_OpenCVController.FindHandPart(ref depthImg,out rightFront, out leftFront);
+                   
+                    
                     // no hands detected
                     if (handModel == null)
                     {
                         handModel = new HandShapeModel(0, HandEnum.None);
+                    }
+                    Image<Bgr, byte> result = HandShapeClassifier.GetSingleton()
+                       .RecognizeGesture(handModel.hogRight);
+                    if (result != null)
+                    {
+                        ImageConverter.UpdateWriteBMP(BI_RightHandRecognized, result.Convert<Gray, byte>().ToBitmap());
                     }
                     // database processing
                     DBManager db = DBManager.GetSingleton();
