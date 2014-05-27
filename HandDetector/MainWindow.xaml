@@ -28,18 +28,22 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
             <Viewbox Grid.Row="0" Grid.Column="0" Stretch="Uniform" HorizontalAlignment="Center">
                 <Image Name="img_leftFront" Width="60" Height="60" Margin="10,10,10,10"/>
             </Viewbox>
-            <Viewbox Grid.Row="0" Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Center">
+            <Viewbox Grid.Row="0" Grid.Column="2" Stretch="Uniform" HorizontalAlignment="Center">
                 <Image Name="img_rightFront" Width="60" Height="60" Margin="10,10,10,10"/>
             </Viewbox>
             <Viewbox Grid.Row="1" Grid.Column="0" Stretch="Uniform" HorizontalAlignment="Center">
-                <Image Name="img_leftSide" Width="60" Height="60" Margin="10,10,10,10"/>
+                <Image Name="img_candidate1" Width="60" Height="60" Margin="10,10,10,10"/>
             </Viewbox>
             <Viewbox Grid.Row="1" Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Center">
-                <Image Name="img_rightSide" Width="60" Height="60" Margin="10,10,10,10"/>
+                <Image Name="img_candidate2" Width="60" Height="60" Margin="10,10,10,10"/>
+            </Viewbox>
+            <Viewbox Grid.Row="1" Grid.Column="2" Stretch="Uniform" HorizontalAlignment="Center">
+                <Image Name="img_candidate3" Width="60" Height="60" Margin="10,10,10,10"/>
             </Viewbox>
         </Grid>
        

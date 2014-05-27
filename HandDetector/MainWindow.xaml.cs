@@ -54,6 +54,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             InitializeComponent();
             m_kinectStudioController = KinectStudioController.GetSingleton();
+            HandShapeClassifier.GetSingleton();
         }
 
 
@@ -66,7 +67,7 @@ namespace CURELab.SignLanguage.HandDetector
             RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
             RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
             RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
-            RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 30);
+            RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 10);
 
 
             //  Menu_ONI_Click(this, e);
@@ -168,8 +169,9 @@ namespace CURELab.SignLanguage.HandDetector
             this.img_depth.Source = m_KinectController.DepthWriteBitmap;
             this.img_leftFront.Source = m_KinectController.WrtBMP_LeftHandFront;
             this.img_rightFront.Source = m_KinectController.WrtBMP_RightHandFront;
-            this.img_rightSide.Source = m_KinectController.BI_RightHandRecognized;
-            this.img_leftSide.Source = m_KinectController.BI_LeftHandRecognized;
+            this.img_candidate3.Source = m_KinectController.WrtBMP_Candidate3;
+            this.img_candidate2.Source = m_KinectController.WrtBMP_Candidate2;
+            this.img_candidate1.Source = m_KinectController.WrtBMP_Candidate1;
 
             m_KinectController.Start();
         }
@@ -185,8 +187,8 @@ namespace CURELab.SignLanguage.HandDetector
             this.img_depth.Source = m_KinectController.DepthWriteBitmap;
             this.img_leftFront.Source = m_KinectController.WrtBMP_LeftHandFront;
             this.img_rightFront.Source = m_KinectController.WrtBMP_RightHandFront;
-            this.img_rightSide.Source = m_KinectController.BI_RightHandRecognized;
-            this.img_leftSide.Source = m_KinectController.BI_LeftHandRecognized;
+            this.img_candidate2.Source = m_KinectController.WrtBMP_Candidate2;
+            this.img_candidate1.Source = m_KinectController.WrtBMP_Candidate1;
             m_KinectController.Start();
         }
 
@@ -288,7 +290,7 @@ namespace CURELab.SignLanguage.HandDetector
             for (int i = 0; i < 5; i++)
             {
                 Image<Bgr, byte> image = new Image<Bgr, byte>(path + "handshape" + (i/4+1) + "-"+ (i%4+1)+".jpg");
-                this.img_rightSide.Source = hsc.RecognizeGesture(image).ToBitmap().ToBitmapSource();
+                this.img_candidate1.Source = hsc.RecognizeGesture(image,1)[0].ToBitmap().ToBitmapSource();
             }
             //m_DBmanager.Test();
 

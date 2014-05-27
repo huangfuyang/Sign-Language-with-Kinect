@@ -9,6 +9,7 @@ using Emgu.CV;
 using Emgu.CV.Structure;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace CURELab.SignLanguage.HandDetector
         private HandShapeClassifier()
         {
             m_OpenCVController = OpenCVController.GetSingletonInstance();
-            InitializeAllGesture();
+            InitializeAllGestureFromData();
         }
 
         public static HandShapeClassifier GetSingleton()
@@ -40,18 +41,40 @@ namespace CURELab.SignLanguage.HandDetector
             return singleton;
         }
 
-        float[][] templateHOGs;
-        Image<Bgr, byte>[] templateImages;
+        List<float[]> templateHOGs;
+        List<Image<Bgr, byte>> templateImages;
 
-        private void InitializeAllGesture()
+        private void InitializeAllGestureFromImage()
         {
-            templateImages = new Image<Bgr, byte>[4];
-            string path = @"C:\Users\Administrator\Desktop\handshapes\";
-            templateHOGs = new float[4][];
-            for (int i = 0; i < templateImages.Length; i++)
+            //templateImages = new Image<Bgr, byte>[4];
+            //string path = @"C:\Users\Administrator\Desktop\handshapes\";
+            //templateHOGs = new float[4][];
+            //for (int i = 0; i < templateImages.Length; i++)
+            //{
+            //    templateImages[i] = new Image<Bgr, byte>(path + "handshape" + (i + 1) + "-1.jpg");
+            //    templateHOGs[i] = m_OpenCVController.ResizeAndCalHog(ref templateImages[i]);
+            //}
+
+        }
+
+        private void InitializeAllGestureFromData()
+        {
+            StreamReader sr = File.OpenText(@"C:\Users\Administrator\Desktop\handshapes\standart hands\out_resized5\hog_template5.txt");
+            templateHOGs = new List<float[]>();
+            templateImages = new List<Image<Bgr, byte>>();
+            string path = @"C:\Users\Administrator\Desktop\handshapes\standart hands\out_resized5\";
+
+            string line = sr.ReadLine();
+            int i = 0;
+            while (!String.IsNullOrEmpty(line))
             {
-                templateImages[i] = new Image<Bgr, byte>(path + "handshape" + (i+1) + "-1.jpg");
-                templateHOGs[i] = m_OpenCVController.ResizeAndCalHog(ref templateImages[i]);
+                string[] cell = line.Substring(0,line.Length-1).Split(' ');
+                templateHOGs.Add(cell.Select(x => Convert.ToSingle(x)).ToArray());
+                string temppath = path + ((i / 5) + 1) + "_" + (i % 5 +1) + ".jpg";
+                Console.WriteLine(temppath);
+                templateImages.Add(new Image<Bgr, byte>(temppath));
+                line = sr.ReadLine();
+                i++;
             }
 
         }
@@ -72,35 +95,43 @@ namespace CURELab.SignLanguage.HandDetector
             sum /= v1.Length;
             return sum;
         }
-        public Image<Bgr, byte> RecognizeGesture(Image<Bgr, byte> image)
+        public Image<Bgr, byte>[] RecognizeGesture(Image<Bgr, byte> image,int number)
         {
             float[] hog = m_OpenCVController.ResizeAndCalHog(ref image);
-            return RecognizeGesture(hog);
+            return RecognizeGesture(hog,number);
+        }
+        struct pair
+        {
+            public int index;
+            public float value;
         }
 
-        public Image<Bgr, byte> RecognizeGesture(float[] hog)
+        /// <summary>
+        /// recognize gesture.
+        /// </summary>
+        /// <param name="hog"></param>
+        /// <param name="number">number of top similarity images </param>
+        /// <returns></returns>
+        public Image<Bgr, byte>[] RecognizeGesture(float[] hog, int number)
         {
             if (hog == null)
             {
                 return null;
             }
-            float min = float.MaxValue;
-            int index = -1;
-            for (int i = 0; i < templateHOGs.Length; i++)
+            List<pair> result = new List<pair>();
+            for (int i = 0; i < templateHOGs.Count(); i++)
             {
                 float dis = GetDistance(hog, templateHOGs[i]);
-                if (dis < min)
-                {
-                    min = dis;
-                    index = i;
-                }
+                result.Add(new pair(){index = i,value = dis});
             }
-            Console.Write(index);
-            if (index == -1)
-            {
-                return null;
-            }
-            return templateImages[index];
+            pair[] p = result.OrderBy(x => x.value).Take(number).ToArray();
+            Console.WriteLine(Math.Sqrt(p[0].value));
+            Console.WriteLine(Math.Sqrt(p[1].value));
+            Console.WriteLine(Math.Sqrt(p[2].value));
+            Console.WriteLine("-------------");
+            Image<Bgr, byte>[] imgArray = p.Select(x=>templateImages[x.index]).ToArray();
+
+            return imgArray;
         }
     }
 }

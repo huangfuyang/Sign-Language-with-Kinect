@@ -55,7 +55,7 @@ namespace CURELab.SignLanguage.HandDetector
         private System.Drawing.Point rightHandPosition;
         private System.Drawing.Point headPosition;
 
-        public static double CullingThresh = 30;
+        public static double CullingThresh = 10;
         public const float AngleRotateTan = 0.3f;
 
         const int handShapeWidth = 60;
@@ -99,6 +99,8 @@ namespace CURELab.SignLanguage.HandDetector
                 this.sensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
                 this.sensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
                 this.sensor.SkeletonStream.Enable();
+                this.sensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
+                //this.sensor.DepthStream.Range = DepthRange.Near;
                 // Allocate space to put the pixels we'll receive           
                 this.colorPixels = new byte[this.sensor.ColorStream.FramePixelDataLength];
                 // Allocate space to put the depth pixels we'll receive
@@ -109,7 +111,9 @@ namespace CURELab.SignLanguage.HandDetector
                 this.DepthWriteBitmap = new WriteableBitmap(this.sensor.DepthStream.FrameWidth, this.sensor.DepthStream.FrameHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgr32, null);
                 this.WrtBMP_RightHandFront = new WriteableBitmap(handShapeWidth, handShapeHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
                 this.WrtBMP_LeftHandFront = new WriteableBitmap(handShapeWidth, handShapeHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
-                BI_RightHandRecognized = new WriteableBitmap(handShapeWidth, handShapeHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
+                WrtBMP_Candidate1 = new WriteableBitmap(handShapeWidth, handShapeHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
+                WrtBMP_Candidate2 = new WriteableBitmap(handShapeWidth, handShapeHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
+                WrtBMP_Candidate3 = new WriteableBitmap(handShapeWidth, handShapeHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
                 // Add an event handler to be called whenever there is new frame data
                 this.sensor.AllFramesReady += this.AllFrameReady;
                 this.Status = Properties.Resources.Connected;
@@ -249,7 +253,7 @@ namespace CURELab.SignLanguage.HandDetector
                     Image<Gray, Byte> rightFront;
                     Image<Gray, Byte> leftFront;
                     depthImg = ImageConverter.Array2Image(colorPixels, width, height, width * 4);
-                    HandShapeModel handModel = m_OpenCVController.FindHandPart(ref depthImg,out rightFront, out leftFront);
+                    HandShapeModel handModel = m_OpenCVController.FindHandPart(ref depthImg, out rightFront, out leftFront, headDepth - (int)CullingThresh);
                    
                     
                     // no hands detected
@@ -257,11 +261,15 @@ namespace CURELab.SignLanguage.HandDetector
                     {
                         handModel = new HandShapeModel(0, HandEnum.None);
                     }
-                    Image<Bgr, byte> result = HandShapeClassifier.GetSingleton()
-                       .RecognizeGesture(handModel.hogRight);
+                    sw.Restart();
+                    Image<Bgr, byte>[] result = HandShapeClassifier.GetSingleton()
+                       .RecognizeGesture(handModel.hogRight, 3);
+                    //Console.WriteLine(sw.ElapsedMilliseconds);
                     if (result != null)
                     {
-                        ImageConverter.UpdateWriteBMP(BI_RightHandRecognized, result.Convert<Gray, byte>().ToBitmap());
+                        ImageConverter.UpdateWriteBMP(WrtBMP_Candidate1, result[0].Convert<Gray, byte>().ToBitmap());
+                        ImageConverter.UpdateWriteBMP(WrtBMP_Candidate2, result[1].Convert<Gray, byte>().ToBitmap());
+                        ImageConverter.UpdateWriteBMP(WrtBMP_Candidate3, result[2].Convert<Gray, byte>().ToBitmap());
                     }
                     // database processing
                     DBManager db = DBManager.GetSingleton();

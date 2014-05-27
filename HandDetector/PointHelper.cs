@@ -112,6 +112,15 @@ namespace CURELab.SignLanguage.HandDetector
         
         }
 
+        public static float TanWith(this Point p1, Point p2)
+        {
+            if (p1.X - p2.X == 0)
+            {
+                return float.MaxValue;
+            }
+            float result = (float)Math.Abs(p1.Y - p2.Y) / Math.Abs(p1.X - p2.X);
+            return result;
+        }
 
 
     }
