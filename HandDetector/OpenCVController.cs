@@ -52,38 +52,7 @@ namespace CURELab.SignLanguage.HandDetector
             return singletonInstance;
         }
 
-        public Rectangle RecogBlob(PointF pos, int radius, Bitmap bmp)
-        {
-            Image<Bgr, Byte> openCVImg = new Image<Bgr, byte>(bmp);
-            openCVImg.ROI = new Rectangle((int)pos.X - radius, (int)pos.Y - radius, radius * 2, radius * 2);
-            Image<Gray, byte> gray_image = openCVImg.Convert<Gray, byte>().PyrDown().PyrUp();
-            Image<Gray, Byte> cannyEdges = openCVImg.Canny(CANNY_THRESH, CANNY_CONNECT_THRESH);
-            using (MemStorage stor = new MemStorage())
-            {
-                //Find contours with no holes try CV_RETR_EXTERNAL to find holes
-                Contour<System.Drawing.Point> contours = cannyEdges.FindContours(
-                 Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE,
-                 Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_LIST);
-                //Contour<System.Drawing.Point> contours = cannyEdges.FindContours();
-                Rectangle rtn_rec = new Rectangle(0, 0, 0, 0);
-                double max_area = 0;
-                for (int i = 0; contours != null; contours = contours.HNext)
-                {
-                    i++;
-                    if ((contours.Area > Math.Pow(10, 2)) && (contours.Area < Math.Pow(radius * 2, 2)) && contours.Area > max_area)
-                    {
-                        // Console.WriteLine(contours.Area);
-                        rtn_rec = contours.GetMinAreaRect().MinAreaRect();
-                        max_area = contours.Area;
-                    }
-                }
-                rtn_rec.X += (int)pos.X - radius;
-                rtn_rec.Y += (int)pos.Y - radius;
-                return rtn_rec;
-
-            }
-
-        }
+      
         public void CalHistogram(Bitmap bmp)
         {
             Image<Gray, Byte> img = new Image<Gray, byte>(bmp);
@@ -178,7 +147,8 @@ namespace CURELab.SignLanguage.HandDetector
 
 
         private bool Intersect = false;
-        int minSize = 1000;
+        int minSize = 1200;
+        int maxSize = 40000;
         Point RightHandCenter = new Point();
         Point LeftHandCenter = new Point();
         int hogSize = 4356;
@@ -187,10 +157,14 @@ namespace CURELab.SignLanguage.HandDetector
             ref Image<Bgra, Byte> image,
             out Image<Gray, Byte> rightFront,
             out Image<Gray, Byte> leftFront,
-            int handDepth
+            int handDepth,
+            PointF rightVector,
+            PointF leftVector,
+            bool leftHandRaise
        )
         {
             //process hand size
+            handDepth -= 100;
             if (handDepth > 0)
             {
                 begin = (int)(100.0 * 240.0 / handDepth / 0.39);
@@ -207,8 +181,8 @@ namespace CURELab.SignLanguage.HandDetector
             //Console.WriteLine(begin);
             //Console.WriteLine(end);
             //Console.WriteLine(minLength);
-            rightFront = new Image<Gray, byte>(new Size(60, 60));
-            leftFront = new Image<Gray, byte>(new Size(60, 60));
+            rightFront = null;
+            leftFront = null;
             HandShapeModel model = null;
             //find contour
             grayImg = image.Convert<Gray, byte>();
@@ -244,12 +218,12 @@ namespace CURELab.SignLanguage.HandDetector
                     // mark intersect state
                     Intersect = rightHand.MinAreaRect().IsCloseTo(leftHand.MinAreaRect(), 5);
                     //right hand
-                    Point[] SplittedRightHand = SplitHand(rightHand, HandEnum.Right);
+                    MCvBox2D SplittedRightHand = SplitHand(rightHand, HandEnum.Right, rightVector);
                     rightFront = GetSubImage<Gray>(binaryImg, SplittedRightHand, rightHand.angle);
                     float[] rightHog = CalHog(rightFront);
                     DrawHand(SplittedRightHand, image, HandEnum.Right);
                     //left hand
-                    Point[] SplittedLeftHand = SplitHand(leftHand, HandEnum.Left);
+                    MCvBox2D SplittedLeftHand = SplitHand(leftHand, HandEnum.Left, leftVector);
                     leftFront = GetSubImage<Gray>(binaryImg, SplittedLeftHand, leftHand.angle);
                     float[] leftHog = CalHog(leftFront);
                     DrawHand(SplittedLeftHand, image, HandEnum.Left);
@@ -265,12 +239,12 @@ namespace CURELab.SignLanguage.HandDetector
                     leftFront = null;
 
 
-                    if (Intersect)
+                    if (leftHandRaise || Intersect)
                     {
+
                         text = "Two hands";
-                        //Point[] SplittedHand = SplitHand(rectList[0], HandEnum.Intersect);
-                        Point[] SplittedHand = SplitHand(rectList[0], HandEnum.Right);
-                        rightFront = GetSubImage<Gray>(binaryImg, SplittedHand, rectList[0].angle);
+                        MCvBox2D SplittedHand = SplitHand(rectList[0], HandEnum.Intersect, rightVector);
+                        rightFront = GetSubImageByRect<Gray>(binaryImg, SplittedHand.MinAreaRect());
                         DrawHand(SplittedHand, image, HandEnum.Intersect);
                         float[] TwoHandHOG = CalHog(rightFront);
                         model = new HandShapeModel(hogSize, HandEnum.Intersect);
@@ -279,7 +253,8 @@ namespace CURELab.SignLanguage.HandDetector
                     else
                     {
                         text = "right";
-                        Point[] SplittedRightHand = SplitHand(rectList[0], HandEnum.Right);
+                        MCvBox2D SplittedRightHand = SplitHand(rectList[0], HandEnum.Right, rightVector);
+
                         rightFront = GetSubImage<Gray>(binaryImg, SplittedRightHand, rectList[0].angle);
                         DrawHand(SplittedRightHand, image, HandEnum.Right);
                         float[] TwoHandHOG = CalHog(rightFront);
@@ -288,6 +263,10 @@ namespace CURELab.SignLanguage.HandDetector
                     }
                     g.DrawString(text, textFont, Brushes.Red, 0, 20);
 
+                }
+                else // no hand detected
+                {
+                    Intersect = false;
                 }
             }
 
@@ -388,11 +367,16 @@ namespace CURELab.SignLanguage.HandDetector
             for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt32() != 0; DyncontourTemp = DyncontourTemp.HNext)
             {
                 //iterate contours
-                if (DyncontourTemp.GetMinAreaRect().GetTrueArea() < minSize)
+                if (DyncontourTemp.GetMinAreaRect().GetTrueArea() < minSize
+                    || DyncontourTemp.GetMinAreaRect().GetTrueArea() > maxSize)
                 {
                     continue;
                 }
                 rectList.Add(DyncontourTemp.GetMinAreaRect());
+            }
+            if (rectList.Count() >= 3)
+            {
+                rectList = rectList.OrderBy(x => x.center.Y).Take(2).ToList();
             }
             return rectList;
         }
@@ -411,27 +395,26 @@ namespace CURELab.SignLanguage.HandDetector
 
 
 
-        private Image<T, Byte> GetSubImage<T>(Image<T, Byte> image, Point[] p, float angle) where T : struct, IColor
+        private Image<T, Byte> GetSubImage<T>(Image<T, Byte> image, MCvBox2D box, float angle) where T : struct, IColor
         {
 
-            if (p == null)
+            if (box.Equals(MCvBox2D.Empty))
             {
                 return null;
             }
             // ensure the low most side being horizontal. 
             // angle is between the horizontal axis and the first side (i.e. width) in degrees
-            if (angle < -45)
-            {
-                angle += 90;
-            }
-            Point lowP = p.OrderByDescending(x => x.Y).First();
-            Point highP = p.OrderByDescending(x => x.DistanceTo(lowP)).First();
-            Point widthP = p.OrderBy(x => x.TanWith(lowP)).First();
-            SizeF size = new SizeF(lowP.DistanceTo(widthP), highP.DistanceTo(widthP));
-            MCvBox2D box = new MCvBox2D(p.GetCenter(), size, angle);
-            Image<T, Byte> mask = (image.Copy(box) * 255);
+            //if (box.angle < -45)
+            //{
+            //    box.angle += 90;
+            //    float width = box.size.Width;
+            //    box.size.Width = box.size.Height;
+            //    box.size.Height = width;
+            //}
 
-            return ResizeImage<T>(mask, 60, 60);
+            Image<T, Byte> mask = (image.Copy(box) * 255);
+            var img = ResizeImage<T>(mask, 60, 60);
+            return img;
 
         }
 
@@ -468,9 +451,10 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 return null;
             }
-
+            rect.X = rect.X < 0 ? 0 : rect.X;
+            rect.Y = rect.Y < 0 ? 0 : rect.Y;
             Image<T, Byte> result = (image.Copy(rect) * 255).Resize(60, 60, Emgu.CV.CvEnum.INTER.CV_INTER_LINEAR);
-            return result.PyrDown().PyrUp();
+            return result;
 
         }
 
@@ -509,10 +493,11 @@ namespace CURELab.SignLanguage.HandDetector
 
         }
 
-        private void DrawHand(System.Drawing.Point[] rect, Image<Bgra, Byte> image, HandEnum handEnum)
+        private void DrawHand(MCvBox2D rect, Image<Bgra, Byte> image, HandEnum handEnum)
         {
-            DrawPoly(rect, image, new MCvScalar(0, 0, 255));
-            Point center = GetCenterPoint(rect);
+            System.Drawing.Point[] points = rect.GetVertices().Select(x => x.ToPoint()).ToArray();
+            DrawPoly(points, image, new MCvScalar(0, 0, 255));
+            Point center = rect.center.ToPoint();
             DrawPoint(image, center, new MCvScalar(255, 0, 0));
 
             if (handEnum == HandEnum.Right)
@@ -556,11 +541,12 @@ namespace CURELab.SignLanguage.HandDetector
         int end = 70;
         int minLength = 50;
 
-        private System.Drawing.Point[] SplitHand(MCvBox2D rect, HandEnum handEnum)
+        private MCvBox2D SplitHand(MCvBox2D rect, HandEnum handEnum, PointF Elbow2HandVector)
         {
+
             if (handEnum == HandEnum.Both || handEnum == HandEnum.Intersect)
             {
-                return rect.MinAreaRect().GetPoints();
+                return new MCvBox2D(rect.center, rect.MinAreaRect().Size, 0);
             }
             PointF[] pl = rect.GetVertices();
             Point[] splittedHands = new Point[4];
@@ -571,17 +557,24 @@ namespace CURELab.SignLanguage.HandDetector
             PointF ap1 = new PointF();
             PointF ap2 = new PointF();
 
+          
             if (pl[0].DistanceTo(startP) > pl[2].DistanceTo(startP))
             {
                 shortP = pl[2];
                 longP = pl[0];
             }
 
+            SizeF size = new SizeF();
+            size.Width = shortP.DistanceTo(startP);
+            size.Height = longP.DistanceTo(startP);
+            PointF shortEdge = new PointF(shortP.X - startP.X, shortP.Y - startP.Y);
+            float t_angle = (float)(Math.Atan(shortEdge.Tan())*180/Math.PI);
+  
+            MCvBox2D box = new MCvBox2D();
+            box.size = size;
+            box.center = pl.GetCenter();
+       
             float longDis = longP.DistanceTo(startP);
-            if (longDis < minLength)
-            {
-                return rect.MinAreaRect().GetPoints();
-            }
             float shortDis = shortP.DistanceTo(startP);
             // x and long edge slope 
             float longslope = Math.Abs(longP.X - startP.X) / longDis;
@@ -590,13 +583,32 @@ namespace CURELab.SignLanguage.HandDetector
             float factor = Math.Max(Math.Abs(longP.Y - startP.Y) / longDis, Math.Abs(longP.X - startP.X) / longDis);
             int TransformEnd = Convert.ToInt32(factor * end);
             int TransformBegin = Convert.ToInt32(factor * begin);
+          
             // > 45
             if (longslope < 0.707)//vert
             {
-                pl = pl.OrderBy((x => x.Y)).ToArray();
-                startP = pl[0];
+                // point up
+                if (Elbow2HandVector.Y <= 0)
+                {
+                    box.angle = t_angle;
+                    startP = pl.OrderBy((x => x.Y)).First();
+                }
+                else
+                {
+                    box.angle = t_angle + 180;
+                    startP = pl.OrderByDescending((x => x.Y)).First();
+                }
+
+
+                if (longDis < minLength)
+                {
+                    return box;
+                }
+
+                pl = pl.OrderBy(x => x.DistanceTo(startP)).ToArray();
                 shortP = pl[1];
                 longP = pl[2];
+
                 for (int y = TransformBegin; y < Convert.ToInt32(Math.Abs(longP.Y - startP.Y)) && Math.Abs(y) < TransformEnd; y++)
                 {
                     PointF p1 = InterPolateP(startP, longP, y / Math.Abs(longP.Y - startP.Y));
@@ -612,17 +624,46 @@ namespace CURELab.SignLanguage.HandDetector
             }
             else // horizontal 
             {
-
+                // point top for right hand
+                if (t_angle <0)
+                {
+                    if (handEnum == HandEnum.Right)
+                    {
+                        box.angle = t_angle;
+                    }
+                    else
+                    {
+                        box.angle = t_angle + 180;
+                    }
+                }
+                // point bottom for right hand
+                else
+                {
+                    if (handEnum == HandEnum.Right)
+                    {
+                        box.angle = t_angle - 180;
+                    }
+                    else
+                    {
+                        box.angle = t_angle;
+                    }
+                }
                 if (handEnum == HandEnum.Right)
                 {
-                    pl = pl.OrderBy((x => x.X)).ToArray();
+                    startP = pl.OrderBy((x => x.X)).ToArray()[0];
 
                 }
                 else if (handEnum == HandEnum.Left)
                 {
-                    pl = pl.OrderByDescending((x => x.X)).ToArray();
+                    startP = pl.OrderByDescending((x => x.X)).ToArray()[0];
                 }
-                startP = pl[0];
+
+
+                if (longDis < minLength)
+                {
+                    return box;
+                }
+                pl = pl.OrderBy(x => x.DistanceTo(startP)).ToArray();
                 shortP = pl[1];
                 longP = pl[2];
                 for (int X = TransformBegin; X < Convert.ToInt32(Math.Abs(longP.X - startP.X)) && Math.Abs(X) < TransformEnd; X++)
@@ -640,13 +681,21 @@ namespace CURELab.SignLanguage.HandDetector
             }
             if (ap1 == null || ap1 == PointF.Empty)
             {
-                return rect.MinAreaRect().GetPoints();
+                return box;
             }
             splittedHands[0] = startP.ToPoint();
             splittedHands[1] = ap1.ToPoint();
             splittedHands[2] = ap2.ToPoint();
             splittedHands[3] = shortP.ToPoint();
-            return splittedHands;
+
+
+            //Point lowP = p.OrderByDescending(x => x.Y).First();
+            //Point highP = p.OrderByDescending(x => x.DistanceTo(lowP)).First();
+            //Point widthP = p.OrderBy(x => x.TanWith(lowP)).First();
+            box.center = splittedHands.GetCenter();
+            box.size.Height = startP.DistanceTo(ap1);
+            
+            return box;
         }
 
         private PointF InterPolateP(PointF p1, PointF p2, float disToP1)
@@ -713,6 +762,10 @@ namespace CURELab.SignLanguage.HandDetector
         }
         #endregion
 
+        public void Reset()
+        {
+            Intersect = false;
+        }
         #region INotifyPropertyChanged 成员
 
         public event PropertyChangedEventHandler PropertyChanged;

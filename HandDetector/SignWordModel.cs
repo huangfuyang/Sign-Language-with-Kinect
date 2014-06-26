@@ -22,6 +22,8 @@ namespace CURELab.SignLanguage.HandDetector
         public string Signer;
         public string File;
         public string FullName;
+        public string Chinese;
+        public string English;
         public SignWordModel(string sign, string signer,string fullName, string file)
         {
             SignID = sign;

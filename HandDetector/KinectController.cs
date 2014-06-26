@@ -335,9 +335,9 @@ namespace CURELab.SignLanguage.HandDetector
 
         public virtual void TogglePause() { }
 
-        public void Reset()
+        public virtual void Reset()
         {
-            singleInstance = null;
+            
         }
         #region INotifyPropertyChanged 成员
 

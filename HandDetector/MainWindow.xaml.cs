@@ -67,7 +67,7 @@ namespace CURELab.SignLanguage.HandDetector
             RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
             RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
             RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
-            RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 10);
+            RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 40);
 
 
             //  Menu_ONI_Click(this, e);
@@ -251,13 +251,14 @@ namespace CURELab.SignLanguage.HandDetector
         private List<SignWordModel> wordList;
         private void MenuItem_Open_Click(object sender, RoutedEventArgs e)
         {
-            
             FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.RootFolder = Environment.SpecialFolder.MyComputer;
+            dialog.SelectedPath = @"J:\Kinect data\Michael791-849";
             DialogResult result = dialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
                 string folderName = dialog.SelectedPath;
-                string dbPath = folderName + "\\data.db";
+                string dbPath = @"J:\Kinect data\database141-181.db";
                 m_DBmanager = DBManager.GetSingleton(dbPath);
                 DirectoryInfo folder = new DirectoryInfo(folderName);
                 wordList = new List<SignWordModel>();
@@ -265,11 +266,11 @@ namespace CURELab.SignLanguage.HandDetector
                 {
                     string fileName = item.Name;
                     string[] s = fileName.Split();
-                    SignWordModel wordModel = new SignWordModel(s[0],s[1],item.FullName, fileName);
+                    SignWordModel wordModel = new SignWordModel(s[0], s[1], item.FullName, fileName);
                     wordList.Add(wordModel);
-                } 
+                }
             }
-           
+
         }
 
         int signIndex = 0;
@@ -284,19 +285,38 @@ namespace CURELab.SignLanguage.HandDetector
         }
         private void MenuItem_Test_Click(object sender, RoutedEventArgs e)
         {
-            HandShapeClassifier hsc = HandShapeClassifier.GetSingleton();
-            string path = @"C:\Users\Administrator\Desktop\handshapes\";
-            
-            for (int i = 0; i < 5; i++)
-            {
-                Image<Bgr, byte> image = new Image<Bgr, byte>(path + "handshape" + (i/4+1) + "-"+ (i%4+1)+".jpg");
-                this.img_candidate1.Source = hsc.RecognizeGesture(image,1)[0].ToBitmap().ToBitmapSource();
-            }
-            //m_DBmanager.Test();
+            #region mog txt to database
+            StreamReader sr = new StreamReader(File.Open(@"J:\Kinect data\mog141-180.txt", FileMode.Open));
+            string dataPath = @"J:\Kinect data\database141-181.db";
+            m_DBmanager = DBManager.GetSingleton(dataPath);
+            m_DBmanager.BeginTrans();
 
+            string line = sr.ReadLine();
+            int count = 1;
+            while (line != null && line != "")
+            {
+                string[] cell = line.Split();
+                int frame = Convert.ToInt32(cell[1]);
+                bool isRight = cell[2] == "r";
+                if (cell.Count() >= 27)
+                {
+                    float[] Mog = cell.Skip(3).Take(24).Select(x => Convert.ToSingle(x)).ToArray();
+                    m_DBmanager.UpdateMogData(frame, Mog, isRight);
+                }
+                Console.WriteLine(count++);
+                line = sr.ReadLine();
+            }
+            m_DBmanager.Commit();
+            m_DBmanager.Close();
+            sr.Close(); 
+            #endregion
+
+            #region kmeans
+
+            #endregion
         }
 
-       
+
         void timer_Tick(object sender, EventArgs e)
         {
             //end
@@ -308,11 +328,27 @@ namespace CURELab.SignLanguage.HandDetector
             if (!m_DBmanager.Begin)
             {
                 //begin
+                m_KinectController.Reset();
+                m_OpenCVController.Reset();
                 Console.WriteLine("[{0}/{1} {2:P}] \nloading:{3}",
-                    signIndex,wordList.Count(),
-                    (float)signIndex/wordList.Count(),
+                    signIndex, wordList.Count(),
+                    (float)signIndex / wordList.Count(),
                     wordList[signIndex].File);
-                m_DBmanager.AddWordModel(wordList[signIndex]);
+                if (wordList[signIndex].Signer == "Aaron")
+                {
+                    KinectSDKController.AngleRotateTan = KinectSDKController.AaronRotateTan;
+                }
+                else if (wordList[signIndex].Signer == "Anita")
+                {
+                    KinectSDKController.AngleRotateTan = KinectSDKController.AnitaRotateTan;
+                }
+                else
+                {
+                    KinectSDKController.AngleRotateTan = KinectSDKController.MichaelRotateTan;
+                }
+               // Console.WriteLine("current threshold:"+KinectSDKController.AngleRotateTan);
+                m_DBmanager.BeginTrans();
+                m_DBmanager.AddWordSample(wordList[signIndex]);
                 m_kinectStudioController.Open_File(wordList[signIndex].FullName);
                 m_kinectStudioController.Run();
                 m_DBmanager.Begin = true;
@@ -325,7 +361,7 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
- 
+
 
 
     }

@@ -122,6 +122,40 @@ namespace CURELab.SignLanguage.HandDetector
             return result;
         }
 
+        public static float RealTanWith(this Point p1, Point p2)
+        {
+            if (p1.X - p2.X == 0)
+            {
+                return float.MaxValue;
+            }
+            float result = (float)(p2.Y - p1.Y) / (p2.X - p1.X);
+            return result;
+        }
+
+        public static float AngleBetween(this PointF p1, PointF p2)
+        {
+            float dotproduct = p1.Dotproduct(p2);
+            return dotproduct / p1.Length() / p2.Length();
+        }
+
+        public static float Tan(this PointF p)
+        {
+            if (p.X == 0)
+            {
+                return float.MaxValue;
+            }
+            return p.Y / p.X;
+        }
+
+        public static float Dotproduct(this PointF p1, PointF p2)
+        {
+            return p1.X * p2.X + p1.Y * p2.Y;
+        }
+        public static float Length(this PointF p)
+        {
+            return (float)Math.Sqrt(p.X * p.X + p.Y * p.Y);
+        }
+
 
     }
 }

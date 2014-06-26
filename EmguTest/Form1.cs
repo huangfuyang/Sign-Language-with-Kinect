@@ -31,9 +31,9 @@ namespace EmguTest
             image = new Image<Bgr, byte>(@"C:\Users\Administrator\Desktop\Picture1.jpg");
             //ProcessImage(ref image);
             long time;
-            Find(image, out time);
+            //Find(image, out time);
 
-            imageBox1.Image = image;
+            //imageBox1.Image = image;
         }
 
         void imageBox1_LoadCompleted(object sender, AsyncCompletedEventArgs e)

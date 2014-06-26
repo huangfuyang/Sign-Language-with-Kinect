@@ -44,7 +44,7 @@ namespace CURELab.SignLanguage.HandDetector
                 _begin = value;
             }
         }
-        private long CurrentSign = 0;
+        public long CurrentSign = 0;
         private int currentFrame = 0;
         private static DBManager singleton;
 
@@ -77,27 +77,41 @@ namespace CURELab.SignLanguage.HandDetector
             connection.Open();
             if (connection != null)
             {
-                SQLiteTransaction trans = connection.BeginTransaction();
-                try
-                {
-                    string sqlSignTable =
-                       @"CREATE TABLE IF NOT EXISTS [SignWord] (
+                //CreateDatabase();
+            }
+
+            timer = new Timer();
+            timer.Interval = 1000;
+            timer.Tick += timer_Tick;
+            command = connection.CreateCommand();
+
+        }
+
+        public void CreateDatabase()
+        {
+            SQLiteTransaction trans = connection.BeginTransaction();
+            try
+            {
+                string sqlSignTable =
+                   @"CREATE TABLE IF NOT EXISTS [SignWord] (
                           [SignID] TEXT NOT NULL PRIMARY KEY,
+                          [SignIndex] INTEGER NOT NULL,
                           [Chinese] TEXT  NULL,
-                          [English] TEXT  NULL
+                          [English] TEXT  NULL,
+                          [Count] INTEGER NOT NULL
                           )";
 
-                    string sqlSampleTable =
-                       @"CREATE TABLE IF NOT EXISTS [SignSample] (
+                string sqlSampleTable =
+                   @"CREATE TABLE IF NOT EXISTS [SignSample] (
                           [index_ID] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                           [SignID] TEXT NOT NULL,
                           [Signer] TEXT NOT NULL,
                           [FileName] TEXT NOT  NULL,
+                          [Intersected] INTEGER NOT NULL,
                           FOREIGN KEY(SignID) REFERENCES SignWord(SignID)
                           )";
-
-                    string sqlDataTable =
-                       @"CREATE TABLE IF NOT EXISTS [FrameData] (
+                string sqlDataTable =
+                   @"CREATE TABLE IF NOT EXISTS [FrameData] (
                           [index_ID] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                           [SampleIndex] INTEGER NOT NULL,
                           [FrameNumber] INTEGER NOT NULL,
@@ -145,29 +159,24 @@ namespace CURELab.SignLanguage.HandDetector
 	                        SkeletonHandRightZ NUMERIC,
                           [RightHandHOG] BLOB ,
                           [LeftHandHOG] BLOB ,
+                          RightMoG BLOB,
+                          LeftMoG BLOB,
                           FOREIGN KEY(SampleIndex) REFERENCES SignSample(index_ID)
                           )";
 
-                    SQLiteCommand createTable = new SQLiteCommand(sqlSignTable, connection);
-                    createTable.ExecuteNonQuery();
-                    createTable = new SQLiteCommand(sqlSampleTable, connection);
-                    createTable.ExecuteNonQuery();
-                    createTable = new SQLiteCommand(sqlDataTable, connection);
-                    createTable.ExecuteNonQuery();
-                    trans.Commit();
-                }
-                catch
-                {
-                    trans.Rollback();
-                    throw;
-                }
+                SQLiteCommand createTable = new SQLiteCommand(sqlSignTable, connection);
+                createTable.ExecuteNonQuery();
+                createTable = new SQLiteCommand(sqlSampleTable, connection);
+                createTable.ExecuteNonQuery();
+                createTable = new SQLiteCommand(sqlDataTable, connection);
+                createTable.ExecuteNonQuery();
+                trans.Commit();
             }
-
-            timer = new Timer();
-            timer.Interval = 1000;
-            timer.Tick += timer_Tick;
-            command = connection.CreateCommand();
-
+            catch
+            {
+                trans.Rollback();
+                throw;
+            }
         }
 
 
@@ -182,29 +191,16 @@ namespace CURELab.SignLanguage.HandDetector
             preFrame = currentFrame;
         }
 
-        public void AddWordModel(SignWordModel wordModel)
+        public void AddWordSample(SignWordModel wordModel)
         {
-
-            tran = connection.BeginTransaction();
 
             try
             {
                 SQLiteCommand insertCommand = new SQLiteCommand(connection);
 
-                string insertWord =
-                 @"INSERT  OR REPLACE INTO SignWord (SignID,Chinese,English) VALUES" +
-                 "(@ID, @Chinese, @English)";
-                insertCommand = new SQLiteCommand(insertWord, connection);
-                insertCommand.Parameters.AddWithValue("@ID", wordModel.SignID);
-                insertCommand.Parameters.AddWithValue("@Chinese", "chinese");
-                insertCommand.Parameters.AddWithValue("@English", "english");
-                insertCommand.ExecuteNonQuery();
-
-
-
                 string insertSample =
-                   @"INSERT INTO SignSample (SignID, Signer,FileName)VALUES
-                    (@SignID, @Signer ,@File)";
+                   @"INSERT INTO SignSample (SignID, Signer,FileName,Intersected) VALUES
+                                    (@SignID, @Signer ,@File,0)";
                 insertCommand = new SQLiteCommand(insertSample, connection);
                 insertCommand.Parameters.AddWithValue("@SignID", wordModel.SignID);
                 insertCommand.Parameters.AddWithValue("@Signer", wordModel.Signer);
@@ -216,57 +212,123 @@ namespace CURELab.SignLanguage.HandDetector
                 CurrentSign = lastId;
                 currentFrame = 0;
 
+                // update count
+                string update = @"UPDATE SignWord 
+                set count = count +1
+                where signID = @ID ";
+                SQLiteCommand updateCommand = new SQLiteCommand(update, connection);
+                updateCommand.Parameters.AddWithValue("@ID", wordModel.SignID);
+                //Console.WriteLine(updateCommand.CommandText);
+                updateCommand.ExecuteNonQuery();
+
             }
-            catch (Exception)
+            catch (Exception e)
+            {
+                tran.Rollback();
+                throw;
+            }
+
+        }
+
+        public void UpdateMogData(int frame, float[] mog, bool isRight)
+        {
+            try
+            {
+                 SQLiteCommand updateCommand = new SQLiteCommand(connection);
+                 string updateFrame;
+                 if (isRight)
+                 {
+                     updateFrame =
+                      @"UPDATE Framedata SET mogRight = @mog
+                         where index_id = @frame";
+                 }
+                 else
+                 {
+                     updateFrame =
+                     @"UPDATE Framedata SET mogLeft = @mog
+                        where index_id = @frame";
+                 }
+                
+                updateCommand.CommandText = updateFrame;
+                updateCommand.Parameters.AddWithValue("@frame", frame);
+                updateCommand.Parameters.Add("@mog", DbType.Binary, mog.Length*sizeof(float)).Value = mog.ToByteArray();
+                updateCommand.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                
+                throw;
+            }
+        }
+
+        public void AddWordModel(SignWordModel wordModel, int index)
+        {
+
+
+            try
+            {
+                SQLiteCommand insertCommand = new SQLiteCommand(connection);
+
+                string insertWord =
+                 @"INSERT  OR REPLACE INTO SignWord (SignID,SignIndex,Chinese,English,Count) VALUES" +
+                 "(@ID,@Index, @Chinese, @English,0)";
+                insertCommand = new SQLiteCommand(insertWord, connection);
+                insertCommand.Parameters.AddWithValue("@ID", wordModel.SignID);
+                insertCommand.Parameters.AddWithValue("@Index", index);
+                insertCommand.Parameters.AddWithValue("@Chinese", wordModel.Chinese);
+                insertCommand.Parameters.AddWithValue("@English", wordModel.English);
+                insertCommand.ExecuteNonQuery();
+
+
+            }
+            catch (Exception e)
             {
                 tran.Rollback();
                 throw;
             }
         }
 
-        public void AddFrameData(HandShapeModel hand)
+
+        public bool AddFrameData(HandShapeModel hand)
         {
-            currentFrame ++;
-            if (!Begin)
+            currentFrame++;
+            if (!Begin || hand == null)
             {
-                return;
-            }
-         
-            if (hand == null)
-            {
-                return;
+                return false;
             }
             try
             {
                 SQLiteCommand insertCommand = new SQLiteCommand(connection);
-
                 string insertframe =
-                 String.Format("INSERT  OR REPLACE INTO FrameData (" +
-                    "SampleIndex,FrameNumber," +
-                    "SkeletonHeadX, SkeletonHeadY, SkeletonHeadZ, " +
-                    "SkeletonShoulderCenterX, SkeletonShoulderCenterY, SkeletonShoulderCenterZ, " +
-                    "SkeletonShoulderLeftX, SkeletonShoulderLeftY, SkeletonShoulderLeftZ, " +
-                    "SkeletonShoulderRightX, SkeletonShoulderRightY, SkeletonShoulderRightZ, " +
-                    "SkeletonSpineX, SkeletonSpineY, SkeletonSpineZ, " +
-                    "SkeletonHipCenterX, SkeletonHipCenterY, SkeletonHipCenterZ, " +
-                    "SkeletonHipLeftX, SkeletonHipLeftY, SkeletonHipLeftZ, " +
-                    "SkeletonHipRightX, SkeletonHipRightY, SkeletonHipRightZ, " +
-                    "SkeletonElbowLeftX, SkeletonElbowLeftY, SkeletonElbowLeftZ, " +
-                    "SkeletonWristLeftX, SkeletonWristLeftY, SkeletonWristLeftZ, " +
-                    "SkeletonHandLeftX, SkeletonHandLeftY, SkeletonHandLeftZ, " +
-                    "SkeletonElbowRightX, SkeletonElbowRightY, SkeletonElbowRightZ, " +
-                    "SkeletonWristRightX, SkeletonWristRightY, SkeletonWristRightZ, " +
-                    "SkeletonHandRightX, SkeletonHandRightY, SkeletonHandRightZ, " +
-                    "RightHandHOG, LeftHandHOG) VALUES" +
-                    "(@SampleID, @Frame" +
-                    "{0},@Right,@Left)", hand.skeletonData);
+                String.Format("INSERT  OR REPLACE INTO FrameData (" +
+                   "SampleIndex,FrameNumber," +
+                   "SkeletonHeadX, SkeletonHeadY, SkeletonHeadZ, " +
+                   "SkeletonShoulderCenterX, SkeletonShoulderCenterY, SkeletonShoulderCenterZ, " +
+                   "SkeletonShoulderLeftX, SkeletonShoulderLeftY, SkeletonShoulderLeftZ, " +
+                   "SkeletonShoulderRightX, SkeletonShoulderRightY, SkeletonShoulderRightZ, " +
+                   "SkeletonSpineX, SkeletonSpineY, SkeletonSpineZ, " +
+                   "SkeletonHipCenterX, SkeletonHipCenterY, SkeletonHipCenterZ, " +
+                   "SkeletonHipLeftX, SkeletonHipLeftY, SkeletonHipLeftZ, " +
+                   "SkeletonHipRightX, SkeletonHipRightY, SkeletonHipRightZ, " +
+                   "SkeletonElbowLeftX, SkeletonElbowLeftY, SkeletonElbowLeftZ, " +
+                   "SkeletonWristLeftX, SkeletonWristLeftY, SkeletonWristLeftZ, " +
+                   "SkeletonHandLeftX, SkeletonHandLeftY, SkeletonHandLeftZ, " +
+                   "SkeletonElbowRightX, SkeletonElbowRightY, SkeletonElbowRightZ, " +
+                   "SkeletonWristRightX, SkeletonWristRightY, SkeletonWristRightZ, " +
+                   "SkeletonHandRightX, SkeletonHandRightY, SkeletonHandRightZ, " +
+                   "RightHandHOG, LeftHandHOG) VALUES" +
+                   "(@SampleID, @Frame" +
+                   "{0},@Right,@Left)", hand.skeletonData);
+
+
+
 
                 insertCommand = new SQLiteCommand(insertframe, connection);
                 insertCommand.Parameters.AddWithValue("@SampleID", CurrentSign);
                 insertCommand.Parameters.AddWithValue("@Frame", currentFrame);
-                if (hand.hogRight == null ||hand.hogRight.Length == 0)
+                if (hand.hogRight == null || hand.hogRight.Length == 0)
                 {
-                    insertCommand.Parameters.AddWithValue("@Right",null);
+                    insertCommand.Parameters.AddWithValue("@Right", null);
                 }
                 else
                 {
@@ -281,14 +343,40 @@ namespace CURELab.SignLanguage.HandDetector
                     insertCommand.Parameters.Add("@Left", DbType.Binary, hand.hogLeft.Length * sizeof(float)).Value = hand.hogLeft.ToByteArray();
                 }
                 insertCommand.ExecuteNonQuery();
+                string sql = @"select last_insert_rowid()";
+                insertCommand.CommandText = sql;
+                long lastId = (long)insertCommand.ExecuteScalar();
+                hand.frame = lastId;
+                // update sign type
+                if (hand.type == HandEnum.Intersect)
+                {
+                    string update = @"UPDATE signsample 
+                set intersected = 1 
+                where index_id = @ID ";
+                    SQLiteCommand updateCommand = new SQLiteCommand(update, connection);
+                    updateCommand.Parameters.AddWithValue("@ID", CurrentSign);
+                    //Console.WriteLine(updateCommand.CommandText);
+                    updateCommand.ExecuteNonQuery();
+                }
+
+                return true;
             }
             catch (Exception e)
             {
-
                 tran.Rollback();
+                return false;
+            }
+
+        }
+
+        public void BeginTrans()
+        {
+            if (connection != null)
+            {
+                tran = connection.BeginTransaction();
             }
         }
-     
+
 
         public void Commit()
         {
@@ -332,25 +420,25 @@ namespace CURELab.SignLanguage.HandDetector
         {
             if (connection == null || command == null) return;
 
-         
 
-           
+
+
             //    cmd = String.Format("INSERT INTO FrameData " +
             //        "(FrameDataId, SignInfoId, FrameCount, OffsetedFrameCount, " + //0, 1, 2
-                    //"SkeletonHeadX, SkeletonHeadY, SkeletonHeadZ, " +
-                    //"SkeletonShoulderCenterX, SkeletonShoulderCenterY, SkeletonShoulderCenterZ, " +
-                    //"SkeletonShoulderLeftX, SkeletonShoulderLeftY, SkeletonShoulderLeftZ, " +
-                    //"SkeletonShoulderRightX, SkeletonShoulderRightY, SkeletonShoulderRightZ, " +
-                    //"SkeletonSpineX, SkeletonSpineY, SkeletonSpineZ, " +
-                    //"SkeletonHipCenterX, SkeletonHipCenterY, SkeletonHipCenterZ, " +
-                    //"SkeletonHipLeftX, SkeletonHipLeftY, SkeletonHipLeftZ, " +
-                    //"SkeletonHipRightX, SkeletonHipRightY, SkeletonHipRightZ, " +
-                    //"SkeletonElbowLeftX, SkeletonElbowLeftY, SkeletonElbowLeftZ, " +
-                    //"SkeletonWristLeftX, SkeletonWristLeftY, SkeletonWristLeftZ, " +
-                    //"SkeletonHandLeftX, SkeletonHandLeftY, SkeletonHandLeftZ, " +
-                    //"SkeletonElbowRightX, SkeletonElbowRightY, SkeletonElbowRightZ, " +
-                    //"SkeletonWristRightX, SkeletonWristRightY, SkeletonWristRightZ, " +
-                    //"SkeletonHandRightX, SkeletonHandRightY, SkeletonHandRightZ, " +
+            //"SkeletonHeadX, SkeletonHeadY, SkeletonHeadZ, " +
+            //"SkeletonShoulderCenterX, SkeletonShoulderCenterY, SkeletonShoulderCenterZ, " +
+            //"SkeletonShoulderLeftX, SkeletonShoulderLeftY, SkeletonShoulderLeftZ, " +
+            //"SkeletonShoulderRightX, SkeletonShoulderRightY, SkeletonShoulderRightZ, " +
+            //"SkeletonSpineX, SkeletonSpineY, SkeletonSpineZ, " +
+            //"SkeletonHipCenterX, SkeletonHipCenterY, SkeletonHipCenterZ, " +
+            //"SkeletonHipLeftX, SkeletonHipLeftY, SkeletonHipLeftZ, " +
+            //"SkeletonHipRightX, SkeletonHipRightY, SkeletonHipRightZ, " +
+            //"SkeletonElbowLeftX, SkeletonElbowLeftY, SkeletonElbowLeftZ, " +
+            //"SkeletonWristLeftX, SkeletonWristLeftY, SkeletonWristLeftZ, " +
+            //"SkeletonHandLeftX, SkeletonHandLeftY, SkeletonHandLeftZ, " +
+            //"SkeletonElbowRightX, SkeletonElbowRightY, SkeletonElbowRightZ, " +
+            //"SkeletonWristRightX, SkeletonWristRightY, SkeletonWristRightZ, " +
+            //"SkeletonHandRightX, SkeletonHandRightY, SkeletonHandRightZ, " +
             //        "HandCount, " +
             //        "Hand0FingertipCount, " +
             //        "Hand0Fingertip0X, Hand0Fingertip0Y, Hand0Fingertip0Z, " +
@@ -410,7 +498,10 @@ namespace CURELab.SignLanguage.HandDetector
 
         public void Close()
         {
-            connection.Close();
+            if (connection != null)
+            {
+                connection.Close();
+            }
         }
     }
 }

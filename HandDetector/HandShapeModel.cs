@@ -20,6 +20,7 @@ namespace CURELab.SignLanguage.HandDetector
     /// </summary>
     public class HandShapeModel
     {
+        public long frame = 0;
         private int hogSize;
         public HandEnum type;
         // sin 
@@ -36,6 +37,7 @@ namespace CURELab.SignLanguage.HandDetector
         public float[] hogRightSide;
         // hog left side view
         public float[] hogLeftSide;
+
         // skeleton data
         public string skeletonData = "";
 
@@ -77,9 +79,9 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 skeletonData = GetFrameDataArgString(skeleton);
             }
-            
-        
         }
+
+      
         private string GetFrameDataArgString(Skeleton skeleton)
         {
             string s = String.Empty;

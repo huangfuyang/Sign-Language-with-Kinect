@@ -55,8 +55,16 @@ namespace CURELab.SignLanguage.HandDetector
         private System.Drawing.Point rightHandPosition;
         private System.Drawing.Point headPosition;
 
-        public static double CullingThresh = 10;
-        public const float AngleRotateTan = 0.3f;
+        public static double CullingThresh;
+        public static float AngleRotateTan = AaronRotateTan;
+        // demo
+        public const float DemoRotateTan = 0.45f;
+        // anita
+        public const float AnitaRotateTan = 0.3f;
+        // michael
+        public const float MichaelRotateTan = 0.23f;
+        // Aaron
+        public const float AaronRotateTan = 0.28f;
 
         const int handShapeWidth = 60;
         const int handShapeHeight = 60;
@@ -99,7 +107,6 @@ namespace CURELab.SignLanguage.HandDetector
                 this.sensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
                 this.sensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
                 this.sensor.SkeletonStream.Enable();
-                this.sensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
                 //this.sensor.DepthStream.Range = DepthRange.Near;
                 // Allocate space to put the pixels we'll receive           
                 this.colorPixels = new byte[this.sensor.ColorStream.FramePixelDataLength];
@@ -217,27 +224,32 @@ namespace CURELab.SignLanguage.HandDetector
                     int width = depthFrame.Width;
                     int height = depthFrame.Height;
 
-                    headDepth = depthPixels[headPosition.X + headPosition.Y * 640].Depth;
+                    if (headPosition.X == 0)
+                    {
+                        headDepth = 100;
+                    }
+                    else
+                    {
+                        headDepth = depthPixels[headPosition.X + headPosition.Y * 640].Depth;
+                    }
                     //var lowDepths = depthPixels.Skip(depthPixels.Length - 640).Where(x => x.Depth > 0);
                     //int lowDepth = lowDepths.Count() > 0 ? lowDepths.Min(x => x.Depth) : 0;
                     //float a = CalTiltAngle(headPosition.Y, depthPixels[headPosition.X+headPosition.Y*640].Depth, lowDepth);
                     //Console.WriteLine("head depth :{0} lowDepth:{1}, TiltAngle:{2}", depthPixels[headPosition.X + headPosition.Y * 640].Depth, lowDepth);
-                //    Console.WriteLine("get low depth:" + sw.ElapsedMilliseconds);
+                    //    Console.WriteLine("get low depth:" + sw.ElapsedMilliseconds);
                     sw.Restart();
-
                     //*********** Convert cull and transform*****************
                     colorizer.TransformCullAndConvertDepthFrame(
                         depthPixels, minDepth, maxDepth, colorPixels,
                         AngleRotateTan,
-                        (short)(headDepth - (short)CullingThresh));
-                   
+                        (short)(headDepth - (short)CullingThresh), headPosition);
 
                     Image<Bgra, byte> depthImg;
                     //Console.WriteLine("iteration:" + sw.ElapsedMilliseconds);
                     sw.Restart();
-                    
-                   
-                
+
+
+
                     //*******************region growing********************
                     //PointF startPoint = new PointF(rightHandPosition.X, rightHandPosition.Y);
                     //RegionGrow(startPoint, depthData, depthBMP);
@@ -250,30 +262,58 @@ namespace CURELab.SignLanguage.HandDetector
                     //}
 
                     //*******find hand*****************
-                    Image<Gray, Byte> rightFront;
-                    Image<Gray, Byte> leftFront;
+                    Image<Gray, Byte> rightFront = null;
+                    Image<Gray, Byte> leftFront = null;
                     depthImg = ImageConverter.Array2Image(colorPixels, width, height, width * 4);
-                    HandShapeModel handModel = m_OpenCVController.FindHandPart(ref depthImg, out rightFront, out leftFront, headDepth - (int)CullingThresh);
-                   
-                    
+                    PointF rightVector = PointF.Empty;
+                    PointF leftVector = PointF.Empty;
+                    bool isSkip = false;
+                    bool leftHandRaise = false;
+                    if (skeletons != null && skeletons[0].TrackingState == SkeletonTrackingState.Tracked)
+                    {
+                        PointF hr = SkeletonPointToScreen(skeletons[0].Joints[JointType.HandRight].Position);
+                        PointF hl = SkeletonPointToScreen(skeletons[0].Joints[JointType.HandLeft].Position);
+                        PointF er = SkeletonPointToScreen(skeletons[0].Joints[JointType.ElbowRight].Position);
+                        PointF el = SkeletonPointToScreen(skeletons[0].Joints[JointType.ElbowLeft].Position);
+                        PointF hip = SkeletonPointToScreen(skeletons[0].Joints[JointType.HipCenter].Position);
+                        // hand is lower than hip
+                        //Console.WriteLine(skeletons[0].Joints[JointType.HandRight].Position.Y);
+                        //Console.WriteLine(skeletons[0].Joints[JointType.HipCenter].Position.Y);
+                        //Console.WriteLine("-------------");
+                        if (skeletons[0].Joints[JointType.HandRight].Position.Y <
+                            skeletons[0].Joints[JointType.HipCenter].Position.Y + 0.05)
+                        {
+                            isSkip = true;
+                        }
+                        if (skeletons[0].Joints[JointType.HandLeft].Position.Y >
+                            skeletons[0].Joints[JointType.HipCenter].Position.Y )
+                        {
+                            leftHandRaise = true;
+                        }
+                       
+                        rightVector.X = (hr.X - er.X);
+                        rightVector.Y = (hr.Y - er.Y);
+                        leftVector.X = (hl.X - el.X);
+                        leftVector.Y = (hl.Y - el.Y);
+                    }
+                    HandShapeModel handModel = null;
+                    if (!isSkip)
+                    {
+                        handModel = m_OpenCVController.FindHandPart(ref depthImg, out rightFront, out leftFront, headDepth - (int)CullingThresh, rightVector, leftVector,leftHandRaise);
+                    }
+
+
+
                     // no hands detected
                     if (handModel == null)
                     {
                         handModel = new HandShapeModel(0, HandEnum.None);
                     }
-                    sw.Restart();
-                    Image<Bgr, byte>[] result = HandShapeClassifier.GetSingleton()
-                       .RecognizeGesture(handModel.hogRight, 3);
-                    //Console.WriteLine(sw.ElapsedMilliseconds);
-                    if (result != null)
-                    {
-                        ImageConverter.UpdateWriteBMP(WrtBMP_Candidate1, result[0].Convert<Gray, byte>().ToBitmap());
-                        ImageConverter.UpdateWriteBMP(WrtBMP_Candidate2, result[1].Convert<Gray, byte>().ToBitmap());
-                        ImageConverter.UpdateWriteBMP(WrtBMP_Candidate3, result[2].Convert<Gray, byte>().ToBitmap());
-                    }
+                    //sw.Restart();
+
                     // database processing
                     DBManager db = DBManager.GetSingleton();
-                    if (db != null )
+                    if (db != null)
                     {
                         if (skeletons != null)
                         {
@@ -281,47 +321,68 @@ namespace CURELab.SignLanguage.HandDetector
                         }
                         db.AddFrameData(handModel);
                     }
+                    // not recording show prob
+                    else
+                    {
+                        Image<Bgr, byte>[] result = HandShapeClassifier.GetSingleton()
+                        .RecognizeGesture(handModel.hogRight, 3);
+                        //Console.WriteLine(sw.ElapsedMilliseconds);
+                        if (result != null)
+                        {
+                            ImageConverter.UpdateWriteBMP(WrtBMP_Candidate1, result[0].Convert<Gray, byte>().ToBitmap());
+                            ImageConverter.UpdateWriteBMP(WrtBMP_Candidate2, result[1].Convert<Gray, byte>().ToBitmap());
+                            ImageConverter.UpdateWriteBMP(WrtBMP_Candidate3, result[2].Convert<Gray, byte>().ToBitmap());
+                        }
+                    }
+                    string currentSign = db == null ? "0" : db.CurrentSign.ToString();
+                    string path = @"J:\Kinect data\Aaron 141-180\hands\" + currentSign + " " + handModel.frame.ToString();
                     // UI update
                     if (rightFront != null)
                     {
-                        ImageConverter.UpdateWriteBMP(WrtBMP_RightHandFront, rightFront.ToBitmap());
+                        Bitmap right = rightFront.ToBitmap();
+                        right.Save(path + " r.jpg");
+                        ImageConverter.UpdateWriteBMP(WrtBMP_RightHandFront, right);
                     }
                     if (leftFront != null)
                     {
-                        ImageConverter.UpdateWriteBMP(WrtBMP_LeftHandFront, leftFront.ToBitmap());
+                        Bitmap left = leftFront.ToBitmap();
+                        left.Save(path + " l.jpg");
+                        ImageConverter.UpdateWriteBMP(WrtBMP_LeftHandFront, left);
                     }
-                    
-                   // Console.WriteLine("Find hand:" + sw.ElapsedMilliseconds);
+                    if (sw.ElapsedMilliseconds>15)
+                    {
+                        Console.WriteLine("Find hand:" + sw.ElapsedMilliseconds);
+                    }
                     sw.Restart();
 
                     //**************************draw gray histogram
-                   // Bitmap histo = m_OpenCVController.Histogram(depthImg);
+                    //Bitmap histo = m_OpenCVController.Histogram(depthImg);
                     //ImageConverter.UpdateWriteBMP(GrayWriteBitmap, histo);
 
-                    //draw hand position from kinect
-                    //DrawHandPosition(depthBMP, rightHandPosition, System.Drawing.Brushes.Purple);
-                    
+                    //  draw hand position from kinect
+                    // DrawHandPosition(depthBMP, rightHandPosition, System.Drawing.Brushes.Purple);
+
                     //*******************upadte UI
                     ImageConverter.UpdateWriteBMP(DepthWriteBitmap, depthImg.ToBitmap());
-                   // Console.WriteLine("Update UI:" + sw.ElapsedMilliseconds);
+                    // Console.WriteLine("Update UI:" + sw.ElapsedMilliseconds);
 
                 }
             }
-            
+
 
         }
 
         public override void Run()
         {
 
-          
+
         }
         public override void Stop()
         {
-           
+
         }
 
-       
+
 
         private System.Drawing.Point SkeletonPointToScreen(SkeletonPoint skelpoint)
         {
@@ -351,11 +412,11 @@ namespace CURELab.SignLanguage.HandDetector
             return (float)angle;
 
         }
-        
-        
-      
-       
-       
+
+
+
+
+
         public override void Shutdown()
         {
             if (null != this.sensor)
@@ -375,6 +436,13 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 this.sensor = null;
             }
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            headDepth = 100;
+            headPosition = new Point();
         }
 
 

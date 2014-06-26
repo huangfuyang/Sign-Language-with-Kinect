@@ -72,7 +72,8 @@ namespace CURELab.SignLanguage.HandDetector
           int maxDepth,
           byte[] colorFrame,
           float transformAngle,
-          short cullingThreshold)
+          short cullingThreshold,
+          System.Drawing.Point headPostition)
         {
             // Test that the buffer lengths are appropriately correlated, which allows us to use only one
             // value as the loop condition.
@@ -81,6 +82,7 @@ namespace CURELab.SignLanguage.HandDetector
                 throw new InvalidOperationException();
             }
             //get intensity map
+            cullingThreshold = TransformDepth(cullingThreshold, headPostition.Y, transformAngle);
             byte[] mappingTable = GetColorMappingTable(minDepth, maxDepth, transformAngle, cullingThreshold);
             //initial transform table
             InitializeTransformTable(MaxMaxDepth, transformAngle);
@@ -157,7 +159,6 @@ namespace CURELab.SignLanguage.HandDetector
         {
           
             culling = culling <= 0 ? (short)minDepth : culling;
-
            
             
             // Fill in the "near" portion of the table with solid color

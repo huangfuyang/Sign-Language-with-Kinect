@@ -59,19 +59,20 @@ namespace CURELab.SignLanguage.HandDetector
 
         private void InitializeAllGestureFromData()
         {
-            StreamReader sr = File.OpenText(@"C:\Users\Administrator\Desktop\handshapes\standart hands\out_resized5\hog_template5.txt");
+            string path = @"C:\Users\Administrator\Desktop\handshapes\standart hands\out_resized\";            
+            StreamReader sr = File.OpenText(path +"hog.txt");
             templateHOGs = new List<float[]>();
             templateImages = new List<Image<Bgr, byte>>();
-            string path = @"C:\Users\Administrator\Desktop\handshapes\standart hands\out_resized5\";
 
             string line = sr.ReadLine();
-            int i = 0;
+            int i = 1;
             while (!String.IsNullOrEmpty(line))
             {
                 string[] cell = line.Substring(0,line.Length-1).Split(' ');
                 templateHOGs.Add(cell.Select(x => Convert.ToSingle(x)).ToArray());
-                string temppath = path + ((i / 5) + 1) + "_" + (i % 5 +1) + ".jpg";
-                Console.WriteLine(temppath);
+                //string temppath = path + ((i / 5) + 1) + "_" + (i % 5 +1) + ".jpg";
+                string temppath = path + i.ToString() + "_0"  + ".jpg";
+                //Console.WriteLine(temppath);
                 templateImages.Add(new Image<Bgr, byte>(temppath));
                 line = sr.ReadLine();
                 i++;
@@ -125,10 +126,10 @@ namespace CURELab.SignLanguage.HandDetector
                 result.Add(new pair(){index = i,value = dis});
             }
             pair[] p = result.OrderBy(x => x.value).Take(number).ToArray();
-            Console.WriteLine(Math.Sqrt(p[0].value));
-            Console.WriteLine(Math.Sqrt(p[1].value));
-            Console.WriteLine(Math.Sqrt(p[2].value));
-            Console.WriteLine("-------------");
+            //Console.WriteLine(Math.Sqrt(p[0].value));
+            //Console.WriteLine(Math.Sqrt(p[1].value));
+            //Console.WriteLine(Math.Sqrt(p[2].value));
+            //Console.WriteLine("-------------");
             Image<Bgr, byte>[] imgArray = p.Select(x=>templateImages[x.index]).ToArray();
 
             return imgArray;

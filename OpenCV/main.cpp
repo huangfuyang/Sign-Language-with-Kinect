@@ -1,13 +1,16 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/core/core.hpp"
 #include "opencv2/ocl/ocl.hpp"
+#include "opencv2/ml/ml.hpp"
+#include "opencv2/legacy/legacy.hpp"
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
 #include <fstream>
 #include <math.h>
-
+#include <ctime>
 
 using namespace cv;
 using namespace std;
@@ -59,6 +62,29 @@ void rotate(const Mat& src, Mat& dst, float angle)
 
 	Rect rect(x, y, targetSize.width, targetSize.height);
 	dst = Mat(dst, rect);
+}
+
+vector<string> get_all_files_names_within_folder(string folder)
+{
+	vector<string> names;
+	char search_path[200];
+	sprintf(search_path, "%s*.*", folder.c_str());
+	WIN32_FIND_DATA fd; 
+	HANDLE hFind = ::FindFirstFile(search_path, &fd); 
+	if(hFind != INVALID_HANDLE_VALUE) 
+	{ 
+		do 
+		{ 
+			// read all (real) files in current folder
+			// , delete '!' read other 2 default folder . and ..
+			if(! (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ) 
+			{
+				names.push_back(fd.cFileName);
+			}
+		}while(::FindNextFile(hFind, &fd)); 
+		::FindClose(hFind); 
+	} 
+	return names;
 }
 
 Mat ResizeSign(Mat image)
@@ -121,7 +147,8 @@ float GetDistance(vector<float> v1, vector<float> v2)
 	return sqrt(sum);
 }
 
-ofstream myfile;
+fstream myfile;
+fstream outfile;
 void WriteData(vector<float> data)
 {
 	for (int i = 0; i < data.size(); i++)
@@ -131,41 +158,359 @@ void WriteData(vector<float> data)
 	myfile<<endl;
 }
 
+void WriteData(Mat data,fstream& file)
+{
+	for (int i = 0; i < data.rows; i++)
+	{
+		for (int j = 0; j < data.cols; j++)
+		{
+			file<<data.at<double>(i,j)<<' ';
+		}
+		//file<<endl;
+	}
+}
+
+Mat get_hogdescriptor_visual_image(Mat& origImg,
+								   vector<float>& descriptorValues,
+								   Size winSize,
+								   Size cellSize,                                   
+								   int scaleFactor,
+								   double viz_factor)
+{   
+	Mat visual_image;
+	resize(origImg, visual_image, Size(origImg.cols*scaleFactor, origImg.rows*scaleFactor));
+
+	int gradientBinSize = 9;
+	// dividing 180бу into 9 bins, how large (in rad) is one bin?
+	float radRangeForOneBin = 3.14/(float)gradientBinSize; 
+
+	// prepare data structure: 9 orientation / gradient strenghts for each cell
+	int cells_in_x_dir = winSize.width / cellSize.width;
+	int cells_in_y_dir = winSize.height / cellSize.height;
+	int totalnrofcells = cells_in_x_dir * cells_in_y_dir;
+	float*** gradientStrengths = new float**[cells_in_y_dir];
+	int** cellUpdateCounter   = new int*[cells_in_y_dir];
+	for (int y=0; y<cells_in_y_dir; y++)
+	{
+		gradientStrengths[y] = new float*[cells_in_x_dir];
+		cellUpdateCounter[y] = new int[cells_in_x_dir];
+		for (int x=0; x<cells_in_x_dir; x++)
+		{
+			gradientStrengths[y][x] = new float[gradientBinSize];
+			cellUpdateCounter[y][x] = 0;
+
+			for (int bin=0; bin<gradientBinSize; bin++)
+				gradientStrengths[y][x][bin] = 0.0;
+		}
+	}
+
+	// nr of blocks = nr of cells - 1
+	// since there is a new block on each cell (overlapping blocks!) but the last one
+	int blocks_in_x_dir = cells_in_x_dir - 1;
+	int blocks_in_y_dir = cells_in_y_dir - 1;
+
+	// compute gradient strengths per cell
+	int descriptorDataIdx = 0;
+	int cellx = 0;
+	int celly = 0;
+
+	for (int blockx=0; blockx<blocks_in_x_dir; blockx++)
+	{
+		for (int blocky=0; blocky<blocks_in_y_dir; blocky++)            
+		{
+			// 4 cells per block ...
+			for (int cellNr=0; cellNr<4; cellNr++)
+			{
+				// compute corresponding cell nr
+				int cellx = blockx;
+				int celly = blocky;
+				if (cellNr==1) celly++;
+				if (cellNr==2) cellx++;
+				if (cellNr==3)
+				{
+					cellx++;
+					celly++;
+				}
+
+				for (int bin=0; bin<gradientBinSize; bin++)
+				{
+					float gradientStrength = descriptorValues[ descriptorDataIdx ];
+					descriptorDataIdx++;
+
+					gradientStrengths[celly][cellx][bin] += gradientStrength;
+
+				} // for (all bins)
+
+
+				// note: overlapping blocks lead to multiple updates of this sum!
+				// we therefore keep track how often a cell was updated,
+				// to compute average gradient strengths
+				cellUpdateCounter[celly][cellx]++;
+
+			} // for (all cells)
+
+
+		} // for (all block x pos)
+	} // for (all block y pos)
+
+
+	// compute average gradient strengths
+	for (int celly=0; celly<cells_in_y_dir; celly++)
+	{
+		for (int cellx=0; cellx<cells_in_x_dir; cellx++)
+		{
+
+			float NrUpdatesForThisCell = (float)cellUpdateCounter[celly][cellx];
+
+			// compute average gradient strenghts for each gradient bin direction
+			for (int bin=0; bin<gradientBinSize; bin++)
+			{
+				gradientStrengths[celly][cellx][bin] /= NrUpdatesForThisCell;
+			}
+		}
+	}
+
+
+	cout << "descriptorDataIdx = " << descriptorDataIdx << endl;
+
+	// draw cells
+	for (int celly=0; celly<cells_in_y_dir; celly++)
+	{
+		for (int cellx=0; cellx<cells_in_x_dir; cellx++)
+		{
+			int drawX = cellx * cellSize.width;
+			int drawY = celly * cellSize.height;
+
+			int mx = drawX + cellSize.width/2;
+			int my = drawY + cellSize.height/2;
+
+			rectangle(visual_image,
+				Point(drawX*scaleFactor,drawY*scaleFactor),
+				Point((drawX+cellSize.width)*scaleFactor,
+				(drawY+cellSize.height)*scaleFactor),
+				CV_RGB(100,100,100),
+				1);
+
+			// draw in each cell all 9 gradient strengths
+			for (int bin=0; bin<gradientBinSize; bin++)
+			{
+				float currentGradStrength = gradientStrengths[celly][cellx][bin];
+
+				// no line to draw?
+				if (currentGradStrength==0)
+					continue;
+
+				float currRad = bin * radRangeForOneBin + radRangeForOneBin/2;
+
+				float dirVecX = cos( currRad );
+				float dirVecY = sin( currRad );
+				float maxVecLen = cellSize.width/2;
+				float scale = viz_factor; // just a visual_imagealization scale,
+				// to see the lines better
+
+				// compute line coordinates
+				float x1 = mx - dirVecX * currentGradStrength * maxVecLen * scale;
+				float y1 = my - dirVecY * currentGradStrength * maxVecLen * scale;
+				float x2 = mx + dirVecX * currentGradStrength * maxVecLen * scale;
+				float y2 = my + dirVecY * currentGradStrength * maxVecLen * scale;
+
+				// draw gradient visual_imagealization
+				line(visual_image,
+					Point(x1*scaleFactor,y1*scaleFactor),
+					Point(x2*scaleFactor,y2*scaleFactor),
+					CV_RGB(255,255,0),
+					1);
+
+			} // for (all bins)
+
+		} // for (cellx)
+	} // for (celly)
+
+
+	// don't forget to free memory allocated by helper data structures!
+	for (int y=0; y<cells_in_y_dir; y++)
+	{
+		for (int x=0; x<cells_in_x_dir; x++)
+		{
+			delete[] gradientStrengths[y][x];            
+		}
+		delete[] gradientStrengths[y];
+		delete[] cellUpdateCounter[y];
+	}
+	delete[] gradientStrengths;
+	delete[] cellUpdateCounter;
+
+	return visual_image;
+
+}
+
+
 
 /** @function main */
 int main( int argc, char** argv )
 {
-	/// Load source image and convert it to gray
-	string prepath = "C:\\Users\\Administrator\\Desktop\\handshapes\\standart hands\\out_resized8\\";
+
+	//************ Load source image and convert it to gray****************
+	string prepath = "C:\\Users\\Administrator\\Desktop\\handshapes\\standart hands\\out_resized5\\kmeantemplate\\";
 	string prepath5 = "C:\\Users\\Administrator\\Desktop\\handshapes\\standart hands\\out_resized5\\";
 	string suffixpath = ".jpg";
-	myfile.open ("hog_template5.txt");
-	for (int i = 0; i < 60; i++)
-	{
-		for (int j = 1; j < 6; j++)
-		{
-			string path =  prepath5 + to_string(i+1) +'_'+to_string(j)+suffixpath;
-			Mat image = imread(path,1);
-			vector<float> hog = Hog(image);
-			WriteData(hog);
-		}
-	/*	for (int j = 1; j < 6; j++)
-		{
-			Mat rott;
-			rotate(image,rott,j*45-135);
-			rott = ResizeSign(rott);
-			imwrite(prepath5+ to_string(i+1)+"_"+to_string(j)+suffixpath,rott);
-		}*/
+	myfile.open (prepath+"hog_60template15mean.txt");
+	//outfile.open (prepath+"hog_templateKmean.txt",'w');
+	// //computer k means
+	//Mat labels;
+	//int cluster_number = 20;
+	//Mat centers;
+	//cv::Mat input(60,4356,CV_32F);
+	//std::vector<std::string> elems;
+	//
+	string line;
+	int i=0;
 
-		cout<<i<<endl;
+	//while ( getline (myfile,line,' ') )
+	//{
+	//	input.at<float>(i/4356,i%4356) = atof(line.c_str());
+	//	i++;
+	//	if (i%4356 == 0)
+	//	{
+	//		cout<<i/4356<<endl;
+	//	}
+	//}
+	//kmeans(input, cluster_number, labels, TermCriteria(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS, 100, 0.0001), 1, cv::KMEANS_RANDOM_CENTERS, centers);
+	//WriteData(centers,outfile);
+	//outfile.close();
+	//myfile.close();
+	//******************** MOG********************
+	//const int N = 6;
+	//const int N1 = (int)sqrt((double)N);
+	//
+	////Mat labels;
+	//const Scalar colors[] =
+	//{
+	//	Scalar(255,0,0), Scalar(0,255,0),
+	//	Scalar(0,0,255),Scalar(255,255,0),
+	//	Scalar(255,0,255),Scalar(0,255,255)
+	//};
+	//outfile.open("J:\\Kinect data\\mog141-180.txt",'w');
+	//string path = "J:\\Kinect data\\Aaron 141-180\\hands\\";
+
+	//vector<string> files = get_all_files_names_within_folder(path);
+	//int size = files.size();
+	//CvEM em_model;
+	//CvEMParams params;
+	//params.covs      = NULL;
+	//params.means     = NULL;
+	//params.weights   = NULL;
+	//params.probs     = NULL;
+	//params.nclusters = N;
+	//params.cov_mat_type       = CvEM::COV_MAT_DIAGONAL;
+	//params.start_step         = CvEM::START_AUTO_STEP;
+	//params.term_crit.max_iter = 100;
+	//params.term_crit.epsilon  = 1;
+	//params.term_crit.type     = CV_TERMCRIT_ITER|CV_TERMCRIT_EPS;
+	//for (int i = 0; i < size; i++)
+	//{
+	//	//clock_t begin = clock();
+	//	vector<Point2f> vec;
+	//	cout<<i<<'\\'<<size<<' '<<(float)i*100/size<<'%'<<endl;
+	//	Mat img = imread(path+files[i]);
+
+	//	for (int y = 0; y < img.rows; y++)
+	//	{
+	//		for (int x = 0; x  < img.cols; x ++)
+	//		{
+	//			if (img.ptr<Vec3b>(y)[x][0] != 0)
+	//			{
+	//				Point2f p(x,y);
+	//				//samples.push_back(p);
+	//				vec.push_back(p);
+	//			}
+	//		}
+	//	}
+	//	Mat samples(vec);
+
+	//	samples = samples.reshape(1, 0);
+	//	//cout<<samples<<endl;
+	//	em_model.train( samples, Mat(), params);
+	//	Mat means = em_model.getMeans();
+	//	vector<Mat> covs ;
+	//	em_model.getCovs(covs);
+	//	outfile<<files[i].substr(0,files[i].length()-4)<<' ';
+	//	WriteData(means,outfile);
+	//	for (int i = 0; i < N; i++)
+	//	{
+	//		outfile<<covs[i].ptr<double>(0)[0]<<' '<<covs[i].ptr<double>(1)[1]<<' ';
+	//	}
+	//	outfile<<endl;
+
+	//	//cout<<"**************"<<endl;
+	//}
+	//outfile.close();
+
+
+	//draw the clustered samples
+	/*for(int i = 0; i < nsamples; i++ )
+	{
+	Point pt(cvRound(samples.at<float>(i, 0)), cvRound(samples.at<float>(i, 1)));
+	circle( img, pt, 1, colors[labels.at<int>(i)], CV_FILLED );
+	}*/
+
+	//imshow( "EM-clustering result", img );
+	waitKey(0);
+	//cout<<samples<<endl;
+	//************* visualization******************
+	const int length = 15;
+	vector<vector<float>> hog(length);
+	while ( getline (myfile,line,' ') )
+	{
+		if (i%4356 == 0)
+		{
+			hog[i/4356] = vector<float>(4356);
+			cout<<i/4356<<endl;
+		}
+		float v = atof(line.c_str());
+		hog[i/4356].at(i%4356) = v;
+		i++;
+		
+		
 	}
+
+	Mat hogimg[length];
+	for (int i = 0; i < length; i++)
+	{
+		hogimg[i] = Mat(60,60,CV_8UC3, Scalar(0,0,0));
+		hogimg[i] = get_hogdescriptor_visual_image(hogimg[i],hog[i],Size(60,60),Size(5,5),5,5);
+		imwrite(prepath5+"\\template\\"+to_string(i)+suffixpath,hogimg[i]);
+	
+	}
+
+
+
+	//for (int i = 0; i < 60; i++)
+	//{
+	//	for (int j = 1; j < 6; j++)
+	//	{
+	//		string path =  prepath5 + to_string(i+1) +'_'+to_string(j)+suffixpath;
+	//		Mat image = imread(path,1);
+	//		vector<float> hog = Hog(image);
+	//		WriteData(hog);
+	//	}
+	//	/*	for (int j = 1; j < 6; j++)
+	//	{
+	//	Mat rott;
+	//	rotate(image,rott,j*45-135);
+	//	rott = ResizeSign(rott);
+	//	imwrite(prepath5+ to_string(i+1)+"_"+to_string(j)+suffixpath,rott);
+	//	}*/
+
+	//	cout<<i<<endl;
+	//}
 
 
 	//myfile <<to_string(d*100)<<" ";
 
-	myfile.close();
-	char* source_window = "Source";
-	namedWindow( source_window, CV_WINDOW_NORMAL );
+	//char* source_window = "Source";
+	//namedWindow( source_window, CV_WINDOW_NORMAL );
+
 	/*Mat rott;
 	rotate(images[0],rott,90);
 	imshow(source_window,rott);*/
@@ -180,7 +525,7 @@ int main( int argc, char** argv )
 	//createTrackbar( " Threshold:", "Source", &thresh, max_thresh, thresh_callback );
 	//thresh_callback( 0, 0 );
 
-	float s_in = 0,s_out = 0;
+	//float s_in = 0,s_out = 0;
 
 	//for (int j = 0; j < 16; j++)
 	//{
@@ -215,6 +560,7 @@ int main( int argc, char** argv )
 	system("pause");
 	return(0);
 }
+
 
 
 /** @function thresh_callback */
