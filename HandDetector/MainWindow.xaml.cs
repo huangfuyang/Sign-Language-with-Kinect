@@ -28,7 +28,7 @@ namespace CURELab.SignLanguage.HandDetector
 {
 
     /// <summary>
-    /// MainWindow.xaml 的交互逻辑
+    /// MainWindow.xaml 的交互
     /// </summary>
     public partial class MainWindow : Window
     {
