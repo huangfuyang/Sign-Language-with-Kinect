@@ -17,6 +17,7 @@ using System.Windows;
 using System.Windows.Threading;
 
 using OpenNIWrapper;
+using System.CodeDom;
 using NiTEWrapper;
 using CURELab.SignLanguage.StaticTools;
 using Emgu.CV;
