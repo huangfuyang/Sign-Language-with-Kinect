@@ -16,8 +16,6 @@ using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 
-using OpenNIWrapper;
-using NiTEWrapper;
 using CURELab.SignLanguage.StaticTools;
 using Emgu.CV;
 using Emgu.CV.Structure;
@@ -48,7 +46,7 @@ namespace CURELab.SignLanguage.HandDetector
         private Bitmap colorBitmap;
         private Bitmap grayBitmap;
 
-
+        /* lagency 
 
         private VideoStream m_colorStream;
 
@@ -74,33 +72,31 @@ namespace CURELab.SignLanguage.HandDetector
         public PlaybackControl m_playback;
         private bool m_isPause = false;
 
+        */
         private OpenNIController()
             : base()
         {
-            ConsoleManager.Show();
-            this.ColorWriteBitmap = new WriteableBitmap(640, 480, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgr24, null);
-            colorBitmap = new Bitmap(1, 1);
-            this.DepthWriteBitmap = new WriteableBitmap(640, 480, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgr24, null);
-            depthBitmap = new Bitmap(1, 1);
+            //ConsoleManager.Show();
+            //this.ColorWriteBitmap = new WriteableBitmap(640, 480, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgr24, null);
+            //colorBitmap = new Bitmap(1, 1);
+            //this.DepthWriteBitmap = new WriteableBitmap(640, 480, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgr24, null);
+            //depthBitmap = new Bitmap(1, 1);
 
-            this.EdgeBitmap = new WriteableBitmap(640, 480, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
-            this.ProcessedDepthBitmap = new WriteableBitmap(640, 480, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgr24, null);
-            this.GrayWriteBitmap = new WriteableBitmap(640, 480, 96, 96, System.Windows.Media.PixelFormats.Gray8, null);
-            grayBitmap = new Bitmap(1, 1);
-            handPos = new PointF();
-            HeadPos = new PointF();
+            //this.EdgeBitmap = new WriteableBitmap(640, 480, 96.0, 96.0, System.Windows.Media.PixelFormats.Gray8, null);
+            //this.ProcessedDepthBitmap = new WriteableBitmap(640, 480, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgr24, null);
+            //this.GrayWriteBitmap = new WriteableBitmap(640, 480, 96, 96, System.Windows.Media.PixelFormats.Gray8, null);
+            //grayBitmap = new Bitmap(1, 1);
+            //handPos = new PointF();
+            //HeadPos = new PointF();
 
         }
 
         public static KinectController GetSingletonInstance()
         {
-            if (singleInstance == null)
-            {
-                singleInstance = new OpenNIController();
-            }
-            return singleInstance;
+            return singleInstance ?? (singleInstance = new OpenNIController());
         }
 
+        /*
         public override void Initialize(string uri = null)
         {
             OpenNI.Status status;
@@ -162,7 +158,7 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 if (!frame.isValid)
                     return;
-                /*lock (image)
+                lock (image)
                 {
                     using (OpenNIWrapper.VideoFrameRef depthFrame = frame.DepthFrame)
                     {
@@ -200,7 +196,7 @@ namespace CURELab.SignLanguage.HandDetector
                     this.Text = "Frame #" + frame.FrameIndex.ToString() + " - Time: " + frame.Timestamp.ToString() + " - FPS: " + fps.ToString();
                     pb_preview.Image = image.Clone(new Rectangle(new Point(0, 0), image.Size), System.Drawing.Imaging.PixelFormat.Format24bppRgb);
                 }));
-            */
+            
             }
         }
 
@@ -929,7 +925,7 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
 
-
+        */
         #region ISubject 成员
 
         public event DataTransferEventHandler m_dataTransferEvent;

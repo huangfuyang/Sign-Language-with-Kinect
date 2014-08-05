@@ -39,7 +39,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             CANNY_THRESH = 10;
             CANNY_CONNECT_THRESH = 20;
-            Hog_Descriptor = new HOGDescriptor(new Size(60, 60), new Size(10, 10), new Size(5, 5), new Size(5, 5), 9, 1, -1, 0.2, false);
+            //Hog_Descriptor = new HOGDescriptor(new Size(60, 60), new Size(10, 10), new Size(5, 5), new Size(5, 5), 9, 1, -1, 0.2, false);
 
         }
 
