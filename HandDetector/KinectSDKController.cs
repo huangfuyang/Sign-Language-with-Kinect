@@ -324,15 +324,15 @@ namespace CURELab.SignLanguage.HandDetector
                     // not recording show prob
                     else
                     {
-                        Image<Bgr, byte>[] result = HandShapeClassifier.GetSingleton()
-                        .RecognizeGesture(handModel.hogRight, 3);
-                        //Console.WriteLine(sw.ElapsedMilliseconds);
-                        if (result != null)
-                        {
-                            ImageConverter.UpdateWriteBMP(WrtBMP_Candidate1, result[0].Convert<Gray, byte>().ToBitmap());
-                            ImageConverter.UpdateWriteBMP(WrtBMP_Candidate2, result[1].Convert<Gray, byte>().ToBitmap());
-                            ImageConverter.UpdateWriteBMP(WrtBMP_Candidate3, result[2].Convert<Gray, byte>().ToBitmap());
-                        }
+                        //Image<Bgr, byte>[] result = HandShapeClassifier.GetSingleton()
+                        //.RecognizeGesture(handModel.hogRight, 3);
+                        ////Console.WriteLine(sw.ElapsedMilliseconds);
+                        //if (result != null)
+                        //{
+                        //    ImageConverter.UpdateWriteBMP(WrtBMP_Candidate1, result[0].Convert<Gray, byte>().ToBitmap());
+                        //    ImageConverter.UpdateWriteBMP(WrtBMP_Candidate2, result[1].Convert<Gray, byte>().ToBitmap());
+                        //    ImageConverter.UpdateWriteBMP(WrtBMP_Candidate3, result[2].Convert<Gray, byte>().ToBitmap());
+                        //}
                     }
                     string currentSign = db == null ? "0" : db.CurrentSign.ToString();
                     string path = @"J:\Kinect data\Aaron 141-180\hands\" + currentSign + " " + handModel.frame.ToString();
@@ -340,13 +340,13 @@ namespace CURELab.SignLanguage.HandDetector
                     if (rightFront != null)
                     {
                         Bitmap right = rightFront.ToBitmap();
-                        right.Save(path + " r.jpg");
+                        //right.Save(path + " r.jpg");
                         ImageConverter.UpdateWriteBMP(WrtBMP_RightHandFront, right);
                     }
                     if (leftFront != null)
                     {
                         Bitmap left = leftFront.ToBitmap();
-                        left.Save(path + " l.jpg");
+                        //left.Save(path + " l.jpg");
                         ImageConverter.UpdateWriteBMP(WrtBMP_LeftHandFront, left);
                     }
                     if (sw.ElapsedMilliseconds>15)

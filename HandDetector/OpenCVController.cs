@@ -39,20 +39,16 @@ namespace CURELab.SignLanguage.HandDetector
         {
             CANNY_THRESH = 10;
             CANNY_CONNECT_THRESH = 20;
-            //Hog_Descriptor = new HOGDescriptor(new Size(60, 60), new Size(10, 10), new Size(5, 5), new Size(5, 5), 9, 1, -1, 0.2, false);
+            Hog_Descriptor = new HOGDescriptor(new Size(60, 60), new Size(10, 10), new Size(5, 5), new Size(5, 5), 9, 1, -1, 0.2, false);
 
         }
 
         public static OpenCVController GetSingletonInstance()
         {
-            if (singletonInstance == null)
-            {
-                singletonInstance = new OpenCVController();
-            }
-            return singletonInstance;
+            return singletonInstance ?? (singletonInstance = new OpenCVController());
         }
 
-      
+
         public void CalHistogram(Bitmap bmp)
         {
             Image<Gray, Byte> img = new Image<Gray, byte>(bmp);

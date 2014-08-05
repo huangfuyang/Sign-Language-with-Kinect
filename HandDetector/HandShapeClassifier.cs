@@ -59,23 +59,30 @@ namespace CURELab.SignLanguage.HandDetector
 
         private void InitializeAllGestureFromData()
         {
-            string path = @"C:\Users\Administrator\Desktop\handshapes\standart hands\out_resized\";            
-            StreamReader sr = File.OpenText(path +"hog.txt");
-            templateHOGs = new List<float[]>();
-            templateImages = new List<Image<Bgr, byte>>();
-
-            string line = sr.ReadLine();
-            int i = 1;
-            while (!String.IsNullOrEmpty(line))
+            try
             {
-                string[] cell = line.Substring(0,line.Length-1).Split(' ');
-                templateHOGs.Add(cell.Select(x => Convert.ToSingle(x)).ToArray());
-                //string temppath = path + ((i / 5) + 1) + "_" + (i % 5 +1) + ".jpg";
-                string temppath = path + i.ToString() + "_0"  + ".jpg";
-                //Console.WriteLine(temppath);
-                templateImages.Add(new Image<Bgr, byte>(temppath));
-                line = sr.ReadLine();
-                i++;
+                string path = @"C:\Users\Administrator\Desktop\handshapes\standart hands\out_resized\";            
+                StreamReader sr = File.OpenText(path +"hog.txt");
+                templateHOGs = new List<float[]>();
+                templateImages = new List<Image<Bgr, byte>>();
+
+                string line = sr.ReadLine();
+                int i = 1;
+                while (!String.IsNullOrEmpty(line))
+                {
+                    string[] cell = line.Substring(0,line.Length-1).Split(' ');
+                    templateHOGs.Add(cell.Select(x => Convert.ToSingle(x)).ToArray());
+                    //string temppath = path + ((i / 5) + 1) + "_" + (i % 5 +1) + ".jpg";
+                    string temppath = path + i.ToString() + "_0"  + ".jpg";
+                    //Console.WriteLine(temppath);
+                    templateImages.Add(new Image<Bgr, byte>(temppath));
+                    line = sr.ReadLine();
+                    i++;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
 
         }
