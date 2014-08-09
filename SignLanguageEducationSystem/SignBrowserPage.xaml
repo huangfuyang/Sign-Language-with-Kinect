@@ -1,0 +1,47 @@
+﻿<UserControl x:Class="SignLanguageEducationSystem.SignBrowserPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+			 xmlns:k="http://schemas.microsoft.com/kinect/2013"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1440">
+	
+	<UserControl.Resources>
+		<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:k="http://schemas.microsoft.com/kinect/2013"
+                    >
+			<PathGeometry x:Key="LeftFacingArrowGeometry">
+				M182.5703,143.3564L182.5703,155.3564L142.5703,155.3564C148.2363,161.3564,153.9043,167.3564,159.5703,173.3564L143.5703,173.3564L120.4803,149.3564L144.5703,
+        125.3564L160.7373,125.3564L142.5703,143.3564z
+			</PathGeometry>
+			<Path x:Key="ArrowLeft" Height="48" Canvas.Left="0" Stretch="Uniform" Canvas.Top="0" Width="48" x:Shared="False"
+          Data="{StaticResource LeftFacingArrowGeometry}"
+          Fill="{Binding FallbackValue=Black, Path=ContentForeground,RelativeSource={RelativeSource AncestorType={x:Type k:KinectCircleButton}}}">
+				<Path.RenderTransformOrigin>0.5,0.5</Path.RenderTransformOrigin>
+				<Path.RenderTransform>
+					<RotateTransform Angle="0"/>
+				</Path.RenderTransform>
+			</Path>
+		</ResourceDictionary>
+	</UserControl.Resources>
+	
+    <Grid>
+		<Grid.Background>
+			<SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlColorKey}}"/>
+		</Grid.Background>
+		<k:KinectCircleButton Name="btnBack"  Margin="45, 45, 0, 0" HorizontalAlignment="Left" VerticalAlignment="Top" LabelPosition="None" Click="btnBack_Click">
+			<Grid>
+				<Rectangle Fill="Transparent" Margin="-100 -100 -155 -155"/>
+				<ContentPresenter Content="{StaticResource ArrowLeft}"/>
+			</Grid>
+		</k:KinectCircleButton>
+		
+		<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="215,84,0,0" FontSize="50pt" FontWeight="Light" Foreground="#FF5a5b5b" Text="Sign Browser"/>
+
+		<k:KinectScrollViewer Name="KinectScrollViewer" Margin="195,215,195,30.168" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"  CanContentScroll="True">
+			<WrapPanel HorizontalAlignment="Center" Name="panelSignList"/>
+		</k:KinectScrollViewer>
+	</Grid>
+</UserControl>
