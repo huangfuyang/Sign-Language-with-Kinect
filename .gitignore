@@ -35,7 +35,10 @@ KinectSignLanguage.sln.LOCAL.6348.sln
 KinectSignLanguage.sln.orig
 KinectSignLanguage.sln.REMOTE.6348.sln
 KinectSignLanguage.opensdf
-OpenCV.rar
-KinectSignLanguage.sdf
-KinectSignLanguage.sdf
-KinectSignLanguage.sdf
+# Visual C++ cache files
+ipch/
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
