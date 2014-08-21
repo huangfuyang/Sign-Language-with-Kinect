@@ -57,6 +57,7 @@ namespace SignLanguageEducationSystem {
 			if (args.NewSensor != null) {
 				try {
 					args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
+                    args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
 					args.NewSensor.SkeletonStream.Enable();
 
 					try {
