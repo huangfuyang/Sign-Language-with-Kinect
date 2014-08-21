@@ -30,7 +30,7 @@ namespace SignLanguageEducationSystem
         private Skeleton[] _skeletons;
         private bool isPlayed;
         private KinectSensor sensor;
-        private List<Skeleton> templateSkeletons;
+        private SignModel templateModel;
         private List<Skeleton> capturedSkeletons;
 
         public SignWordPage(SystemStatusCollection systemStatusCollection)
@@ -45,16 +45,24 @@ namespace SignLanguageEducationSystem
             _colorPixels = new byte[systemStatusCollection.CurrentKinectSensor.ColorStream.FramePixelDataLength];
             _depthPixels = new DepthImagePixel[this.sensor.DepthStream.FramePixelDataLength];
             capturedSkeletons = new List<Skeleton>();
+            //templateModel = LoadSkeleton("sign1.txt");
             systemStatusCollection.CurrentKinectSensor.AllFramesReady += AllFrameReady;
         }
 
-        private void SaveXML(string filename, SignModel data)
+        private void SaveSkeleton(string filename, SignModel data)
         {
-            
-            XmlSerializer serializer = new XmlSerializer(typeof(SignModel));
-            TextWriter writer = new StreamWriter(filename);
-            serializer.Serialize(writer, data);
-            writer.Close();
+            StreamWriter sw = new StreamWriter(filename);
+            sw.WriteLine(data.ToString());
+            sw.Close();
+        }
+
+        private SignModel LoadSkeleton(string filename)
+        {
+            StreamReader sr = new StreamReader(filename);
+            string line = sr.ReadLine();
+            var sm = SignModel.CreateFromString(line);
+            return sm;
+        
         }
 
 
@@ -277,9 +285,29 @@ namespace SignLanguageEducationSystem
 
         private void btn_Save_Click(object sender, RoutedEventArgs e)
         {
-            var signmodel = new SignModel {Name = "sign1", Skeletons = capturedSkeletons};
-            SaveXML(signmodel.Name + ".xml", signmodel);
+            var signmodel = ProcessSkeleton("sign1", capturedSkeletons);
+            SaveSkeleton(signmodel.Name + ".txt", signmodel);
             capturedSkeletons.Clear();
+        }
+
+        private SignModel ProcessSkeleton(string name, List<Skeleton> s)
+        {
+            var signmodel = new SignModel { Name = name };
+            foreach (var item in s)
+            {
+                SkeletonPoint rh = item.Joints[JointType.HandRight].Position;
+                SkeletonPoint rs = item.Joints[JointType.ShoulderRight].Position;
+                SkeletonPoint ls = item.Joints[JointType.ShoulderLeft].Position;
+                SkeletonPoint head = item.Joints[JointType.Head].Position;
+                SkeletonPoint hip = item.Joints[JointType.HipCenter].Position;
+
+                float v = (rh.Y - head.Y) / (head.Y - hip.Y);
+                float h = (rh.X - rs.X) / (rs.X - ls.X);
+                signmodel.H_horizantal.Add(h);
+                signmodel.H_vertical.Add(v);
+            }
+            return signmodel;
+        
         }
 
     }
