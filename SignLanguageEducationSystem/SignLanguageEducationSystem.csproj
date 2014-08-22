@@ -45,6 +45,18 @@
     <Reference Include="Microsoft.Kinect.Toolkit.Interaction">
       <HintPath>C:\Program Files\Microsoft SDKs\Kinect\Developer Toolkit v1.8.0\bin\Microsoft.Kinect.Toolkit.Interaction.dll</HintPath>
     </Reference>
+    <Reference Include="NDtw">
+      <HintPath>..\..\ndtw\NDtw.Examples\bin\Debug\NDtw.dll</HintPath>
+    </Reference>
+    <Reference Include="NDtw.Visualization.Wpf">
+      <HintPath>..\..\ndtw\NDtw.Examples\bin\Debug\NDtw.Visualization.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="OxyPlot">
+      <HintPath>..\..\ndtw\NDtw.Examples\bin\Debug\OxyPlot.dll</HintPath>
+    </Reference>
+    <Reference Include="OxyPlot.Wpf">
+      <HintPath>..\..\ndtw\NDtw.Examples\bin\Debug\OxyPlot.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationUI, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="ReachFramework" />
     <Reference Include="System" />
@@ -70,6 +82,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="DTWWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="HomePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -83,9 +99,18 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AutoNotifyPropertyChanged.cs" />
+    <Compile Include="DTWWindow.xaml.cs">
+      <DependentUpon>DTWWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="HomePage.xaml.cs">
       <DependentUpon>HomePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Infrastructure\MultiSelect\IListItemConverter.cs" />
+    <Compile Include="Infrastructure\MultiSelect\MultiSelectorBehaviours.cs" />
+    <Compile Include="Infrastructure\MultiSelect\RelayCommand.cs" />
+    <Compile Include="Infrastructure\MultiSelect\TwoListSynchronizer.cs" />
+    <Compile Include="Infrastructure\StrongTypingHelper.cs" />
+    <Compile Include="Infrastructure\ViewModelBase.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -104,6 +129,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DTWViewModel.cs" />
     <Compile Include="Model\SignWord.cs" />
     <Compile Include="SignBrowserPage.xaml.cs">
       <DependentUpon>SignBrowserPage.xaml</DependentUpon>

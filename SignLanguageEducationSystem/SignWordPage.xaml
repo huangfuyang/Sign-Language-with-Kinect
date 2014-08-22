@@ -55,6 +55,8 @@
 			</Label>
 		</Grid>
         <Button x:Name="btn_Save" Content="Save" HorizontalAlignment="Left" Margin="575,30,0,0" VerticalAlignment="Top" Width="75" Click="btn_Save_Click"/>
+        <Button x:Name="btn_Score" Content="Score" HorizontalAlignment="Left" Margin="687,30,0,0" VerticalAlignment="Top" Width="75" Click="btn_Score_Click"/>
+        <Button x:Name="btn_DTW" Content="DTW" HorizontalAlignment="Left" Margin="808,30,0,0" VerticalAlignment="Top" Width="75" Click="btn_DTW_Click"/>
 
     </Grid>
 </UserControl>

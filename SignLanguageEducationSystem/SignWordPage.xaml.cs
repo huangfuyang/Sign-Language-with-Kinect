@@ -17,6 +17,7 @@ using System.Windows.Shapes;
 using Microsoft.Kinect;
 using CURELab.SignLanguage.HandDetector;
 using System.Xml.Serialization;
+using NDtw;
 
 namespace SignLanguageEducationSystem
 {
@@ -32,6 +33,7 @@ namespace SignLanguageEducationSystem
         private KinectSensor sensor;
         private SignModel templateModel;
         private List<Skeleton> capturedSkeletons;
+        private Dtw m_dtw;
 
         public SignWordPage(SystemStatusCollection systemStatusCollection)
         {
@@ -45,7 +47,7 @@ namespace SignLanguageEducationSystem
             _colorPixels = new byte[systemStatusCollection.CurrentKinectSensor.ColorStream.FramePixelDataLength];
             _depthPixels = new DepthImagePixel[this.sensor.DepthStream.FramePixelDataLength];
             capturedSkeletons = new List<Skeleton>();
-            //templateModel = LoadSkeleton("sign1.txt");
+            templateModel = LoadSkeleton("sign.txt");
             systemStatusCollection.CurrentKinectSensor.AllFramesReady += AllFrameReady;
         }
 
@@ -268,6 +270,7 @@ namespace SignLanguageEducationSystem
         {
             isPlayed = true;
             WaitingImage.Visibility = Visibility.Hidden;
+            capturedSkeletons.Clear();
         }
 
         /// <summary>
@@ -310,5 +313,39 @@ namespace SignLanguageEducationSystem
         
         }
 
+        private void btn_Score_Click(object sender, RoutedEventArgs e)
+        {
+            var signmodel = ProcessSkeleton("sign1", capturedSkeletons);
+            var score = CalculateCost(templateModel, signmodel);
+            capturedSkeletons.Clear();
+            MessageBox.Show(score.ToString());
+        }
+
+        private double CalculateCost(SignModel sm1, SignModel sm2)
+        {
+            var seriesVariables = new List<SeriesVariable>();
+            
+            seriesVariables.Add(
+                    new SeriesVariable(
+                        sm1.H_horizantal.ToArray(),
+                        sm2.H_horizantal.ToArray()));
+            seriesVariables.Add(
+                    new SeriesVariable(
+                        sm1.H_vertical.ToArray(),
+                        sm2.H_vertical.ToArray()));
+
+            var seriesVariablesArray = seriesVariables.ToArray();
+
+            var dtw = new Dtw(seriesVariablesArray);
+            m_dtw = dtw;
+            return dtw.GetCost();
+        }
+
+        private void btn_DTW_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new DTWWindow();
+            window.Show();
+            window.SetData(m_dtw);
+        }
     }
 }

@@ -11,16 +11,16 @@ namespace SignLanguageEducationSystem
     [Serializable]
     public class SignModel
     {
-        private List<float> h_vertical;
+        private List<double> h_vertical;
 
-        public List<float> H_vertical
+        public List<double> H_vertical
         {
             get { return h_vertical; }
             set { h_vertical = value; }
         }
-        private List<float> h_horizantal;
+        private List<double> h_horizantal;
 
-        public List<float> H_horizantal
+        public List<double> H_horizantal
         {
             get { return h_horizantal; }
             set { h_horizantal = value; }
@@ -28,8 +28,8 @@ namespace SignLanguageEducationSystem
 
         public SignModel()
         {
-            h_vertical = new List<float>();
-            h_horizantal = new List<float>();
+            h_vertical = new List<double>();
+            h_horizantal = new List<double>();
         }
 
         public override string ToString()
@@ -61,8 +61,8 @@ namespace SignLanguageEducationSystem
             string[] datas = data.Split();
             foreach (var item in datas)
             {
-                float v = Convert.ToSingle(item.Split(',')[0]);
-                float h = Convert.ToSingle(item.Split(',')[1]);
+                double v = Convert.ToDouble(item.Split(',')[0]);
+                double h = Convert.ToDouble(item.Split(',')[1]);
                 sm.H_horizantal.Add(h);
                 sm.H_vertical.Add(v);
             }
