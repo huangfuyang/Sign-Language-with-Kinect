@@ -32,7 +32,7 @@ namespace SignLanguageEducationSystem {
 
 			ImageBrush b = new ImageBrush(bi);
 			b.AlignmentY = 0;
-			b.Stretch = Stretch.UniformToFill;
+			b.Stretch = Stretch.Fill;
 			btnStart.Background = b;
 		}
 
