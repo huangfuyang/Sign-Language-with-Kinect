@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -34,6 +34,8 @@ namespace SignLanguageEducationSystem
         private SignModel templateModel;
         private List<Skeleton> capturedSkeletons;
         private Dtw m_dtw;
+        private bool IsRecording = false;
+        private Timer m_timer;
 
         public SignWordPage(SystemStatusCollection systemStatusCollection)
         {
@@ -46,9 +48,19 @@ namespace SignLanguageEducationSystem
 
             _colorPixels = new byte[systemStatusCollection.CurrentKinectSensor.ColorStream.FramePixelDataLength];
             _depthPixels = new DepthImagePixel[this.sensor.DepthStream.FramePixelDataLength];
-            capturedSkeletons = new List<Skeleton>();
+            capturedSkeletons = new List<Skeleton> {Capacity = 500};
             templateModel = LoadSkeleton("sign.txt");
             systemStatusCollection.CurrentKinectSensor.AllFramesReady += AllFrameReady;
+
+            m_timer = new Timer();
+            m_timer.Elapsed += (sender, args) =>
+            {
+                ScoreSign();
+                var timer = sender as Timer;
+                if (timer != null) timer.Stop();
+            };
+            m_timer.Interval = 10000;
+            m_timer.Enabled = true;
         }
 
         private void SaveSkeleton(string filename, SignModel data)
@@ -95,7 +107,7 @@ namespace SignLanguageEducationSystem
                 if (colorFrame != null)
                 {
                     WriteableBitmap ColorBitmap = ((SystemStatusCollection)this.DataContext).ColorBitmap;
-
+                    
                     colorFrame.CopyPixelDataTo(this._colorPixels);
                     ((SystemStatusCollection)this.DataContext).ColorBitmap.Lock();
                     ColorBitmap.WritePixels(
@@ -155,10 +167,13 @@ namespace SignLanguageEducationSystem
                     Point rightVector = new Point();
                     Point leftVector = new Point();
                     bool isSkip = false;
-                    bool leftHandRaise = false;
+                    bool rightHandRaise = false;
                     if (_skeletons != null && _skeletons[0].TrackingState == SkeletonTrackingState.Tracked)
                     {
-                        capturedSkeletons.Add(_skeletons[0]);
+                        if (IsRecording)
+                        {
+                            capturedSkeletons.Add(_skeletons[0]);
+                        }
                         Point hr = SkeletonPointToScreen(_skeletons[0].Joints[JointType.HandRight].Position);
                         Point hl = SkeletonPointToScreen(_skeletons[0].Joints[JointType.HandLeft].Position);
                         Point er = SkeletonPointToScreen(_skeletons[0].Joints[JointType.ElbowRight].Position);
@@ -173,10 +188,10 @@ namespace SignLanguageEducationSystem
                         {
                             isSkip = true;
                         }
-                        if (_skeletons[0].Joints[JointType.HandLeft].Position.Y >
+                        if (_skeletons[0].Joints[JointType.HandRight].Position.Y >
                             _skeletons[0].Joints[JointType.HipCenter].Position.Y)
                         {
-                            leftHandRaise = true;
+                            rightHandRaise = true;
                         }
 
                         rightVector.X = (hr.X - er.X);
@@ -184,62 +199,8 @@ namespace SignLanguageEducationSystem
                         leftVector.X = (hl.X - el.X);
                         leftVector.Y = (hl.Y - el.Y);
                     }
-                    HandShapeModel handModel = null;
-                    if (!isSkip)
-                    {
-                        //handModel = m_OpenCVController.FindHandPart(ref depthImg, out rightFront, out leftFront, headDepth - (int)CullingThresh, rightVector, leftVector, leftHandRaise);
+                    HandShapeModel handModel = new HandShapeModel(0, HandEnum.None);
                     
-                    }
-
-
-                    // no hands detected
-                    if (handModel == null)
-                    {
-                        handModel = new HandShapeModel(0, HandEnum.None);
-                    }
-                    //sw.Restart();
-
-                    //Image<Bgr, byte>[] result = HandShapeClassifier.GetSingleton()
-                    //.RecognizeGesture(handModel.hogRight, 3);
-                    ////Console.WriteLine(sw.ElapsedMilliseconds);
-                    //if (result != null)
-                    //{
-                    //    ImageConverter.UpdateWriteBMP(WrtBMP_Candidate1, result[0].Convert<Gray, byte>().ToBitmap());
-                    //    ImageConverter.UpdateWriteBMP(WrtBMP_Candidate2, result[1].Convert<Gray, byte>().ToBitmap());
-                    //    ImageConverter.UpdateWriteBMP(WrtBMP_Candidate3, result[2].Convert<Gray, byte>().ToBitmap());
-                    //}
-                    
-                    //string currentSign = db == null ? "0" : db.CurrentSign.ToString();
-                    //string path = @"J:\Kinect data\Aaron 141-180\hands\" + currentSign + " " + handModel.frame.ToString();
-                    //// UI update
-                    //if (rightFront != null)
-                    //{
-                    //    Bitmap right = rightFront.ToBitmap();
-                    //    //right.Save(path + " r.jpg");
-                    //    ImageConverter.UpdateWriteBMP(WrtBMP_RightHandFront, right);
-                    //}
-                    //if (leftFront != null)
-                    //{
-                    //    Bitmap left = leftFront.ToBitmap();
-                    //    //left.Save(path + " l.jpg");
-                    //    ImageConverter.UpdateWriteBMP(WrtBMP_LeftHandFront, left);
-                    //}
-                    //if (sw.ElapsedMilliseconds > 15)
-                    //{
-                    //    Console.WriteLine("Find hand:" + sw.ElapsedMilliseconds);
-                    //}
-                    //sw.Restart();
-
-                    //**************************draw gray histogram
-                    //Bitmap histo = m_OpenCVController.Histogram(depthImg);
-                    //ImageConverter.UpdateWriteBMP(GrayWriteBitmap, histo);
-
-                    //  draw hand position from kinect
-                    // DrawHandPosition(depthBMP, rightHandPosition, System.Drawing.Brushes.Purple);
-
-                    //*******************upadte UI
-                    //ImageConverter.UpdateWriteBMP(DepthWriteBitmap, depthImg.ToBitmap());
-                    // Console.WriteLine("Update UI:" + sw.ElapsedMilliseconds);
 
                 }
             }
@@ -271,6 +232,8 @@ namespace SignLanguageEducationSystem
             isPlayed = true;
             WaitingImage.Visibility = Visibility.Hidden;
             capturedSkeletons.Clear();
+            IsRecording = true;
+            m_timer.Start();
         }
 
         /// <summary>
@@ -291,6 +254,7 @@ namespace SignLanguageEducationSystem
             var signmodel = ProcessSkeleton("sign1", capturedSkeletons);
             SaveSkeleton(signmodel.Name + ".txt", signmodel);
             capturedSkeletons.Clear();
+
         }
 
         private SignModel ProcessSkeleton(string name, List<Skeleton> s)
@@ -315,10 +279,17 @@ namespace SignLanguageEducationSystem
 
         private void btn_Score_Click(object sender, RoutedEventArgs e)
         {
+            ScoreSign();
+        }
+
+        private void ScoreSign()
+        {
             var signmodel = ProcessSkeleton("sign1", capturedSkeletons);
             var score = CalculateCost(templateModel, signmodel);
             capturedSkeletons.Clear();
+            IsRecording = false;
             MessageBox.Show(score.ToString());
+
         }
 
         private double CalculateCost(SignModel sm1, SignModel sm2)

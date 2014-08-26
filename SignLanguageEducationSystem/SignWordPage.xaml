@@ -46,8 +46,14 @@
 				<ColumnDefinition/>
 			</Grid.ColumnDefinitions>
 
-			<MediaElement x:Name="videoPlayer" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" UnloadedBehavior="Stop" Stretch="Fill" IsMuted="True" Source="{Binding CurrentSignWord.Path, Mode=OneWay}" Loaded="videoPlayer_Loaded" MediaEnded="videoPlayer_MediaEnded" LoadedBehavior="Manual"/>
-			<Image x:Name="KinectImage" Grid.Column="1" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" Source="{Binding ColorBitmap, Mode=OneWay}" Stretch="UniformToFill"/>
+			<MediaElement x:Name="videoPlayer" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" UnloadedBehavior="Stop" Stretch="Fill" IsMuted="True" Source="{Binding CurrentSignWord.Path, Mode=OneWay}" Loaded="videoPlayer_Loaded" MediaEnded="videoPlayer_MediaEnded" LoadedBehavior="Manual" >
+
+            </MediaElement>
+            <Image x:Name="KinectImage" Grid.Column="1" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5" Margin="0,0,0,0" VerticalAlignment="Center" Source="{Binding ColorBitmap, Mode=OneWay}" Stretch="UniformToFill">
+                <Image.RenderTransform>
+                    <ScaleTransform ScaleX="-1"/>
+                </Image.RenderTransform>
+            </Image>
 			<Label x:Name="WaitingImage" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,0,0,0" Content="Please Wait..." FontSize="80" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FFF3E59A" FontWeight="Bold">
 				<Label.Background>
 					<SolidColorBrush Color="#FF0092C7" Opacity="0.5"/>
