@@ -37,6 +37,8 @@ namespace SignLanguageEducationSystem
         private bool IsRecording = false;
         private Timer m_timer;
 
+        public int Score { get; set; }
+
         public SignWordPage(SystemStatusCollection systemStatusCollection)
         {
             InitializeComponent();
@@ -55,9 +57,9 @@ namespace SignLanguageEducationSystem
             m_timer = new Timer();
             m_timer.Elapsed += (sender, args) =>
             {
-                ScoreSign();
                 var timer = sender as Timer;
                 if (timer != null) timer.Stop();
+                ScoreSign();
             };
             m_timer.Interval = 10000;
             m_timer.Enabled = true;
@@ -90,6 +92,7 @@ namespace SignLanguageEducationSystem
                 {
                     _skeletons = new Skeleton[skeletonFrame.SkeletonArrayLength];
                     skeletonFrame.CopySkeletonDataTo(_skeletons);
+                    
                     Skeleton skel = _skeletons[0];
                     if (skel.TrackingState == SkeletonTrackingState.Tracked)
                     {
@@ -168,37 +171,45 @@ namespace SignLanguageEducationSystem
                     Point leftVector = new Point();
                     bool isSkip = false;
                     bool rightHandRaise = false;
-                    if (_skeletons != null && _skeletons[0].TrackingState == SkeletonTrackingState.Tracked)
+                    if (_skeletons != null)
                     {
-                        if (IsRecording)
+                        foreach (var skel in _skeletons)
                         {
-                            capturedSkeletons.Add(_skeletons[0]);
-                        }
-                        Point hr = SkeletonPointToScreen(_skeletons[0].Joints[JointType.HandRight].Position);
-                        Point hl = SkeletonPointToScreen(_skeletons[0].Joints[JointType.HandLeft].Position);
-                        Point er = SkeletonPointToScreen(_skeletons[0].Joints[JointType.ElbowRight].Position);
-                        Point el = SkeletonPointToScreen(_skeletons[0].Joints[JointType.ElbowLeft].Position);
-                        Point hip = SkeletonPointToScreen(_skeletons[0].Joints[JointType.HipCenter].Position);
-                        // hand is lower than hip
-                        //Console.WriteLine(_skeletons[0].Joints[JointType.HandRight].Position.Y);
-                        //Console.WriteLine(_skeletons[0].Joints[JointType.HipCenter].Position.Y);
-                        //Console.WriteLine("-------------");
-                        if (_skeletons[0].Joints[JointType.HandRight].Position.Y <
-                            _skeletons[0].Joints[JointType.HipCenter].Position.Y + 0.05)
-                        {
-                            isSkip = true;
-                        }
-                        if (_skeletons[0].Joints[JointType.HandRight].Position.Y >
-                            _skeletons[0].Joints[JointType.HipCenter].Position.Y)
-                        {
-                            rightHandRaise = true;
-                        }
+                            if (skel.TrackingState == SkeletonTrackingState.Tracked)
+                            {
+                                if (IsRecording)
+                                {
+                                    capturedSkeletons.Add(skel);
+                                }
+                                Point hr = SkeletonPointToScreen(_skeletons[0].Joints[JointType.HandRight].Position);
+                                Point hl = SkeletonPointToScreen(_skeletons[0].Joints[JointType.HandLeft].Position);
+                                Point er = SkeletonPointToScreen(_skeletons[0].Joints[JointType.ElbowRight].Position);
+                                Point el = SkeletonPointToScreen(_skeletons[0].Joints[JointType.ElbowLeft].Position);
+                                Point hip = SkeletonPointToScreen(_skeletons[0].Joints[JointType.HipCenter].Position);
+                                // hand is lower than hip
+                                //Console.WriteLine(_skeletons[0].Joints[JointType.HandRight].Position.Y);
+                                //Console.WriteLine(_skeletons[0].Joints[JointType.HipCenter].Position.Y);
+                                //Console.WriteLine("-------------");
+                                if (skel.Joints[JointType.HandRight].Position.Y <
+                                    skel.Joints[JointType.HipCenter].Position.Y + 0.05)
+                                {
+                                    isSkip = true;
+                                }
+                                if (skel.Joints[JointType.HandRight].Position.Y >
+                                    skel.Joints[JointType.HipCenter].Position.Y)
+                                {
+                                    rightHandRaise = true;
+                                }
 
-                        rightVector.X = (hr.X - er.X);
-                        rightVector.Y = (hr.Y - er.Y);
-                        leftVector.X = (hl.X - el.X);
-                        leftVector.Y = (hl.Y - el.Y);
+                                rightVector.X = (hr.X - er.X);
+                                rightVector.Y = (hr.Y - er.Y);
+                                leftVector.X = (hl.X - el.X);
+                                leftVector.Y = (hl.Y - el.Y);
+                            }
+                        }
                     }
+                   
+                    
                     HandShapeModel handModel = new HandShapeModel(0, HandEnum.None);
                     
 
@@ -251,7 +262,7 @@ namespace SignLanguageEducationSystem
 
         private void btn_Save_Click(object sender, RoutedEventArgs e)
         {
-            var signmodel = ProcessSkeleton("sign1", capturedSkeletons);
+            var signmodel = ProcessSkeleton("sign2", capturedSkeletons);
             SaveSkeleton(signmodel.Name + ".txt", signmodel);
             capturedSkeletons.Clear();
 
@@ -284,12 +295,31 @@ namespace SignLanguageEducationSystem
 
         private void ScoreSign()
         {
+            if (capturedSkeletons.Count() == 0)
+            {
+                this.Dispatcher.BeginInvoke(new Action(() => txtScore.Text = "Not captured"));
+                return;
+            }
             var signmodel = ProcessSkeleton("sign1", capturedSkeletons);
             var score = CalculateCost(templateModel, signmodel);
             capturedSkeletons.Clear();
             IsRecording = false;
-            MessageBox.Show(score.ToString());
+            int s = 0;
 
+            if (score<20)
+            {
+                s = 100;
+            }
+            else if(score>100)
+            {
+                s = 0;
+            }
+            else             
+            {
+                s = (int)((100-score)*1.25);
+            }
+            //MessageBox.Show(s.ToString());
+            this.Dispatcher.BeginInvoke(new Action(()=>txtScore.Text = s.ToString()));
         }
 
         private double CalculateCost(SignModel sm1, SignModel sm2)
@@ -317,6 +347,14 @@ namespace SignLanguageEducationSystem
             var window = new DTWWindow();
             window.Show();
             window.SetData(m_dtw);
+        }
+
+        private void btnRestart_Click(object sender, RoutedEventArgs e)
+        {
+            WaitingImage.Visibility = Visibility.Visible;
+            IsRecording = false;
+            videoPlayer.Position = TimeSpan.FromSeconds(0);
+            videoPlayer.Play();
         }
     }
 }

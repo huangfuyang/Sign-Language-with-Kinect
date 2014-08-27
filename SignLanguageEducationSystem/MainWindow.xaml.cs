@@ -61,16 +61,19 @@ namespace SignLanguageEducationSystem {
 					args.NewSensor.SkeletonStream.Enable();
 
 					try {
-						args.NewSensor.DepthStream.Range = DepthRange.Near;
+                        //args.NewSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
+                        args.NewSensor.DepthStream.Range = DepthRange.Near;
 						args.NewSensor.SkeletonStream.EnableTrackingInNearRange = true;
-						args.NewSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
 					} catch (InvalidOperationException) {
 						// Switch back to normal mode if Kinect does not support near mode
 						args.NewSensor.DepthStream.Range = DepthRange.Default;
 						args.NewSensor.SkeletonStream.EnableTrackingInNearRange = false;
-						error = true;
 					}
-				} catch (InvalidOperationException) { error = true; }
+				}
+                catch (InvalidOperationException) 
+                {
+                    error = true; 
+                }
 			} else {
 				error = true;
 			}

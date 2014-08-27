@@ -21,12 +21,12 @@
         </Grid.ColumnDefinitions>
         <Image  Margin="133,0" HorizontalAlignment="Center" Source="Images/banner.png" Grid.ColumnSpan="2" Width="1174"/>
         <StackPanel HorizontalAlignment="Center" Grid.Row="1" Orientation="Horizontal" Margin="60,0" Width="600" >
-            <k:KinectTileButton x:Name="btnLearn"  Width="300" Height="240" Margin="0" Click="btnLearn_Click"  >
+            <k:KinectTileButton BorderThickness="0" x:Name="btnLearn"  Width="300" Height="240" Margin="0" Click="btnLearn_Click"  >
                 <k:KinectTileButton.Background>
                     <ImageBrush ImageSource="Images\learn.png"/>
                 </k:KinectTileButton.Background>
             </k:KinectTileButton>
-            <k:KinectTileButton  x:Name="btnWatchVideo"  Width="300" Height="240" Margin="0" Click="btnWatchVideo_Click"   >
+            <k:KinectTileButton BorderThickness="0" x:Name="btnWatchVideo"  Width="300" Height="240" Margin="0" Click="btnWatchVideo_Click"   >
                 <k:KinectTileButton.Background>
                     <ImageBrush ImageSource="Images/question.jpg"/>
                 </k:KinectTileButton.Background>
@@ -35,8 +35,8 @@
                 </k:KinectTileButton.BindingGroup>
             </k:KinectTileButton>
         </StackPanel>
-        <TextBlock x:Name="txtDescription" Text="Please select one function" VerticalAlignment="Center"   Foreground="#5A5B5B" FontFamily="Segoe UI" FontWeight="Light" FontSize="50" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10,236,0,229" Grid.Column="1" Grid.Row="1" Height="66" Width="540" />
-        <Image Grid.Row="2"  Margin="0,20,20,20" HorizontalAlignment="Right" Source="Images/curelogo.png" Grid.Column="1" Width="334"/>
-        <Image Grid.Row="2"  Margin="5,5,0,5" HorizontalAlignment="Left" Source="Images/cuhklogo.png" Width="167"/>
+        <TextBlock x:Name="txtDescription" Text="Please select one function" VerticalAlignment="Center"   Foreground="#5A5B5B" FontFamily="Segoe UI" FontWeight="Light" FontSize="50" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10,235,0,236" Grid.Column="1" Grid.Row="1" Height="66" Width="540" />
+        <!--<Image Grid.Row="2"  Margin="0,20,20,20" HorizontalAlignment="Right" Source="Images/curelogo.png" Grid.Column="1" Width="334"/>
+        <Image Grid.Row="2"  Margin="5,5,0,5" HorizontalAlignment="Left" Source="Images/cuhklogo.png" Width="167"/>-->
     </Grid>
 </UserControl>

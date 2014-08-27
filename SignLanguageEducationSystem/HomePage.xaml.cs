@@ -32,11 +32,11 @@ namespace SignLanguageEducationSystem {
 		}
 
 		private void btnLearn_Enter(object sender, RoutedEventArgs e) {
-			txtDescription.Text = "Learning Sign Language";
+			txtDescription.Text = "Learning Sign Language NOW. We will score you according to your performance";
 		}
 
 		private void btnWatchVideo_Enter(object sender, RoutedEventArgs e) {
-			txtDescription.Text = "Watch Video";
+			txtDescription.Text = "Help! I don't know how to use this software";
 		}
 
 		private void btnLearn_Click(object sender, RoutedEventArgs e) {
@@ -54,11 +54,11 @@ namespace SignLanguageEducationSystem {
 		}
 
 		private void btnLearn_Leave(object sender, RoutedEventArgs e) {
-			txtDescription.Text = "";
+			txtDescription.Text = "Please select one function";
 		}
 
 		private void btnWatchVideo_Leave(object sender, RoutedEventArgs e) {
-			txtDescription.Text = "";
+			txtDescription.Text = "Please select one function";
 		}
 	}
 }
