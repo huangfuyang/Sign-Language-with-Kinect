@@ -1,10 +1,10 @@
-﻿using AForge.Video.FFMPEG;
-using Microsoft.Kinect;
+﻿using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +17,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Emgu.CV;
+using Emgu.CV.Structure;
 
 namespace XEDParser
 {
@@ -32,16 +34,17 @@ namespace XEDParser
             set { _currentKinectSensor = value; }
         }
         private KinectSensorChooser sensorChooser;
-        VideoFileWriter colorWriter;
+        VideoWriter colorWriter = null;
         long colorFirstTime = 0;
-        VideoFileWriter depthWriter;
+        VideoWriter depthWriter = null;
+        StreamWriter skeWriter = null;
         long depthFirstTime = 0;
         public MainWindow()
         {
             InitializeComponent();
             this.sensorChooser = new KinectSensorChooser();
             this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
-            this.sensorChooserUi.KinectSensorChooser = this.sensorChooser;
+            //this.sensorChooserUi.KinectSensorChooser = this.sensorChooser;
             this.sensorChooser.Start();
 
         }
@@ -70,11 +73,9 @@ namespace XEDParser
                     args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
                     args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
                     args.NewSensor.SkeletonStream.Enable();
-                    
 
-                    //colorWriter = new VideoFileWriter();
-                    //colorWriter.Open("en.code-bude_test_video.avi", 640, 480, 30, VideoCodec.MPEG4, 1000000);
-                    
+                    colorWriter = new VideoWriter("t.avi", 30, 640, 480, true);
+
                     try
                     {
                         //args.NewSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
@@ -100,12 +101,12 @@ namespace XEDParser
                 error = true;
             }
 
-            
+
         }
         void NewSensor_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
-            
-           
+
+
         }
 
         void NewSensor_DepthFrameReady(object sender, DepthImageFrameReadyEventArgs e)
@@ -114,6 +115,27 @@ namespace XEDParser
         }
 
         private byte[] _colorPixels;
+        private void AllFrameReady(object sender, AllFramesReadyEventArgs e)
+        {
+            using (ColorImageFrame colorFrame = e.OpenColorImageFrame())
+            {
+                if (colorFrame != null)
+                {
+                    if (colorFirstTime == 0)
+                    {
+                        colorFirstTime = colorFrame.Timestamp;
+                    }
+                    _colorPixels = new byte[colorFrame.PixelDataLength];
+                    colorFrame.CopyPixelDataTo(this._colorPixels);
+                    var img = ImageConverter.Array2Image(_colorPixels, 640, 480, 640 * 4);
+                    var time = colorFrame.Timestamp - colorFirstTime;
+                    if (img.Ptr != IntPtr.Zero)
+                    {
+                        colorWriter.WriteFrame(img.Convert<Bgr, byte>());
+                    }
+                }
+            }
+        }
         void NewSensor_ColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)
         {
 
@@ -125,12 +147,14 @@ namespace XEDParser
                     {
                         colorFirstTime = colorFrame.Timestamp;
                     }
+                    _colorPixels = new byte[colorFrame.PixelDataLength];
                     colorFrame.CopyPixelDataTo(this._colorPixels);
-                    TypeConverter tc = TypeDescriptor.GetConverter(typeof(Bitmap));
-                    Bitmap bmp = (Bitmap)tc.ConvertFrom(_colorPixels);
-                    var time = colorFrame.Timestamp-colorFirstTime;
-                    colorWriter.WriteVideoFrame(bmp,TimeSpan.FromMilliseconds(time));
-                    
+                    var img = ImageConverter.Array2Image(_colorPixels, 640, 480, 640 * 4);
+                    var time = colorFrame.Timestamp - colorFirstTime;
+                    if (img.Ptr != IntPtr.Zero)
+                    {
+                        colorWriter.WriteFrame(img.Convert<Bgr,byte>());
+                    }
                 }
             }
         }
@@ -138,24 +162,36 @@ namespace XEDParser
 
         private void btn_Start_Click(object sender, RoutedEventArgs e)
         {
-            CurrentKinectSensor.ColorFrameReady += NewSensor_ColorFrameReady;
-            CurrentKinectSensor.DepthFrameReady += NewSensor_DepthFrameReady;
-            CurrentKinectSensor.SkeletonFrameReady += NewSensor_SkeletonFrameReady;
+            if (colorWriter != null)
+            {
+                //CurrentKinectSensor.ColorFrameReady += NewSensor_ColorFrameReady;
+                CurrentKinectSensor.AllFramesReady += AllFrameReady;
+                
+            }
+            if (depthWriter != null)
+            {
+                CurrentKinectSensor.DepthFrameReady += NewSensor_DepthFrameReady;
+            }
+            if (skeWriter != null)
+            {
+                CurrentKinectSensor.SkeletonFrameReady += NewSensor_SkeletonFrameReady;
+            }
         }
 
         private void btn_end_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-               
+
                 CurrentKinectSensor.ColorFrameReady -= NewSensor_ColorFrameReady;
                 CurrentKinectSensor.DepthFrameReady -= NewSensor_DepthFrameReady;
                 CurrentKinectSensor.SkeletonFrameReady -= NewSensor_SkeletonFrameReady;
-        
+                colorWriter.Dispose();
+
             }
             catch (Exception)
             {
-                
+
                 throw;
             }
         }
@@ -164,12 +200,14 @@ namespace XEDParser
         {
             if (colorWriter != null)
             {
-                colorWriter.Close();
+                colorWriter.Dispose();
             }
             if (depthWriter != null)
             {
-                depthWriter.Close();
+                depthWriter.Dispose();
             }
         }
+
+
     }
 }
