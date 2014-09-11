@@ -27,26 +27,56 @@ namespace XEDParser
     /// </summary>
     public partial class MainWindow : Window
     {
+        // anita
+        public const float AnitaRotateTan = 0.3f;
+        // michael
+        public const float MichaelRotateTan = 0.23f;
+        // Aaron
+        public const float AaronRotateTan = 0.28f;
+
         private KinectSensor _currentKinectSensor;
         public KinectSensor CurrentKinectSensor
         {
             get { return _currentKinectSensor; }
             set { _currentKinectSensor = value; }
         }
+        private string _depthframe;
+        public string DepthFrame 
+        { 
+            get { return _depthframe; }
+            set { _depthframe = value;
+                lbl_Depth.Content = value; }
+        }
+        private string _colorframe;
+        public string ColorFrame
+        {
+            get { return _colorframe; }
+            set
+            {
+                _colorframe = value;
+                lbl_Color.Content = value;
+            }
+        }
+
+        public List<Image<Bgr, byte>> ColorFrameList;
+        public List<Image<Bgr, byte>> DepthFrameList;
         private KinectSensorChooser sensorChooser;
         VideoWriter colorWriter = null;
         long colorFirstTime = 0;
         VideoWriter depthWriter = null;
         StreamWriter skeWriter = null;
         long depthFirstTime = 0;
+
+        Colorizer colorizer;
         public MainWindow()
         {
             InitializeComponent();
             this.sensorChooser = new KinectSensorChooser();
             this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
-            //this.sensorChooserUi.KinectSensorChooser = this.sensorChooser;
+            this.sensorChooserUi.KinectSensorChooser = this.sensorChooser;
             this.sensorChooser.Start();
-
+            DepthFrame = "0";
+           
         }
 
         private void SensorChooserOnKinectChanged(object sender, KinectChangedEventArgs args)
@@ -68,16 +98,20 @@ namespace XEDParser
 
             if (args.NewSensor != null)
             {
+                CurrentKinectSensor = args.NewSensor;
                 try
                 {
                     args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
                     args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
                     args.NewSensor.SkeletonStream.Enable();
 
-                    colorWriter = new VideoWriter("t.avi", 30, 640, 480, true);
-
+                    colorWriter = new VideoWriter("c.avi", 30, 640, 480, true);
+                    depthWriter = new VideoWriter("d.avi", 30, 640, 480, true);
+                    depthPixels = new DepthImagePixel[CurrentKinectSensor.DepthStream.FramePixelDataLength];
+                    _colorPixels = new byte[CurrentKinectSensor.ColorStream.FramePixelDataLength];
                     try
                     {
+                        
                         //args.NewSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
                         args.NewSensor.DepthStream.Range = DepthRange.Near;
                         args.NewSensor.SkeletonStream.EnableTrackingInNearRange = true;
@@ -89,7 +123,6 @@ namespace XEDParser
                         args.NewSensor.SkeletonStream.EnableTrackingInNearRange = false;
                     }
 
-                    CurrentKinectSensor = args.NewSensor;
                 }
                 catch (InvalidOperationException)
                 {
@@ -103,29 +136,36 @@ namespace XEDParser
 
 
         }
-        void NewSensor_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
-        {
-
-
-        }
-
-        void NewSensor_DepthFrameReady(object sender, DepthImageFrameReadyEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
+       
 
         private byte[] _colorPixels;
+        private DepthImagePixel[] depthPixels;
         private void AllFrameReady(object sender, AllFramesReadyEventArgs e)
         {
+            using (SkeletonFrame sFrame = e.OpenSkeletonFrame())
+            {
+                if (sFrame != null)
+                {
+                    var skeletons = new Skeleton[sFrame.SkeletonArrayLength];
+                    sFrame.CopySkeletonDataTo(skeletons);
+                    Skeleton skel = skeletons[0];
+                    if (skel.TrackingState == SkeletonTrackingState.Tracked)
+                    {
+
+                    }
+                }
+            }
+
             using (ColorImageFrame colorFrame = e.OpenColorImageFrame())
             {
                 if (colorFrame != null)
                 {
+                    ColorFrame = colorFrame.FrameNumber.ToString();
                     if (colorFirstTime == 0)
                     {
                         colorFirstTime = colorFrame.Timestamp;
                     }
-                    _colorPixels = new byte[colorFrame.PixelDataLength];
+                 
                     colorFrame.CopyPixelDataTo(this._colorPixels);
                     var img = ImageConverter.Array2Image(_colorPixels, 640, 480, 640 * 4);
                     var time = colorFrame.Timestamp - colorFirstTime;
@@ -135,46 +175,48 @@ namespace XEDParser
                     }
                 }
             }
-        }
-        void NewSensor_ColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)
-        {
 
-            using (ColorImageFrame colorFrame = e.OpenColorImageFrame())
+
+            using (DepthImageFrame depthFrame = e.OpenDepthImageFrame())
             {
-                if (colorFrame != null)
+                if (depthFrame != null)
                 {
-                    if (colorFirstTime == 0)
-                    {
-                        colorFirstTime = colorFrame.Timestamp;
-                    }
-                    _colorPixels = new byte[colorFrame.PixelDataLength];
-                    colorFrame.CopyPixelDataTo(this._colorPixels);
-                    var img = ImageConverter.Array2Image(_colorPixels, 640, 480, 640 * 4);
-                    var time = colorFrame.Timestamp - colorFirstTime;
-                    if (img.Ptr != IntPtr.Zero)
-                    {
-                        colorWriter.WriteFrame(img.Convert<Bgr,byte>());
-                    }
-                }
-            }
-        }
+                    DepthFrame = depthFrame.FrameNumber.ToString();
+                    
+                    depthFrame.CopyDepthImagePixelDataTo(depthPixels);
+                    //int minDepth = depthFrame.MinDepth;
+                    //int maxDepth = depthFrame.MaxDepth;
+                    int width = depthFrame.Width;
+                    int height = depthFrame.Height;
 
+                
+
+                    colorizer.TransformAndConvertDepthFrame(depthPixels, _colorPixels);
+
+                    Image<Bgra, byte> depthImg;
+                    depthImg = ImageConverter.Array2Image(_colorPixels, width, height, width * 4);
+                    if (depthImg.Ptr != IntPtr.Zero)
+                    {
+                        depthWriter.WriteFrame(depthImg.Convert<Bgr, byte>());
+                    }
+
+
+                }
+                
+            }
+
+      
+
+            
+        }
+     
 
         private void btn_Start_Click(object sender, RoutedEventArgs e)
         {
             if (colorWriter != null)
             {
-                //CurrentKinectSensor.ColorFrameReady += NewSensor_ColorFrameReady;
+                colorizer = new Colorizer(AaronRotateTan,CurrentKinectSensor.DepthStream.MaxDepth,CurrentKinectSensor.DepthStream.MinDepth);
                 CurrentKinectSensor.AllFramesReady += AllFrameReady;
-                
-            }
-            if (depthWriter != null)
-            {
-                CurrentKinectSensor.DepthFrameReady += NewSensor_DepthFrameReady;
-            }
-            if (skeWriter != null)
-            {
-                CurrentKinectSensor.SkeletonFrameReady += NewSensor_SkeletonFrameReady;
             }
         }
 
@@ -182,21 +224,21 @@ namespace XEDParser
         {
             try
             {
-
-                CurrentKinectSensor.ColorFrameReady -= NewSensor_ColorFrameReady;
-                CurrentKinectSensor.DepthFrameReady -= NewSensor_DepthFrameReady;
-                CurrentKinectSensor.SkeletonFrameReady -= NewSensor_SkeletonFrameReady;
-                colorWriter.Dispose();
+                CurrentKinectSensor.AllFramesReady -= AllFrameReady;
 
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            CloseAllWriter();
+        }
+
+        private void CloseAllWriter()
         {
             if (colorWriter != null)
             {
@@ -208,6 +250,18 @@ namespace XEDParser
             }
         }
 
+        private string GenerateSkeletonArgs(Skeleton s)
+        {
+            return null;
+        }
+
+        private System.Drawing.Point SkeletonPointToScreen(SkeletonPoint skelpoint)
+        {
+            // Convert point to depth space.  
+            // We are not using depth directly, but we do want the points in our 640x480 output resolution.
+            DepthImagePoint depthPoint = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skelpoint, DepthImageFormat.Resolution640x480Fps30);
+            return new System.Drawing.Point(depthPoint.X, depthPoint.Y);
+        }
 
     }
 }
