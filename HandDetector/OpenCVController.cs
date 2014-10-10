@@ -360,7 +360,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             Seq<System.Drawing.Point> DyncontourTemp = FindContourSeq(image);
             List<MCvBox2D> rectList = new List<MCvBox2D>();
-            for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt32() != 0; DyncontourTemp = DyncontourTemp.HNext)
+            for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt64() != 0; DyncontourTemp = DyncontourTemp.HNext)
             {
                 //iterate contours
                 if (DyncontourTemp.GetMinAreaRect().GetTrueArea() < minSize

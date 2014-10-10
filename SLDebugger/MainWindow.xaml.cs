@@ -20,7 +20,6 @@ using Microsoft.Research.DynamicDataDisplay;
 using Microsoft.Research.DynamicDataDisplay.PointMarkers;
 
 using CURELab.SignLanguage.Debugger.ViewModel;
-using CURELab.SignLanguage.RecognitionSystem.StaticTools;
 using CURELab.SignLanguage.Debugger.Module;
 using CURELab.SignLanguage.DataModule;
 using CURELab.SignLanguage.Calculator;

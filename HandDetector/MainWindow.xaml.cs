@@ -238,22 +238,26 @@ namespace CURELab.SignLanguage.HandDetector
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             dialog.RootFolder = Environment.SpecialFolder.MyComputer;
-            dialog.SelectedPath = @"J:\Kinect data\Michael791-849";
+            dialog.SelectedPath = @"F:\Aaron";
             DialogResult result = dialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
                 string folderName = dialog.SelectedPath;
-                string dbPath = @"J:\Kinect data\database141-181.db";
+                string dbPath = @"F:\Aaron\database_empty.db";
                 m_DBmanager = DBManager.GetSingleton(dbPath);
                 DirectoryInfo folder = new DirectoryInfo(folderName);
                 wordList = new List<SignWordModel>();
-                foreach (var item in folder.GetFiles("*.xed"))
+                foreach (var dir in folder.GetDirectories())
                 {
-                    string fileName = item.Name;
-                    string[] s = fileName.Split();
-                    SignWordModel wordModel = new SignWordModel(s[0], s[1], item.FullName, fileName);
-                    wordList.Add(wordModel);
+                    foreach (var item in dir.GetFiles("*.xed"))
+                    {
+                        string fileName = item.Name;
+                        string[] s = fileName.Split();
+                        SignWordModel wordModel = new SignWordModel(s[0], s[1], item.FullName, fileName);
+                        wordList.Add(wordModel);
+                    }
                 }
+                Console.WriteLine(wordList.Count()+" words to process");
             }
 
         }

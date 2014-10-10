@@ -41,6 +41,7 @@
     <Reference Include="DynamicDataDisplay">
       <HintPath>..\..\DynamicDataDisplay\DynamicDataDisplay.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Kinect, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="PresentationUI, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="ReachFramework" />
     <Reference Include="System" />
@@ -69,6 +70,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ConsoleManager.cs" />
     <Compile Include="Module\ConfigReader.cs" />
     <Compile Include="Module\DataReader.cs" />
     <Compile Include="Module\DBReader.cs" />
@@ -143,10 +145,6 @@
     <ProjectReference Include="..\DataModule\DataModule.csproj">
       <Project>{e1a45c64-6eda-4dd7-bead-e3f998a89e32}</Project>
       <Name>DataModule</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\RecognitionSystem\RecognitionSystem.csproj">
-      <Project>{01af7e2c-4d9a-4c47-a9ff-c97be82f7a5d}</Project>
-      <Name>RecognitionSystem</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
