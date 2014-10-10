@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.IO;
 using System.Windows.Forms;
+using System.IO.Compression;
 
 namespace CURELab.SignLanguage.HandDetector
 {
@@ -238,7 +239,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             dialog.RootFolder = Environment.SpecialFolder.MyComputer;
-            dialog.SelectedPath = @"F:\Aaron";
+            dialog.SelectedPath = @"D:\Kinect data";
             DialogResult result = dialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
@@ -249,15 +250,17 @@ namespace CURELab.SignLanguage.HandDetector
                 wordList = new List<SignWordModel>();
                 foreach (var dir in folder.GetDirectories())
                 {
-                    foreach (var item in dir.GetFiles("*.xed"))
-                    {
-                        string fileName = item.Name;
-                        string[] s = fileName.Split();
-                        SignWordModel wordModel = new SignWordModel(s[0], s[1], item.FullName, fileName);
-                        wordList.Add(wordModel);
-                    }
+                    var video = dir.GetFiles("*.avi");
+
+
+
+                    string fileName = dir.Name;
+                    string[] s = fileName.Split();
+                    SignWordModel wordModel = new SignWordModel(s[0], s[1], item.FullName, fileName);
+                    wordList.Add(wordModel);
                 }
-                Console.WriteLine(wordList.Count()+" words to process");
+
+                Console.WriteLine(wordList.Count() + " words to process");
             }
 
         }
@@ -297,7 +300,7 @@ namespace CURELab.SignLanguage.HandDetector
             }
             m_DBmanager.Commit();
             m_DBmanager.Close();
-            sr.Close(); 
+            sr.Close();
             #endregion
 
             #region kmeans
@@ -335,7 +338,7 @@ namespace CURELab.SignLanguage.HandDetector
                 {
                     KinectSDKController.AngleRotateTan = KinectSDKController.MichaelRotateTan;
                 }
-               // Console.WriteLine("current threshold:"+KinectSDKController.AngleRotateTan);
+                // Console.WriteLine("current threshold:"+KinectSDKController.AngleRotateTan);
                 m_DBmanager.BeginTrans();
                 m_DBmanager.AddWordSample(wordList[signIndex]);
                 m_kinectStudioController.Open_File(wordList[signIndex].FullName);
