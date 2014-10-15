@@ -9,6 +9,7 @@ using System.Windows.Media.Imaging;
 using System.IO;
 using System.Windows.Forms;
 using System.IO.Compression;
+using CURELab.SignLanguage.StaticTools;
 
 namespace CURELab.SignLanguage.HandDetector
 {
@@ -32,33 +33,46 @@ namespace CURELab.SignLanguage.HandDetector
 
         public WriteableBitmap grayBitmap;
         private KinectController m_KinectController;
+        private VideoProcessor m_VideoProcessor;
         private OpenCVController m_OpenCVController;
-        private KinectStudioController m_kinectStudioController;
         private DBManager m_DBmanager;
+        private KinectStudioController m_kinectStudioController;
 
         public MainWindow()
         {
             InitializeComponent();
-            m_kinectStudioController = KinectStudioController.GetSingleton();
-            HandShapeClassifier.GetSingleton();
         }
-
-
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
-            m_OpenCVController = OpenCVController.GetSingletonInstance();
 
             RegisterThreshold("canny", ref OpenCVController.CANNY_THRESH, 100, 8);
             RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
             RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
-            RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
-            RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 40);
+            RegisterThreshold("diff", ref VideoProcessor.DIFF, 10, 7);
+            RegisterThreshold("Culling", ref VideoProcessor.CullingThresh, 100, 40);
 
+            ConsoleManager.Show();
+            Initialize();
 
             //  Menu_ONI_Click(this, e);
-            Menu_Kinect_Click(this, e);
+            //Menu_Kinect_Click(this, e);
             //MenuItem_Test_Click(this, e);
+        }
+
+
+        private void Initialize()
+        {
+            //HandShapeClassifier.GetSingleton();
+            m_OpenCVController = OpenCVController.GetSingletonInstance();
+            m_VideoProcessor = VideoProcessor.GetSingletonInstance();
+            this.img_color.Source = m_VideoProcessor.ColorWriteBitmap;
+            this.img_depth.Source = m_VideoProcessor.DepthWriteBitmap;
+            this.img_leftFront.Source = m_VideoProcessor.WrtBMP_LeftHandFront;
+            this.img_rightFront.Source = m_VideoProcessor.WrtBMP_RightHandFront;
+            m_VideoProcessor.OpenFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\x86\Debug\d.avi");
+            m_VideoProcessor.ProcessFrame();
+
         }
 
         private unsafe void RegisterThreshold(string valuename, ref double thresh, double max, double initialValue)
@@ -79,11 +93,6 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
 
-
-        private void Initialize()
-        {
-        }
-
         /// <summary>
         /// Execute shutdown tasks
         /// </summary>
@@ -96,12 +105,6 @@ namespace CURELab.SignLanguage.HandDetector
                 m_KinectController.Shutdown();
 
             }
-        }
-
-
-        private void Kinect_Setup()
-        {
-
         }
 
         private void Menu_Exit_Click(object sender, RoutedEventArgs e)
@@ -244,19 +247,17 @@ namespace CURELab.SignLanguage.HandDetector
             if (result == System.Windows.Forms.DialogResult.OK)
             {
                 string folderName = dialog.SelectedPath;
-                string dbPath = @"F:\Aaron\database_empty.db";
+                string dbPath = @"D:\Kinect data\database_empty.db";
                 m_DBmanager = DBManager.GetSingleton(dbPath);
                 DirectoryInfo folder = new DirectoryInfo(folderName);
                 wordList = new List<SignWordModel>();
                 foreach (var dir in folder.GetDirectories())
                 {
-                    var video = dir.GetFiles("*.avi");
-
-
-
                     string fileName = dir.Name;
+                    var videoC = dir.GetFiles("c.avi");
+                    var videoD = dir.GetFiles("d.avi");
                     string[] s = fileName.Split();
-                    SignWordModel wordModel = new SignWordModel(s[0], s[1], item.FullName, fileName);
+                    SignWordModel wordModel = new SignWordModel(s[0], s[1], dir.FullName, fileName);
                     wordList.Add(wordModel);
                 }
 
@@ -354,7 +355,9 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
 
-
-
+        private void Menu_Video_Click(object sender, RoutedEventArgs e)
+        {
+            m_VideoProcessor.ProcessFrame();
+        }
     }
 }

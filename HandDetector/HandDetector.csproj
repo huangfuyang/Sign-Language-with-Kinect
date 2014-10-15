@@ -63,6 +63,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>2</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -127,13 +128,16 @@
     <Compile Include="HandShapeClassifier.cs" />
     <Compile Include="HandShapeModel.cs" />
     <Compile Include="KalmanFilter.cs" />
+    <Compile Include="KinectSDKController.cs" />
     <Compile Include="KinectStudioController.cs" />
     <Compile Include="PointHelper.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="SignWordModel.cs" />
     <Compile Include="Threshold.cs" />
     <Compile Include="TrackBar.xaml.cs">
       <DependentUpon>TrackBar.xaml</DependentUpon>
     </Compile>
+    <Compile Include="VideoProcessor.cs" />
     <Compile Include="win32API.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -148,7 +152,6 @@
     <Compile Include="ImageConverter.cs" />
     <Compile Include="ISubject.cs" />
     <Compile Include="KinectController.cs" />
-    <Compile Include="KinectSDKController.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
