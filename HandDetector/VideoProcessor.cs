@@ -118,7 +118,7 @@ namespace CURELab.SignLanguage.HandDetector
             Color,
             Depth
         }
-        public void OpenFile(string path, StreamType st)
+        public void OpenVideoFile(string path, StreamType st)
         {
             var c = new Capture(path);
             FrameRate = c.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_FPS);
@@ -143,6 +143,25 @@ namespace CURELab.SignLanguage.HandDetector
             }
 
         }
+
+        public void OpenSkeleton(string path)
+        {
+            using (CsvFileReader reader = new CsvFileReader(path))
+            {
+                CsvRow row = new CsvRow();
+                while (reader.ReadRow(row))
+                {
+                    foreach (string s in row)
+                    {
+                        Console.Write(s);
+                        Console.Write(" ");
+                    }
+                    Console.WriteLine();
+                }
+            }
+        }
+
+
 
         private int headDepth;
         public void ProcessFrame()

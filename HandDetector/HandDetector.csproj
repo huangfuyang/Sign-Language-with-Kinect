@@ -132,6 +132,7 @@
     <Compile Include="KinectStudioController.cs" />
     <Compile Include="PointHelper.cs" />
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="ReadWriteCsv.cs" />
     <Compile Include="SignWordModel.cs" />
     <Compile Include="Threshold.cs" />
     <Compile Include="TrackBar.xaml.cs">
