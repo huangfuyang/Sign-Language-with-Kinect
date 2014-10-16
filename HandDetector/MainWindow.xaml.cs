@@ -50,7 +50,7 @@ namespace CURELab.SignLanguage.HandDetector
             RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
             RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
             RegisterThreshold("diff", ref VideoProcessor.DIFF, 10, 7);
-            RegisterThreshold("Culling", ref VideoProcessor.CullingThresh, 100, 40);
+            RegisterThreshold("Culling", ref VideoProcessor.CullingThresh, 10, 4);
 
             ConsoleManager.Show();
             Initialize();
@@ -70,7 +70,12 @@ namespace CURELab.SignLanguage.HandDetector
             this.img_depth.Source = m_VideoProcessor.DepthWriteBitmap;
             this.img_leftFront.Source = m_VideoProcessor.WrtBMP_LeftHandFront;
             this.img_rightFront.Source = m_VideoProcessor.WrtBMP_RightHandFront;
-            m_VideoProcessor.OpenFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\x86\Debug\d.avi");
+            m_VideoProcessor.OpenFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\x86\Debug\c.avi", VideoProcessor.StreamType.Color);
+            m_VideoProcessor.OpenFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\x86\Debug\d.avi", VideoProcessor.StreamType.Depth);
+            m_VideoProcessor.ProcessFrame();
+            m_VideoProcessor.ProcessFrame();
+            m_VideoProcessor.ProcessFrame();
+            m_VideoProcessor.ProcessFrame();
             m_VideoProcessor.ProcessFrame();
 
         }
@@ -198,7 +203,7 @@ namespace CURELab.SignLanguage.HandDetector
             {
 
                 case Key.Space:
-                    m_KinectController.TogglePause();
+                    m_VideoProcessor.ProcessFrame();
                     break;
                 default:
                     break;
@@ -354,10 +359,12 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
+        
 
         private void Menu_Video_Click(object sender, RoutedEventArgs e)
         {
-            m_VideoProcessor.ProcessFrame();
+            m_VideoProcessor.OpenFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\x86\Debug\c.avi", VideoProcessor.StreamType.Color);
+            m_VideoProcessor.OpenFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\x86\Debug\d.avi", VideoProcessor.StreamType.Depth);
         }
     }
 }

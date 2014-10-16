@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,7 @@ using Emgu.CV.Structure;
 
 namespace CURELab.SignLanguage.HandDetector
 {
+
     /// <summary>
     /// add summary here
     /// </summary>
@@ -33,7 +35,8 @@ namespace CURELab.SignLanguage.HandDetector
                 System.Drawing.Imaging.BitmapData bmpData =
                     bmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly,
                     bmp.PixelFormat);
-
+                var size = Bitmap.GetPixelFormatSize(bmp.PixelFormat);
+                var stride = (rect.Width * size + 7) / 8;
                 try
                 {
                     wbmp.Lock();
@@ -41,8 +44,8 @@ namespace CURELab.SignLanguage.HandDetector
                     wbmp.WritePixels(
                       new Int32Rect(0, 0, wbmp.PixelWidth, wbmp.PixelHeight),
                       bmpData.Scan0,
-                      bmpData.Width * bmpData.Height * 4,
-                      bmpData.Stride);
+                      bmpData.Height * stride,
+                      stride);
                     wbmp.Unlock();
 
 
