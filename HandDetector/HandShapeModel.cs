@@ -5,12 +5,13 @@
 // CLR：         4.0.30319.18444
 // project link：https://github.com/huangfuyang/Sign-Language-with-Kinect
 
-using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using Microsoft.Kinect;
+using CURELab.SignLanguage.HandDetector.Model;
 
 
 namespace CURELab.SignLanguage.HandDetector
@@ -81,6 +82,7 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
+        
       
         private string GetFrameDataArgString(Skeleton skeleton)
         {
@@ -94,7 +96,8 @@ namespace CURELab.SignLanguage.HandDetector
             for (int i = 0; i < jointTypes.Length; i++)
             {
                 JointType jointType = jointTypes[i];
-                if (skeleton != null && skeleton.Joints[jointType].TrackingState != JointTrackingState.NotTracked)
+                if (skeleton != null )
+                 //if (skeleton != null && skeleton.Joints[jointType].TrackingState != JointTrackingState.NotTracked)
                 {
                     SkeletonPoint point = skeleton.Joints[jointType].Position;
                     s += String.Format(", {0}, {1}, {2}", point.X, point.Y, point.Z);

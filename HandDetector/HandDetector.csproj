@@ -130,10 +130,13 @@
     <Compile Include="KalmanFilter.cs" />
     <Compile Include="KinectSDKController.cs" />
     <Compile Include="KinectStudioController.cs" />
+    <Compile Include="Model\MyJoint.cs" />
+    <Compile Include="Model\MyJointType.cs" />
     <Compile Include="PointHelper.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ReadWriteCsv.cs" />
     <Compile Include="SignWordModel.cs" />
+    <Compile Include="Model\MySkeleton.cs" />
     <Compile Include="Threshold.cs" />
     <Compile Include="TrackBar.xaml.cs">
       <DependentUpon>TrackBar.xaml</DependentUpon>

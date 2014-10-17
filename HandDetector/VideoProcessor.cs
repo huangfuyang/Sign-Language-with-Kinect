@@ -9,12 +9,17 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using CURELab.SignLanguage.HandDetector.Annotations;
+using CURELab.SignLanguage.HandDetector.Model;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.CV.UI;
+using Microsoft.Kinect;
+using Skeleton = Microsoft.Kinect.Skeleton;
 
 namespace CURELab.SignLanguage.HandDetector
 {
@@ -42,7 +47,7 @@ namespace CURELab.SignLanguage.HandDetector
         private const int handShapeHeight = 60;
         private const int FrameWidth = 640;
         private const int FrameHeight = 480;
-
+        private List<MySkeleton> sktList;
         Capture _CCapture;
         Capture _DCapture;
 
@@ -148,16 +153,35 @@ namespace CURELab.SignLanguage.HandDetector
         {
             using (CsvFileReader reader = new CsvFileReader(path))
             {
+                sktList = new List<MySkeleton>();
                 CsvRow row = new CsvRow();
+                // one frame skeleton
                 while (reader.ReadRow(row))
                 {
-                    foreach (string s in row)
+                    var skt = new MySkeleton();
+                    int step = 9;
+                    // one joint
+                    for (int i = 0; i < row.Count; i += step)
                     {
-                        Console.Write(s);
-                        Console.Write(" ");
+                        var type = MyJointType.Head;
+                        var joint = new MyJoint()
+                        {
+                            Type = MyJointType.Head,
+                            Position = new SkeletonPoint()
+                            {
+                                X = Convert.ToSingle(row[i]),
+                                Y = Convert.ToSingle(row[i+1]),
+                                Z = Convert.ToSingle(row[i+2])
+                            }
+                        };
+                        skt[type] = joint;
                     }
-                    Console.WriteLine();
+                    sktList.Add(skt);
                 }
+            }
+            foreach (var mySkeleton in sktList)
+            {
+                Console.Write(mySkeleton[MyJointType.Head].Position.X);
             }
         }
 
@@ -200,6 +224,8 @@ namespace CURELab.SignLanguage.HandDetector
                 PointF leftVector = new PointF(10,-10);
                 bool isSkip = false;
                 bool leftHandRaise = false;
+                
+                
                 //if (skeletons != null && skeletons[0].TrackingState == SkeletonTrackingState.Tracked)
                 //{
                 //    PointF hr = SkeletonPointToScreen(skeletons[0].Joints[JointType.HandRight].Position);

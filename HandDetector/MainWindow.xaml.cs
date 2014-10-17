@@ -72,7 +72,7 @@ namespace CURELab.SignLanguage.HandDetector
             this.img_rightFront.Source = m_VideoProcessor.WrtBMP_RightHandFront;
             m_VideoProcessor.OpenVideoFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\x86\Debug\c.avi", VideoProcessor.StreamType.Color);
             m_VideoProcessor.OpenVideoFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\x86\Debug\d.avi", VideoProcessor.StreamType.Depth);
-            m_VideoProcessor.OpenSkeleton(@"D:\chalearn\training\Sample0001\Sample0001_data.csv");
+            m_VideoProcessor.OpenSkeleton(@"D:\chalearn\training\Sample0001\Sample0001_skeleton.csv");
             m_VideoProcessor.ProcessFrame();
             m_VideoProcessor.ProcessFrame();
             m_VideoProcessor.ProcessFrame();
