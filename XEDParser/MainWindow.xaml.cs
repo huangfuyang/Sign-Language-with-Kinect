@@ -113,8 +113,8 @@ namespace XEDParser
                     {
                         
                         //args.NewSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
-                        args.NewSensor.DepthStream.Range = DepthRange.Near;
-                        args.NewSensor.SkeletonStream.EnableTrackingInNearRange = true;
+                        //args.NewSensor.DepthStream.Range = DepthRange.Near;
+                        //args.NewSensor.SkeletonStream.EnableTrackingInNearRange = true;
                     }
                     catch (InvalidOperationException)
                     {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.IO;
@@ -66,18 +67,20 @@ namespace CURELab.SignLanguage.HandDetector
             //HandShapeClassifier.GetSingleton();
             m_OpenCVController = OpenCVController.GetSingletonInstance();
             m_VideoProcessor = VideoProcessor.GetSingletonInstance();
+            this.sld_progress.DataContext = VisualData.GetSingleton();
             this.img_color.Source = m_VideoProcessor.ColorWriteBitmap;
             this.img_depth.Source = m_VideoProcessor.DepthWriteBitmap;
             this.img_leftFront.Source = m_VideoProcessor.WrtBMP_LeftHandFront;
             this.img_rightFront.Source = m_VideoProcessor.WrtBMP_RightHandFront;
-            m_VideoProcessor.OpenVideoFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\x86\Debug\c.avi", VideoProcessor.StreamType.Color);
-            m_VideoProcessor.OpenVideoFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\x86\Debug\d.avi", VideoProcessor.StreamType.Depth);
+            m_VideoProcessor.OpenVideoFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\Debug\c.avi", VideoProcessor.StreamType.Color);
+            m_VideoProcessor.OpenVideoFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\Debug\d.avi", VideoProcessor.StreamType.Depth);
             m_VideoProcessor.OpenSkeleton(@"D:\chalearn\training\Sample0001\Sample0001_skeleton.csv");
             m_VideoProcessor.ProcessFrame();
             m_VideoProcessor.ProcessFrame();
             m_VideoProcessor.ProcessFrame();
             m_VideoProcessor.ProcessFrame();
             m_VideoProcessor.ProcessFrame();
+            sld_progress.Maximum = m_VideoProcessor.TotalFrames;
 
         }
 
@@ -366,6 +369,15 @@ namespace CURELab.SignLanguage.HandDetector
         {
             m_VideoProcessor.OpenVideoFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\x86\Debug\c.avi", VideoProcessor.StreamType.Color);
             m_VideoProcessor.OpenVideoFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\x86\Debug\d.avi", VideoProcessor.StreamType.Depth);
+            sld_progress.Maximum = m_VideoProcessor.TotalFrames;
+        }
+
+        private void sld_progress_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (m_VideoProcessor != null)
+            {
+                m_VideoProcessor.SetCurrentFrame((int)e.NewValue);
+            }
         }
     }
 }

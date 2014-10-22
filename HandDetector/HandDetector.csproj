@@ -142,6 +142,7 @@
       <DependentUpon>TrackBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="VideoProcessor.cs" />
+    <Compile Include="VisualData.cs" />
     <Compile Include="win32API.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

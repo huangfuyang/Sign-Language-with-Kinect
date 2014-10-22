@@ -10,16 +10,12 @@ namespace CURELab.SignLanguage.HandDetector.Model
 {
     public class MySkeleton
     {
-        public List<MyJoint> Joints 
+        public MyJoint[] Joints 
         { get; set; }
 
         public MySkeleton(int count = 20)
         {
-            Joints = new List<MyJoint>(count);
-            for (int i = 0; i < count; i++)
-            {
-                Joints.Add(new MyJoint());
-            }
+            Joints = new MyJoint[20];
             
         }
         public MyJoint this[MyJointType key]

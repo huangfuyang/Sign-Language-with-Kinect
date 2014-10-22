@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using Emgu.CV.Structure;
 using Microsoft.Kinect;
 using CURELab.SignLanguage.HandDetector.Model;
 
@@ -38,6 +39,8 @@ namespace CURELab.SignLanguage.HandDetector
         public float[] hogRightSide;
         // hog left side view
         public float[] hogLeftSide;
+
+        public MCvBox2D handPos;
 
         // skeleton data
         public string skeletonData = "";
