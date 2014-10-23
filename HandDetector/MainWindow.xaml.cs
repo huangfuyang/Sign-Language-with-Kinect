@@ -238,12 +238,12 @@ namespace CURELab.SignLanguage.HandDetector
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             dialog.RootFolder = Environment.SpecialFolder.MyComputer;
-            dialog.SelectedPath = @"F:\Aaron";
+            dialog.SelectedPath = @"F:\";
             DialogResult result = dialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
                 string folderName = dialog.SelectedPath;
-                string dbPath = @"F:\Aaron\database_empty.db";
+                string dbPath = @"F:\1Michael\1022\database_empty.db";
                 m_DBmanager = DBManager.GetSingleton(dbPath);
                 DirectoryInfo folder = new DirectoryInfo(folderName);
                 wordList = new List<SignWordModel>();
