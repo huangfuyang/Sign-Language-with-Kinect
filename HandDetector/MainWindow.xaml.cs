@@ -51,7 +51,7 @@ namespace CURELab.SignLanguage.HandDetector
             RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
             RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
             RegisterThreshold("diff", ref VideoProcessor.DIFF, 10, 7);
-            RegisterThreshold("Culling", ref VideoProcessor.CullingThresh, 10, 4);
+            RegisterThreshold("Culling", ref VideoProcessor.CullingThresh, 10, 6);
 
             ConsoleManager.Show();
             Initialize();
@@ -72,15 +72,8 @@ namespace CURELab.SignLanguage.HandDetector
             this.img_depth.Source = m_VideoProcessor.DepthWriteBitmap;
             this.img_leftFront.Source = m_VideoProcessor.WrtBMP_LeftHandFront;
             this.img_rightFront.Source = m_VideoProcessor.WrtBMP_RightHandFront;
-            m_VideoProcessor.OpenVideoFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\Debug\c.avi", VideoProcessor.StreamType.Color);
-            m_VideoProcessor.OpenVideoFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\Debug\d.avi", VideoProcessor.StreamType.Depth);
-            m_VideoProcessor.OpenSkeleton(@"D:\chalearn\training\Sample0001\Sample0001_skeleton.csv");
-            m_VideoProcessor.ProcessFrame();
-            m_VideoProcessor.ProcessFrame();
-            m_VideoProcessor.ProcessFrame();
-            m_VideoProcessor.ProcessFrame();
-            m_VideoProcessor.ProcessFrame();
-            sld_progress.Maximum = m_VideoProcessor.TotalFrames;
+            //MenuItem_Open_Click(this,new RoutedEventArgs());
+            m_VideoProcessor.OpenDir(@"D:\Kinect data\new\52 HKG_002_a_0016 Aaron 1");
 
         }
 
@@ -251,22 +244,20 @@ namespace CURELab.SignLanguage.HandDetector
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             dialog.RootFolder = Environment.SpecialFolder.MyComputer;
-            dialog.SelectedPath = @"D:\Kinect data";
+            dialog.SelectedPath = @"D:\Kinect data\new";
             DialogResult result = dialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
                 string folderName = dialog.SelectedPath;
-                string dbPath = @"D:\Kinect data\database_empty.db";
-                m_DBmanager = DBManager.GetSingleton(dbPath);
+                //string dbPath = @"D:\Kinect data\database_empty.db";
+                //m_DBmanager = DBManager.GetSingleton(dbPath);
                 DirectoryInfo folder = new DirectoryInfo(folderName);
                 wordList = new List<SignWordModel>();
                 foreach (var dir in folder.GetDirectories())
                 {
                     string fileName = dir.Name;
-                    var videoC = dir.GetFiles("c.avi");
-                    var videoD = dir.GetFiles("d.avi");
                     string[] s = fileName.Split();
-                    SignWordModel wordModel = new SignWordModel(s[0], s[1], dir.FullName, fileName);
+                    SignWordModel wordModel = new SignWordModel(s[1], s[2], dir.FullName, fileName);
                     wordList.Add(wordModel);
                 }
 
@@ -279,10 +270,15 @@ namespace CURELab.SignLanguage.HandDetector
         private void MenuItem_Run_Click(object sender, RoutedEventArgs e)
         {
             signIndex = 0;
-            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-            timer.Interval = 1000;
-            timer.Tick += timer_Tick;
-            timer.Start();
+            foreach (var wordModel in wordList)
+            {
+                m_VideoProcessor.OpenDir(wordModel.FullName);
+                m_VideoProcessor.ProcessSample();
+            }
+            //System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+            //timer.Interval = 1000;
+            //timer.Tick += timer_Tick;
+            //timer.Start();
 
         }
         private void MenuItem_Test_Click(object sender, RoutedEventArgs e)
@@ -367,9 +363,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         private void Menu_Video_Click(object sender, RoutedEventArgs e)
         {
-            m_VideoProcessor.OpenVideoFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\x86\Debug\c.avi", VideoProcessor.StreamType.Color);
-            m_VideoProcessor.OpenVideoFile(@"D:\code\git\Sign-Language-with-Kinect\XEDParser\bin\x86\Debug\d.avi", VideoProcessor.StreamType.Depth);
-            sld_progress.Maximum = m_VideoProcessor.TotalFrames;
+
         }
 
         private void sld_progress_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)

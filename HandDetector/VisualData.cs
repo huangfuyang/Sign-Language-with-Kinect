@@ -22,6 +22,17 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
+        private int _totalFrames;
+        public int TotalFrames
+        {
+            get { return _totalFrames; }
+            set
+            {
+                OnPropertyChanged("TotalFrames");
+                _totalFrames = value;
+            }
+        }
+
         public static VisualData GetSingleton()
         {
             if (Singleton == null)

@@ -160,7 +160,6 @@ namespace CURELab.SignLanguage.HandDetector
        )
         {
             //process hand size
-            handDepth -= 100;
             if (handDepth > 0)
             {
                 begin = (int)(100.0 * 240.0 / handDepth / 0.39);
@@ -229,6 +228,8 @@ namespace CURELab.SignLanguage.HandDetector
                     model = new HandShapeModel(hogSize, HandEnum.Both);
                     model.hogLeft = leftHog;
                     model.hogRight = rightHog;
+                    model.handPosRight = SplittedRightHand;
+                    model.handPosLeft = SplittedLeftHand;
                 }
                 else if (rectList.Count() == 1) // one rectangle
                 {
@@ -246,17 +247,18 @@ namespace CURELab.SignLanguage.HandDetector
                         float[] TwoHandHOG = CalHog(rightFront);
                         model = new HandShapeModel(hogSize, HandEnum.Intersect);
                         model.hogRight = TwoHandHOG;
+                        model.handPosRight = SplittedHand;
                     }
                     else
                     {
                         text = "right";
                         MCvBox2D SplittedRightHand = SplitHand(rectList[0], HandEnum.Right, rightVector);
-
                         rightFront = GetSubImage<Gray>(binaryImg, SplittedRightHand, rectList[0].angle);
                         DrawHand(SplittedRightHand, image, HandEnum.Right);
                         float[] TwoHandHOG = CalHog(rightFront);
                         model = new HandShapeModel(hogSize, HandEnum.Right);
                         model.hogRight = TwoHandHOG;
+                        model.handPosRight = SplittedRightHand;
                     }
                     g.DrawString(text, textFont, Brushes.Red, 0, 20);
 

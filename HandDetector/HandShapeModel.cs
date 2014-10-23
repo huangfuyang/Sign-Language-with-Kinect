@@ -40,7 +40,8 @@ namespace CURELab.SignLanguage.HandDetector
         // hog left side view
         public float[] hogLeftSide;
 
-        public MCvBox2D handPos;
+        public MCvBox2D handPosRight;
+        public MCvBox2D handPosLeft;
 
         // skeleton data
         public string skeletonData = "";
