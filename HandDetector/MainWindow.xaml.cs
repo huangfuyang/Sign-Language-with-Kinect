@@ -73,8 +73,18 @@ namespace CURELab.SignLanguage.HandDetector
             this.img_leftFront.Source = m_VideoProcessor.WrtBMP_LeftHandFront;
             this.img_rightFront.Source = m_VideoProcessor.WrtBMP_RightHandFront;
             //MenuItem_Open_Click(this,new RoutedEventArgs());
-            m_VideoProcessor.OpenDir(@"D:\Kinect data\new\52 HKG_002_a_0016 Aaron 1");
+            string path = @"D:\Kinect data\new";
+            wordList = new List<SignWordModel>();
+            var folder = new DirectoryInfo(path);
+            foreach (var dir in folder.GetDirectories())
+            {
+                string fileName = dir.Name;
+                string[] s = fileName.Split();
+                SignWordModel wordModel = new SignWordModel(s[1], s[2], dir.FullName, fileName);
+                wordList.Add(wordModel);
+            }
 
+            Console.WriteLine(wordList.Count() + " words to process");
         }
 
         private unsafe void RegisterThreshold(string valuename, ref double thresh, double max, double initialValue)
@@ -270,6 +280,10 @@ namespace CURELab.SignLanguage.HandDetector
         private void MenuItem_Run_Click(object sender, RoutedEventArgs e)
         {
             signIndex = 0;
+            if (wordList == null)
+            {
+                return;
+            }
             foreach (var wordModel in wordList)
             {
                 m_VideoProcessor.OpenDir(wordModel.FullName);
@@ -370,7 +384,10 @@ namespace CURELab.SignLanguage.HandDetector
         {
             if (m_VideoProcessor != null)
             {
-                m_VideoProcessor.SetCurrentFrame((int)e.NewValue);
+                if ((int)e.OldValue != (int)e.NewValue)
+                {
+                    m_VideoProcessor.SetCurrentFrame((int)e.NewValue);
+                }
             }
         }
     }

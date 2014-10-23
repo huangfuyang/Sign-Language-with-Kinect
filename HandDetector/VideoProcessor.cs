@@ -420,6 +420,8 @@ namespace CURELab.SignLanguage.HandDetector
             {
 
             }
+            _CCapture.Dispose();
+            _DCapture.Dispose();
             labelWriter.Close();
         }
 
