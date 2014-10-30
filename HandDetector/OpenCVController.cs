@@ -241,13 +241,14 @@ namespace CURELab.SignLanguage.HandDetector
                     {
 
                         text = "Two hands";
-                        MCvBox2D SplittedHand = SplitHand(rectList[0], HandEnum.Intersect, rightVector);
-                        rightFront = GetSubImageByRect<Gray>(binaryImg, SplittedHand.MinAreaRect());
-                        DrawHand(SplittedHand, image, HandEnum.Intersect);
+                        var rec = FindContourRect(binaryImg)[0];
+                        rightFront = GetSubImageByRect<Gray>(binaryImg, rec);
+                        MCvBox2D box = rec.ToCvBox2D();
+                        DrawHand(box, image, HandEnum.Intersect);
                         float[] TwoHandHOG = CalHog(rightFront);
                         model = new HandShapeModel(hogSize, HandEnum.Intersect);
                         model.hogRight = TwoHandHOG;
-                        model.handPosRight = SplittedHand;
+                        model.handPosRight = box;
                     }
                     else
                     {
@@ -305,6 +306,7 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 return null;
             }
+            return null;
             return CalHog(image.Convert<Bgr, byte>());
         }
 
@@ -349,25 +351,6 @@ namespace CURELab.SignLanguage.HandDetector
                 (new Gray(200), new Gray(255));
         }
 
-        private unsafe List<Rectangle> FindContourRect(Image<Gray, byte> image)
-        {
-            if (image == null)
-            {
-                return null;
-            }
-            Seq<System.Drawing.Point> DyncontourTemp = FindContourSeq(image);
-            List<Rectangle> rectList = new List<Rectangle>();
-            for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt32() != 0; DyncontourTemp = DyncontourTemp.HNext)
-            {
-                //iterate contours
-                if (DyncontourTemp.GetMinAreaRect().GetTrueArea() < minSize)
-                {
-                    continue;
-                }
-                rectList.Add(DyncontourTemp.BoundingRectangle);
-            }
-            return rectList;
-        }
 
         private unsafe List<MCvBox2D> FindContourMBox(Image<Gray, byte> image)
         {
@@ -387,6 +370,24 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 rectList = rectList.OrderBy(x => x.center.Y).Take(2).ToList();
             }
+            return rectList;
+        }
+
+        private List<Rectangle> FindContourRect(Image<Gray, byte> image)
+        {
+            Seq<System.Drawing.Point> DyncontourTemp = FindContourSeq(image);
+            var rectList = new List<Rectangle>();
+            for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt64() != 0; DyncontourTemp = DyncontourTemp.HNext)
+            {
+                //iterate contours
+                if (DyncontourTemp.BoundingRectangle.GetRectArea() < minSize
+                    || DyncontourTemp.BoundingRectangle.GetRectArea() > maxSize)
+                {
+                    continue;
+                }
+                rectList.Add(DyncontourTemp.BoundingRectangle);
+            }
+            rectList = rectList.OrderBy(x => x.GetYCenter()).ToList();
             return rectList;
         }
 

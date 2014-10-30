@@ -71,6 +71,7 @@ namespace XEDParser
 
                 }
             }
+
         }
 
         public static System.Drawing.Bitmap WriteBMPtoBMP(WriteableBitmap writeBmp)

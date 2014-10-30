@@ -72,19 +72,20 @@ namespace CURELab.SignLanguage.HandDetector
             this.img_depth.Source = m_VideoProcessor.DepthWriteBitmap;
             this.img_leftFront.Source = m_VideoProcessor.WrtBMP_LeftHandFront;
             this.img_rightFront.Source = m_VideoProcessor.WrtBMP_RightHandFront;
-            //MenuItem_Open_Click(this,new RoutedEventArgs());
             string path = @"D:\Kinect data\new";
-            wordList = new List<SignWordModel>();
-            var folder = new DirectoryInfo(path);
-            foreach (var dir in folder.GetDirectories())
-            {
-                string fileName = dir.Name;
-                string[] s = fileName.Split();
-                SignWordModel wordModel = new SignWordModel(s[1], s[2], dir.FullName, fileName);
-                wordList.Add(wordModel);
-            }
+            m_VideoProcessor.OpenDir(@"D:\Kinect data\new\52 HKG_002_a_0016 Aaron 1");
+            //MenuItem_Open_Click(this,new RoutedEventArgs());
+            //wordList = new List<SignWordModel>();
+            //var folder = new DirectoryInfo(path);
+            //foreach (var dir in folder.GetDirectories())
+            //{
+            //    string fileName = dir.Name;
+            //    string[] s = fileName.Split();
+            //    SignWordModel wordModel = new SignWordModel(s[1], s[2], dir.FullName, fileName);
+            //    wordList.Add(wordModel);
+            //}
 
-            Console.WriteLine(wordList.Count() + " words to process");
+            //Console.WriteLine(wordList.Count() + " words to process");
         }
 
         private unsafe void RegisterThreshold(string valuename, ref double thresh, double max, double initialValue)

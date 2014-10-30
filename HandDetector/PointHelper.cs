@@ -1,10 +1,12 @@
-﻿using Emgu.CV.Structure;
+﻿using System.Windows;
+using Emgu.CV.Structure;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Point = System.Drawing.Point;
 
 namespace CURELab.SignLanguage.HandDetector
 {
@@ -156,6 +158,14 @@ namespace CURELab.SignLanguage.HandDetector
             return (float)Math.Sqrt(p.X * p.X + p.Y * p.Y);
         }
 
+        public static MCvBox2D ToCvBox2D(this Rectangle r)
+        {
+            var box = new MCvBox2D();
+            box.center= new PointF(r.GetXCenter(), r.GetYCenter());
+            box.size = new SizeF(r.Width,r.Height);
+            box.angle = 0;
+            return box;
+        }
 
     }
 }
