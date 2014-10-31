@@ -48,7 +48,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         public bool Start()
         {
-            String path = "C:\\Program Files\\Microsoft SDKs\\Kinect\\Developer Toolkit v1.7.0\\Tools\\KinectStudio\\KinectStudio.exe";
+            String path = "C:\\Program Files\\Microsoft SDKs\\Kinect\\Developer Toolkit v1.8.0\\Tools\\KinectStudio\\KinectStudio.exe";
             Process.Start(path);
             Thread.Sleep(1000);
             return Connect();

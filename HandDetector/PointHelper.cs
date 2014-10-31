@@ -156,6 +156,13 @@ namespace CURELab.SignLanguage.HandDetector
             return (float)Math.Sqrt(p.X * p.X + p.Y * p.Y);
         }
 
-
+        public static MCvBox2D ToCvBox2D(this Rectangle r)
+        {
+            var box = new MCvBox2D();
+            box.center= new PointF(r.GetXCenter(), r.GetYCenter());
+            box.size = new SizeF(r.Width,r.Height);
+            box.angle = 0;
+            return box;
+        }
     }
 }

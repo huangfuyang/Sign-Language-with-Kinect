@@ -239,12 +239,16 @@ namespace CURELab.SignLanguage.HandDetector
                     {
 
                         text = "Two hands";
-                        MCvBox2D SplittedHand = SplitHand(rectList[0], HandEnum.Intersect, rightVector);
-                        rightFront = GetSubImageByRect<Gray>(binaryImg, SplittedHand.MinAreaRect());
-                        DrawHand(SplittedHand, image, HandEnum.Intersect);
-                        float[] TwoHandHOG = CalHog(rightFront);
-                        model = new HandShapeModel(hogSize, HandEnum.Intersect);
-                        model.hogRight = TwoHandHOG;
+                        var twoHands = FindContourRect(binaryImg);
+                        if (twoHands != null && twoHands.Count>0)
+                        {
+                            rightFront = GetSubImageByRect<Gray>(binaryImg, twoHands[0]);
+                            DrawHand(twoHands[0].ToCvBox2D(), image, HandEnum.Intersect);
+                            float[] TwoHandHOG = CalHog(rightFront);
+                            model = new HandShapeModel(hogSize, HandEnum.Intersect);
+                            model.hogRight = TwoHandHOG;
+                        }
+                       
                     }
                     else
                     {
@@ -298,6 +302,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         public float[] CalHog(Image<Gray, byte> image)
         {
+            return null;
             if (image == null)
             {
                 return null;
@@ -336,25 +341,7 @@ namespace CURELab.SignLanguage.HandDetector
                 (new Gray(200), new Gray(255));
         }
 
-        private unsafe List<Rectangle> FindContourRect(Image<Gray, byte> image)
-        {
-            if (image == null)
-            {
-                return null;
-            }
-            Seq<System.Drawing.Point> DyncontourTemp = FindContourSeq(image);
-            List<Rectangle> rectList = new List<Rectangle>();
-            for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt32() != 0; DyncontourTemp = DyncontourTemp.HNext)
-            {
-                //iterate contours
-                if (DyncontourTemp.GetMinAreaRect().GetTrueArea() < minSize)
-                {
-                    continue;
-                }
-                rectList.Add(DyncontourTemp.BoundingRectangle);
-            }
-            return rectList;
-        }
+      
 
         private unsafe List<MCvBox2D> FindContourMBox(Image<Gray, byte> image)
         {
@@ -374,6 +361,24 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 rectList = rectList.OrderBy(x => x.center.Y).Take(2).ToList();
             }
+            return rectList;
+        }
+
+        private List<Rectangle> FindContourRect(Image<Gray, byte> image)
+        {
+            Seq<System.Drawing.Point> DyncontourTemp = FindContourSeq(image);
+            var rectList = new List<Rectangle>();
+            for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt64() != 0; DyncontourTemp = DyncontourTemp.HNext)
+            {
+                //iterate contours
+                if (DyncontourTemp.BoundingRectangle.GetRectArea() < minSize
+                    || DyncontourTemp.BoundingRectangle.GetRectArea() > maxSize)
+                {
+                    continue;
+                }
+                rectList.Add(DyncontourTemp.BoundingRectangle);
+            }
+            rectList = rectList.OrderBy(x => x.GetYCenter()).ToList();
             return rectList;
         }
 
@@ -408,8 +413,8 @@ namespace CURELab.SignLanguage.HandDetector
             //    box.size.Height = width;
             //}
 
-            Image<T, Byte> mask = (image.Copy(box) * 255);
-            var img = ResizeImage<T>(mask, 60, 60);
+            Image<T, Byte> img = (image.Copy(box) * 255);
+            //img = ResizeImage<T>(img, 60, 60);
             return img;
 
         }
@@ -449,7 +454,8 @@ namespace CURELab.SignLanguage.HandDetector
             }
             rect.X = rect.X < 0 ? 0 : rect.X;
             rect.Y = rect.Y < 0 ? 0 : rect.Y;
-            Image<T, Byte> result = (image.Copy(rect) * 255).Resize(60, 60, Emgu.CV.CvEnum.INTER.CV_INTER_LINEAR);
+            Image<T, Byte> result = (image.Copy(rect)*255);
+            //result = result.Resize(60, 60, Emgu.CV.CvEnum.INTER.CV_INTER_LINEAR);
             return result;
 
         }

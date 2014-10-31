@@ -320,6 +320,26 @@ namespace CURELab.SignLanguage.HandDetector
                             handModel.SetSkeletonData(skeletons[0]);
                         }
                         db.AddFrameData(handModel);
+                        string currentSign = db == null ? "0" : db.CurrentSign.ToString();
+                        string path = db.CurrentModel.FullName.Substring(0, db.CurrentModel.FullName.Length - 4);
+                        Directory.CreateDirectory(path);
+                        // UI update
+                        if (rightFront != null)
+                        {
+                            Bitmap right = rightFront.ToBitmap();
+                            right.Save(path + '\\'+ db.currentFrame.ToString() + "_r.jpg");
+                            //ImageConverter.UpdateWriteBMP(WrtBMP_RightHandFront, right);
+                        }
+                        if (leftFront != null)
+                        {
+                            Bitmap left = leftFront.ToBitmap();
+                            left.Save(path + '\\' + db.currentFrame.ToString() + "_l.jpg");
+                            //ImageConverter.UpdateWriteBMP(WrtBMP_LeftHandFront, left);
+                        }
+                        if (sw.ElapsedMilliseconds > 15)
+                        {
+                            Console.WriteLine("Find hand:" + sw.ElapsedMilliseconds);
+                        }
                     }
                     // not recording show prob
                     else
@@ -334,25 +354,7 @@ namespace CURELab.SignLanguage.HandDetector
                         //    ImageConverter.UpdateWriteBMP(WrtBMP_Candidate3, result[2].Convert<Gray, byte>().ToBitmap());
                         //}
                     }
-                    string currentSign = db == null ? "0" : db.CurrentSign.ToString();
-                    string path = @"J:\Kinect data\Aaron 141-180\hands\" + currentSign + " " + handModel.frame.ToString();
-                    // UI update
-                    if (rightFront != null)
-                    {
-                        Bitmap right = rightFront.ToBitmap();
-                        //right.Save(path + " r.jpg");
-                        ImageConverter.UpdateWriteBMP(WrtBMP_RightHandFront, right);
-                    }
-                    if (leftFront != null)
-                    {
-                        Bitmap left = leftFront.ToBitmap();
-                        //left.Save(path + " l.jpg");
-                        ImageConverter.UpdateWriteBMP(WrtBMP_LeftHandFront, left);
-                    }
-                    if (sw.ElapsedMilliseconds>15)
-                    {
-                        Console.WriteLine("Find hand:" + sw.ElapsedMilliseconds);
-                    }
+                    
                     sw.Restart();
 
                     //**************************draw gray histogram
