@@ -177,3 +177,5 @@ FakesAssemblies/
 
 # Custom Ignore Rule
 Thumbs.db
+
+HandShapeDetector/data
