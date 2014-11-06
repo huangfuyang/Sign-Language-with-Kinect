@@ -19,6 +19,11 @@ def readVideo(fileName, frameCallback, labels):
     cap = cv2.VideoCapture(fileName)
     i = 0
     
+    if DEBUG_MODE:
+        cv2.namedWindow("Depth Video", cv2.cv.CV_WINDOW_NORMAL);
+        cv2.setWindowProperty("Depth Video", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_FULLSCREEN);
+        cv2.setWindowProperty("Depth Video", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_NORMAL);
+    
     while(cap.isOpened()):
         ret, frame = cap.read()
         if (not ret) | (i>=len(labels)) | (cv2.waitKey(1) & 0xFF == ord('q')):
@@ -31,7 +36,7 @@ def readVideo(fileName, frameCallback, labels):
 def extractHand(frame, label):
     if DEBUG_MODE:
         print label
-        cv2.imshow('detection', frame)
+        cv2.imshow('Depth Video', frame)
 
 # Feature extraction using Caffe
 # Train SVM model
