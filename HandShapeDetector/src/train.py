@@ -9,6 +9,7 @@ labelDirectory = getcwd()+'/../data/label'
 videoDirectory = getcwd()+'/../data/video'
 videoFilenameExtension = 'avi'
 DEBUG_MODE = True
+VISUALIZE_RESULT = True
 
 # Read config
 def readCSV(fileName):
@@ -20,15 +21,20 @@ def readVideo(fileName, frameCallback, labels):
     cap = cv2.VideoCapture(fileName)
     i = 0
     
-    if DEBUG_MODE:
+    if VISUALIZE_RESULT:
         cv2.namedWindow("Depth Video", cv2.cv.CV_WINDOW_NORMAL);
         cv2.setWindowProperty("Depth Video", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_FULLSCREEN);
         cv2.setWindowProperty("Depth Video", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_NORMAL);
     
     while(cap.isOpened()):
         ret, frame = cap.read()
-        if (not ret) | (i>=len(labels)) | (cv2.waitKey(1) & 0xFF == ord('q')):
+        if (not ret) | (i>=len(labels)):
             break
+            
+        if VISUALIZE_RESULT:
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break;
+                
         frameCallback(frame, labels[i])
         i = i+1
     cap.release()
@@ -47,11 +53,13 @@ def extractHand(frame, label):
             box = cv2.cv.BoxPoints(rect)
             box = np.int0(box)
             
-            if DEBUG_MODE:
+            if VISUALIZE_RESULT:
                 cv2.drawContours(frame,[box],0,(0,0,255),2)
             
     if DEBUG_MODE:
         print label
+                        
+    if VISUALIZE_RESULT:
         cv2.imshow('Depth Video', frame)
 
 # Feature extraction using Caffe
