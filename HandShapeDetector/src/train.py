@@ -3,6 +3,7 @@ from os.path import isfile, join
 import csv
 import cv2
 import numpy as np
+import math
 
 # Constants
 labelDirectory = getcwd()+'/../data/label'
@@ -22,9 +23,12 @@ def readVideo(fileName, frameCallback, labels):
     i = 0
     
     if VISUALIZE_RESULT:
-        cv2.namedWindow("Depth Video", cv2.cv.CV_WINDOW_NORMAL);
-        cv2.setWindowProperty("Depth Video", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_FULLSCREEN);
-        cv2.setWindowProperty("Depth Video", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_NORMAL);
+        cv2.namedWindow("Depth Video", cv2.cv.CV_WINDOW_NORMAL)
+        cv2.setWindowProperty("Depth Video", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_FULLSCREEN)
+        cv2.setWindowProperty("Depth Video", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_NORMAL)
+        cv2.namedWindow("Cropped Hand", cv2.cv.CV_WINDOW_NORMAL)
+        cv2.setWindowProperty("Cropped Hand", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_FULLSCREEN)
+        cv2.setWindowProperty("Cropped Hand", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_NORMAL)
     
     while(cap.isOpened()):
         ret, frame = cap.read()
@@ -42,6 +46,8 @@ def readVideo(fileName, frameCallback, labels):
 # Extract hand image from video
 def extractHand(frame, label):
     
+    frameHeight,frameWidth,_ = frame.shape;
+    print frameHeight
     currentColumn = 0
 
     if len(label) > 1:
@@ -49,12 +55,26 @@ def extractHand(frame, label):
                 
         if (label[1].lower()=='right') | (label[1].lower()=='left'):
             centerX,centerY,width,height,rotateAngle = label[currentColumn:currentColumn+5]
-            rect = ((float(centerX),float(centerY)), (float(width),float(height)), float(rotateAngle))
+            center = (float(centerX),float(centerY))
+            size = (float(width),float(height))
+            rotateAngle = float(rotateAngle)
+            
+            rect = (center, size, rotateAngle)
             box = cv2.cv.BoxPoints(rect)
             box = np.int0(box)
             
+            # Cropping
+            if (rotateAngle < -45.):
+                rotateAngle += 90.0
+                width,height = height,width
+            M = cv2.getRotationMatrix2D(center, rotateAngle, 1.0)
+            dSize = (int(math.floor(float(width))),int(math.floor(float(height))))
+            rotatedImage = cv2.warpAffine(frame, M, (frameHeight,frameWidth))
+            croppedImage = cv2.getRectSubPix(rotatedImage, dSize, center)
+            
             if VISUALIZE_RESULT:
                 cv2.drawContours(frame,[box],0,(0,0,255),2)
+                cv2.imshow('Cropped Hand', croppedImage)
             
     if DEBUG_MODE:
         print label
