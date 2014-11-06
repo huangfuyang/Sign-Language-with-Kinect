@@ -2,6 +2,7 @@ from os import listdir,getcwd
 from os.path import isfile, join
 import csv
 import cv2
+import numpy as np
 
 # Constants
 labelDirectory = getcwd()+'/../data/label'
@@ -34,6 +35,21 @@ def readVideo(fileName, frameCallback, labels):
 
 # Extract hand image from video
 def extractHand(frame, label):
+    
+    currentColumn = 0
+
+    if len(label) > 1:
+        currentColumn = 2
+                
+        if (label[1].lower()=='right') | (label[1].lower()=='left'):
+            centerX,centerY,width,height,rotateAngle = label[currentColumn:currentColumn+5]
+            rect = ((float(centerX),float(centerY)), (float(width),float(height)), float(rotateAngle))
+            box = cv2.cv.BoxPoints(rect)
+            box = np.int0(box)
+            
+            if DEBUG_MODE:
+                cv2.drawContours(frame,[box],0,(0,0,255),2)
+            
     if DEBUG_MODE:
         print label
         cv2.imshow('Depth Video', frame)
