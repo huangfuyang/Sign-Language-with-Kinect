@@ -8,9 +8,11 @@ import math
 # Constants
 labelDirectory = getcwd()+'/../data/label'
 videoDirectory = getcwd()+'/../data/video'
-videoFilenameExtension = 'avi'
+resultDirectory = getcwd()+'/../result'
+videoFilenameExtension = '.avi'
 DEBUG_MODE = True
 VISUALIZE_RESULT = True
+SAVE_RESULT_VIDEO = True
 
 # Read config
 def readCSV(fileName):
@@ -33,18 +35,35 @@ def readVideoFrame(cap):
                 
 # Read AVI video
 def readVideo(fileName, frameCallback, labels, result):
-    cap = cv2.VideoCapture(fileName)
+    srcVideoPath = join(videoDirectory,'depth_'+fileName+videoFilenameExtension)
+    cap = cv2.VideoCapture(srcVideoPath)
     i = 0
+    resultImages = []
+    
     retval,frame = readVideoFrame(cap)
+    h,w = frame.shape[0:2]
+    print(type(h))
+    if SAVE_RESULT_VIDEO:
+        videoPath = join(resultDirectory, 'croppedHand-'+fileName+'.avi')
+        videoWriter = cv2.VideoWriter()
+        fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
+        videoWriter.open(videoPath, fourcc, 30, (w*2,h))
+    else:
+        videoWriter = None
 
     while((i<len(labels)) & retval):
-        result.append(frameCallback(frame, labels[i]))
+        res,resultImage = frameCallback(frame, labels[i], videoWriter)
+        resultImages.append(resultImage)
         i = i+1
         retval,frame = readVideoFrame(cap)
     cap.release()
+    
+    if SAVE_RESULT_VIDEO & (videoWriter is not None):
+        for i in xrange(1,len(resultImages)):
+            videoWriter.write(resultImages[i])
 
 # Extract hand image from video
-def extractHand(frame, label):
+def extractHand(frame, label, videoWriter=None):
     
     frameHeight,frameWidth,_ = frame.shape;
     croppedImage = None
@@ -88,7 +107,7 @@ def extractHand(frame, label):
         resultImage[:,0:frameWidth,:] = frame
         cv2.imshow('Depth Video', resultImage)
         
-    return croppedImage
+    return croppedImage,resultImage
 
 # Feature extraction using Caffe
 # Train SVM model
@@ -103,7 +122,7 @@ if VISUALIZE_RESULT:
 for fileName in fileList:
     result = []
     labels = readCSV(join(labelDirectory, fileName))
-    readVideo(join(videoDirectory,'depth_'+fileName[:-3]+videoFilenameExtension), extractHand, labels, result)
+    readVideo(fileName[:-4], extractHand, labels, result)
 
 if VISUALIZE_RESULT:
     cv2.destroyAllWindows()
