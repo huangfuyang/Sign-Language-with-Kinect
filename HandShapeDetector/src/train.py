@@ -101,9 +101,10 @@ def extractHand(frame, label, videoWriter=None):
             
             if VISUALIZE_RESULT:
                 cv2.drawContours(frame,[box],0,(0,0,255),2)
-                croppedHeight,croppedWidth,_ = croppedImage.shape
+                croppedImageWithBorder = cv2.copyMakeBorder(croppedImage, 3, 3, 3, 3, cv2.BORDER_CONSTANT, None, (255,255,255))
+                croppedHeight,croppedWidth,_ = croppedImageWithBorder.shape
                 resultImage[frameHeight/2-croppedHeight/2:frameHeight/2-croppedHeight/2+croppedHeight, 
-                    frameWidth+frameWidth/2-croppedWidth/2:frameWidth++frameWidth/2-croppedWidth/2+croppedWidth] = croppedImage
+                    frameWidth+frameWidth/2-croppedWidth/2:frameWidth++frameWidth/2-croppedWidth/2+croppedWidth] = croppedImageWithBorder
             
     if DEBUG_MODE:
         print label
