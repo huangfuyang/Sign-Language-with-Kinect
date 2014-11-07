@@ -1,5 +1,6 @@
-from os import listdir,getcwd
-from os.path import isfile, join
+from os import listdir,getcwd,makedirs
+from os.path import isfile,join,exists
+from sys import exit
 import csv
 import cv2
 import numpy as np
@@ -13,6 +14,13 @@ videoFilenameExtension = '.avi'
 DEBUG_MODE = True
 VISUALIZE_RESULT = True
 SAVE_RESULT_VIDEO = True
+
+def init():
+    for directory in [labelDirectory,videoDirectory,resultDirectory]:
+        if not exists(directory):
+            makedirs(directory)
+
+    return [ f for f in listdir(labelDirectory) if isfile(join(labelDirectory,f)) & f.endswith('.csv') ]
 
 # Read config
 def readCSV(fileName):
@@ -123,7 +131,11 @@ def extractHand(frame, label, videoWriter=None):
 # Feature extraction using Caffe
 # Train SVM model
 
-fileList = [ f for f in listdir(labelDirectory) if isfile(join(labelDirectory,f)) & f.endswith('.csv') ]
+fileList = init()
+
+if len(fileList) < 1:
+    print 'No CSV file is found'
+    exit()
 
 if VISUALIZE_RESULT:
     cv2.namedWindow("Depth Video", cv2.cv.CV_WINDOW_NORMAL)
