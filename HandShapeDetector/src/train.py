@@ -44,7 +44,7 @@ def readVideo(fileName, frameCallback, labels, result):
     h,w = frame.shape[0:2]
     
     if SAVE_RESULT_VIDEO:
-        videoPath = join(resultDirectory, 'croppedHand-'+fileName+'.avi')
+        videoPath = join(resultDirectory, 'croppedHand-'+fileName+videoFilenameExtension)
         videoWriter = cv2.VideoWriter()
         fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
         videoWriter.open(videoPath, fourcc, 30, (w*2,h))
