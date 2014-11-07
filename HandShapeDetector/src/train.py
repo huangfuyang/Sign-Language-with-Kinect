@@ -77,7 +77,9 @@ def extractHand(frame, label, videoWriter=None):
 
     if len(label) > 1:
         currentColumn = 2
-        thresh = float(label[-1])
+        
+        if label[1].lower() != 'none':
+            thresh = float(label[-1])
                 
         if (label[1].lower()=='right') | (label[1].lower()=='left'):
             centerX,centerY,width,height,rotateAngle = label[currentColumn:currentColumn+5]
@@ -118,7 +120,7 @@ def extractHand(frame, label, videoWriter=None):
 # Feature extraction using Caffe
 # Train SVM model
 
-fileList = [ f for f in listdir(labelDirectory) if isfile(join(labelDirectory,f)) ]
+fileList = [ f for f in listdir(labelDirectory) if isfile(join(labelDirectory,f)) & f.endswith('.csv') ]
 
 if VISUALIZE_RESULT:
     cv2.namedWindow("Depth Video", cv2.cv.CV_WINDOW_NORMAL)
