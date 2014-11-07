@@ -22,11 +22,6 @@ def readVideo(fileName, frameCallback, labels):
     cap = cv2.VideoCapture(fileName)
     i = 0
     
-    if VISUALIZE_RESULT:
-        cv2.namedWindow("Depth Video", cv2.cv.CV_WINDOW_NORMAL)
-        cv2.setWindowProperty("Depth Video", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_FULLSCREEN)
-        cv2.setWindowProperty("Depth Video", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_NORMAL)
-    
     while(cap.isOpened()):
         ret, frame = cap.read()
         if (not ret) | (i>=len(labels)):
@@ -87,7 +82,14 @@ def extractHand(frame, label):
 
 fileList = [ f for f in listdir(labelDirectory) if isfile(join(labelDirectory,f)) ]
 
+if VISUALIZE_RESULT:
+    cv2.namedWindow("Depth Video", cv2.cv.CV_WINDOW_NORMAL)
+    cv2.setWindowProperty("Depth Video", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_FULLSCREEN)
+    cv2.setWindowProperty("Depth Video", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_NORMAL)
+
 for fileName in fileList:
     labels = readCSV(join(labelDirectory, fileName))
     readVideo(join(videoDirectory,'depth_'+fileName[:-3]+videoFilenameExtension), extractHand, labels)
+
+if VISUALIZE_RESULT:
     cv2.destroyAllWindows()
