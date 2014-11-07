@@ -17,8 +17,11 @@ namespace CURELab.SignLanguage.HandDetector
             get { return currentFrame; }
             set
             {
-                currentFrame = value;
-                OnPropertyChanged("CurrentFrame");
+                if (value != currentFrame)
+                {
+                    currentFrame = value;
+                    OnPropertyChanged("CurrentFrame");
+                }
             }
         }
 

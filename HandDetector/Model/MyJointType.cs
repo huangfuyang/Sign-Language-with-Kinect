@@ -10,73 +10,38 @@ namespace CURELab.SignLanguage.HandDetector.Model
     //     This contains all of the possible joint types.
     public enum MyJointType
     {
-        // Summary:
-        //     The center of the hip.
-        HipCenter = 0,
-        //
-        // Summary:
-        //     The bottom of the spine.
-        Spine = 1,
-        //
-        // Summary:
-        //     The center of the shoulders.
+
+        Head = 0,
+        ShoulderLeft = 1,
+       
         ShoulderCenter = 2,
-        //
-        // Summary:
-        //     The players head.
-        Head = 3,
-        //
-        // Summary:
-        //     The left shoulder.
-        ShoulderLeft = 4,
-        //
-        // Summary:
-        //     The left elbow.
-        ElbowLeft = 5,
-        //
-        // Summary:
-        //     The left wrist.
-        WristLeft = 6,
-        //
-        // Summary:
-        //     The left hand.
-        HandLeft = 7,
-        //
-        // Summary:
-        //     The right shoulder.
-        ShoulderRight = 8,
-        //
-        // Summary:
-        //     The right elbow.
-        ElbowRight = 9,
-        //
-        // Summary:
-        //     The right wrist.
-        WristRight = 10,
-        //
-        // Summary:
-        //     The right hand.
-        HandRight = 11,
-        //
-        // Summary:
-        //     The left hip.
-        HipLeft = 12,
-        //
-        // Summary:
-        //     The left knee.
-        KneeLeft = 13,
-        //
-        // Summary:
-        //     The left ankle.
+
+        ShoulderRight = 3,
+
+        ElbowL = 4,
+
+        ElbowR = 5,
+
+        WristL = 6,
+
+        WristR = 7,
+
+        HandL = 8,
+      
+        HandR = 9,
+
+        Spine = 10,
+
+        HipL = 11,
+
+        HipCenter = 12,
+
+        HipR = 13,
+
         AnkleLeft = 14,
-        //
-        // Summary:
-        //     The left foot.
+
         FootLeft = 15,
-        //
-        // Summary:
-        //     The right hip.
-        HipRight = 16,
+
         //
         // Summary:
         //     The right knee.

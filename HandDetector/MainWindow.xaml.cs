@@ -213,6 +213,9 @@ namespace CURELab.SignLanguage.HandDetector
                 case Key.Space:
                     m_VideoProcessor.ProcessFrame();
                     break;
+                case Key.R:
+                    m_VideoProcessor.ProcessSample();
+                    break;
                 default:
                     break;
             }

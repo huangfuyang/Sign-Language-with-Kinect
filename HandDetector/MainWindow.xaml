@@ -48,7 +48,7 @@
         </Grid>
        
         <StackPanel x:Name="SPn_right" Grid.Column="1" Grid.Row="2" Margin="5,0,5,10">
-            <Slider VerticalAlignment="Bottom" x:Name="sld_progress" HorizontalAlignment="Stretch" Margin="20" Value="{Binding CurrentFrame}" Maximum="{Binding TotalFrames}"  ValueChanged="sld_progress_ValueChanged" />
+            <Slider VerticalAlignment="Bottom" x:Name="sld_progress" HorizontalAlignment="Stretch" Margin="20" Value="{Binding CurrentFrame, Mode=OneWay}" Maximum="{Binding TotalFrames}"  ValueChanged="sld_progress_ValueChanged" />
 
 
         </StackPanel>
