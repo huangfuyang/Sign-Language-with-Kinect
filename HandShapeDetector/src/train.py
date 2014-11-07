@@ -42,12 +42,16 @@ def readVideo(fileName, frameCallback, labels, result):
     
     retval,frame = readVideoFrame(cap)
     h,w = frame.shape[0:2]
-    print(type(h))
+    
     if SAVE_RESULT_VIDEO:
         videoPath = join(resultDirectory, 'croppedHand-'+fileName+'.avi')
         videoWriter = cv2.VideoWriter()
         fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
         videoWriter.open(videoPath, fourcc, 30, (w*2,h))
+        savingImage = np.zeros((h,w*2,3), np.uint8)
+        savingImageSize, baseLine = cv2.getTextSize("Saving Video...", cv2.FONT_HERSHEY_SIMPLEX, 1, 2)
+        savingImageLocation = (w-savingImageSize[0]/2, h/2-savingImageSize[1]/2)
+        cv2.putText(savingImage, "Saving Video...", savingImageLocation, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.CV_AA)
     else:
         videoWriter = None
 
@@ -59,6 +63,7 @@ def readVideo(fileName, frameCallback, labels, result):
     cap.release()
     
     if SAVE_RESULT_VIDEO & (videoWriter is not None):
+        cv2.imshow('Depth Video', savingImage)
         for i in xrange(1,len(resultImages)):
             videoWriter.write(resultImages[i])
 
