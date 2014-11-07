@@ -17,22 +17,31 @@ def readCSV(fileName):
     with open(fileName, 'r') as csvfile:
         return [tuple(line) for line in csv.reader(csvfile, delimiter=',', quotechar='\'')]        
 
+def readVideoFrame(cap, frame):
+    if(cap.isOpened()):
+        ret, frame = cap.read()
+        if not ret:
+            return False,None
+            
+        if VISUALIZE_RESULT:
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                return False,None
+
+        return True,frame
+
+    return False,None
+                
 # Read AVI video
 def readVideo(fileName, frameCallback, labels):
     cap = cv2.VideoCapture(fileName)
     i = 0
-    
-    while(cap.isOpened()):
-        ret, frame = cap.read()
-        if (not ret) | (i>=len(labels)):
-            break
-            
-        if VISUALIZE_RESULT:
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break;
-                
+    frame = None
+    retval,frame = readVideoFrame(cap, frame)
+
+    while((i<len(labels)) & retval):
         frameCallback(frame, labels[i])
         i = i+1
+        retval,frame = readVideoFrame(cap, frame)
     cap.release()
 
 # Extract hand image from video
