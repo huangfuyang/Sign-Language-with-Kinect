@@ -26,9 +26,6 @@ def readVideo(fileName, frameCallback, labels):
         cv2.namedWindow("Depth Video", cv2.cv.CV_WINDOW_NORMAL)
         cv2.setWindowProperty("Depth Video", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_FULLSCREEN)
         cv2.setWindowProperty("Depth Video", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_NORMAL)
-        cv2.namedWindow("Cropped Hand", cv2.cv.CV_WINDOW_NORMAL)
-        cv2.setWindowProperty("Cropped Hand", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_FULLSCREEN)
-        cv2.setWindowProperty("Cropped Hand", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_NORMAL)
     
     while(cap.isOpened()):
         ret, frame = cap.read()
@@ -47,7 +44,7 @@ def readVideo(fileName, frameCallback, labels):
 def extractHand(frame, label):
     
     frameHeight,frameWidth,_ = frame.shape;
-    print frameHeight
+    resultImage = np.zeros((frameHeight,frameWidth*2,3), np.uint8)
     currentColumn = 0
 
     if len(label) > 1:
@@ -74,13 +71,16 @@ def extractHand(frame, label):
             
             if VISUALIZE_RESULT:
                 cv2.drawContours(frame,[box],0,(0,0,255),2)
-                cv2.imshow('Cropped Hand', croppedImage)
+                croppedHeight,croppedWidth,_ = croppedImage.shape
+                resultImage[frameHeight/2-croppedHeight/2:frameHeight/2-croppedHeight/2+croppedHeight, 
+                    frameWidth+frameWidth/2-croppedWidth/2:frameWidth++frameWidth/2-croppedWidth/2+croppedWidth] = croppedImage
             
     if DEBUG_MODE:
         print label
                         
     if VISUALIZE_RESULT:
-        cv2.imshow('Depth Video', frame)
+        resultImage[:,0:frameWidth,:] = frame
+        cv2.imshow('Depth Video', resultImage)
 
 # Feature extraction using Caffe
 # Train SVM model
