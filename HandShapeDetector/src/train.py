@@ -17,7 +17,7 @@ def readCSV(fileName):
     with open(fileName, 'r') as csvfile:
         return [tuple(line) for line in csv.reader(csvfile, delimiter=',', quotechar='\'')]        
 
-def readVideoFrame(cap, frame):
+def readVideoFrame(cap):
     if(cap.isOpened()):
         ret, frame = cap.read()
         if not ret:
@@ -32,22 +32,22 @@ def readVideoFrame(cap, frame):
     return False,None
                 
 # Read AVI video
-def readVideo(fileName, frameCallback, labels):
+def readVideo(fileName, frameCallback, labels, result):
     cap = cv2.VideoCapture(fileName)
     i = 0
-    frame = None
-    retval,frame = readVideoFrame(cap, frame)
+    retval,frame = readVideoFrame(cap)
 
     while((i<len(labels)) & retval):
-        frameCallback(frame, labels[i])
+        result.append(frameCallback(frame, labels[i]))
         i = i+1
-        retval,frame = readVideoFrame(cap, frame)
+        retval,frame = readVideoFrame(cap)
     cap.release()
 
 # Extract hand image from video
 def extractHand(frame, label):
     
     frameHeight,frameWidth,_ = frame.shape;
+    croppedImage = None
     resultImage = np.zeros((frameHeight,frameWidth*2,3), np.uint8)
     currentColumn = 0
 
@@ -87,6 +87,8 @@ def extractHand(frame, label):
     if VISUALIZE_RESULT:
         resultImage[:,0:frameWidth,:] = frame
         cv2.imshow('Depth Video', resultImage)
+        
+    return croppedImage
 
 # Feature extraction using Caffe
 # Train SVM model
@@ -99,8 +101,9 @@ if VISUALIZE_RESULT:
     cv2.setWindowProperty("Depth Video", cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_NORMAL)
 
 for fileName in fileList:
+    result = []
     labels = readCSV(join(labelDirectory, fileName))
-    readVideo(join(videoDirectory,'depth_'+fileName[:-3]+videoFilenameExtension), extractHand, labels)
+    readVideo(join(videoDirectory,'depth_'+fileName[:-3]+videoFilenameExtension), extractHand, labels, result)
 
 if VISUALIZE_RESULT:
     cv2.destroyAllWindows()
