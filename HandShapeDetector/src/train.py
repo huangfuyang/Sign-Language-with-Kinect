@@ -48,10 +48,6 @@ def readVideo(fileName, frameCallback, labels, result):
         videoWriter = cv2.VideoWriter()
         fourcc = cv2.cv.CV_FOURCC('m', 'p', '4', 'v')
         videoWriter.open(videoPath, fourcc, 30, (w*2,h))
-        savingImage = np.zeros((h,w*2,3), np.uint8)
-        savingImageSize, baseLine = cv2.getTextSize("Saving Video...", cv2.FONT_HERSHEY_SIMPLEX, 1, 2)
-        savingImageLocation = (w-savingImageSize[0]/2, h/2-savingImageSize[1]/2)
-        cv2.putText(savingImage, "Saving Video...", savingImageLocation, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.CV_AA)
     else:
         videoWriter = None
 
@@ -63,8 +59,15 @@ def readVideo(fileName, frameCallback, labels, result):
     cap.release()
     
     if SAVE_RESULT_VIDEO & (videoWriter is not None):
-        cv2.imshow('Depth Video', savingImage)
-        for i in xrange(1,len(resultImages)):
+        message = "Saving Video..."
+        savingImage = np.zeros((h,w*2,3), np.uint8)
+        savingImageTextSize, _ = cv2.getTextSize(message, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)
+        savingImageTextLocation = (w-savingImageTextSize[0]/2, h/2-savingImageTextSize[1]/2)
+        for i in xrange(0,len(resultImages)):
+            savingImage[:] = 0
+            cv2.rectangle(savingImage, (0,savingImageTextLocation[1]), (i*w*2/len(resultImages),savingImageTextLocation[1]+savingImageTextSize[1]), (0,255,0), cv2.cv.CV_FILLED)
+            cv2.putText(savingImage, message, savingImageTextLocation, cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 2, cv2.CV_AA)
+            cv2.imshow('Depth Video', savingImage)
             videoWriter.write(resultImages[i])
 
 # Extract hand image from video
