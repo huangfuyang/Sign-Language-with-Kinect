@@ -44,6 +44,7 @@ def extractHand(frame, label):
 
     if len(label) > 1:
         currentColumn = 2
+        thresh = float(label[-1])
                 
         if (label[1].lower()=='right') | (label[1].lower()=='left'):
             centerX,centerY,width,height,rotateAngle = label[currentColumn:currentColumn+5]
@@ -63,6 +64,7 @@ def extractHand(frame, label):
             dSize = (int(math.floor(float(width))),int(math.floor(float(height))))
             rotatedImage = cv2.warpAffine(frame, M, (frameHeight,frameWidth))
             croppedImage = cv2.getRectSubPix(rotatedImage, dSize, center)
+            retval, croppedImage = cv2.threshold(croppedImage, thresh, 256., cv2.THRESH_TOZERO_INV)
             
             if VISUALIZE_RESULT:
                 cv2.drawContours(frame,[box],0,(0,0,255),2)
