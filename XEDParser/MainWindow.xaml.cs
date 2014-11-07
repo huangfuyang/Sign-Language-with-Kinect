@@ -37,61 +37,78 @@ namespace XEDParser
         // Aaron
         public const float AaronRotateTan = 0.28f;
 
-        //we add
-        public float RotateTan = MichaelRotateTan;      // Default person
+        //adding
+        CURELab.SignLanguage.HandDetector.KinectStudioController controler = CURELab.SignLanguage.HandDetector.KinectStudioController.GetSingleton();
 
-        public Image<Bgra, byte> depthImg_old;
+        public int PreColorFrameNumber = -1;
+        public int PreDepthFrameNumber = -1;
+        public int first_skeleton_frame_number = -1;
+        public int kinect_current_color_frame_number = -1;
+        public int kinect_current_depth_frame_number = -1;
+        public int kinect_current_skeleton_frame_number = -1;
 
-        public Image<Bgr, byte> colorImg_old;
+        public int old_color_frame_no = -1;
+        public int old_depth_frame_no = -1;
+        public int old_skeleton_frame_no = -1;
 
-        public bool isSaving_oldColorFrame = false;
+        public int current_color_frame_no = -1;
+        public int current_depth_frame_no = -1;
+        public int current_skeleton_frame_no = -1;
 
-        public bool isSaving_oldDepthFrame = false;
+        public int old_frame_number_for_stop = -1;
+        public int current_frame_number_for_stop = -1;
 
-        public TextWriter writer { get; set; }
+        public int old_depth_frame_number_for_stop = -1;
+        public int current_depth_frame_number_for_stop = -1;
 
-        CURELab.SignLanguage.HandDetector.KinectStudioController k = CURELab.SignLanguage.HandDetector.KinectStudioController.GetSingleton();
+        public int old_skeleton_frame_number_for_stop = -1;
+        public int current_skeleton_frame_number_for_stop = -1;
+        public bool frame_thread_isrunning = true;
+        public bool file_IsReady = false;
 
-        //end of we add
+        String folder_selected = "C:\\Users\\user";
+        string single_file_name = "abc";
+        public bool Is_running = true;
+        public bool all_finished = false;
+        string[] fileName;
+
+        enum States { start, running_start, Isrunning, ending , finished };
+        //end of adding
+
         private KinectSensor _currentKinectSensor;
         public KinectSensor CurrentKinectSensor
         {
             get { return _currentKinectSensor; }
             set { _currentKinectSensor = value; }
         }
-        private string _depthframe;
-        public string DepthFrame 
+        private long _depthframe;
+        public long DepthTS 
         { 
             get { return _depthframe; }
             set { _depthframe = value;
-                lbl_Depth.Content = value; }
+                lbl_Depth.Content = value.ToString(); }
         }
-        private string _colorframe;
-        public string ColorFrame
+        private long _colorframe;
+        public long ColorTS
         {
             get { return _colorframe; }
             set
             {
                 _colorframe = value;
-                lbl_Color.Content = value;
+                lbl_Color.Content = value.ToString();
             }
         }
-        //private KinectSensor sensor;
+
         public List<Image<Bgr, byte>> ColorFrameList;
         public List<Image<Bgr, byte>> DepthFrameList;
         private KinectSensorChooser sensorChooser;
         VideoWriter colorWriter = null;
-        long colorFirstTime = 0;
+        long FirstTimeStamp = 0;
         VideoWriter depthWriter = null;
         StreamWriter skeWriter = null;
         long depthFirstTime = 0;
-        string single_file_name = "abc";
-        String folder_selected="C:\\Users\\user";
-        string[] fileName;
-        System.Timers.Timer timer;
-        int old_frame_no = -1;
-        int CurrentFrame = 0;
-        bool IsRunning = false;
+        private System.Timers.Timer timer;
+        int waiting = 0;
 
         Colorizer colorizer;
         public MainWindow()
@@ -102,7 +119,10 @@ namespace XEDParser
             this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
             this.sensorChooserUi.KinectSensorChooser = this.sensorChooser;
             this.sensorChooser.Start();
-            DepthFrame = "0";
+            DepthTS = 0;
+            ColorTS = 0;
+            timer = new System.Timers.Timer(20);
+            timer.Elapsed += timer_Elapsed;
         }
 
         private void SensorChooserOnKinectChanged(object sender, KinectChangedEventArgs args)
@@ -129,14 +149,13 @@ namespace XEDParser
                 {
                     args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
                     args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
-                    args.NewSensor.SkeletonStream.Enable();
-                    colorizer = new Colorizer(RotateTan, CurrentKinectSensor.DepthStream.MaxDepth, CurrentKinectSensor.DepthStream.MinDepth);
+                    //args.NewSensor.SkeletonStream.Enable();
 
                     depthPixels = new DepthImagePixel[CurrentKinectSensor.DepthStream.FramePixelDataLength];
                     _colorPixels = new byte[CurrentKinectSensor.ColorStream.FramePixelDataLength];
                     try
                     {
-
+                        
                         //args.NewSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
                         args.NewSensor.DepthStream.Range = DepthRange.Near;
                         args.NewSensor.SkeletonStream.EnableTrackingInNearRange = true;
@@ -158,129 +177,64 @@ namespace XEDParser
             {
                 error = true;
             }
+
+
         }
+       
 
         private byte[] _colorPixels;
         private DepthImagePixel[] depthPixels;
-        private System.Drawing.Point skeletonToDepth(SkeletonPoint sp, float angle_in)
-        {
-            DepthImagePoint dp = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(sp, DepthImageFormat.Resolution640x480Fps30);
-            
-            colorizer.Angle = angle_in;
-            return new System.Drawing.Point(dp.X,dp.Y);
-        }
-        /*
-        private void ColorFrameReady(object s, ColorImageFrameReadyEventArgs r)
-        {
-            Console.WriteLine("color:"+CurrentFrame.ToString());
-            CurrentFrame++;
-        }*/
 
-        private void Run()
+        private int GetRealCurrentFrame(long tsOffset)
         {
-            int i=0;
-            fileName = Directory.GetFiles(@"" + folder_selected, "*.xed");
-            Console.WriteLine("Successful for reading the folder");
-            do
+            return (int)Math.Round(Convert.ToDouble(tsOffset) / 33.3);
+        }
+
+        public async void ExecuteAsync(Action action, int timeoutInMilliseconds)
+        {
+            await Task.Delay(timeoutInMilliseconds);
+            action();
+        }
+
+        void timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (waiting == 1)
             {
-                single_file_name = System.IO.Path.GetFileNameWithoutExtension(fileName[i]);
-                if (!Directory.Exists(folder_selected + "\\" + single_file_name))
-                    Directory.CreateDirectory(folder_selected + "\\" + single_file_name);   // Create the folder if it is not existed
-
-                FileStream file_name = File.Open(@folder_selected + "\\" + single_file_name + "\\" + single_file_name + ".csv", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-                colorWriter = new VideoWriter(folder_selected + "\\" + single_file_name + "\\" + single_file_name + "_c.avi", 30, 640, 480, true);
-                depthWriter = new VideoWriter(folder_selected + "\\" + single_file_name + "\\" + single_file_name + "_d.avi", 30, 640, 480, true);
-                skeWriter = new StreamWriter(file_name);
-                Console.WriteLine("Successful for setting the writter");
-
-                // !!!!  Detecting signer by the filename
-                if (single_file_name.Contains("Michael"))
-                    RotateTan = MichaelRotateTan;
-                else if (single_file_name.Contains("Anita"))
-                    RotateTan = AnitaRotateTan;
-                else if (single_file_name.Contains("Aaron"))
-                    RotateTan = AaronRotateTan;
-
-                // !!!! End of detecting signer by the filename
-                Console.WriteLine("Angle: " + RotateTan);
-                colorizer.Angle = RotateTan;
-
-                //lbl_process.Content = "Processing... :" + i + "\\" + fileName.Length + " " + filename;
-                k.Open_File(fileName[i]);
-                Console.WriteLine("Processing... :" + i + "\\" + fileName.Length + " " + single_file_name);
-                //k.ReadFirstFrame();
-                System.Threading.Thread.Sleep(500);
-
-                Console.WriteLine("Run frame");
-                k.Run();
-
-                Console.WriteLine("Run frame finished");
-                if (colorWriter != null)
-                {
-                    Console.WriteLine("ColorWriter");
-                }
-                Console.WriteLine("After ColorWriter");
-
-                IsRunning = true;
-                while (IsRunning)
-                {
-                    System.Threading.Thread.Sleep(1000);
-                    Console.WriteLine(old_frame_no);
-                    Console.WriteLine(CurrentFrame);
-                    if (CurrentFrame == 0)
-                    {
-                        continue;
-                    }
-                    if (old_frame_no != CurrentFrame)
-                    {
-                        Console.WriteLine("Running");
-                        IsRunning = true;
-                        old_frame_no = CurrentFrame;        // Save the frame no.
-                    }
-                    else
-                    {
-                        Console.WriteLine("End of the frame");
-                        IsRunning = false;                                // Tell the program to proceed the next file
-                    }
-                    Console.WriteLine("Waiting...");
-                }
-                CloseAllWriter();
-
-                Console.WriteLine("Finish");
-                Console.WriteLine("==============================================");
-
-                long c_length = new System.IO.FileInfo(folder_selected + "\\" + single_file_name + "\\" + single_file_name + "_c.avi").Length;
-                long d_length = new System.IO.FileInfo(folder_selected + "\\" + single_file_name + "\\" + single_file_name + "_d.avi").Length;
-                //if (c_length==d_length)
-                    i++;
-                //else Console.WriteLine("Redo!!!!!!!!");
-                CurrentFrame = 0;
-                old_frame_no = -1;
-
-
-            } while (i < fileName.Length);
+                controler.Run_by_clik();
+                waiting = 0;
+            }
         }
 
-        private int preColorFrame = 0;
+        
 
-        private void AllFrameReady(object sender, AllFramesReadyEventArgs e)
+        private void skele_FrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
-            //Console.WriteLine("all:"+CurrentFrame.ToString());
-            CurrentFrame++;
-
+            if (waiting == 0)
+            {
+                waiting += 2;
+            }
+            else
+            {
+                waiting++;
+            }
+            current_skeleton_frame_number_for_stop++;
+            Console.WriteLine("enter skeleton FrameReady" + current_skeleton_frame_number_for_stop);
+            Console.WriteLine("    " + controler.ReadCurrentFrame());
             using (SkeletonFrame sFrame = e.OpenSkeletonFrame())
             {
                 if (sFrame != null)
                 {
+                    if (first_skeleton_frame_number == 0)
+                        first_skeleton_frame_number = sFrame.FrameNumber;
                     var skeletons = new Skeleton[sFrame.SkeletonArrayLength];
                     sFrame.CopySkeletonDataTo(skeletons);
                     Skeleton skel = skeletons[0];
                     DepthImagePoint dp_csv;
                     ColorImagePoint cp_csv;
 
+                    #region skeleton
                     if (skel.TrackingState == SkeletonTrackingState.Tracked)
                     {
-                        #region skeleton
                         dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.Head].Position, DepthImageFormat.Resolution640x480Fps30);
                         cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.Head].Position, ColorImageFormat.RgbResolution640x480Fps30);
                         //head
@@ -428,9 +382,8 @@ namespace XEDParser
                         float hipRX_depth = dp_csv.X;
                         float hipRY_depth = dp_csv.Y;
 
-
                         skeWriter.WriteLine("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31},{32},{33},{34},{35},{36},{37},{38},{39},{40},{41},{42},{43},{44},{45},{46},{47},{48},{49},{50},{51},{52},{53},{54},{55},{56},{57},{58},{59},{60},{61},{62},{63},{64},{65},{66},{67},{68},{69},{70},{71},{72},{73},{74},{75},{76},{77},{78},{79},{80},{81},{82},{83},{84},{85},{86},{87},{88},{89},{90},{91},{92},{93},{94},{95},{96},{97}", headX, headY, headZ, headX_color, headY_color, headX_depth, headY_depth, shoulderLX, shoulderLY, shoulderLZ, shoulderLX_color, shoulderLY_color, shoulderLX_depth, shoulderLY_depth, shoulderCX, shoulderCY, shoulderCZ, shoulderCX_color, shoulderCY_color, shoulderCX_depth, shoulderCY_depth, shoulderRX, shoulderRY, shoulderRZ, shoulderRX_color, shoulderRY_color, shoulderRX_depth, shoulderRY_depth, elbowLX, elbowLY, elbowLZ, elbowLX_color, elbowLY_color, elbowLX_depth, elbowLY_depth, elbowRX, elbowRY, elbowRZ, elbowRX_color, elbowRY_color, elbowRX_depth, elbowRY_depth, wristLX, wristLY, wristLZ, wristLX_color, wristLY_color, wristLX_depth, wristLY_depth, wristRX, wristRY, wristRZ, wristRX_color, wristRY_color, wristRX_depth, wristRY_depth, handLX, handLY, handLZ, handLX_color, handLY_color, handLX_depth, handLY_depth, handRX, handRY, handRZ, handRX_color, handRY_color, handRX_depth, handRY_depth, spineX, spineY, spineZ, spineX_color, spineY_color, spineX_depth, spineY_depth, hipLX, hipLY, hipLZ, hipLX_color, hipLY_color, hipLX_depth, hipLY_depth, hipCX, hipCY, hipCZ, hipCX_color, hipCY_color, hipCX_depth, hipCY_depth, hipRX, hipRY, hipRZ, hipRX_color, hipRY_color, hipRX_depth, hipRY_depth);
-                                                #endregion
+                                                
                     }
                     else
                     {
@@ -441,124 +394,238 @@ namespace XEDParser
                 {
                     skeWriter.WriteLine("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
                 }
+                    #endregion
             }
+            waiting -= 1;
+        }
 
-            var sw = new Stopwatch();
-            sw.Start();
+        private void color_FrameReady(object sender, ColorImageFrameReadyEventArgs e)
+        {
+            current_frame_number_for_stop++;
+            if (waiting == 0)
+            {
+                waiting += 2;
+            }
+            else
+            {
+                waiting++;
+            }
             using (ColorImageFrame colorFrame = e.OpenColorImageFrame())
             {
                 if (colorFrame != null)
                 {
-                    if (preColorFrame == 0)
+                    int count = 0;
+                    int frameNumber = 0;
+                    if (colorFrame.Timestamp == 0)
                     {
-                        preColorFrame = colorFrame.FrameNumber;
+                        waiting -= 1;
+                        return;
                     }
                     
-                    //Console.WriteLine('c' + colorFrame.FrameNumber.ToString());
-                    //Console.WriteLine("================Enter normal color frame ===========");
-                    ColorFrame = colorFrame.FrameNumber.ToString();    ColorFrame = colorFrame.FrameNumber.ToString();
-
-                    if (colorFirstTime == 0)
+                    if (colorFrame.Timestamp < FirstTimeStamp)
                     {
-                        colorFirstTime = colorFrame.Timestamp;
+                        FirstTimeStamp = colorFrame.Timestamp;
                     }
 
+                    frameNumber = GetRealCurrentFrame(colorFrame.Timestamp - FirstTimeStamp);
+                    count = frameNumber - PreColorFrameNumber;
+                    PreColorFrameNumber = frameNumber;
+                    //Console.WriteLine("Color {0} {1} {2} {3} {4}", FirstTimeStamp, colorFrame.Timestamp, colorFrame.Timestamp - FirstTimeStamp, frameNumber,count);
+
                     colorFrame.CopyPixelDataTo(this._colorPixels);
-                    var img = ImageConverter.Array2Image(_colorPixels, 640, 480, 640 * 4);
-                    var time = colorFrame.Timestamp - colorFirstTime;
-                    int count = colorFrame.FrameNumber - preColorFrame;
+                    var img = ImageConverter.Array2Image(_colorPixels, 640, 480, 640 * 4).Convert<Bgr, byte>();
                     if (img.Ptr != IntPtr.Zero)
                     {
                         for (int i = 0; i < count; i++)
                         {
-                            colorWriter.WriteFrame(img.Convert<Bgr, byte>());
+                            if (colorWriter != null)
+                                colorWriter.WriteFrame(img);
                         }
-                        colorImg_old = img.Convert<Bgr, byte>();
-                    }
-
-                    preColorFrame = colorFrame.FrameNumber;
-                }
-                else
-                {
-                    Console.WriteLine("================Enter color frame old ===========");
-
-                    if (colorImg_old.Ptr != IntPtr.Zero)
-                    {
-                        Console.WriteLine("=======================================================");
-                        Console.WriteLine("=============Enter color writer =======================");
-                        Console.WriteLine("=======================================================");
-                        colorWriter.WriteFrame(colorImg_old);
                     }
                 }
             }
+            waiting -= 1;
+        }
 
-
+        private void depth_FrameReady(object sender, DepthImageFrameReadyEventArgs e)
+        {
+            current_frame_number_for_stop++;
+            if (waiting == 0)
+            {
+                waiting += 2;
+            }
+            else
+            {
+                waiting++;
+            }
             using (DepthImageFrame depthFrame = e.OpenDepthImageFrame())
             {
                 if (depthFrame != null)
                 {
-                    Console.WriteLine('d'+depthFrame.FrameNumber.ToString());
-                    //Console.WriteLine("================Enter normal depth frame ===========");
-                    DepthFrame = depthFrame.FrameNumber.ToString();
+                    int count = 0;
+                    int frameNumber = 0;
+                    if (depthFrame.Timestamp == 0)
+                    {
+                        waiting -= 1;
+                        return;
+                    }
+                    
+                    if (depthFrame.Timestamp < FirstTimeStamp)
+                    {
+                        FirstTimeStamp = depthFrame.Timestamp;
+                    }
+
+                    frameNumber = GetRealCurrentFrame(depthFrame.Timestamp - FirstTimeStamp);
+                    count = frameNumber - PreDepthFrameNumber;
+                    PreDepthFrameNumber = frameNumber;
+                    //Console.WriteLine("Depth {0} {1} {2} {3} {4}", FirstTimeStamp, depthFrame.Timestamp, depthFrame.Timestamp - FirstTimeStamp, frameNumber, count);
 
                     depthFrame.CopyDepthImagePixelDataTo(depthPixels);
                     //int minDepth = depthFrame.MinDepth;
                     //int maxDepth = depthFrame.MaxDepth;
                     int width = depthFrame.Width;
                     int height = depthFrame.Height;
+                    //Console.WriteLine("Depth:{0} {1}" ,DepthTS,count);
 
                     colorizer.TransformAndConvertDepthFrame(depthPixels, _colorPixels);
 
-                    Image<Bgra, byte> depthImg;
-                    depthImg = ImageConverter.Array2Image(_colorPixels, width, height, width * 4);
-                    depthImg_old = depthImg;
+                    var depthImg = ImageConverter.Array2Image(_colorPixels, width, height, width * 4).Convert<Bgr, byte>();
                     if (depthImg.Ptr != IntPtr.Zero)
                     {
-                        depthWriter.WriteFrame(depthImg.Convert<Bgr, byte>());
+                        for (int i = 0; i < count; i++)
+                        {
+                            if (depthWriter != null)
+                                depthWriter.WriteFrame(depthImg);
+                        }
                     }
-                }
-                else if (depthImg_old!=null)
-                {
-                    Console.WriteLine("================Enter depth frame old ===========");
 
-                    if (depthImg_old.Ptr != IntPtr.Zero)
-                    {
-                        Console.WriteLine("=======================================================");
-                        Console.WriteLine("=============Enter depth writer =======================");
-                        Console.WriteLine("=======================================================");
-                        depthWriter.WriteFrame(depthImg_old.Convert<Bgr, byte>());
-                    }
+
                 }
 
             }
-            
+            waiting -= 1;
+        }
 
+        private void frame_threading()
+        {
+            int i = 0;
+            States current_states = new States();
+            current_states = States.start;
+            fileName = Directory.GetFiles(@"" + folder_selected, "*.xed");
+            Console.WriteLine("Successful to get all file name");
+            if (fileName.Length < 1)
+            {
+                Console.WriteLine("No xed file in this folder");
+                return;
+            }
+            colorizer = new Colorizer(AaronRotateTan, CurrentKinectSensor.DepthStream.MaxDepth, CurrentKinectSensor.DepthStream.MinDepth);
+
+            while (Is_running)
+            {
+                switch (current_states)
+                {
+                    case States.start:
+                        Console.WriteLine("Start state .. .. .. ");
+                        single_file_name = System.IO.Path.GetFileNameWithoutExtension(fileName[i]);
+                        if (!Directory.Exists(folder_selected + "\\" + single_file_name))
+                            Directory.CreateDirectory(folder_selected + "\\" + single_file_name);
+                        colorWriter = new VideoWriter(folder_selected + "\\" + single_file_name + "\\" + single_file_name + "_c.avi", 30, 640, 480, true);
+                        depthWriter = new VideoWriter(folder_selected + "\\" + single_file_name + "\\" + single_file_name + "_d.avi", 30, 640, 480, true);
+                        FileStream file_name = File.Open(@folder_selected + "\\" + single_file_name + "\\" + single_file_name + ".csv", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                        skeWriter = new StreamWriter(file_name);
+
+                        // !!!!  Detecting signer by the filename
+                        if (single_file_name.Contains("Michael"))
+                            colorizer.Angle = MichaelRotateTan;
+                        else if (single_file_name.Contains("Anita"))
+                            colorizer.Angle = AnitaRotateTan;
+                        else if (single_file_name.Contains("Aaron"))
+                            colorizer.Angle = AaronRotateTan;
+                        controler.Open_File(fileName[i]);
+                        System.Threading.Thread.Sleep(1000);
+
+                        old_frame_number_for_stop = 0;
+                        old_skeleton_frame_number_for_stop = 0;
+                        current_frame_number_for_stop = 0;
+                        current_skeleton_frame_number_for_stop = 0;
+
+                        PreColorFrameNumber = -1;
+                        PreDepthFrameNumber = -1;
+                        first_skeleton_frame_number = 0;
+                        FirstTimeStamp = long.MaxValue;
+                        current_states = States.running_start;
+                        break;
+                    case States.running_start:
+                        file_IsReady = true;
+                        timer.Start();
+                        controler.Run_by_clik();
+                        //controler.Run();
+                        
+                        current_states = States.Isrunning;
+                        break;
+                    case States.Isrunning:
+                        Console.WriteLine("Isrunning states...");
+                        System.Threading.Thread.Sleep(2000);
+                        if ((current_frame_number_for_stop == old_frame_number_for_stop) &&
+                            (current_skeleton_frame_number_for_stop == old_skeleton_frame_number_for_stop))
+                        {
+                            current_states = States.ending;
+                            timer.Stop();
+                            waiting = 0;
+                        }
+                        old_frame_number_for_stop = current_frame_number_for_stop;
+                        old_skeleton_frame_number_for_stop = current_skeleton_frame_number_for_stop;
+                        break;
+                    case States.ending:
+                        Console.WriteLine("Is ending state......");
+                        i++;
+                        CloseAllWriter();
+                        System.Threading.Thread.Sleep(400);
+                        if (i >= fileName.Length)
+                            current_states = States.finished;
+                        else
+                            current_states = States.start;
+                        break;
+                    case States.finished:
+                        Console.WriteLine("Happy finished all file in this folder");
+                        all_finished = true;
+                        break;
+                    default:
+                        break;
+                }
+                if (all_finished)
+                    break;
+            }
         }
 
         private void btn_Start_Click(object sender, RoutedEventArgs e)
         {
-            
-            var t = new Thread(new ThreadStart(Run));
+            var t = new Thread(new ThreadStart(frame_threading));
             t.Start();
 
-            while(colorWriter == null)
-            {
-            }
-            CurrentKinectSensor.AllFramesReady += AllFrameReady;
+            //while (!all_finished)
+            //{
+                while (colorWriter == null || skeWriter == null || depthWriter == null || !file_IsReady) ;
+                CurrentKinectSensor.SkeletonFrameReady += skele_FrameReady;
+                CurrentKinectSensor.ColorFrameReady += color_FrameReady;
+                CurrentKinectSensor.DepthFrameReady += depth_FrameReady;
+                //while (frame_thread_isrunning) ;
+                //CurrentKinectSensor.AllFramesReady -= AllFrameReady;
+            //}
         }
 
-    
         private void btn_end_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                CurrentKinectSensor.AllFramesReady -= AllFrameReady;
+                CurrentKinectSensor.SkeletonFrameReady -= skele_FrameReady;
+                CurrentKinectSensor.ColorFrameReady -= color_FrameReady;
+                CurrentKinectSensor.DepthFrameReady -= depth_FrameReady;
 
             }
             catch (Exception)
             {
-                //throw;
-                Console.WriteLine("Error");
+                throw;
             }
         }
 
@@ -572,14 +639,17 @@ namespace XEDParser
             if (colorWriter != null)
             {
                 colorWriter.Dispose();
+                colorWriter = null;
             }
             if (depthWriter != null)
             {
                 depthWriter.Dispose();
+                depthWriter = null;
             }
             if (skeWriter != null)
             {
                 skeWriter.Dispose();
+                skeWriter = null;
             }
         }
 
@@ -596,11 +666,9 @@ namespace XEDParser
             return new System.Drawing.Point(depthPoint.X, depthPoint.Y);
         }
 
-        /*** Edit start **/
-
         private void btn_Start_Kinect(object sender, RoutedEventArgs e)
         {
-            bool con = k.Start();
+            bool con = controler.Start();
             if (con)
             {
                 lbl_connect.Content = "Connected";
@@ -613,7 +681,8 @@ namespace XEDParser
 
         private void btn_Connect_Kinect(object sender, RoutedEventArgs e)
         {
-            bool con = k.Connect();
+            bool con = controler.Connect();
+            controler.connect_kinect();
             if (con)
             {
                 lbl_connect.Content = "Connected";
@@ -628,18 +697,13 @@ namespace XEDParser
         {
             FolderBrowserDialog fbd = new FolderBrowserDialog();
             DialogResult result = fbd.ShowDialog();
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                string[] files = Directory.GetFiles(fbd.SelectedPath);
-                //lbl_folder.Content = files.Length.ToString();
-                fbd.SelectedPath = @"D:\Kinect data\test";
-                lbl_folder.Content = fbd.SelectedPath;
-                folder_selected = fbd.SelectedPath;
-            }
-           
+            string[] files;
+            if (DialogResult != null)
+                files = Directory.GetFiles(fbd.SelectedPath);
+            fbd.SelectedPath = @"D:\Kinect data\test\";
+            //lbl_folder.Content = files.Length.ToString();
+            lbl_folder.Content = fbd.SelectedPath;
+            folder_selected = fbd.SelectedPath;
         }
-
-        /*** Edit end **/
-
     }
 }

@@ -29,7 +29,8 @@ namespace CURELab.SignLanguage.HandDetector
 
         private IntPtr dllEntry = IntPtr.Zero;
 
-        private int FirstFrame { get; set; }      
+        private int FirstFrame { get; set; }
+        IntPtr hToolStrip = IntPtr.Zero;
 
         public static KinectStudioController GetSingleton()
         {
@@ -67,7 +68,7 @@ namespace CURELab.SignLanguage.HandDetector
         public void Open_File(string path)
         {
             FirstFrame = 0;
-            IntPtr hToolStrip = win32API.FindWindowEx(hWnd, IntPtr.Zero, null, "toolStrip1");
+            hToolStrip = win32API.FindWindowEx(hWnd, IntPtr.Zero, null, "toolStrip1");
             if (hToolStrip == IntPtr.Zero)
             {
                 return;
@@ -92,7 +93,7 @@ namespace CURELab.SignLanguage.HandDetector
         }
         public void Run()
         {
-            IntPtr hToolStrip = win32API.FindWindowEx(hWnd, IntPtr.Zero, null, "toolStrip1");
+            hToolStrip = win32API.FindWindowEx(hWnd, IntPtr.Zero, null, "toolStrip1");
             if (hToolStrip == IntPtr.Zero)
             {
                 return;
@@ -100,6 +101,19 @@ namespace CURELab.SignLanguage.HandDetector
             int x = 260, y = 15;
             win32API.PostMessage(hToolStrip, win32API.WM_LBUTTONDOWN, 0, (y << 16) + x);
             win32API.PostMessage(hToolStrip, win32API.WM_LBUTTONUP, 0, (y << 16) + x);
+        }
+
+        public bool Run_by_clik()
+        {
+            hToolStrip = win32API.FindWindowEx(hWnd, IntPtr.Zero, null, "toolStrip1");
+            if (hToolStrip == IntPtr.Zero)
+            {
+                return false;
+            }
+            int x = 340, y = 15;
+            win32API.PostMessage(hToolStrip, win32API.WM_LBUTTONDOWN, 0, (y << 16) + x);
+            win32API.PostMessage(hToolStrip, win32API.WM_LBUTTONUP, 0, (y << 16) + x);
+            return true;
         }
 
         public void ReadFirstFrame()
@@ -123,7 +137,7 @@ namespace CURELab.SignLanguage.HandDetector
                 }
             }
 
-            tool = win32API.FindWindowEx(hWnd, IntPtr.Zero, null, "toolStrip1");
+            IntPtr tool = win32API.FindWindowEx(hWnd, IntPtr.Zero, null, "toolStrip1");
             int x = 340, y = 10;
             int min = int.MaxValue;
             for (int i = 0; i < 4; i++)
@@ -143,12 +157,16 @@ namespace CURELab.SignLanguage.HandDetector
             
         }
 
-        private IntPtr tool;
-        private void ReadNext()
+        public void connect_kinect()
         {
-            int x = 340, y = 10;
-            win32API.SendMessage(tool, win32API.WM_LBUTTONDOWN, 0, (y << 16) + x);
-            win32API.SendMessage(tool, win32API.WM_LBUTTONUP, 0, (y << 16) + x);
+            hToolStrip = win32API.FindWindowEx(hWnd, IntPtr.Zero, null, "toolStrip1");
+            if (hToolStrip == IntPtr.Zero)
+            {
+                return;
+            }
+            int x = 80, y = 15;
+            win32API.PostMessage(hToolStrip, win32API.WM_LBUTTONDOWN, 0, (y << 16) + x);
+            win32API.PostMessage(hToolStrip, win32API.WM_LBUTTONUP, 0, (y << 16) + x);
         }
 
         private bool EnumWindowsFindKinectStudio(IntPtr hWnd, int lParam)
