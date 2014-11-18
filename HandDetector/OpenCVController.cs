@@ -233,7 +233,7 @@ namespace CURELab.SignLanguage.HandDetector
                 {
                     string text = "";
                     leftFront = null;
-
+                    Intersect = false;
 
                     if (leftHandRaise || Intersect)
                     {

@@ -56,7 +56,7 @@ namespace CURELab.SignLanguage.HandDetector
         private System.Drawing.Point headPosition;
 
         public static double CullingThresh;
-        public static float AngleRotateTan = AaronRotateTan;
+        public static float AngleRotateTan = 0;
         // demo
         public const float DemoRotateTan = 0.45f;
         // anita
@@ -173,6 +173,7 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
         short headDepth = 0;
+        private int frame = 0;
         private void AllFrameReady(object sender, AllFramesReadyEventArgs e)
         {
             //Console.Clear();
@@ -226,7 +227,7 @@ namespace CURELab.SignLanguage.HandDetector
 
                     if (headPosition.X == 0)
                     {
-                        headDepth = 100;
+                        headDepth = 1000;
                     }
                     else
                     {
@@ -297,6 +298,9 @@ namespace CURELab.SignLanguage.HandDetector
                         leftVector.Y = (hl.Y - el.Y);
                     }
                     HandShapeModel handModel = null;
+                    isSkip = false;
+                    rightVector.Y = -10;
+                    headDepth = 1000;
                     if (!isSkip)
                     {
                         handModel = m_OpenCVController.FindHandPart(ref depthImg, out rightFront, out leftFront, headDepth - (int)CullingThresh, rightVector, leftVector,leftHandRaise);
@@ -310,7 +314,14 @@ namespace CURELab.SignLanguage.HandDetector
                         handModel = new HandShapeModel(0, HandEnum.None);
                     }
                     //sw.Restart();
-
+                    if (rightFront != null)
+                    {
+                        Bitmap right = rightFront.ToBitmap();
+                        string path = @"F:\hand shape data\image";
+                        //right.Save(path + '\\' + frame.ToString() + "_r.jpg");
+                        frame++;
+                        //ImageConverter.UpdateWriteBMP(WrtBMP_RightHandFront, right);
+                    }
                     // database processing
                     DBManager db = DBManager.GetSingleton();
                     if (db != null)
@@ -327,13 +338,15 @@ namespace CURELab.SignLanguage.HandDetector
                         if (rightFront != null)
                         {
                             Bitmap right = rightFront.ToBitmap();
-                            right.Save(path + '\\'+ db.currentFrame.ToString() + "_r.jpg");
+                            path = @"F:\hand shape data\image";
+                            right.Save(path + '\\' + frame.ToString() + "_r.jpg");
+                            frame++;
                             //ImageConverter.UpdateWriteBMP(WrtBMP_RightHandFront, right);
                         }
                         if (leftFront != null)
                         {
                             Bitmap left = leftFront.ToBitmap();
-                            left.Save(path + '\\' + db.currentFrame.ToString() + "_l.jpg");
+                            //left.Save(path + '\\' + db.currentFrame.ToString() + "_l.jpg");
                             //ImageConverter.UpdateWriteBMP(WrtBMP_LeftHandFront, left);
                         }
                         if (sw.ElapsedMilliseconds > 15)
