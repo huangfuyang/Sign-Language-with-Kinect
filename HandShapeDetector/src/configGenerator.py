@@ -29,6 +29,8 @@ config.set('Directory', 'Result', 'result')
 
 config.add_section('File')
 config.set('File', 'Video Extension', '.avi')
+config.set('File', 'Depth Video Suffix', '_d')
+config.set('File', 'Color Video Suffix', '_c')
 
 with open(join(CONFIG_DIRECTORY, FILE_FORMAT_CONFIG_FILE_NAME), 'wb') as configfile:
     config.write(configfile)
