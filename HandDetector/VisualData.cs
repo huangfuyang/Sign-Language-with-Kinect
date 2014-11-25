@@ -31,8 +31,8 @@ namespace CURELab.SignLanguage.HandDetector
             get { return _totalFrames; }
             set
             {
-                OnPropertyChanged("TotalFrames");
                 _totalFrames = value;
+                OnPropertyChanged("TotalFrames");
             }
         }
 

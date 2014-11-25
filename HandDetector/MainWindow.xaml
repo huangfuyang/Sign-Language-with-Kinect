@@ -48,7 +48,7 @@
         </Grid>
        
         <StackPanel x:Name="SPn_right" Grid.Column="1" Grid.Row="2" Margin="5,0,5,10">
-            <Slider VerticalAlignment="Bottom" x:Name="sld_progress" HorizontalAlignment="Stretch" Margin="20" Value="{Binding CurrentFrame, Mode=OneWay}" Maximum="{Binding TotalFrames}"  ValueChanged="sld_progress_ValueChanged" />
+            <Slider VerticalAlignment="Bottom" x:Name="sld_progress" HorizontalAlignment="Stretch" Margin="20" Value="{Binding CurrentFrame, Mode=OneWay}" Maximum="{Binding TotalFrames, Mode=OneWay}"  ValueChanged="sld_progress_ValueChanged" SmallChange="1" />
 
 
         </StackPanel>
@@ -63,22 +63,18 @@
         </StatusBar>
         <Menu Grid.ColumnSpan="2" x:Name="menu" DockPanel.Dock="Top" VerticalAlignment="Top"
             >
-            <MenuItem Header="Device">
-                <MenuItem Header="Kinect" Click="Menu_Kinect_Click" />
-                <MenuItem Header="Gesture" Click="Menu_Gesture_Click" />
-                <MenuItem Header="OpenNI" Click="Menu_OpenNI_Click"/>
-                <MenuItem Header="ONI file" Click="Menu_ONI_Click"/>
-                <MenuItem Header="Video" Click="Menu_Video_Click"/>
+            <MenuItem Header="File">
+                <MenuItem Header="OpenFolder" Click="MenuItem_OpenFolder_Click"/>
+                <MenuItem Header="OpenFile" Click="MenuItem_OpenFile_Click"/>
+                <MenuItem Header="Run" Click="MenuItem_Run_Click"/>
+                <MenuItem Header="Test" Click="MenuItem_Test_Click"/>
                 <Separator />
                 <MenuItem Header="Exit" Click="Menu_Exit_Click"/>
             </MenuItem>
             <MenuItem Header="KinectStudio">
                 <MenuItem Header="Start" Click="MenuItem_Start_Click"  />
                 <MenuItem Header="Connect" Click="MenuItem_Connect_Click" />
-                <MenuItem Header="Open" Click="MenuItem_Open_Click"/>
-                <Separator />
-                <MenuItem Header="Run" Click="MenuItem_Run_Click"/>
-                <MenuItem Header="Test" Click="MenuItem_Test_Click"/>
+                
             </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="Log"/>
