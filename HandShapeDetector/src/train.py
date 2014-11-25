@@ -25,14 +25,14 @@ def init():
 # Read config
 def readCSV(fileName):
     with open(fileName, 'r') as csvfile:
-        return [tuple(line) for line in csv.reader(csvfile, delimiter=',', quotechar='\'')]        
+        return [tuple(line) for line in csv.reader(csvfile, delimiter=',', quotechar='\'')]
 
 def readVideoFrame(cap):
     if(cap.isOpened()):
         ret, frame = cap.read()
         if not ret:
             return False,None
-            
+
         if VISUALIZE_RESULT:
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 return False,None
@@ -40,17 +40,17 @@ def readVideoFrame(cap):
         return True,frame
 
     return False,None
-                
+
 # Read AVI video
 def readVideo(fileName, frameCallback, labels, result):
     srcVideoPath = join(videoDirectory,'depth_'+fileName+videoFilenameExtension)
     cap = cv2.VideoCapture(srcVideoPath)
     i = 0
     resultImages = []
-    
+
     retval,frame = readVideoFrame(cap)
     h,w = frame.shape[0:2]
-    
+
     if SAVE_RESULT_VIDEO:
         videoPath = join(resultDirectory, 'croppedHand-'+fileName+videoFilenameExtension)
         videoWriter = cv2.VideoWriter()
@@ -65,7 +65,7 @@ def readVideo(fileName, frameCallback, labels, result):
         i = i+1
         retval,frame = readVideoFrame(cap)
     cap.release()
-    
+
     if SAVE_RESULT_VIDEO & (videoWriter is not None):
         message = "Saving Video..."
         savingImage = np.zeros((h,w*2,3), np.uint8)
@@ -80,7 +80,7 @@ def readVideo(fileName, frameCallback, labels, result):
 
 # Extract hand image from video
 def extractHand(frame, label, videoWriter=None):
-    
+
     frameHeight,frameWidth,_ = frame.shape;
     croppedImage = None
     resultImage = np.zeros((frameHeight,frameWidth*2,3), np.uint8)
@@ -88,20 +88,20 @@ def extractHand(frame, label, videoWriter=None):
 
     if len(label) > 1:
         currentColumn = 2
-        
+
         if label[1].lower() != 'none':
             thresh = float(label[-1])
-                
+
         if (label[1].lower()=='right') | (label[1].lower()=='left'):
             centerX,centerY,width,height,rotateAngle = label[currentColumn:currentColumn+5]
             center = (float(centerX),float(centerY))
             size = (float(width),float(height))
             rotateAngle = float(rotateAngle)
-            
+
             rect = (center, size, rotateAngle)
             box = cv2.cv.BoxPoints(rect)
             box = np.int0(box)
-            
+
             # Cropping
             if (rotateAngle < -45.):
                 rotateAngle += 90.0
@@ -111,21 +111,21 @@ def extractHand(frame, label, videoWriter=None):
             rotatedImage = cv2.warpAffine(frame, M, (frameHeight,frameWidth))
             croppedImage = cv2.getRectSubPix(rotatedImage, dSize, center)
             retval, croppedImage = cv2.threshold(croppedImage, thresh, 256., cv2.THRESH_TOZERO_INV)
-            
+
             if VISUALIZE_RESULT:
                 cv2.drawContours(frame,[box],0,(0,0,255),2)
                 croppedImageWithBorder = cv2.copyMakeBorder(croppedImage, 3, 3, 3, 3, cv2.BORDER_CONSTANT, None, (255,255,255))
                 croppedHeight,croppedWidth,_ = croppedImageWithBorder.shape
-                resultImage[frameHeight/2-croppedHeight/2:frameHeight/2-croppedHeight/2+croppedHeight, 
+                resultImage[frameHeight/2-croppedHeight/2:frameHeight/2-croppedHeight/2+croppedHeight,
                     frameWidth+frameWidth/2-croppedWidth/2:frameWidth++frameWidth/2-croppedWidth/2+croppedWidth] = croppedImageWithBorder
-            
+
     if DEBUG_MODE:
         print label
-                        
+
     if VISUALIZE_RESULT:
         resultImage[:,0:frameWidth,:] = frame
         cv2.imshow('Depth Video', resultImage)
-        
+
     return croppedImage,resultImage
 
 # Feature extraction using Caffe
