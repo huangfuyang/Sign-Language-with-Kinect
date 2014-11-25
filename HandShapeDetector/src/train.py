@@ -1,21 +1,43 @@
-from os import listdir,getcwd,makedirs
-from os.path import isfile,join,exists
+from os import listdir,getcwd,makedirs,sys
+from os.path import isfile,join,exists,dirname,realpath
 from sys import exit
+import ConfigParser
 import csv
 import cv2
 import numpy as np
 import math
 
 # Constants
-labelDirectory = getcwd()+'/../data/label'
-videoDirectory = getcwd()+'/../data/video'
-resultDirectory = getcwd()+'/../result'
-videoFilenameExtension = '.avi'
-DEBUG_MODE = True
-VISUALIZE_RESULT = True
-SAVE_RESULT_VIDEO = True
+labelDirectory = ''
+videoDirectory = ''
+resultDirectory = ''
+videoFilenameExtension = ''
+depthVideoSuffix = ''
+colorVideoSuffix = ''
+DEBUG_MODE = False
+VISUALIZE_RESULT = False
+SAVE_RESULT_VIDEO = False
+
+ROOT_DIRECTORY = join(dirname(realpath(sys.argv[0])), '..')
 
 def init():
+    global labelDirectory,videoDirectory,resultDirectory
+    global videoFilenameExtension,depthVideoSuffix,colorVideoSuffix
+    global DEBUG_MODE,VISUALIZE_RESULT,SAVE_RESULT_VIDEO
+
+    config = ConfigParser.RawConfigParser()
+    config.read(join(ROOT_DIRECTORY, 'config', 'file_format.cfg'))
+    labelDirectory = join(ROOT_DIRECTORY, config.get('Directory', 'Label'))
+    videoDirectory = join(ROOT_DIRECTORY, config.get('Directory', 'Video'))
+    resultDirectory = join(ROOT_DIRECTORY, config.get('Directory', 'Result'))
+    videoFilenameExtension = config.get('File', 'Video Extension')
+    depthVideoSuffix = config.get('File', 'Depth Video Suffix')
+    colorVideoSuffix = config.get('File', 'Color Video Suffix')
+
+    config.read(join(ROOT_DIRECTORY, 'config', 'debug.cfg'))
+    DEBUG_MODE = config.getboolean('Debug', 'Print Debug Message')
+    VISUALIZE_RESULT = config.getboolean('Debug', 'Visualize Result')
+    SAVE_RESULT_VIDEO = config.getboolean('Debug', 'Save Result to Video')
     for directory in [labelDirectory,videoDirectory,resultDirectory]:
         if not exists(directory):
             makedirs(directory)
@@ -43,7 +65,7 @@ def readVideoFrame(cap):
 
 # Read AVI video
 def readVideo(fileName, frameCallback, labels, result):
-    srcVideoPath = join(videoDirectory,'depth_'+fileName+videoFilenameExtension)
+    srcVideoPath = join(videoDirectory,fileName+depthVideoSuffix+videoFilenameExtension)
     cap = cv2.VideoCapture(srcVideoPath)
     i = 0
     resultImages = []
