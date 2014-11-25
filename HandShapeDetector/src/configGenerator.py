@@ -5,6 +5,7 @@ from os.path import join,exists,dirname,realpath
 CONFIG_DIRECTORY = join(dirname(realpath(sys.argv[0])), '..', 'config')
 SOCKET_CONFIG_FILE_NAME = 'socket.cfg'
 FILE_FORMAT_CONFIG_FILE_NAME = 'file_format.cfg'
+DEBUG_CONFIG_FILE_NAME = 'debug.cfg'
 
 if not exists(CONFIG_DIRECTORY):
     makedirs(CONFIG_DIRECTORY)
@@ -30,4 +31,15 @@ config.add_section('File')
 config.set('File', 'Video Extension', '.avi')
 
 with open(join(CONFIG_DIRECTORY, FILE_FORMAT_CONFIG_FILE_NAME), 'wb') as configfile:
+    config.write(configfile)
+
+
+# For Debugging
+config = ConfigParser.RawConfigParser()
+config.add_section('Debug')
+config.set('Debug', 'Print Debug Message', True)
+config.set('Debug', 'Visualize Result', True)
+config.set('Debug', 'Save Result to Video', True)
+
+with open(join(CONFIG_DIRECTORY, DEBUG_CONFIG_FILE_NAME), 'wb') as configfile:
     config.write(configfile)
