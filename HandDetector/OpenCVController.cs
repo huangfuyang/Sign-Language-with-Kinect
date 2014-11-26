@@ -160,11 +160,10 @@ namespace CURELab.SignLanguage.HandDetector
        )
         {
             //process hand size
-            handDepth -= 100;
             if (handDepth > 0)
             {
-                begin = (int)(100.0 * 240.0 / handDepth / 0.39);
-                end = (int)(200 * 240.0 / handDepth / 0.39);
+                begin = (int)(110.0 * 240.0 / handDepth / 0.39);
+                end = (int)(240 * 240.0 / handDepth / 0.39);
                 minLength = (int)(150 * 240.0 / handDepth / 0.39);
             }
             else
