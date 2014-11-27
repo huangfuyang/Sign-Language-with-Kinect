@@ -10,9 +10,12 @@ from CSVFrameData import CSVFrameData
 
 # Constants
 labelDirectory = ''
+skeletonDirectory = ''
 videoDirectory = ''
 resultDirectory = ''
 videoFilenameExtension = ''
+skeletonFilenameExtension = ''
+skeletonVideoSuffix = ''
 depthVideoSuffix = ''
 colorVideoSuffix = ''
 DEBUG_MODE = False
@@ -22,16 +25,20 @@ SAVE_RESULT_VIDEO = False
 ROOT_DIRECTORY = join(dirname(realpath(sys.argv[0])), '..')
 
 def init():
-    global labelDirectory,videoDirectory,resultDirectory
-    global videoFilenameExtension,depthVideoSuffix,colorVideoSuffix
+    global labelDirectory,skeletonDirectory,videoDirectory,resultDirectory
+    global videoFilenameExtension,skeletonFilenameExtension
+    global skeletonVideoSuffix,depthVideoSuffix,colorVideoSuffix
     global DEBUG_MODE,VISUALIZE_RESULT,SAVE_RESULT_VIDEO
 
     config = ConfigParser.RawConfigParser()
     config.read(join(ROOT_DIRECTORY, 'config', 'file_format.cfg'))
     labelDirectory = join(ROOT_DIRECTORY, config.get('Directory', 'Label'))
     videoDirectory = join(ROOT_DIRECTORY, config.get('Directory', 'Video'))
+    skeletonDirectory = join(ROOT_DIRECTORY, config.get('Directory', 'Skeleton'))
     resultDirectory = join(ROOT_DIRECTORY, config.get('Directory', 'Result'))
     videoFilenameExtension = config.get('File', 'Video Extension')
+    skeletonFilenameExtension = config.get('File', 'Skeleton Extension')
+    skeletonVideoSuffix = config.get('File', 'Skeleton Suffix')
     depthVideoSuffix = config.get('File', 'Depth Video Suffix')
     colorVideoSuffix = config.get('File', 'Color Video Suffix')
 
@@ -52,6 +59,11 @@ def readVideo(fileName, frameCallback, result):
     labelFrameData.setDebug(DEBUG_MODE)
 
     fileName = fileName[:-4]
+
+    skeletonFrameData = CSVFrameData()
+    skeletonFrameData.load(join(skeletonDirectory, fileName+skeletonVideoSuffix+skeletonFilenameExtension))
+    skeletonFrameData.setDebug(DEBUG_MODE)
+
     srcVideoPath = join(videoDirectory,fileName+depthVideoSuffix+videoFilenameExtension)
     depthFrameData = VideoFrameData()
     depthFrameData.load(srcVideoPath)
@@ -61,7 +73,8 @@ def readVideo(fileName, frameCallback, result):
 
     depthRetval,depthFrame = depthFrameData.readFrame()
     labelRetval,labelFrame = labelFrameData.readFrame()
-    if not depthRetval or not labelRetval:
+    skeletonRetval,skeletonFrame = skeletonFrameData.readFrame()
+    if not depthRetval or not labelRetval or not skeletonRetval:
         return
 
     h,w = depthFrame.shape[0:2]
@@ -77,7 +90,7 @@ def readVideo(fileName, frameCallback, result):
     else:
         videoWriter = None
 
-    while(labelRetval and depthRetval):
+    while(labelRetval and depthRetval and skeletonRetval):
         res,resultImage = frameCallback(depthFrame, labelFrame, videoWriter)
         resultImages.append(resultImage)
 
@@ -88,8 +101,10 @@ def readVideo(fileName, frameCallback, result):
 
         depthRetval,depthFrame = depthFrameData.readFrame()
         labelRetval,labelFrame = labelFrameData.readFrame()
+        skeletonRetval,skeletonFrame = skeletonFrameData.readFrame()
     depthFrameData.close()
     labelFrameData.close()
+    skeletonFrameData.close()
 
     if SAVE_RESULT_VIDEO & (videoWriter is not None):
         message = "Saving Video..."
