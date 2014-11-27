@@ -7,6 +7,7 @@ import numpy as np
 import math
 from VideoFrameData import VideoFrameData
 from CSVFrameData import CSVFrameData
+from FrameConverter import FrameConverter
 
 # Constants
 labelDirectory = ''
@@ -54,6 +55,8 @@ def init():
 
 # Read AVI video
 def readVideo(fileName, frameCallback, result):
+    frameConverter = FrameConverter()
+
     labelFrameData = CSVFrameData()
     labelFrameData.load(join(labelDirectory, fileName))
     labelFrameData.setDebug(DEBUG_MODE)
@@ -78,9 +81,7 @@ def readVideo(fileName, frameCallback, result):
         return
 
     h,w = depthFrame.shape[0:2]
-
-    if VISUALIZE_RESULT:
-        cv2.waitKey(1)
+    encodedFrame = frameConverter.encode(depthFrame, labelFrame, skeletonFrame)
 
     if SAVE_RESULT_VIDEO:
         videoPath = join(resultDirectory, 'croppedHand-'+fileName+videoFilenameExtension)
@@ -91,6 +92,7 @@ def readVideo(fileName, frameCallback, result):
         videoWriter = None
 
     while(labelRetval and depthRetval and skeletonRetval):
+        encodedFrame = frameConverter.encode(depthFrame, labelFrame, skeletonFrame)
         res,resultImage = frameCallback(depthFrame, labelFrame, videoWriter)
         resultImages.append(resultImage)
 
