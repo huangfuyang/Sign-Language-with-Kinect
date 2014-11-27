@@ -16,12 +16,6 @@ class FrameConverter:
         encodedDepthFrame = base64.b64encode(depthFrame)
         depthFrameShape = depthFrame.shape
 
-        if self.debug:
-            decodedDepthImage = base64.decodestring(encodedDepthFrame)
-            decodedDepthImage = np.frombuffer(decodedDepthImage,dtype='uint8')
-            decodedDepthImage = decodedDepthImage.reshape(depthFrameShape)
-            assert np.array_equal(decodedDepthImage, depthFrame)
-
         encodedObject = {
             'depth': {
                 'image': encodedDepthFrame,
@@ -31,8 +25,23 @@ class FrameConverter:
             'skeleton': skeletonFrame
         }
         encodedJSON = self.encoder.encode(encodedObject)
+        if self.debug:
+            (depthFrameTest, labelFrameTest, skeletonFrameTest) = self.decode(encodedJSON)
+            assert np.array_equal(depthFrameTest, depthFrame)
+            assert np.array_equal(labelFrameTest, labelFrame)
+            assert np.array_equal(skeletonFrameTest, skeletonFrame)
 
         return encodedJSON
 
     def decode(self, json):
-        pass
+        decodedDict = self.decoder.decode(json)
+
+        depthFrameShape = decodedDict['depth']['shape']
+        encodedDepthFrame = decodedDict['depth']['image']
+        depthFrame = base64.decodestring(encodedDepthFrame)
+        depthFrame = np.frombuffer(depthFrame,dtype='uint8')
+        depthFrame = depthFrame.reshape(depthFrameShape)
+        labelFrame = decodedDict['label']
+        skeletonFrame = decodedDict['skeleton']
+
+        return (depthFrame, labelFrame, skeletonFrame)
