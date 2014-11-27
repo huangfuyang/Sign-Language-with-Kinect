@@ -1,4 +1,4 @@
-from os import listdir,getcwd,makedirs,sys
+from os import listdir,makedirs,sys
 from os.path import isfile,join,exists,dirname,realpath
 from sys import exit
 import ConfigParser
@@ -6,6 +6,7 @@ import csv
 import cv2
 import numpy as np
 import math
+from VideoFrameData import VideoFrameData
 
 # Constants
 labelDirectory = ''
@@ -49,29 +50,20 @@ def readCSV(fileName):
     with open(fileName, 'r') as csvfile:
         return [tuple(line) for line in csv.reader(csvfile, delimiter=',', quotechar='\'')]
 
-def readVideoFrame(cap):
-    if(cap.isOpened()):
-        ret, frame = cap.read()
-        if not ret:
-            return False,None
-
-        if VISUALIZE_RESULT:
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                return False,None
-
-        return True,frame
-
-    return False,None
-
 # Read AVI video
 def readVideo(fileName, frameCallback, labels, result):
     srcVideoPath = join(videoDirectory,fileName+depthVideoSuffix+videoFilenameExtension)
-    cap = cv2.VideoCapture(srcVideoPath)
+    depthFrameData = VideoFrameData()
+    depthFrameData.load(srcVideoPath)
+
     i = 0
     resultImages = []
 
-    retval,frame = readVideoFrame(cap)
-    h,w = frame.shape[0:2]
+    depthRetval,depthFrame = depthFrameData.readFrame()
+    h,w = depthFrame.shape[0:2]
+
+    if VISUALIZE_RESULT:
+        cv2.waitKey(1)
 
     if SAVE_RESULT_VIDEO:
         videoPath = join(resultDirectory, 'croppedHand-'+fileName+videoFilenameExtension)
@@ -81,12 +73,18 @@ def readVideo(fileName, frameCallback, labels, result):
     else:
         videoWriter = None
 
-    while((i<len(labels)) & retval):
-        res,resultImage = frameCallback(frame, labels[i], videoWriter)
+    while((i<len(labels)) & depthRetval):
+        res,resultImage = frameCallback(depthFrame, labels[i], videoWriter)
         resultImages.append(resultImage)
         i = i+1
-        retval,frame = readVideoFrame(cap)
-    cap.release()
+
+        if VISUALIZE_RESULT:
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                depthRetval = False
+                continue
+
+        depthRetval,depthFrame = depthFrameData.readFrame()
+    depthFrameData.close()
 
     if SAVE_RESULT_VIDEO & (videoWriter is not None):
         message = "Saving Video..."
