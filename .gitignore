@@ -181,3 +181,4 @@ Thumbs.db
 HandShapeDetector/data
 HandShapeDetector/result
 HandShapeDetector/config
+*.pyc
