@@ -2,11 +2,11 @@ from os import listdir,makedirs,sys
 from os.path import isfile,join,exists,dirname,realpath
 from sys import exit
 import ConfigParser
-import csv
 import cv2
 import numpy as np
 import math
 from VideoFrameData import VideoFrameData
+from CSVFrameData import CSVFrameData
 
 # Constants
 labelDirectory = ''
@@ -45,13 +45,13 @@ def init():
 
     return [ f for f in listdir(labelDirectory) if isfile(join(labelDirectory,f)) & f.endswith('.csv') ]
 
-# Read config
-def readCSV(fileName):
-    with open(fileName, 'r') as csvfile:
-        return [tuple(line) for line in csv.reader(csvfile, delimiter=',', quotechar='\'')]
-
 # Read AVI video
-def readVideo(fileName, frameCallback, labels, result):
+def readVideo(fileName, frameCallback, result):
+    labelFrameData = CSVFrameData()
+    labelFrameData.load(join(labelDirectory, fileName))
+    labelFrameData.setDebug(DEBUG_MODE)
+
+    fileName = fileName[:-4]
     srcVideoPath = join(videoDirectory,fileName+depthVideoSuffix+videoFilenameExtension)
     depthFrameData = VideoFrameData()
     depthFrameData.load(srcVideoPath)
@@ -60,6 +60,10 @@ def readVideo(fileName, frameCallback, labels, result):
     resultImages = []
 
     depthRetval,depthFrame = depthFrameData.readFrame()
+    labelRetval,labelFrame = labelFrameData.readFrame()
+    if not depthRetval or not labelRetval:
+        return
+
     h,w = depthFrame.shape[0:2]
 
     if VISUALIZE_RESULT:
@@ -73,10 +77,9 @@ def readVideo(fileName, frameCallback, labels, result):
     else:
         videoWriter = None
 
-    while((i<len(labels)) & depthRetval):
-        res,resultImage = frameCallback(depthFrame, labels[i], videoWriter)
+    while(labelRetval and depthRetval):
+        res,resultImage = frameCallback(depthFrame, labelFrame, videoWriter)
         resultImages.append(resultImage)
-        i = i+1
 
         if VISUALIZE_RESULT:
             if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -84,7 +87,9 @@ def readVideo(fileName, frameCallback, labels, result):
                 continue
 
         depthRetval,depthFrame = depthFrameData.readFrame()
+        labelRetval,labelFrame = labelFrameData.readFrame()
     depthFrameData.close()
+    labelFrameData.close()
 
     if SAVE_RESULT_VIDEO & (videoWriter is not None):
         message = "Saving Video..."
@@ -139,9 +144,6 @@ def extractHand(frame, label, videoWriter=None):
                 resultImage[frameHeight/2-croppedHeight/2:frameHeight/2-croppedHeight/2+croppedHeight,
                     frameWidth+frameWidth/2-croppedWidth/2:frameWidth++frameWidth/2-croppedWidth/2+croppedWidth] = croppedImageWithBorder
 
-    if DEBUG_MODE:
-        print label
-
     if VISUALIZE_RESULT:
         resultImage[:,0:frameWidth,:] = frame
         cv2.imshow('Depth Video', resultImage)
@@ -164,8 +166,7 @@ if VISUALIZE_RESULT:
 
 for fileName in fileList:
     result = []
-    labels = readCSV(join(labelDirectory, fileName))
-    readVideo(fileName[:-4], extractHand, labels, result)
+    readVideo(fileName, extractHand, result)
 
 if VISUALIZE_RESULT:
     cv2.destroyAllWindows()
