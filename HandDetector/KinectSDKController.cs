@@ -50,13 +50,13 @@ namespace CURELab.SignLanguage.HandDetector
 
         private Colorizer colorizer;
 
-        private Skeleton[] skeletons;
+        private Skeleton skeleton;
 
         private System.Drawing.Point rightHandPosition;
         private System.Drawing.Point headPosition;
 
         public static double CullingThresh;
-        public static float AngleRotateTan = 0;
+        public static float AngleRotateTan = AnitaRotateTan;
         // demo
         public const float DemoRotateTan = 0.45f;
         // anita
@@ -124,7 +124,6 @@ namespace CURELab.SignLanguage.HandDetector
                 // Add an event handler to be called whenever there is new frame data
                 this.sensor.AllFramesReady += this.AllFrameReady;
                 this.Status = Properties.Resources.Connected;
-
                 this.colorizer = new Colorizer();
                 rightHandPosition = new System.Drawing.Point();
             }
@@ -177,21 +176,25 @@ namespace CURELab.SignLanguage.HandDetector
         private void AllFrameReady(object sender, AllFramesReadyEventArgs e)
         {
             //Console.Clear();
-            headPosition = new Point();
+            headPosition = new Point(0,0);
             using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
             {
                 if (skeletonFrame != null)
                 {
-                    skeletons = new Skeleton[skeletonFrame.SkeletonArrayLength];
-                    skeletonFrame.CopySkeletonDataTo(this.skeletons);
-                    Skeleton skel = skeletons[0];
-                    if (skel.TrackingState == SkeletonTrackingState.Tracked)
+                    var skeletons = new Skeleton[skeletonFrame.SkeletonArrayLength];
+                    skeletonFrame.CopySkeletonDataTo(skeletons);
+                    foreach (var skt in skeletons)
                     {
-                        SkeletonPoint rightHand = skeletons[0].Joints[JointType.HandRight].Position;
-                        SkeletonPoint head = skeletons[0].Joints[JointType.Head].Position;
-                        rightHandPosition = SkeletonPointToScreen(rightHand);
-                        headPosition = SkeletonPointToScreen(head);
+                        if (skt.TrackingState == SkeletonTrackingState.Tracked)
+                        {
+                            SkeletonPoint rightHand = skt.Joints[JointType.HandRight].Position;
+                            SkeletonPoint head = skt.Joints[JointType.Head].Position;
+                            rightHandPosition = SkeletonPointToScreen(rightHand);
+                            headPosition = SkeletonPointToScreen(head);
+                            skeleton = skt;
+                        }
                     }
+                   
                 }
             }
 
@@ -231,7 +234,17 @@ namespace CURELab.SignLanguage.HandDetector
                     }
                     else
                     {
-                        headDepth = depthPixels[headPosition.X + headPosition.Y * 640].Depth;
+                        try
+                        {
+                            headDepth = depthPixels[headPosition.X + headPosition.Y * 640].Depth;
+                        }
+                        catch (Exception)
+                        {
+                            Console.WriteLine(headPosition.X);
+                            Console.WriteLine(headPosition.Y);
+                            Console.WriteLine(headPosition.X + headPosition.Y * 640);
+                            return;
+                        }
                     }
                     //var lowDepths = depthPixels.Skip(depthPixels.Length - 640).Where(x => x.Depth > 0);
                     //int lowDepth = lowDepths.Count() > 0 ? lowDepths.Min(x => x.Depth) : 0;
@@ -270,24 +283,24 @@ namespace CURELab.SignLanguage.HandDetector
                     PointF leftVector = PointF.Empty;
                     bool isSkip = true;
                     bool leftHandRaise = false;
-                    if (skeletons != null && skeletons[0].TrackingState == SkeletonTrackingState.Tracked)
+                    if (skeleton != null && skeleton.TrackingState == SkeletonTrackingState.Tracked)
                     {
-                        PointF hr = SkeletonPointToScreen(skeletons[0].Joints[JointType.HandRight].Position);
-                        PointF hl = SkeletonPointToScreen(skeletons[0].Joints[JointType.HandLeft].Position);
-                        PointF er = SkeletonPointToScreen(skeletons[0].Joints[JointType.ElbowRight].Position);
-                        PointF el = SkeletonPointToScreen(skeletons[0].Joints[JointType.ElbowLeft].Position);
-                        PointF hip = SkeletonPointToScreen(skeletons[0].Joints[JointType.HipCenter].Position);
+                        PointF hr = SkeletonPointToScreen(skeleton.Joints[JointType.HandRight].Position);
+                        PointF hl = SkeletonPointToScreen(skeleton.Joints[JointType.HandLeft].Position);
+                        PointF er = SkeletonPointToScreen(skeleton.Joints[JointType.ElbowRight].Position);
+                        PointF el = SkeletonPointToScreen(skeleton.Joints[JointType.ElbowLeft].Position);
+                        PointF hip = SkeletonPointToScreen(skeleton.Joints[JointType.HipCenter].Position);
                         // hand is lower than hip
-                        //Console.WriteLine(skeletons[0].Joints[JointType.HandRight].Position.Y);
-                        //Console.WriteLine(skeletons[0].Joints[JointType.HipCenter].Position.Y);
+                        //Console.WriteLine(skeleton.Joints[JointType.HandRight].Position.Y);
+                        //Console.WriteLine(skeleton.Joints[JointType.HipCenter].Position.Y);
                         //Console.WriteLine("-------------");
-                        if (skeletons[0].Joints[JointType.HandRight].Position.Y >
-                            skeletons[0].Joints[JointType.HipCenter].Position.Y + 0.05)
+                        if (skeleton.Joints[JointType.HandRight].Position.Y >
+                            skeleton.Joints[JointType.HipCenter].Position.Y + 0.05)
                         {
                             isSkip = false;
                         }
-                        if (skeletons[0].Joints[JointType.HandLeft].Position.Y >
-                            skeletons[0].Joints[JointType.HipCenter].Position.Y )
+                        if (skeleton.Joints[JointType.HandLeft].Position.Y >
+                            skeleton.Joints[JointType.HipCenter].Position.Y )
                         {
                             leftHandRaise = true;
                         }
@@ -311,14 +324,25 @@ namespace CURELab.SignLanguage.HandDetector
                         handModel = new HandShapeModel(0, HandEnum.None);
                     }
                     //sw.Restart();
+                    if (!isRecording && !isSkip)
+                    {
+                        currentPath = path + frame.ToString();
+                        System.IO.Directory.CreateDirectory(currentPath);
+                        isRecording = true;
+                    }
+                    if (isSkip)
+                    {
+                        isRecording = false;
+                    }
+
                     if (rightFront != null)
                     {
                         Bitmap right = rightFront.ToBitmap();
-                        string path = @"H:\handshape";
-                        right.Save(path + '\\' + frame.ToString() + ".jpg");
+                        right.Save(currentPath +"\\"+ frame.ToString() + ".jpg");
                         frame++;
                         //ImageConverter.UpdateWriteBMP(WrtBMP_RightHandFront, right);
                     }
+                    
                    
                     //*******************upadte UI
                     ImageConverter.UpdateWriteBMP(DepthWriteBitmap, depthImg.ToBitmap());
@@ -329,6 +353,10 @@ namespace CURELab.SignLanguage.HandDetector
 
 
         }
+
+        private string path = @"G:\handimages\";
+        private string currentPath = @"G:\handimages\";
+        private bool isRecording = false;
 
         public override void Run()
         {
@@ -389,6 +417,8 @@ namespace CURELab.SignLanguage.HandDetector
             try
             {
                 this.sensor.Start();
+                //AngleRotateTan = (float)Math.Tan(sensor.ElevationAngle);
+
             }
             catch (Exception)
             {
