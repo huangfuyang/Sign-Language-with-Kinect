@@ -128,6 +128,7 @@
     <Compile Include="KinectStudioController.cs" />
     <Compile Include="PointHelper.cs" />
     <Compile Include="SignWordModel.cs" />
+    <Compile Include="SocketManager.cs" />
     <Compile Include="Threshold.cs" />
     <Compile Include="TrackBar.xaml.cs">
       <DependentUpon>TrackBar.xaml</DependentUpon>
