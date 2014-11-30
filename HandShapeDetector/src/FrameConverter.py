@@ -2,7 +2,7 @@ import base64
 from json import JSONEncoder,JSONDecoder
 import numpy as np
 
-class FrameConverter:
+class FrameConverter(object):
 
     def __init__(self):
         self.debug = True
@@ -26,10 +26,10 @@ class FrameConverter:
         }
         encodedJSON = self.encoder.encode(encodedObject)
         if self.debug:
-            (depthFrameTest, labelFrameTest, skeletonFrameTest) = self.decode(encodedJSON)
-            assert np.array_equal(depthFrameTest, depthFrame)
-            assert np.array_equal(labelFrameTest, labelFrame)
-            assert np.array_equal(skeletonFrameTest, skeletonFrame)
+            decodedFrame = self.decode(encodedJSON)
+            assert np.array_equal(decodedFrame['depth_image'], depthFrame)
+            assert np.array_equal(decodedFrame['label'], labelFrame)
+            assert np.array_equal(decodedFrame['skeleton'], skeletonFrame)
 
         return encodedJSON
 
@@ -44,4 +44,8 @@ class FrameConverter:
         labelFrame = decodedDict['label']
         skeletonFrame = decodedDict['skeleton']
 
-        return (depthFrame, labelFrame, skeletonFrame)
+        return {
+            'depth_image': depthFrame,
+            'label': labelFrame,
+            'skeleton': skeletonFrame
+        }

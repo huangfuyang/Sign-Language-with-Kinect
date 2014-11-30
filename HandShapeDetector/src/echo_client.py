@@ -26,7 +26,7 @@ class EchoClient(asynchat.async_chat):
         asyncore.loop()
 
     def collect_incoming_data(self, data):
-        self.logger.debug('collect_incoming_data() -> (%d bytes)\n"""%s"""', len(data), data)
+        self.logger.debug('collect_incoming_data() -> (%d bytes)', len(data))
         self.received_data.append(data)
 
     def found_terminator(self):
@@ -41,5 +41,5 @@ class EchoProducer(asynchat.simple_producer):
 
     def more(self):
         response = asynchat.simple_producer.more(self)
-        self.logger.debug('more() -> (%s bytes)\n"""%s"""', len(response), response)
+        #self.logger.debug('more() -> (%s bytes)\n"""%s"""', len(response), response)
         return response
