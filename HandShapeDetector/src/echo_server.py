@@ -2,7 +2,7 @@ import asyncore
 import asynchat
 import logging
 import socket
-import os
+import thread
 
 logging.basicConfig(level=logging.DEBUG,format='%(name)s: %(message)s')
 
@@ -22,7 +22,7 @@ class EchoServer(asyncore.dispatcher):
         client_info = self.accept()
         if client_info is not None:
             sock, addr = client_info
-            logging.debug('connecting to %s, pid %s', repr(addr), os.getpid())
+            logging.debug('connecting to %s, tid %s', repr(addr), thread.get_ident())
             EchoHandler(client_info[0], self.received_data_callback)
 
     def handle_close(self):
