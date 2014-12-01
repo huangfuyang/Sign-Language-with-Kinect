@@ -23,6 +23,7 @@ class FrameConverter(object):
         if self.debug:
             decodedFrame = self.decode(encodedJSON)
             assert np.array_equal(decodedFrame['depth_image'], depthFrame)
+            assert np.array_equal(decodedFrame['color_image'], colorFrame)
             assert np.array_equal(decodedFrame['label'], labelFrame)
             assert np.array_equal(decodedFrame['skeleton'], skeletonFrame)
 
@@ -37,6 +38,7 @@ class FrameConverter(object):
 
         return {
             'depth_image': depthFrame,
+            'color_image': colorFrame,
             'label': labelFrame,
             'skeleton': skeletonFrame
         }
