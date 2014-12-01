@@ -57,5 +57,11 @@ plt.subplot(1,2,1), plt.imshow(depthFrame)
 plt.subplot(1,2,2), plt.imshow(colorFrame)
 plt.show()
 
-client = HandShapeClient('localhost', port)
+argc = len(sys.argv)
+if argc > 1:
+    host = sys.argv[1]
+else:
+    host = 'localhost'
+
+client = HandShapeClient(host, port)
 client.send_data(encodedFrame)
