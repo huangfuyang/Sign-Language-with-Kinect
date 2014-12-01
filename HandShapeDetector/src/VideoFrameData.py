@@ -18,6 +18,7 @@ class VideoFrameData:
             if not ret:
                 return False,None
 
+            frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
             return True,frame
         return False,None
 

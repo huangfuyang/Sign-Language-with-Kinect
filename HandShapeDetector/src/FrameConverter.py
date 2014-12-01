@@ -12,15 +12,10 @@ class FrameConverter(object):
     def setDebug(self, debug):
         self.debug = debug
 
-    def encode(self, depthFrame, labelFrame, skeletonFrame):
-        encodedDepthFrame = base64.b64encode(depthFrame)
-        depthFrameShape = depthFrame.shape
-
+    def encode(self, depthFrame, colorFrame, labelFrame, skeletonFrame):
         encodedObject = {
-            'depth': {
-                'image': encodedDepthFrame,
-                'shape': depthFrameShape
-            },
+            'depth': self.encode_image(depthFrame),
+            'color': self.encode_image(colorFrame),
             'label': labelFrame,
             'skeleton': skeletonFrame
         }
@@ -35,12 +30,8 @@ class FrameConverter(object):
 
     def decode(self, json):
         decodedDict = self.decoder.decode(json)
-
-        depthFrameShape = decodedDict['depth']['shape']
-        encodedDepthFrame = decodedDict['depth']['image']
-        depthFrame = base64.decodestring(encodedDepthFrame)
-        depthFrame = np.frombuffer(depthFrame,dtype='uint8')
-        depthFrame = depthFrame.reshape(depthFrameShape)
+        depthFrame = self.decode_image(decodedDict['depth'])
+        colorFrame = self.decode_image(decodedDict['color'])
         labelFrame = decodedDict['label']
         skeletonFrame = decodedDict['skeleton']
 
@@ -49,3 +40,19 @@ class FrameConverter(object):
             'label': labelFrame,
             'skeleton': skeletonFrame
         }
+
+    def encode_image(self, original_image):
+        encoded_image = base64.b64encode(original_image)
+        image_shape = original_image.shape
+        return {
+            'image': encoded_image,
+            'shape': image_shape
+        }
+
+    def decode_image(self, encoded_image_frame):
+        encoded_image = encoded_image_frame['image']
+        image_shape = encoded_image_frame['shape']
+
+        depthFrame = base64.decodestring(encoded_image)
+        depthFrame = np.frombuffer(depthFrame,dtype='uint8')
+        return depthFrame.reshape(image_shape)

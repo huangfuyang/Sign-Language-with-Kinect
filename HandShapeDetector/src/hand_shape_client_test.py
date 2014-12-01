@@ -1,6 +1,7 @@
 from os import listdir,makedirs,sys
 from os.path import isfile,join,exists,dirname,realpath
 import ConfigParser
+import pylab as plt
 from VideoFrameData import VideoFrameData
 from CSVFrameData import CSVFrameData
 from FrameConverter import FrameConverter
@@ -36,17 +37,25 @@ srcVideoPath = join(videoDirectory,firstFile+depthVideoSuffix+videoFilenameExten
 depthFrameData = VideoFrameData()
 depthFrameData.load(srcVideoPath)
 
+srcVideoPath = join(videoDirectory,firstFile+colorVideoSuffix+videoFilenameExtension)
+colorFrameData = VideoFrameData()
+colorFrameData.load(srcVideoPath)
+
 i = 0
 resultImages = []
 
 depthRetval,depthFrame = depthFrameData.readFrame()
+colorRetval,colorFrame = colorFrameData.readFrame()
 labelRetval,labelFrame = labelFrameData.readFrame()
 skeletonRetval,skeletonFrame = skeletonFrameData.readFrame()
-if not depthRetval or not labelRetval or not skeletonRetval:
+if not depthRetval or not colorRetval or not labelRetval or not skeletonRetval:
     exit
 
-h,w = depthFrame.shape[0:2]
-encodedFrame = FrameConverter().encode(depthFrame, labelFrame, skeletonFrame)
+encodedFrame = FrameConverter().encode(depthFrame, colorFrame, labelFrame, skeletonFrame)
+
+plt.subplot(1,2,1), plt.imshow(depthFrame)
+plt.subplot(1,2,2), plt.imshow(colorFrame)
+plt.show()
 
 client = HandShapeClient('localhost', port)
 client.send_data(encodedFrame)

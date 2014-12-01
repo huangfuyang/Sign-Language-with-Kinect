@@ -18,8 +18,9 @@ class HandShapeServer(object):
     def process_data(self, decoded_data):
         # For debug
         sleep_time = random.randint(1, 10)
-        #plt.imshow(decoded_data['depth_image'])
-        #plt.show()
+        plt.subplot(1,2,1), plt.imshow(decoded_data['depth_image'])
+        plt.subplot(1,2,2), plt.imshow(decoded_data['color_image'])
+        plt.show()
         arrive_time = time.strftime("%H:%M:%S")
         time.sleep(sleep_time)
         message_to_send = "Arrive=%s, Sleep=%d, Response=%s, Message='%s'\n" % (arrive_time, sleep_time, time.strftime("%H:%M:%S"), self.flatten(decoded_data).keys())
