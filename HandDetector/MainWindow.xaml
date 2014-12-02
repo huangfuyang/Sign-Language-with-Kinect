@@ -67,7 +67,6 @@
                 <MenuItem Header="Gesture" Click="Menu_Gesture_Click" />
                 <MenuItem Header="OpenNI" Click="Menu_OpenNI_Click"/>
                 <MenuItem Header="ONI file" Click="Menu_ONI_Click"/>
-                <MenuItem Header="Video" Click="Menu_Video_Click"/>
                 <Separator />
                 <MenuItem Header="Exit" Click="Menu_Exit_Click"/>
             </MenuItem>

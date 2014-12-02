@@ -304,7 +304,7 @@ namespace CURELab.SignLanguage.HandDetector
                     HandShapeModel handModel = null;
                     if (!isSkip)
                     {
-                        //handModel = m_OpenCVController.FindHandPart(ref depthImg, out rightFront, out leftFront, headDepth - (int)CullingThresh, rightVector, leftVector,leftHandRaise);
+                        handModel = m_OpenCVController.FindHandPart(ref depthImg, out rightFront, out leftFront, headDepth - (int)CullingThresh, rightVector, leftVector,leftHandRaise);
                     }
 
 

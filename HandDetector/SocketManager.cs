@@ -46,7 +46,7 @@ namespace CURELab.SignLanguage.HandDetector
             client.Connect(ipe);
 
             if (client.Connected)
-            {
+            {   
                 Console.WriteLine("connected");
                 ns = client.GetStream();
             }

@@ -11,7 +11,6 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using Microsoft.Kinect;
-using CURELab.SignLanguage.HandDetector.Model;
 
 
 namespace CURELab.SignLanguage.HandDetector
