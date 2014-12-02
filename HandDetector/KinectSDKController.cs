@@ -174,6 +174,10 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
+        private void ProcessOneFrame()
+        {
+                        
+        }
         short headDepth = 0;
         private int frame = 0;
         private void AllFrameReady(object sender, AllFramesReadyEventArgs e)
@@ -250,11 +254,7 @@ namespace CURELab.SignLanguage.HandDetector
                             return;
                         }
                     }
-                    //var lowDepths = depthPixels.Skip(depthPixels.Length - 640).Where(x => x.Depth > 0);
-                    //int lowDepth = lowDepths.Count() > 0 ? lowDepths.Min(x => x.Depth) : 0;
-                    //float a = CalTiltAngle(headPosition.Y, depthPixels[headPosition.X+headPosition.Y*640].Depth, lowDepth);
-                    //Console.WriteLine("head depth :{0} lowDepth:{1}, TiltAngle:{2}", depthPixels[headPosition.X + headPosition.Y * 640].Depth, lowDepth);
-                    //    Console.WriteLine("get low depth:" + sw.ElapsedMilliseconds);
+
                     sw.Restart();
                     //*********** Convert cull and transform*****************
                     colorizer.TransformCullAndConvertDepthFrame(
@@ -267,19 +267,6 @@ namespace CURELab.SignLanguage.HandDetector
                     sw.Restart();
 
 
-
-                    //*******************region growing********************
-                    //PointF startPoint = new PointF(rightHandPosition.X, rightHandPosition.Y);
-                    //RegionGrow(startPoint, depthData, depthBMP);
-                    ////edge detection
-                    //Bitmap edgeBmp = OpenCVController.GetSingletonInstance().RecogEdgeBgra(depthBMP).ToBitmap();
-                    //Rectangle[] rects = OpenCVController.GetSingletonInstance().RecogBlob(depthBMP);
-                    //if (rects != null)
-                    //{
-                    //    RecognizeAndDrawRects(depthBMP, rects);
-                    //}
-
-                    //*******find hand*****************
                     Image<Gray, Byte> rightFront = null;
                     Image<Gray, Byte> leftFront = null;
                     depthImg = ImageConverter.Array2Image(colorPixels, width, height, width * 4);
@@ -317,7 +304,7 @@ namespace CURELab.SignLanguage.HandDetector
                     HandShapeModel handModel = null;
                     if (!isSkip)
                     {
-                        handModel = m_OpenCVController.FindHandPart(ref depthImg, out rightFront, out leftFront, headDepth - (int)CullingThresh, rightVector, leftVector,leftHandRaise);
+                        //handModel = m_OpenCVController.FindHandPart(ref depthImg, out rightFront, out leftFront, headDepth - (int)CullingThresh, rightVector, leftVector,leftHandRaise);
                     }
 
 

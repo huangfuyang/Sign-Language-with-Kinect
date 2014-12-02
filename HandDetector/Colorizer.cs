@@ -5,6 +5,9 @@
 // CLR：         4.0.30319.18444
 // project link：https://github.com/huangfuyang/Sign-Language-with-Kinect
 
+using System.Windows.Controls;
+using Emgu.CV;
+using Emgu.CV.Structure;
 using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
@@ -65,6 +68,11 @@ namespace CURELab.SignLanguage.HandDetector
         public Colorizer()
         {
 
+        }
+
+        public void CullImage(Image<Bgr,byte> img, int cull )
+        {
+            
         }
         public void TransformCullAndConvertDepthFrame(
           DepthImagePixel[] depthFrame,

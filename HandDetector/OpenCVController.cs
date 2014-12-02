@@ -150,7 +150,7 @@ namespace CURELab.SignLanguage.HandDetector
         int hogSize = 4356;
         Image<Gray, Byte> grayImg;
         public unsafe HandShapeModel FindHandPart(
-            ref Image<Bgra, Byte> image,
+            ref Image<Bgr, byte> image,
             out Image<Gray, Byte> rightFront,
             out Image<Gray, Byte> leftFront,
             int handDepth,
@@ -182,6 +182,7 @@ namespace CURELab.SignLanguage.HandDetector
             //find contour
             grayImg = image.Convert<Gray, byte>();
             Image<Gray, Byte> binaryImg = GetBinaryImg(image);
+            image = binaryImg.Convert<Bgr, byte>();
             List<MCvBox2D> rectList = FindContourMBox(binaryImg);
             //draw contour
             foreach (var rect in rectList)
@@ -326,7 +327,17 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 return null;
             }
-            return image.Convert<Gray, byte>().ThresholdBinaryInv
+            return image.Convert<Gray, byte>().ThresholdBinary
+                (new Gray(20), new Gray(255));
+        }
+
+        public Image<Gray, byte> GetBinaryImg(Image<Gray, byte> image)
+        {
+            if (image == null)
+            {
+                return null;
+            }
+            return image.ThresholdBinaryInv
                 (new Gray(200), new Gray(255));
         }
 
@@ -494,7 +505,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         }
 
-        private void DrawHand(MCvBox2D rect, Image<Bgra, Byte> image, HandEnum handEnum)
+        private void DrawHand(MCvBox2D rect, Image<Bgr, Byte> image, HandEnum handEnum)
         {
             System.Drawing.Point[] points = rect.GetVertices().Select(x => x.ToPoint()).ToArray();
             DrawPoly(points, image, new MCvScalar(0, 0, 255));
@@ -515,7 +526,7 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
-        private void DrawPoly(System.Drawing.Point[] points, Image<Bgra, Byte> image, MCvScalar color)
+        private void DrawPoly(System.Drawing.Point[] points, Image<Bgr, Byte> image, MCvScalar color)
         {
 
             if (points == null || points.Length <= 0)
@@ -528,7 +539,7 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
-        private void DrawPoint(Image<Bgra, Byte> image, Point point, MCvScalar color)
+        private void DrawPoint(Image<Bgr, Byte> image, Point point, MCvScalar color)
         {
             if (point == null || point == Point.Empty)
             {
