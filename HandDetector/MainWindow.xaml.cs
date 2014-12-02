@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.IO;
 using System.Windows.Forms;
+using CURELab.SignLanguage.StaticTools;
 
 namespace CURELab.SignLanguage.HandDetector
 {
@@ -34,7 +36,7 @@ namespace CURELab.SignLanguage.HandDetector
         private OpenCVController m_OpenCVController;
         private KinectStudioController m_kinectStudioController;
         private DBManager m_DBmanager;
-
+        private SocketManager socket;
         public MainWindow()
         {
             InitializeComponent();
@@ -46,6 +48,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
+            ConsoleManager.Show();
             m_OpenCVController = OpenCVController.GetSingletonInstance();
 
             RegisterThreshold("canny", ref OpenCVController.CANNY_THRESH, 100, 8);
@@ -53,10 +56,12 @@ namespace CURELab.SignLanguage.HandDetector
             RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
             RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
             RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 40);
-
+            //socket = SocketManager.GetInstance("localhost", 8888);
+            socket = SocketManager.GetInstance("137.189.94.204", 8888);
+            socket.GetResponse(new Bitmap("t1.jpg"));
 
             //  Menu_ONI_Click(this, e);
-            Menu_Kinect_Click(this, e);
+            //Menu_Kinect_Click(this, e);
             //MenuItem_Test_Click(this, e);
         }
 

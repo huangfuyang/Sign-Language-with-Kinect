@@ -5,6 +5,7 @@
 // CLR：         4.0.30319.18052
 // project link：https://github.com/huangfuyang/Sign-Language-with-Kinect
 
+using System.Runtime.Remoting.Messaging;
 using System.Windows.Threading;
 using Microsoft.Kinect;
 using System;
@@ -52,7 +53,6 @@ namespace CURELab.SignLanguage.HandDetector
 
         private Colorizer colorizer;
 
-        private Skeleton skeleton;
         private Skeleton skeleton;
 
         private System.Drawing.Point rightHandPosition;
@@ -102,7 +102,6 @@ namespace CURELab.SignLanguage.HandDetector
                 }
             }
 
-            ConsoleManager.Show();
 
             if (null != this.sensor)
             {
@@ -329,22 +328,24 @@ namespace CURELab.SignLanguage.HandDetector
                         handModel = new HandShapeModel(0, HandEnum.None);
                     }
                     //sw.Restart();
-                    if (!isRecording && !isSkip)
-                    {
-                        currentPath = path + frame.ToString();
-                        System.IO.Directory.CreateDirectory(currentPath);
-                        isRecording = true;
-                    }
-                    if (isSkip)
-                    {
-                        isRecording = false;
-                    }
+                    //if (!isRecording && !isSkip)
+                    //{
+                    //    currentPath = path + frame.ToString();
+                    //    System.IO.Directory.CreateDirectory(currentPath);
+                    //    isRecording = true;
+                    //}
+                    //if (isSkip)
+                    //{
+                    //    isRecording = false;
+                    //}
 
                     if (rightFront != null)
                     {
                         Bitmap right = rightFront.ToBitmap();
-                        right.Save(currentPath +"\\"+ frame.ToString() + ".jpg");
-                        Dispatcher.CurrentDispatcher.BeginInvoke()
+                        socket = SocketManager.GetInstance();
+                        //socket.GetResponseAsync("foobar", new AsyncCallback(GetResponseCallback));
+                        socket.GetResponseAsync(right, new AsyncCallback(GetResponseImageCallback));
+                        //right.Save(currentPath +"\\"+ frame.ToString() + ".jpg");
                         //right.Save(path + '\\' + frame.ToString() + ".jpg");
                         frame++;
                         //ImageConverter.UpdateWriteBMP(WrtBMP_RightHandFront, right);
@@ -358,6 +359,19 @@ namespace CURELab.SignLanguage.HandDetector
             }
 
 
+        }
+
+        private void GetResponseCallback(IAsyncResult result)
+        {
+            Console.WriteLine(result.IsCompleted);
+            var handler = (SocketManager.AsyncMsgCaller)((AsyncResult)result).AsyncDelegate;
+            Console.WriteLine(handler.EndInvoke(result));
+        }
+        private void GetResponseImageCallback(IAsyncResult result)
+        {
+            Console.WriteLine(result.IsCompleted);
+            var handler = (SocketManager.AsyncBitmapCaller)((AsyncResult)result).AsyncDelegate;
+            Console.WriteLine(handler.EndInvoke(result));
         }
 
         private string path = @"G:\handimages\";

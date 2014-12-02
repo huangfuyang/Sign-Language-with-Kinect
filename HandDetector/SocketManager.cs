@@ -4,9 +4,12 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace CURELab.SignLanguage.HandDetector
 {
@@ -29,13 +32,19 @@ namespace CURELab.SignLanguage.HandDetector
         {
             if (Instance == null)
             {
-                Instance = GetInstance("localhost", 8888);
+                Instance = GetInstance("137.189.89.29", 8888);
             }
             return Instance;
         }
         private SocketManager(string addr, int port)
         {
-            client = new TcpClient(addr, port);
+            client = new TcpClient();
+            IPAddress ipa = IPAddress.Parse(addr);
+            IPEndPoint ipe = new IPEndPoint(ipa, port);
+
+            Console.WriteLine("connecting");
+            client.Connect(ipe);
+
             if (client.Connected)
             {
                 Console.WriteLine("connected");
@@ -77,6 +86,20 @@ namespace CURELab.SignLanguage.HandDetector
             return null;
 
         }
+        public delegate string AsyncBitmapCaller(Bitmap bmp);
+        public delegate string AsyncMsgCaller(string bmp);
+
+        public void GetResponseAsync(Bitmap img, AsyncCallback callback)
+        {
+            var ac = new AsyncBitmapCaller(GetResponse);
+            ac.BeginInvoke(img, callback, "states");
+        }
+
+        public void GetResponseAsync(String msg, AsyncCallback callback)
+        {
+            var ac = new AsyncMsgCaller(GetResponse);
+            ac.BeginInvoke(msg, callback, "states");
+        }
 
         public string GetResponse(Bitmap img)
         {
@@ -90,8 +113,8 @@ namespace CURELab.SignLanguage.HandDetector
                     imageData = stream.ToArray();
                 }
                 var lengthData = BitConverter.GetBytes(imageData.Length);
-                ns.Write(lengthData, 0, lengthData.Length);
-                Console.WriteLine(imageData);
+                //ns.Write(lengthData, 0, lengthData.Length);
+                ns.Write(imageData, 0, imageData.Length);
                 // Buffer to store the response bytes.
                 if (ns.CanRead)
                 {
