@@ -57,12 +57,12 @@ namespace CURELab.SignLanguage.HandDetector
             RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
             RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 40);
             //socket = SocketManager.GetInstance("localhost", 8888);
-            socket = SocketManager.GetInstance("137.189.89.29", 8080);
-            var r= socket.GetResponse(new Bitmap("t1.jpg"));
-            Console.WriteLine(r);
+            //socket = SocketManager.GetInstance("137.189.89.29", 8080);
+            //var r= socket.GetResponse(new Bitmap("t1.jpg"));
+            //Console.WriteLine(r);
 
             //  Menu_ONI_Click(this, e);
-            //Menu_Kinect_Click(this, e);
+            Menu_Kinect_Click(this, e);
             //MenuItem_Test_Click(this, e);
         }
 

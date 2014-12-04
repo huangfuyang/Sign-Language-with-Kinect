@@ -329,9 +329,8 @@ namespace CURELab.SignLanguage.HandDetector
                     if (rightFront != null)
                     {
                         Bitmap right = rightFront.ToBitmap();
-                        socket = SocketManager.GetInstance();
-                        //socket.GetResponseAsync("foobar", new AsyncCallback(GetResponseCallback));
-                        socket.GetResponseAsync(right, new AsyncCallback(GetResponseImageCallback));
+                        //socket = SocketManager.GetInstance();
+                        //socket.GetResponseAsync(right, new AsyncCallback(GetResponseImageCallback));
                         //right.Save(currentPath +"\\"+ frame.ToString() + ".jpg");
                         //right.Save(path + '\\' + frame.ToString() + ".jpg");
                         frame++;
