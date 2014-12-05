@@ -1,14 +1,13 @@
 import random
 import time
 from echo_server import EchoServer
-from FrameConverter import FrameConverter
 import collections
 import pylab as plt
 
 class HandShapeServer(object):
 
-    def __init__(self, port):
-        self.converter = FrameConverter()
+    def __init__(self, port, converter):
+        self.converter = converter
         self.server = EchoServer(port, self.received_data)
 
     def received_data(self, received_data):

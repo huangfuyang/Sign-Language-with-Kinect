@@ -1,5 +1,5 @@
-from os import listdir,makedirs,sys
-from os.path import isfile,join,exists,dirname,realpath
+from os import listdir,sys
+from os.path import isfile,join,dirname,realpath
 import ConfigParser
 import pylab as plt
 from VideoFrameData import VideoFrameData
@@ -63,5 +63,6 @@ if argc > 1:
 else:
     host = 'localhost'
 
-client = HandShapeClient(host, port)
+converter = FrameConverter()
+client = HandShapeClient(host, port, converter)
 client.send_data(encodedFrame)
