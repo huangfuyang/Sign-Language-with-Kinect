@@ -1,14 +1,26 @@
 import caffe
 import sys
+import ConfigParser
+from os.path import join,dirname,realpath
 
 class CaffeServerHandler(object):
-    def __init__(self, caffe_root, img_path):
-        sys.path.insert(0, caffe_root + 'python')
-        self.model_file = caffe_root + 'models/bvlc_reference_caffenet/deploy.prototxt'
-        self.pretrain_file = caffe_root + 'models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel'
+    def __init__(self):
+        ROOT_DIRECTORY = join(dirname(realpath(sys.argv[0])), '..')
 
-    def caffe_init(self, caffe_root):
-        net = caffe.Classifier(self.model_file, self.pretrain_file)
+        config = ConfigParser.RawConfigParser()
+        config.read(join(ROOT_DIRECTORY, 'config', 'caffe.cfg'))
+
+        caffe_root = config.get('Directory', 'Caffe Root')
+        caffe_python = config.get('Directory', 'Caffe Python')
+        caffe_train_directory = config.get('Directory', 'Train')
+        caffe_model_definiation_file = join(caffe_train_directory, config.get('File', 'Model Definition'))
+        caffe_pre_trained_model_file = join(caffe_train_directory, config.get('File', 'Pre-trained model'))
+
+        sys.path.insert(0, join(caffe_root, caffe_python))
+        self.caffe_init(caffe_model_definiation_file, caffe_pre_trained_model_file)
+
+    def caffe_init(self, caffe_model_definiation_file, caffe_pre_trained_model_file):
+        net = caffe.Classifier(caffe_model_definiation_file, caffe_pre_trained_model_file)
         net.set_phase_test()
         net.set_mode_cpu()
         net.set_raw_scale('data', 255)
