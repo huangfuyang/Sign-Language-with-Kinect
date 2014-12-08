@@ -7,5 +7,5 @@ caffe_root = ''
 img_path = ''
 
 converter = FrameConverter()
-data_handler = CaffeServerHandler(caffe_root, img_path)
+data_handler = CaffeServerHandler()
 server = HandShapeServer(port, converter, data_handler)
