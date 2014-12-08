@@ -1,5 +1,5 @@
-from os import listdir,makedirs,sys
-from os.path import isfile,join,exists,dirname,realpath
+from os import listdir,sys
+from os.path import isfile,join,dirname,realpath
 import ConfigParser
 import pylab as plt
 from VideoFrameData import VideoFrameData
@@ -57,5 +57,12 @@ plt.subplot(1,2,1), plt.imshow(depthFrame)
 plt.subplot(1,2,2), plt.imshow(colorFrame)
 plt.show()
 
-client = HandShapeClient('localhost', port)
+argc = len(sys.argv)
+if argc > 1:
+    host = sys.argv[1]
+else:
+    host = 'localhost'
+
+converter = FrameConverter()
+client = HandShapeClient(host, port, converter)
 client.send_data(encodedFrame)

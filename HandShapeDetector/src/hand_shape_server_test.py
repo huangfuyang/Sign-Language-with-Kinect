@@ -1,4 +1,11 @@
 from hand_shape_server import HandShapeServer
+from FrameConverter import FrameConverter
+from caffe_server_handler import CaffeServerHandler
 
 port = 51243
-server = HandShapeServer(port)
+caffe_root = ''
+img_path = ''
+
+converter = FrameConverter()
+data_handler = CaffeServerHandler(caffe_root, img_path)
+server = HandShapeServer(port, converter, data_handler)

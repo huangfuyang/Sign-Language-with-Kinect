@@ -1,14 +1,14 @@
 import random
 import time
 from echo_server import EchoServer
-from FrameConverter import FrameConverter
 import collections
 import pylab as plt
 
 class HandShapeServer(object):
 
-    def __init__(self, port):
-        self.converter = FrameConverter()
+    def __init__(self, port, converter, data_handler=None):
+        self.converter = converter
+        self.data_handler = data_handler
         self.server = EchoServer(port, self.received_data)
 
     def received_data(self, received_data):
@@ -16,6 +16,9 @@ class HandShapeServer(object):
         return self.process_data(decoded_data)
 
     def process_data(self, decoded_data):
+        if hasattr(self, 'data_handler') and self.data_handler is not None:
+            self.data_handler.handle_data(decoded_data)
+
         # For debug
         sleep_time = random.randint(1, 10)
         plt.subplot(1,2,1), plt.imshow(decoded_data['depth_image'])
