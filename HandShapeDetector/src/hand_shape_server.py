@@ -1,18 +1,23 @@
 import random
 import time
+import binascii
+import bz2
 from echo_server import EchoServer
 import collections
 import pylab as plt
 
 class HandShapeServer(object):
 
-    def __init__(self, port, converter, data_handler=None):
+    def __init__(self, port, converter, terminator, data_handler=None):
         self.converter = converter
         self.data_handler = data_handler
-        self.server = EchoServer(port, self.received_data)
+        self.server = EchoServer(port, terminator, self.received_data)
+        self.server.start()
 
     def received_data(self, received_data):
-        decoded_data = self.converter.decode(received_data)
+        print (len(received_data), binascii.crc32(received_data))
+        decompressed_data = bz2.decompress(received_data)
+        decoded_data = self.converter.decode(decompressed_data)
         return self.process_data(decoded_data)
 
     def process_data(self, decoded_data):
@@ -26,7 +31,7 @@ class HandShapeServer(object):
         plt.show()
         arrive_time = time.strftime("%H:%M:%S")
         time.sleep(sleep_time)
-        message_to_send = "Arrive=%s, Sleep=%d, Response=%s, Message='%s'\n" % (arrive_time, sleep_time, time.strftime("%H:%M:%S"), self.flatten(decoded_data).keys())
+        message_to_send = "Arrive=%s, Sleep=%d, Response=%s, Message='%s%s" % (arrive_time, sleep_time, time.strftime("%H:%M:%S"), self.flatten(decoded_data).keys(), self.server.terminator)
         return message_to_send
 
     def flatten(self, d, parent_key='', sep='.'):

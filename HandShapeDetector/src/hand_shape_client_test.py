@@ -64,5 +64,5 @@ else:
     host = 'localhost'
 
 converter = FrameConverter()
-client = HandShapeClient(host, port, converter)
+client = HandShapeClient(host, port, '\r\n\r\n', converter)
 client.send_data(encodedFrame)

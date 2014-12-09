@@ -8,4 +8,4 @@ img_path = ''
 
 converter = FrameConverter()
 data_handler = CaffeServerHandler()
-server = HandShapeServer(port, converter, data_handler)
+server = HandShapeServer(port, converter, '\r\n\r\n', data_handler)
