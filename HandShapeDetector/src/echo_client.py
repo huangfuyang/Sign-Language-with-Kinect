@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.DEBUG,format='%(name)s: %(message)s')
 
 class EchoClient(asynchat.async_chat):
 
-    def __init__(self, host, port, handler):
+    def __init__(self, host, port, terminator, handler):
         self.received_data = []
         self.handler = handler
         self.logger = logging.getLogger('EchoClient')
@@ -15,7 +15,7 @@ class EchoClient(asynchat.async_chat):
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.logger.debug('connecting to %s', (host, port))
         self.connect((host, port))
-        self.set_terminator('\n')
+        self.set_terminator(terminator)
 
     def handle_connect(self):
         self.logger.debug('handle_connect()')
@@ -34,6 +34,7 @@ class EchoClient(asynchat.async_chat):
         received_message = ''.join(self.received_data)
         self.handler.callback(received_message)
         self.received_data = []
+        asyncore.close_all()
 
 class EchoProducer(asynchat.simple_producer):
 
