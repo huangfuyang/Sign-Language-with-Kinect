@@ -1,0 +1,19 @@
+﻿<UserControl x:Class="CURELab.SignLanguage.HandDetector.TrackBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="43" d:DesignWidth="294">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="40"/>
+        </Grid.ColumnDefinitions>
+        <Label x:Name="lbl_Name" Content="default" Grid.Column="0" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center"/>
+        <TextBox x:Name="txt_Value" IsReadOnly="True" Grid.Column="2" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Width="40" Text="{Binding Value, ElementName=sld_main, StringFormat=\{0:F1\}}" />
+        <Slider x:Name="sld_main" Grid.Column="1" HorizontalAlignment="Stretch" Margin="5,0,5,0" VerticalAlignment="Center" ValueChanged="sld_main_ValueChanged" />
+
+    </Grid>
+</UserControl>

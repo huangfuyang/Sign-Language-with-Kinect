@@ -1,0 +1,70 @@
+﻿<Window x:Class="CURELab.SignLanguage.Debugger.MainWindow"
+       
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:view="clr-namespace:CURELab.SignLanguage.Debugger.View"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d3="http://research.microsoft.com/DynamicDataDisplay/1.0"
+        Title="{Binding Path=FileName, StringFormat=Sign Language Debugger {0:S}}"   Height="867" Width="1032" HorizontalAlignment="Left" VerticalAlignment="Top" Left="100" Top="0">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="313*"/>
+            <ColumnDefinition Width="147*"/>
+            <ColumnDefinition Width="556*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="331*"/>
+            <RowDefinition Height="198*"/>
+            <RowDefinition Height="183*"/>
+            <RowDefinition Height="100*"/>
+        </Grid.RowDefinitions>
+        <!-- Row 0-->
+        <Grid Grid.Row="0" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="35"/>
+                <RowDefinition Height="35"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0"  Name="border_media" BorderBrush="LightBlue" BorderThickness="4" HorizontalAlignment="Stretch" Margin="5,5">
+                <MediaElement x:Name="me_rawImage" MediaOpened="MediaOpened" MediaEnded="MediaEnded"/>
+
+            </Border>
+            <Border Grid.Row="0"  Name="border_viewbox" BorderBrush="LightBlue" BorderThickness="0" HorizontalAlignment="Stretch" Margin="0,0">
+                <Viewbox Stretch="Uniform" HorizontalAlignment="Center" Margin="10" Width="293">
+                    <Image Name="im_image" Width="640" Height="480"/>
+                </Viewbox>
+            </Border>
+            <Grid Grid.Row="1">
+                <Button x:Name="btn_openFile" Content="Open" HorizontalAlignment="Left" Margin="5" Click="btn_openFile_Click" MinWidth="50"/>
+                <Button x:Name="btn_play" Content="Play" HorizontalAlignment="Center" Margin="5" Click="btn_play_Click" MinWidth="50"/>
+                <Button x:Name="btn_Stop" Content="Stop" HorizontalAlignment="Right" Margin="5" Click="btn_Stop_Click" MinWidth="50"/>
+            </Grid>
+            <Slider Grid.Row="2" VerticalAlignment="Bottom" x:Name="sld_progress" HorizontalAlignment="Stretch" Margin="5"  ValueChanged="sld_progress_ValueChanged" DragEnter="sld_progress_DragEnter" DragLeave="sld_progress_DragLeave" />
+
+        </Grid>
+
+
+
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical">
+            <CheckBox Name="cb_autopause" Content="Auto-Pause" HorizontalAlignment="Left" Margin="10,5" VerticalAlignment="Top" IsChecked="{Binding IsPauseOnSegment, Mode=TwoWay}" Grid.Column="1" />
+            <CheckBox x:Name="cb_show_trajectory" Content="Show trajectory" HorizontalAlignment="Left" Margin="10,5,0,5" VerticalAlignment="Top" IsChecked="{Binding IsShowTrajectory, Mode=TwoWay}" />
+            <CheckBox Name="cb_show_rect" Content="Show ground truth" Margin="10,5,0,0" IsChecked="{Binding IsShowGroundTruth, Mode=TwoWay}"/>
+            <CheckBox x:Name="cb_splitLine" Content="Show split line:" HorizontalAlignment="Left" Margin="10,20,0,5" VerticalAlignment="Top" IsChecked="{Binding IsShowSplitLine, Mode=TwoWay}" />
+            <ListBox HorizontalAlignment="Left" Margin="10,5,0,5" VerticalAlignment="Top" Width="103">
+                <CheckBox x:Name="cb_acc_seg" Content="Acceleration" IsChecked="{Binding IsSegByAcc, Mode=TwoWay}"/>
+                <CheckBox x:Name="cb_vel_seg" Content="Velocity" IsChecked="{Binding IsSegByVel, Mode=TwoWay}"/>
+                <CheckBox x:Name="cb_ang_seg" Content="Angle" IsChecked="{Binding IsSegByAng, Mode=TwoWay}"/>
+            </ListBox>
+        </StackPanel>
+        <view:ChartView x:Name="cht_big" Margin="5" Grid.Row="0" Grid.Column="2"/>
+        <!-- Row 1-->
+        <view:ChartView x:Name="cht_right" Grid.Row="1" Grid.ColumnSpan="3" ></view:ChartView>
+        <!-- Row 2-->
+        <view:ChartView x:Name="cht_left" Grid.Row="2" Grid.ColumnSpan="3"></view:ChartView>
+        <!-- Row 3-->
+
+        <view:SegWordShowBox x:Name="ssb_wordBox" Grid.Row="3" Grid.ColumnSpan="3" Margin="182,10,47,10"  />
+        <TextBlock  x:Name="tbk_words"  Text="words" HorizontalAlignment="Left" Margin="26,10,0,0" Grid.Row="3" VerticalAlignment="Top" Height="80" Width="138" FontSize="15" TextWrapping="Wrap"/>
+
+
+    </Grid>
+</Window>
