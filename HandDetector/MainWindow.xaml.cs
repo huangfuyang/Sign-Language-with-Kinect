@@ -51,7 +51,7 @@ namespace CURELab.SignLanguage.HandDetector
             RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
             RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
             RegisterThreshold("diff", ref VideoProcessor.DIFF, 10, 7);
-            RegisterThreshold("Culling", ref VideoProcessor.CullingThresh, 10, 5);
+            RegisterThreshold("Culling", ref VideoProcessor.CullingThresh, 10, 8);
 
             ConsoleManager.Show();
             Initialize();
@@ -69,7 +69,7 @@ namespace CURELab.SignLanguage.HandDetector
             this.img_depth.Source = m_VideoProcessor.DepthWriteBitmap;
             this.img_leftFront.Source = m_VideoProcessor.WrtBMP_LeftHandFront;
             this.img_rightFront.Source = m_VideoProcessor.WrtBMP_RightHandFront;
-            string path = @"D:\Kinect data\new";
+            string path = @"F:\Aaron\1-250";
             //m_VideoProcessor.OpenDir(@"D:\Kinect data\newdata\HKG_001_a_0001 Aaron 22");
             
         }
@@ -185,8 +185,12 @@ namespace CURELab.SignLanguage.HandDetector
                 {
                     string fileName = dir.Name;
                     string[] s = fileName.Split();
-                    SignWordModel wordModel = new SignWordModel(s[1], s[2], dir.FullName, fileName);
-                    wordList.Add(wordModel);
+                    if (s.Length >1)
+                    {
+                        SignWordModel wordModel = new SignWordModel(s[0], s[1], dir.FullName, fileName);
+                        wordList.Add(wordModel);
+                    }
+                   
                 }
 
                 Console.WriteLine(wordList.Count() + " words to process");
@@ -204,9 +208,17 @@ namespace CURELab.SignLanguage.HandDetector
             }
             foreach (var wordModel in wordList)
             {
-                Console.WriteLine("Process:"+wordModel.FullName);
-                m_VideoProcessor.OpenDir(wordModel.FullName);
-                m_VideoProcessor.ProcessSample();
+                Console.WriteLine("Process:{0}/{1} {2}",wordList.IndexOf(wordModel),wordList.Count,wordModel.FullName);
+                try
+                {
+                    m_VideoProcessor.OpenDir(wordModel.FullName);
+                    m_VideoProcessor.ProcessSample();
+                }
+                catch (Exception ex)
+                {
+                    continue;
+                }
+               
             }
             //System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
             //timer.Interval = 1000;

@@ -168,7 +168,6 @@ namespace CURELab.SignLanguage.HandDetector
             TotalFrames = (int)_DCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_FRAME_COUNT);
             Console.WriteLine("Total frame:"+TotalFrames.ToString());
             double codec_double = c.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_FOURCC);
-            CurrentFrame = 0;
             // skeleton
             OpenSkeleton(tpath + ".csv");
             // label
@@ -178,6 +177,7 @@ namespace CURELab.SignLanguage.HandDetector
                 labelWriter.Dispose();
             }
             labelWriter = new CsvFileWriter(path+"\\label.csv");
+            SetCurrentFrame(0);
         }
 
 
@@ -256,7 +256,7 @@ namespace CURELab.SignLanguage.HandDetector
                 var img = _DCapture.RetrieveBgrFrame();
                 
                 int framenumber = (int)_DCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_POS_FRAMES);
-                Console.WriteLine("frame:"+framenumber.ToString());
+                //Console.WriteLine("frame:"+framenumber.ToString());
                 CurrentFrame = framenumber - 1;
                 if (img == null)
                 {
@@ -286,6 +286,7 @@ namespace CURELab.SignLanguage.HandDetector
                     PointF hip = sktList[CurrentFrame][MyJointType.HipCenter].PosDepth;
                     // hand is lower than hip
                     //Console.WriteLine(sktList[CurrentFrame][MyJointType.HandR].Pos3D.Y);
+                    //Console.WriteLine(sktList[CurrentFrame][MyJointType.ElbowR].Pos3D.Y);
                     //Console.WriteLine(sktList[CurrentFrame][MyJointType.HipCenter].Pos3D.Y);
                     //Console.WriteLine("-------------");
                     if (sktList[CurrentFrame][MyJointType.HandR].Pos3D.Y <
@@ -294,7 +295,7 @@ namespace CURELab.SignLanguage.HandDetector
                         isSkip = true;
                     }
                     if (sktList[CurrentFrame][MyJointType.HandL].Pos3D.Y >
-                        sktList[CurrentFrame][MyJointType.HipCenter].Pos3D.Y)
+                        -0.02f)
                     {
                         leftHandRaise = true;
                     }
@@ -327,7 +328,7 @@ namespace CURELab.SignLanguage.HandDetector
                 Image<Gray, Byte> leftFront = null;
                 // isskip is invalid coz no hip data
                 isSkip = false;
-                if (!isSkip && cull> 0)
+                if (cull> 0)
                 {
                     handModel = m_opencv.FindHandPart(ref depthImg, out rightFront, out leftFront, handDepth, rightVector, leftVector, leftHandRaise);
                 }
@@ -386,7 +387,6 @@ namespace CURELab.SignLanguage.HandDetector
 
         public void ProcessSample()
         {
-            CurrentFrame = 0;
             while (ProcessFrame())
             {
 

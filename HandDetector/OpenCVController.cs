@@ -173,9 +173,9 @@ namespace CURELab.SignLanguage.HandDetector
                 leftFront = null;
                 return null;
             }
-            Console.WriteLine(begin);
-            Console.WriteLine(end);
-            Console.WriteLine(minLength);
+            //Console.WriteLine(begin);
+            //Console.WriteLine(end);
+            //Console.WriteLine(minLength);
             rightFront = null;
             leftFront = null;
             HandShapeModel model = null;
@@ -259,7 +259,7 @@ namespace CURELab.SignLanguage.HandDetector
                     {
                         text = "right";
                         MCvBox2D SplittedRightHand = SplitHand(rectList[0], HandEnum.Right, rightVector);
-                        Console.WriteLine(SplittedRightHand.size.Height);
+                        //Console.WriteLine(SplittedRightHand.size.Height);
                         rightFront = GetSubImage<Gray>(binaryImg, SplittedRightHand, rectList[0].angle);
                         DrawHand(SplittedRightHand, image, HandEnum.Right);
                         float[] TwoHandHOG = CalHog(rightFront);
@@ -599,8 +599,8 @@ namespace CURELab.SignLanguage.HandDetector
             float factor = Math.Max(Math.Abs(longP.Y - startP.Y) / longDis, Math.Abs(longP.X - startP.X) / longDis);
             int TransformEnd = Convert.ToInt32(factor * end);
             int TransformBegin = Convert.ToInt32(factor * begin);
-            Console.WriteLine(TransformBegin);
-            Console.WriteLine(TransformEnd);
+            //Console.WriteLine(TransformBegin);
+            //Console.WriteLine(TransformEnd);
             // > 45
             if (longslope < 0.707)//vert
             {
