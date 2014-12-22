@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -44,7 +46,11 @@ namespace CURELab.SignLanguage.HandDetector
             HandShapeClassifier.GetSingleton();
         }
 
-
+        private void GetResponseImageCallback(IAsyncResult result)
+        {
+            var handler = (SocketManager.AsyncBitmapCaller)((AsyncResult)result).AsyncDelegate;
+            Console.WriteLine(handler.EndInvoke(result));
+        }
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
@@ -57,8 +63,12 @@ namespace CURELab.SignLanguage.HandDetector
             RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
             RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 40);
             //socket = SocketManager.GetInstance("localhost", 8888);
-            //socket = SocketManager.GetInstance("137.189.89.29", 8080);
-            //var r= socket.GetResponse(new Bitmap("t1.jpg"));
+            socket = SocketManager.GetInstance("137.189.89.29", 8080);
+            //for (int i = 0; i < 500; i++)
+            //{
+            //    Thread.Sleep(33);
+            //    socket.GetResponseAsync(new Bitmap("t1.jpg"), new AsyncCallback(GetResponseImageCallback));
+            //}
             //Console.WriteLine(r);
 
             //  Menu_ONI_Click(this, e);

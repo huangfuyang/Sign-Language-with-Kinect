@@ -57,7 +57,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             if (ns != null)
             {
-                //msg += "#&";
+                msg += "#&";
                 Byte[] data = System.Text.Encoding.ASCII.GetBytes(msg);
                 ns.Write(data, 0, data.Length);
                 // Buffer to store the response bytes.
@@ -91,7 +91,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         public void GetResponseAsync(Bitmap img, AsyncCallback callback)
         {
-            var ac = new AsyncBitmapCaller(GetResponse);
+            var ac = new AsyncBitmapCaller(SendData);
             ac.BeginInvoke(img, callback, "states");
         }
 
@@ -101,7 +101,7 @@ namespace CURELab.SignLanguage.HandDetector
             ac.BeginInvoke(msg, callback, "states");
         }
 
-        public string GetResponse(Bitmap img)
+        public string SendData(Bitmap img)
         {
             if (ns != null)
             {
@@ -112,9 +112,33 @@ namespace CURELab.SignLanguage.HandDetector
                     img.Save(stream, ImageFormat.Jpeg);
                     imageData = stream.ToArray();
                 }
+                StreamWriter sw = new StreamWriter(ns);
                 var lengthData = BitConverter.GetBytes(imageData.Length);
-                //ns.Write(lengthData, 0, lengthData.Length);
+                // ns.Write(lengthData, 0, lengthData.Length);
                 ns.Write(imageData, 0, imageData.Length);
+                sw.Write("SPLIT");
+                sw.Flush();
+            }
+            return "TODO";
+        }
+        public string GetResponse(Bitmap img)
+        {
+            if (ns != null)
+            {
+                //msg += "#&";
+
+                byte[] imageData;
+                using (var stream = new MemoryStream())
+                {
+                    img.Save(stream, ImageFormat.Jpeg);
+                    imageData = stream.ToArray();
+                }
+                StreamWriter sw = new StreamWriter(ns);
+                var lengthData = BitConverter.GetBytes(imageData.Length);
+                // ns.Write(lengthData, 0, lengthData.Length);
+                ns.Write(imageData, 0, imageData.Length);
+                sw.Write("SPLIT");
+                sw.Flush();
                 // Buffer to store the response bytes.
                 if (ns.CanRead)
                 {

@@ -295,6 +295,8 @@ namespace CURELab.SignLanguage.HandDetector
                         {
                             leftHandRaise = true;
                         }
+
+                        //Console.WriteLine(skeleton.Joints[JointType.HandRight].Position.Y);
                        
                         rightVector.X = (hr.X - er.X);
                         rightVector.Y = (hr.Y - er.Y);
@@ -329,8 +331,9 @@ namespace CURELab.SignLanguage.HandDetector
                     if (rightFront != null)
                     {
                         Bitmap right = rightFront.ToBitmap();
-                        //socket = SocketManager.GetInstance();
-                        //socket.GetResponseAsync(right, new AsyncCallback(GetResponseImageCallback));
+
+                        socket = SocketManager.GetInstance();
+                        socket.GetResponseAsync(right, new AsyncCallback(GetResponseImageCallback));
                         //right.Save(currentPath +"\\"+ frame.ToString() + ".jpg");
                         //right.Save(path + '\\' + frame.ToString() + ".jpg");
                         frame++;
