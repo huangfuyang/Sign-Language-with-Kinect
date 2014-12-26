@@ -1,7 +1,7 @@
 import sys
 from os.path import join,dirname,realpath
 
-from bspline_displayer import BSplineDisplayer
+from bspline_presenter import BSplinePresenter
 
 from csv_reader import CSVReader
 from hand_selector import HandSelector
@@ -16,11 +16,11 @@ right_hand = True
 smoothing = 0.05
 sampling_rate = 100
 
-bspline_displayer = BSplineDisplayer()
+bspline_presenter = BSplinePresenter()
 
 csv_reader = CSVReader(ROOT_DIRECTORY)
 hand_selector = HandSelector(left_hand, right_hand)
-bspline_preprocessor = BSplinePreprocessor(smoothing, sampling_rate, [bspline_displayer])
+bspline_preprocessor = BSplinePreprocessor(smoothing, sampling_rate, [bspline_presenter])
 dtw_processor = DTWProcessor(2)
 task_runner = TaskRunner(csv_reader, [hand_selector, bspline_preprocessor], dtw_processor)
 

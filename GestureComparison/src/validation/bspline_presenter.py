@@ -1,6 +1,6 @@
 from mayavi import mlab
 
-class BSplineDisplayer(object):
+class BSplinePresenter(object):
 
     colormaps = ['Blues', 'Oranges', 'Greens']
     currentColorIndex = 0
