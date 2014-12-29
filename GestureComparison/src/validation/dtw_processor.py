@@ -11,7 +11,7 @@ class DTWProcessor(object):
 
     def process(self, preprocessed_data):
         dist, cost, path = dtw(preprocessed_data[0]['spline'], preprocessed_data[1]['spline'], dist=self.cost_3d)
-        processed_data = {'dist': dist, 'cost': cost, 'path': path}
+        processed_data = {'input': preprocessed_data, 'output': {'dist': dist, 'cost': cost, 'path': path}}
 
         for i in xrange(0, len(self.presenters)):
             self.presenters[i].display(processed_data)
