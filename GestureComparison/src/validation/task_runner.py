@@ -21,7 +21,7 @@ class TaskRunner(object):
         try:
             filtered_data = data
             for preprocessor in self.preprocessors:
-                filtered_data = preprocessor.preprocess(filtered_data)
+                filtered_data = preprocessor.doProcess(filtered_data)
 
             self.preprocessed_data.append(filtered_data)
         except AttributeError:
@@ -30,7 +30,7 @@ class TaskRunner(object):
 
     def process(self):
         try:
-            self.processor.process(self.preprocessed_data)
+            self.processor.doProcess(self.preprocessed_data)
         except AttributeError:
             print 'Error: No processor is defined'
             return

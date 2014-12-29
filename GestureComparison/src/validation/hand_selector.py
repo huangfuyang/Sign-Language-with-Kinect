@@ -1,11 +1,13 @@
 import numpy as np
+from abstract_classes import AbstractProcessor
 
-class HandSelector(object):
-    def __init__(self, select_left, select_right):
+class HandSelector(AbstractProcessor):
+    def __init__(self, name, select_left, select_right):
+        super(HandSelector, self).__init__(name, None)
         self.select_left = select_left
         self.select_right = select_right
 
-    def preprocess(self, data):
+    def process(self, data):
         if self.select_left and self.select_right:
             return np.concatenate((data[:,56:59], data[:,63:66]))
         elif self.select_left:

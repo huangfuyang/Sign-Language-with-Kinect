@@ -1,9 +1,13 @@
 from mayavi import mlab
+from abstract_classes import AbstractPresenter
 
-class BSplinePresenter(object):
+class BSplinePresenter(AbstractPresenter):
 
     colormaps = ['Blues', 'Oranges', 'Greens']
     currentColorIndex = 0
+
+    def __init__(self, name):
+        super(BSplinePresenter, self).__init__(name)
 
     def display(self, data):
         figBSpline = mlab.figure('Original BSpline')

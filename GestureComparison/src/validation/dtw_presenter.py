@@ -1,8 +1,12 @@
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from mayavi import mlab
+from abstract_classes import AbstractPresenter
 
-class DTWPresenter(object):
+class DTWPresenter(AbstractPresenter):
+
+    def __init__(self, name):
+        super(DTWPresenter, self).__init__(name)
 
     def display(self, data):
         input_data = data['input']
