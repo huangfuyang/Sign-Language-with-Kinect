@@ -3,10 +3,10 @@ import scipy.interpolate as si
 
 class BSplinePreprocessor(object):
 
-    def __init__(self, smoothing, sampling_rate, displayers):
+    def __init__(self, smoothing, sampling_rate, presenters):
         self.smoothing = smoothing
         self.sampling_rate = sampling_rate
-        self.displayers = displayers
+        self.presenters = presenters
 
     def preprocess(self, data):
         (tck, uu) = si.splprep(data.transpose(), s=self.smoothing)
@@ -15,7 +15,7 @@ class BSplinePreprocessor(object):
 
         preprocessed_data = {'spline': spline, 'tck': tck, 'uu': uu}
 
-        for i in xrange(0, len(self.displayers)):
-            self.displayers[i].display(preprocessed_data)
+        for i in xrange(0, len(self.presenters)):
+            self.presenters[i].display(preprocessed_data)
 
         return preprocessed_data
