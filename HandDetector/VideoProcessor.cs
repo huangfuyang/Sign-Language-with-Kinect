@@ -43,7 +43,7 @@ namespace CURELab.SignLanguage.HandDetector
         // michael
         public const float MichaelRotateTan = 0.23f;
         // Aaron
-        public const float AaronRotateTan = 0.28f;
+        public const float AaronRotateTan = 0.33f;
 
         private const int handShapeWidth = 60;
         private const int handShapeHeight = 60;
