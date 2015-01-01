@@ -182,3 +182,4 @@ HandShapeDetector/data
 HandShapeDetector/result
 HandShapeDetector/config
 *.pyc
+GestureComparison/res/*
