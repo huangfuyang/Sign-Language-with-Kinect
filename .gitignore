@@ -182,6 +182,7 @@ HandShapeDetector/data
 HandShapeDetector/result
 HandShapeDetector/.idea/scopes/scope_settings.xml
 HandShapeDetector/.idea/workspace.xml
+GestureComparison/res/*
 *.zip
 *.rar
 *.cfg
