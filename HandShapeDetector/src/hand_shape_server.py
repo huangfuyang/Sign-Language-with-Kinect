@@ -19,7 +19,7 @@ class HandShapeServer(object):
         # For debug
         sleep_time = random.randint(1, 10)
         plt.subplot(1,2,1), plt.imshow(decoded_data['depth_image'])
-        plt.subplot(1,2,2), plt.imshow(decoded_data['color_image'])
+        # plt.subplot(1,2,2), plt.imshow(decoded_data['color_image'])
         plt.show()
         arrive_time = time.strftime("%H:%M:%S")
         time.sleep(sleep_time)

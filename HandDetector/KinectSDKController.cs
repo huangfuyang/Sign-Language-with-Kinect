@@ -67,7 +67,7 @@ namespace CURELab.SignLanguage.HandDetector
         // michael
         public const float MichaelRotateTan = 0.23f;
         // Aaron
-        public const float AaronRotateTan = 0.28f;
+        public const float AaronRotateTan = 0.32f;
 
         const int handShapeWidth = 60;
         const int handShapeHeight = 60;
@@ -333,7 +333,8 @@ namespace CURELab.SignLanguage.HandDetector
                         Bitmap right = rightFront.ToBitmap();
 
                         socket = SocketManager.GetInstance();
-                        socket.GetResponseAsync(right, new AsyncCallback(GetResponseImageCallback));
+                        socket.SendData(right,skeleton);
+                        //socket.GetResponseAsync(right, new AsyncCallback(GetResponseImageCallback));
                         //right.Save(currentPath +"\\"+ frame.ToString() + ".jpg");
                         //right.Save(path + '\\' + frame.ToString() + ".jpg");
                         frame++;

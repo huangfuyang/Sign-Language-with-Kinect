@@ -86,10 +86,10 @@ namespace CURELab.SignLanguage.HandDetector
         private string GetFrameDataArgString(Skeleton skeleton)
         {
             string s = String.Empty;
-            JointType[] jointTypes = new JointType[] { JointType.Head, JointType.ShoulderCenter, 
-                JointType.ShoulderLeft, JointType.ShoulderRight, JointType.Spine, JointType.HipCenter,
-                JointType.HipLeft, JointType.HipRight, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft,
-                JointType.ElbowRight, JointType.WristRight, JointType.HandRight };
+            JointType[] jointTypes = new JointType[] { JointType.Head, JointType.ShoulderLeft,JointType.ShoulderCenter, 
+                JointType.ShoulderRight, JointType.ElbowLeft, JointType.ElbowRight, JointType.WristLeft,  JointType.WristRight, 
+                JointType.HandLeft,JointType.HandRight,JointType.Spine,  JointType.HipLeft,JointType.HipCenter,
+               JointType.HipRight };
 
             //Joints X, Y
             for (int i = 0; i < jointTypes.Length; i++)

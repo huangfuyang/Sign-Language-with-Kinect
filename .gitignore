@@ -182,3 +182,7 @@ HandShapeDetector/data
 HandShapeDetector/result
 HandShapeDetector/config
 *.pyc
+*.zip
+*.xml
+*.json
+*.rar

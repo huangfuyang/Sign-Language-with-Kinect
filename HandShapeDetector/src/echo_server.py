@@ -36,7 +36,7 @@ class EchoHandler(asynchat.async_chat):
         self.received_data_callback = received_data_callback
         self.logger = logging.getLogger('EchoHandler')
         asynchat.async_chat.__init__(self, sock)
-        self.set_terminator('\n')
+        self.set_terminator('#TERMINATOR#')
 
     def collect_incoming_data(self, data):
         #self.logger.debug('collect_incoming_data() -> (%d bytes)\n"""%s"""', len(data), data)

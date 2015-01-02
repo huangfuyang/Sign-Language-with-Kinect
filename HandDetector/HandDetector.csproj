@@ -88,6 +88,10 @@
       <HintPath>..\..\..\..\Emgu\emgucv-windows-universal-cuda 2.9.0.1922\bin\Emgu.Util.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Kinect, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\x64\Debug\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data">
       <Private>False</Private>
@@ -122,6 +126,7 @@
     </ApplicationDefinition>
     <Compile Include="Colorizer.cs" />
     <Compile Include="DBManager.cs" />
+    <Compile Include="FrameConverter.cs" />
     <Compile Include="HandShapeClassifier.cs" />
     <Compile Include="HandShapeModel.cs" />
     <Compile Include="KalmanFilter.cs" />

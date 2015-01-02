@@ -8,8 +8,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Microsoft.Kinect;
 
 namespace CURELab.SignLanguage.HandDetector
 {
@@ -18,7 +20,8 @@ namespace CURELab.SignLanguage.HandDetector
         private static SocketManager Instance;
         private TcpClient client;
         private NetworkStream ns;
-        private string[] SPLIT = { "#&" };
+        private StreamWriter sw;
+        private string SPLIT = "#TERMINATOR#";
         public static SocketManager GetInstance(string addr, int port)
         {
             if (Instance == null)
@@ -49,6 +52,7 @@ namespace CURELab.SignLanguage.HandDetector
             {   
                 Console.WriteLine("connected");
                 ns = client.GetStream();
+                sw = new StreamWriter(ns);
             }
         
         }
@@ -91,8 +95,8 @@ namespace CURELab.SignLanguage.HandDetector
 
         public void GetResponseAsync(Bitmap img, AsyncCallback callback)
         {
-            var ac = new AsyncBitmapCaller(SendData);
-            ac.BeginInvoke(img, callback, "states");
+            //var ac = new AsyncBitmapCaller(SendData);
+            //ac.BeginInvoke(img, callback, "states");
         }
 
         public void GetResponseAsync(String msg, AsyncCallback callback)
@@ -101,22 +105,13 @@ namespace CURELab.SignLanguage.HandDetector
             ac.BeginInvoke(msg, callback, "states");
         }
 
-        public string SendData(Bitmap img)
+        public string SendData(Bitmap img,Skeleton skeleton)
         {
-            if (ns != null)
+            if (sw != null)
             {
-                //msg += "#&";
-                byte[] imageData;
-                using (var stream = new MemoryStream())
-                {
-                    img.Save(stream, ImageFormat.Jpeg);
-                    imageData = stream.ToArray();
-                }
-                StreamWriter sw = new StreamWriter(ns);
-                var lengthData = BitConverter.GetBytes(imageData.Length);
-                // ns.Write(lengthData, 0, lengthData.Length);
-                ns.Write(imageData, 0, imageData.Length);
-                sw.Write("SPLIT");
+                var data = FrameConverter.Encode(img, skeleton);
+                sw.Write(data);
+                sw.Write(SPLIT);
                 sw.Flush();
             }
             return "TODO";
