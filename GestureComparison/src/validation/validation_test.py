@@ -26,7 +26,7 @@ bspline_preprocessor = BSplinePreprocessor("B-Spline Preprocessor", smoothing, s
 dtw_processor = DTWProcessor("DTW Processor", 2, [dtw_presenter])
 task_runner = TaskRunner(csv_reader, [hand_selector, bspline_preprocessor], dtw_processor)
 
-input_files = ['res/HKG_001_a_0001 Aaron 11/HKG_001_a_0001 Aaron 11.csv', 'res/HKG_001_a_0001 Aaron 22/HKG_001_a_0001 Aaron 22.csv']
+input_files = ['res/HKG_001_a_0002 Aaron 41/HKG_001_a_0002 Aaron 41.csv', 'res/HKG_001_a_0001 Aaron 22/HKG_001_a_0001 Aaron 22.csv']
 for input_file in input_files:
     csv_reader.set_file(input_file)
     task_runner.add_data()
