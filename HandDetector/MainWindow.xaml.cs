@@ -51,14 +51,11 @@ namespace CURELab.SignLanguage.HandDetector
             RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
             RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
             RegisterThreshold("diff", ref VideoProcessor.DIFF, 10, 7);
-            RegisterThreshold("Culling", ref VideoProcessor.CullingThresh, 10, 6);
+            RegisterThreshold("Culling", ref VideoProcessor.CullingThresh, 10, 8);
 
             ConsoleManager.Show();
             Initialize();
 
-            //  Menu_ONI_Click(this, e);
-            //Menu_Kinect_Click(this, e);
-            //MenuItem_Test_Click(this, e);
         }
 
 
@@ -72,20 +69,9 @@ namespace CURELab.SignLanguage.HandDetector
             this.img_depth.Source = m_VideoProcessor.DepthWriteBitmap;
             this.img_leftFront.Source = m_VideoProcessor.WrtBMP_LeftHandFront;
             this.img_rightFront.Source = m_VideoProcessor.WrtBMP_RightHandFront;
-            string path = @"D:\Kinect data\new";
-            m_VideoProcessor.OpenDir(@"D:\Kinect data\new\52 HKG_002_a_0016 Aaron 1");
-            //MenuItem_Open_Click(this,new RoutedEventArgs());
-            //wordList = new List<SignWordModel>();
-            //var folder = new DirectoryInfo(path);
-            //foreach (var dir in folder.GetDirectories())
-            //{
-            //    string fileName = dir.Name;
-            //    string[] s = fileName.Split();
-            //    SignWordModel wordModel = new SignWordModel(s[1], s[2], dir.FullName, fileName);
-            //    wordList.Add(wordModel);
-            //}
-
-            //Console.WriteLine(wordList.Count() + " words to process");
+            string path = @"F:\Aaron\1-250";
+            //m_VideoProcessor.OpenDir(@"D:\Kinect data\newdata\HKG_001_a_0001 Aaron 22");
+            
         }
 
         private unsafe void RegisterThreshold(string valuename, ref double thresh, double max, double initialValue)
@@ -131,79 +117,7 @@ namespace CURELab.SignLanguage.HandDetector
             Environment.Exit(0);
         }
 
-        private void Menu_OpenNI_Click(object sender, RoutedEventArgs e)
-        {
-            ResetAll();
-            m_KinectController = OpenNIController.GetSingletonInstance();
-            statusBar.DataContext = m_KinectController;
-            m_KinectController.Initialize();
-            this.img_color.Source = m_KinectController.ColorWriteBitmap;
-            this.img_depth.Source = m_KinectController.ProcessedDepthBitmap;
-            m_KinectController.Start();
-        }
-
-        private void Menu_ONI_Click(object sender, RoutedEventArgs e)
-        {
-            ResetAll();
-            Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog();
-            ofd.DefaultExt = ".oni";
-            ofd.Filter = "oni file|*.oni";
-            if (ofd.ShowDialog() == true)
-            {
-                m_KinectController = OpenNIController.GetSingletonInstance();
-                statusBar.DataContext = m_KinectController;
-                m_KinectController.Initialize(ofd.FileName);
-                this.img_color.Source = m_KinectController.ColorWriteBitmap;
-                this.img_depth.Source = m_KinectController.ProcessedDepthBitmap;
-                this.img_leftFront.Source = m_KinectController.GrayWriteBitmap;
-                m_KinectController.Start();
-            }
-
-        }
-
-        private void Menu_Kinect_Click(object sender, RoutedEventArgs e)
-        {
-            ResetAll();
-            m_KinectController = KinectSDKController.GetSingletonInstance();
-            statusBar.DataContext = m_KinectController;
-            m_KinectController.Initialize();
-            this.img_color.Source = m_KinectController.ColorWriteBitmap;
-            this.img_depth.Source = m_KinectController.DepthWriteBitmap;
-            this.img_leftFront.Source = m_KinectController.WrtBMP_LeftHandFront;
-            this.img_rightFront.Source = m_KinectController.WrtBMP_RightHandFront;
-            this.img_candidate3.Source = m_KinectController.WrtBMP_Candidate3;
-            this.img_candidate2.Source = m_KinectController.WrtBMP_Candidate2;
-            this.img_candidate1.Source = m_KinectController.WrtBMP_Candidate1;
-
-            m_KinectController.Start();
-        }
-
-
-        private void Menu_Gesture_Click(object sender, RoutedEventArgs e)
-        {
-            ResetAll();
-            m_KinectController = KinectSDKController.GetSingletonInstance();
-            statusBar.DataContext = m_KinectController;
-            m_KinectController.Initialize();
-            this.img_color.Source = m_KinectController.ColorWriteBitmap;
-            this.img_depth.Source = m_KinectController.DepthWriteBitmap;
-            this.img_leftFront.Source = m_KinectController.WrtBMP_LeftHandFront;
-            this.img_rightFront.Source = m_KinectController.WrtBMP_RightHandFront;
-            this.img_candidate2.Source = m_KinectController.WrtBMP_Candidate2;
-            this.img_candidate1.Source = m_KinectController.WrtBMP_Candidate1;
-            m_KinectController.Start();
-        }
-
-        private void ResetAll()
-        {
-            if (m_KinectController != null)
-            {
-                m_KinectController.Shutdown();
-                m_KinectController.Reset();
-                m_KinectController = null;
-                GC.Collect();
-            }
-        }
+        
 
         private void Window_KeyDown_1(object sender, System.Windows.Input.KeyEventArgs e)
         {
@@ -254,7 +168,7 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
         private List<SignWordModel> wordList;
-        private void MenuItem_Open_Click(object sender, RoutedEventArgs e)
+        private void MenuItem_OpenFolder_Click(object sender, RoutedEventArgs e)
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             dialog.RootFolder = Environment.SpecialFolder.MyComputer;
@@ -271,8 +185,12 @@ namespace CURELab.SignLanguage.HandDetector
                 {
                     string fileName = dir.Name;
                     string[] s = fileName.Split();
-                    SignWordModel wordModel = new SignWordModel(s[1], s[2], dir.FullName, fileName);
-                    wordList.Add(wordModel);
+                    if (s.Length >1)
+                    {
+                        SignWordModel wordModel = new SignWordModel(s[0], s[1], dir.FullName, fileName);
+                        wordList.Add(wordModel);
+                    }
+                   
                 }
 
                 Console.WriteLine(wordList.Count() + " words to process");
@@ -290,8 +208,17 @@ namespace CURELab.SignLanguage.HandDetector
             }
             foreach (var wordModel in wordList)
             {
-                m_VideoProcessor.OpenDir(wordModel.FullName);
-                m_VideoProcessor.ProcessSample();
+                Console.WriteLine("Process:{0}/{1} {2}",wordList.IndexOf(wordModel),wordList.Count,wordModel.FullName);
+                try
+                {
+                    m_VideoProcessor.OpenDir(wordModel.FullName);
+                    m_VideoProcessor.ProcessSample();
+                }
+                catch (Exception ex)
+                {
+                    continue;
+                }
+               
             }
             //System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
             //timer.Interval = 1000;
@@ -333,57 +260,6 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
 
-        void timer_Tick(object sender, EventArgs e)
-        {
-            //end
-            if (signIndex >= wordList.Count())
-            {
-                Console.WriteLine("finish");
-                ((System.Windows.Forms.Timer)sender).Stop();
-            }
-            if (!m_DBmanager.Begin)
-            {
-                //begin
-                m_KinectController.Reset();
-                m_OpenCVController.Reset();
-                Console.WriteLine("[{0}/{1} {2:P}] \nloading:{3}",
-                    signIndex, wordList.Count(),
-                    (float)signIndex / wordList.Count(),
-                    wordList[signIndex].File);
-                if (wordList[signIndex].Signer == "Aaron")
-                {
-                    KinectSDKController.AngleRotateTan = KinectSDKController.AaronRotateTan;
-                }
-                else if (wordList[signIndex].Signer == "Anita")
-                {
-                    KinectSDKController.AngleRotateTan = KinectSDKController.AnitaRotateTan;
-                }
-                else
-                {
-                    KinectSDKController.AngleRotateTan = KinectSDKController.MichaelRotateTan;
-                }
-                // Console.WriteLine("current threshold:"+KinectSDKController.AngleRotateTan);
-                m_DBmanager.BeginTrans();
-                m_DBmanager.AddWordSample(wordList[signIndex]);
-                m_kinectStudioController.Open_File(wordList[signIndex].FullName);
-                m_kinectStudioController.Run();
-                m_DBmanager.Begin = true;
-                signIndex++;
-            }
-            else
-            {
-                //running
-                Console.WriteLine("waiting");
-            }
-        }
-
-        
-
-        private void Menu_Video_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void sld_progress_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (m_VideoProcessor != null)
@@ -392,6 +268,20 @@ namespace CURELab.SignLanguage.HandDetector
                 {
                     m_VideoProcessor.SetCurrentFrame((int)e.NewValue);
                 }
+            }
+        }
+
+        private void MenuItem_OpenFile_Click(object sender, RoutedEventArgs e)
+        {
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.RootFolder = Environment.SpecialFolder.MyComputer;
+            dialog.SelectedPath = @"F:\Aaron\";
+            DialogResult result = dialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                string folderName = dialog.SelectedPath;
+                Console.WriteLine(folderName);
+                m_VideoProcessor.OpenDir(folderName);
             }
         }
     }

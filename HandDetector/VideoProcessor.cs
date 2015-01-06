@@ -43,7 +43,7 @@ namespace CURELab.SignLanguage.HandDetector
         // michael
         public const float MichaelRotateTan = 0.23f;
         // Aaron
-        public const float AaronRotateTan = 0.28f;
+        public const float AaronRotateTan = 0.33f;
 
         private const int handShapeWidth = 60;
         private const int handShapeHeight = 60;
@@ -149,14 +149,15 @@ namespace CURELab.SignLanguage.HandDetector
         public void OpenDir(string path)
         {
             // color stream
-            var c = new Capture(path + "\\c.avi");
+            string tpath = path+"\\" + path.Split('\\').Last();
+            var c = new Capture(tpath + "_c.avi");
             if (_CCapture != null)
             {
                 _CCapture.Dispose();//dispose of current capture
             }
             _CCapture = c;
             // depth stream
-            c = new Capture(path + "\\d.avi");
+            c = new Capture(tpath + "_d.avi");
             if (_DCapture != null)
             {
                 _DCapture.Dispose();//dispose of current capture
@@ -165,9 +166,10 @@ namespace CURELab.SignLanguage.HandDetector
 
             FrameRate = _DCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_FPS);
             TotalFrames = (int)_DCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_FRAME_COUNT);
+            Console.WriteLine("Total frame:"+TotalFrames.ToString());
             double codec_double = c.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_FOURCC);
             // skeleton
-            OpenSkeleton(path +"\\skeleton.csv");
+            OpenSkeleton(tpath + ".csv");
             // label
             if (labelWriter != null)
             {
@@ -175,6 +177,7 @@ namespace CURELab.SignLanguage.HandDetector
                 labelWriter.Dispose();
             }
             labelWriter = new CsvFileWriter(path+"\\label.csv");
+            SetCurrentFrame(0);
         }
 
 
@@ -189,36 +192,38 @@ namespace CURELab.SignLanguage.HandDetector
                 while (reader.ReadRow(row))
                 {
                     var skt = new MySkeleton(14);
-                    if (row[0].ToLower() == "untracked")
+                    if (row[0].ToLower().Trim().Equals("untracked"))
                     {
                         skt.Tracked = false;
-                        continue;;
                     }
-                    int step = 7;
-                    // one joint
-                    for (int i = 0; i < row.Count; i += step)
+                    else
                     {
-                        var type = i / step;
-                        var joint = new MyJoint()
+                        int step = 7;
+                        // one joint
+                        for (int i = 0; i < row.Count; i += step)
                         {
-                            Pos3D = new SkeletonPoint()
+                            var type = i / step;
+                            var joint = new MyJoint()
                             {
-                                X = Convert.ToSingle(row[i]),
-                                Y = Convert.ToSingle(row[i + 1]),
-                                Z = Convert.ToSingle(row[i + 2])
-                            },
-                            PosDepth = new System.Drawing.Point()
-                            {
-                                X = (int)Convert.ToSingle(row[i + 3]),
-                                Y = (int)Convert.ToSingle(row[i + 4])
-                            },
-                            PosColor = new System.Drawing.Point()
-                            {
-                                X = (int)Convert.ToSingle(row[i + 5]),
-                                Y = (int)Convert.ToSingle(row[i + 6])
-                            }
-                        };
-                        skt[type] = joint;
+                                Pos3D = new SkeletonPoint()
+                                {
+                                    X = Convert.ToSingle(row[i]),
+                                    Y = Convert.ToSingle(row[i + 1]),
+                                    Z = Convert.ToSingle(row[i + 2])
+                                },
+                                PosColor = new System.Drawing.Point()
+                                {
+                                    X = (int)Convert.ToSingle(row[i + 3]),
+                                    Y = (int)Convert.ToSingle(row[i + 4])
+                                },
+                                PosDepth = new System.Drawing.Point()
+                                {
+                                    X = (int)Convert.ToSingle(row[i + 5]),
+                                    Y = (int)Convert.ToSingle(row[i + 6])
+                                }
+                            };
+                            skt[type] = joint;
+                        }
                     }
                     sktList.Add(skt);
                 }
@@ -251,7 +256,7 @@ namespace CURELab.SignLanguage.HandDetector
                 var img = _DCapture.RetrieveBgrFrame();
                 
                 int framenumber = (int)_DCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_POS_FRAMES);
-                Console.WriteLine("framenumber"+framenumber.ToString());
+                //Console.WriteLine("frame:"+framenumber.ToString());
                 CurrentFrame = framenumber - 1;
                 if (img == null)
                 {
@@ -259,7 +264,6 @@ namespace CURELab.SignLanguage.HandDetector
                 }
                 //Show time stamp
                 double time_index = _DCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_POS_MSEC);
-                //UpdateTextBox("Frame: " + framenumber.ToString(), Frame_lbl);
 
                 PointF rightVector = new PointF(-10, -10);
                 PointF leftVector = new PointF(10, -10);
@@ -268,20 +272,22 @@ namespace CURELab.SignLanguage.HandDetector
                 if (CurrentFrame >= sktList.Count || !sktList[CurrentFrame].Tracked)
                 {
                     // no skeleton detected
-                    headDepth = (int)img[85, 315].Blue;
+                    headDepth = 0;
                 }
                 else
                 {
                     headPosition = sktList[CurrentFrame][MyJointType.Head].PosDepth;
-                    headDepth = (int)img[headPosition.Y, headPosition.X].Blue;
+                    headDepth = Math.Min((int)img[headPosition.Y, headPosition.X].Green,(int)img[headPosition.Y, headPosition.X].Red);
+                    headDepth = Math.Min(headDepth, (int) img[headPosition.Y, headPosition.X].Blue);
                     PointF hr = sktList[CurrentFrame][MyJointType.HandR].PosDepth;
                     PointF hl = sktList[CurrentFrame][MyJointType.HandL].PosDepth;
                     PointF er = sktList[CurrentFrame][MyJointType.ElbowR].PosDepth;
                     PointF el = sktList[CurrentFrame][MyJointType.ElbowL].PosDepth;
                     PointF hip = sktList[CurrentFrame][MyJointType.HipCenter].PosDepth;
                     // hand is lower than hip
-                    //Console.WriteLine(skeletons[0].Joints[JointType.HandRight].Position.Y);
-                    //Console.WriteLine(skeletons[0].Joints[JointType.HipCenter].Position.Y);
+                    //Console.WriteLine(sktList[CurrentFrame][MyJointType.HandR].Pos3D.Y);
+                    //Console.WriteLine(sktList[CurrentFrame][MyJointType.ElbowR].Pos3D.Y);
+                    //Console.WriteLine(sktList[CurrentFrame][MyJointType.HipCenter].Pos3D.Y);
                     //Console.WriteLine("-------------");
                     if (sktList[CurrentFrame][MyJointType.HandR].Pos3D.Y <
                         sktList[CurrentFrame][MyJointType.HipCenter].Pos3D.Y + 0.05)
@@ -289,7 +295,7 @@ namespace CURELab.SignLanguage.HandDetector
                         isSkip = true;
                     }
                     if (sktList[CurrentFrame][MyJointType.HandL].Pos3D.Y >
-                        sktList[CurrentFrame][MyJointType.HipCenter].Pos3D.Y)
+                        -0.02f)
                     {
                         leftHandRaise = true;
                     }
@@ -303,24 +309,26 @@ namespace CURELab.SignLanguage.HandDetector
 
                 #region temp
 
-                isSkip = false;
-                leftHandRaise = false;
-                rightVector = new PointF(-10, -10);
-                leftVector = new PointF(10, -10);
-                headDepth = (int)img[85, 315].Blue;
+                //isSkip = false;
+                //leftHandRaise = false;
+                //rightVector = new PointF(-10, -10);
+                //leftVector = new PointF(10, -10);
+                //headDepth = (int)img[85, 315].Blue;
                 #endregion
-                Console.WriteLine(headDepth);
+               // Console.WriteLine("headdepth："+headDepth.ToString());
 
                 //***********cull image*****************
                 double cull = headDepth - CullingThresh;
                 var depthImg = img.ThresholdToZeroInv(new Bgr(cull, cull, cull));
                 //Image<Gray, Byte> depthImg = img.Convert<Gray, byte>().ThresholdBinary(new Gray(160), new Gray(255));
                 var sw = Stopwatch.StartNew();
-                int handDepth = (int)(3200.0 / 255 * headDepth + 800);
+                int handDepth = (int)(2600.0 / 255 * cull + 400);
                 HandShapeModel handModel = null;
                 Image<Gray, Byte> rightFront = null;
                 Image<Gray, Byte> leftFront = null;
-                if (!isSkip)
+                // isskip is invalid coz no hip data
+                isSkip = false;
+                if (cull> 0)
                 {
                     handModel = m_opencv.FindHandPart(ref depthImg, out rightFront, out leftFront, handDepth, rightVector, leftVector, leftHandRaise);
                 }
@@ -384,8 +392,9 @@ namespace CURELab.SignLanguage.HandDetector
 
             }
             _CCapture.Dispose();
-            _DCapture.Dispose();    
+            _DCapture.Dispose(); 
             labelWriter.Close();
+            labelWriter.Dispose();
         }
 
         public void SetCurrentFrame(int index)

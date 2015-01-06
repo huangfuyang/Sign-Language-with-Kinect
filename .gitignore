@@ -180,6 +180,12 @@ Thumbs.db
 
 HandShapeDetector/data
 HandShapeDetector/result
-HandShapeDetector/config
-*.pyc
+HandShapeDetector/.idea/scopes/scope_settings.xml
+HandShapeDetector/.idea/workspace.xml
 GestureComparison/res/*
+*.zip
+*.rar
+*.cfg
+*.json
+*.xml
+*.pyc

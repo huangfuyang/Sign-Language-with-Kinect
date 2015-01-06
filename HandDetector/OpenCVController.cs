@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Configuration;
 using System.Text;
 
 using Emgu.Util;
@@ -163,7 +164,7 @@ namespace CURELab.SignLanguage.HandDetector
             if (handDepth > 0)
             {
                 begin = (int)(100.0 * 240.0 / handDepth / 0.39);
-                end = (int)(200 * 240.0 / handDepth / 0.39);
+                end = (int)(220 * 240.0 / handDepth / 0.39);
                 minLength = (int)(150 * 240.0 / handDepth / 0.39);
             }
             else
@@ -172,7 +173,6 @@ namespace CURELab.SignLanguage.HandDetector
                 leftFront = null;
                 return null;
             }
-
             //Console.WriteLine(begin);
             //Console.WriteLine(end);
             //Console.WriteLine(minLength);
@@ -241,19 +241,25 @@ namespace CURELab.SignLanguage.HandDetector
                     {
 
                         text = "Two hands";
-                        var rec = FindContourRect(binaryImg)[0];
-                        rightFront = GetSubImageByRect<Gray>(binaryImg, rec);
-                        MCvBox2D box = rec.ToCvBox2D();
-                        DrawHand(box, image, HandEnum.Intersect);
-                        float[] TwoHandHOG = CalHog(rightFront);
-                        model = new HandShapeModel(hogSize, HandEnum.Intersect);
-                        model.hogRight = TwoHandHOG;
-                        model.handPosRight = box;
+                        var recs = FindContourRect(binaryImg);
+                        if (recs.Count > 0)
+                        {
+                            var rec = recs[0];
+                            rightFront = GetSubImageByRect<Gray>(binaryImg, rec);
+                            MCvBox2D box = rec.ToCvBox2D();
+                            DrawHand(box, image, HandEnum.Intersect);
+                            float[] TwoHandHOG = CalHog(rightFront);
+                            model = new HandShapeModel(hogSize, HandEnum.Intersect);
+                            model.hogRight = TwoHandHOG;
+                            model.handPosRight = box;
+                        }
+                            
                     }
                     else
                     {
                         text = "right";
                         MCvBox2D SplittedRightHand = SplitHand(rectList[0], HandEnum.Right, rightVector);
+                        //Console.WriteLine(SplittedRightHand.size.Height);
                         rightFront = GetSubImage<Gray>(binaryImg, SplittedRightHand, rectList[0].angle);
                         DrawHand(SplittedRightHand, image, HandEnum.Right);
                         float[] TwoHandHOG = CalHog(rightFront);
@@ -593,7 +599,8 @@ namespace CURELab.SignLanguage.HandDetector
             float factor = Math.Max(Math.Abs(longP.Y - startP.Y) / longDis, Math.Abs(longP.X - startP.X) / longDis);
             int TransformEnd = Convert.ToInt32(factor * end);
             int TransformBegin = Convert.ToInt32(factor * begin);
-          
+            //Console.WriteLine(TransformBegin);
+            //Console.WriteLine(TransformEnd);
             // > 45
             if (longslope < 0.707)//vert
             {
@@ -759,7 +766,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             try
             {
-                if (grayImg[p.ToPoint()].Intensity < 200)
+                if (grayImg[p.ToPoint()].Intensity > 20)
                 {
                     return true;
                 }
