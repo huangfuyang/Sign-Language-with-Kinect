@@ -42,19 +42,38 @@ namespace CURELab.SignLanguage.HandDetector
             return jsonData;
         }
 
+        public static string Encode(String label)
+        {
+            var frame = new FrameData()
+            {
+                depth = null,
+                color = null,
+                skeleton = null,
+                label = label
+            };
+            var jsonData = JsonConvert.SerializeObject(frame, Formatting.Indented);
+            return jsonData;
+        }
+
         private static string GetFrameDataArgString(Skeleton skeleton)
         {
             if (skeleton == null)
             {
-                return "";
+                return "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
+            }
+            if (skeleton.TrackingState != SkeletonTrackingState.Tracked)
+            {
+                return "untracked";
             }
             string s = String.Empty;
             JointType[] jointTypes = new JointType[]
             {
-                JointType.Head, JointType.ShoulderLeft, JointType.ShoulderCenter,
-                JointType.ShoulderRight, JointType.ElbowLeft, JointType.ElbowRight, JointType.WristLeft,
-                JointType.WristRight,
-                JointType.HandLeft, JointType.HandRight, JointType.Spine, JointType.HipLeft, JointType.HipCenter,
+                JointType.Head, 
+                JointType.ShoulderLeft, JointType.ShoulderCenter,JointType.ShoulderRight, 
+                JointType.ElbowLeft, JointType.ElbowRight, 
+                JointType.WristLeft, JointType.WristRight,
+                JointType.HandLeft, JointType.HandRight, 
+                JointType.Spine, JointType.HipLeft, JointType.HipCenter,
                 JointType.HipRight
             };
 
@@ -62,16 +81,8 @@ namespace CURELab.SignLanguage.HandDetector
             for (int i = 0; i < jointTypes.Length; i++)
             {
                 JointType jointType = jointTypes[i];
-                if (skeleton != null)
-                    //if (skeleton != null && skeleton.Joints[jointType].TrackingState != JointTrackingState.NotTracked)
-                {
-                    SkeletonPoint point = skeleton.Joints[jointType].Position;
-                    s += String.Format("{0},{1},{2},", point.X, point.Y, point.Z);
-                }
-                else
-                {
-                    s += "NULL,NULL,NULL,";
-                }
+                SkeletonPoint point = skeleton.Joints[jointType].Position;
+                s += String.Format("{0},{1},{2},", point.X, point.Y, point.Z);
             }
             if (s.Length>0)
             {

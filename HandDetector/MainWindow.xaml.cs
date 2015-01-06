@@ -62,20 +62,19 @@ namespace CURELab.SignLanguage.HandDetector
             RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
             RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
             RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 40);
-            socket = SocketManager.GetInstance("127.0.0.1",51243);
-            //socket = SocketManager.GetInstance("137.189.89.29", 8080);
-            for (int i = 0; i < 1; i++)
-            {
-                socket.SendData(new Bitmap("t.jpg"),null);
-                Thread.Sleep(33);
-                socket.SendData(new Bitmap("t1.jpg"),null);
-                Thread.Sleep(33);
-                //socket.GetResponseAsync(, new AsyncCallback(GetResponseImageCallback));
-            }
-            //Console.WriteLine(r);
-
-            //  Menu_ONI_Click(this, e);
-            //Menu_Kinect_Click(this, e);
+            //socket = SocketManager.GetInstance("127.0.0.1",51243);
+            socket = SocketManager.GetInstance("137.189.89.29", 51243);
+           
+            //for (int i = 0; i < 1; i++)
+            //{
+            //    socket.SendData(new Bitmap("t.jpg"),null);
+            //    Thread.Sleep(33);
+            //    socket.SendData(new Bitmap("t1.jpg"),null);
+            //    Thread.Sleep(33);
+            //    socket.SendEnd();
+            //    //socket.GetResponseAsync(, new AsyncCallback(GetResponseImageCallback));
+            //}
+            Menu_Kinect_Click(this, e);
             //MenuItem_Test_Click(this, e);
         }
 
@@ -167,7 +166,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             ResetAll();
             m_KinectController = KinectSDKController.GetSingletonInstance();
-            statusBar.DataContext = m_KinectController;
+            this.DataContext = m_KinectController;
             m_KinectController.Initialize();
             this.img_color.Source = m_KinectController.ColorWriteBitmap;
             this.img_depth.Source = m_KinectController.DepthWriteBitmap;
@@ -183,17 +182,15 @@ namespace CURELab.SignLanguage.HandDetector
 
         private void Menu_Gesture_Click(object sender, RoutedEventArgs e)
         {
-            ResetAll();
-            m_KinectController = KinectSDKController.GetSingletonInstance();
-            statusBar.DataContext = m_KinectController;
-            m_KinectController.Initialize();
-            this.img_color.Source = m_KinectController.ColorWriteBitmap;
-            this.img_depth.Source = m_KinectController.DepthWriteBitmap;
-            this.img_leftFront.Source = m_KinectController.WrtBMP_LeftHandFront;
-            this.img_rightFront.Source = m_KinectController.WrtBMP_RightHandFront;
-            this.img_candidate2.Source = m_KinectController.WrtBMP_Candidate2;
-            this.img_candidate1.Source = m_KinectController.WrtBMP_Candidate1;
-            m_KinectController.Start();
+            for (int i = 0; i < 1; i++)
+            {
+                socket.SendData(new Bitmap("t.jpg"), null);
+                Thread.Sleep(33);
+                socket.SendData(new Bitmap("t1.jpg"), null);
+                Thread.Sleep(33);
+                socket.SendEnd();
+                //socket.GetResponseAsync(, new AsyncCallback(GetResponseImageCallback));
+            }
         }
 
         private void ResetAll()

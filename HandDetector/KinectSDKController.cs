@@ -78,6 +78,16 @@ namespace CURELab.SignLanguage.HandDetector
             KinectSensor.KinectSensors.StatusChanged += Kinect_StatusChanged;
         }
 
+        public bool IsRecording
+        {
+            get { return isRecording; }
+            set
+            {
+                isRecording = value;
+                OnPropertyChanged("IsRecording");
+            }
+        }
+
         public static KinectController GetSingletonInstance()
         {
             if (singleInstance == null)
@@ -317,18 +327,21 @@ namespace CURELab.SignLanguage.HandDetector
                         handModel = new HandShapeModel(0, HandEnum.None);
                     }
                     //sw.Restart();
-                    //if (!isRecording && !isSkip)
-                    //{
-                    //    currentPath = path + frame.ToString();
-                    //    System.IO.Directory.CreateDirectory(currentPath);
-                    //    isRecording = true;
-                    //}
-                    //if (isSkip)
-                    //{
-                    //    isRecording = false;
-                    //}
+                    //start recording
+                    if (!IsRecording && !isSkip)
+                    {
+                        Console.WriteLine("RECORDING");
+                        IsRecording = true;
+                    }
+                    //stop recording
+                    if (IsRecording && isSkip)
+                    {
+                        Console.WriteLine("END");
+                        socket.SendEnd();
+                        IsRecording = false;
+                    }
 
-                    if (rightFront != null)
+                    if (rightFront != null && IsRecording)
                     {
                         Bitmap right = rightFront.ToBitmap();
 

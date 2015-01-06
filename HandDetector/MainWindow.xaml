@@ -3,7 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:CURELab.SignLanguage.HandDetector"
         Title="MainWindow" Height="768" Width="1024" Loaded="WindowLoaded" Closing="WindowClosing" KeyDown="Window_KeyDown_1">
-
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
@@ -48,6 +50,7 @@
         </Grid>
        
         <StackPanel x:Name="SPn_right" Grid.Column="1" Grid.Row="2" Margin="5,0,5,10">
+            <Label x:Name="lbl_recording" Content="Recording" Foreground="Red" FontSize="15" Visibility="{Binding Path=IsRecording, Converter={StaticResource BoolToVis}, TargetNullValue=Collapsed, FallbackValue=Collapsed}" />
 
 
         </StackPanel>

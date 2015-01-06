@@ -116,6 +116,17 @@ namespace CURELab.SignLanguage.HandDetector
             }
             return "TODO";
         }
+
+        public void SendEnd()
+        {
+            if (sw != null)
+            {
+                
+                sw.Write(FrameConverter.Encode("End"));
+                sw.Write(SPLIT);
+                sw.Flush();
+            }
+        }
         public string GetResponse(Bitmap img)
         {
             if (ns != null)
