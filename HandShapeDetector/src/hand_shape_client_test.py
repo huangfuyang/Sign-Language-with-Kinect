@@ -1,5 +1,5 @@
-from os import listdir,sys
-from os.path import isfile,join,dirname,realpath
+from os import listdir,makedirs,sys
+from os.path import isfile,join,exists,dirname,realpath
 import ConfigParser
 import pylab as plt
 from VideoFrameData import VideoFrameData
@@ -9,7 +9,7 @@ from hand_shape_client import HandShapeClient
 
 port = 51243
 ROOT_DIRECTORY = join(dirname(realpath(sys.argv[0])), '..')
-
+print ROOT_DIRECTORY
 # Read config form files
 config = ConfigParser.RawConfigParser()
 config.read(join(ROOT_DIRECTORY, 'config', 'file_format.cfg'))
@@ -63,6 +63,5 @@ if argc > 1:
 else:
     host = 'localhost'
 
-converter = FrameConverter()
-client = HandShapeClient(host, port, '\r\n\r\n', converter)
+client = HandShapeClient(host, port)
 client.send_data(encodedFrame)

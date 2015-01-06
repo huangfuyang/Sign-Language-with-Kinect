@@ -8,11 +8,11 @@ from basic import *
 import time
 from constant_numbers import *
 import struct
-from load import *
+#from load import *
 from kMedoid import *
 from numpy import *
 from cv2 import *
-from visualization import *
+
 def hog(hand_data):
     new_hog=tuple( [struct.unpack('f',hand_data[i:i+4])[0] for i in range(0,len(hand_data),4)])
 #     print new_hog

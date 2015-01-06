@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import marshal, pickle
 
 from basic import *
-from load import *
+#from load import *
 from constant_numbers import *
 from hodmodule import *
 import hogmodule
@@ -30,11 +30,11 @@ from skimage import data, color, exposure
 import skimage
 
 class SlWord():
-    def __init__(self,path):
-        loc=path.rfind("/")
-        name=path[loc:]
-        self.sampleName=name
-        self.wordName=self.sampleName[1:self.sampleName.find(" ")]
+    def __init__(self):
+        #loc=path.rfind("/")
+        #name=path[loc:]
+        #self.sampleName=name
+        #self.wordName=self.sampleName[1:self.sampleName.find(" ")]
         
         self.skeletons=[]
         
@@ -46,7 +46,7 @@ class SlWord():
         self.hogFeature=[]
         
         self.keyNo=10
-        self.path=path
+        #self.path=path
         self.pred=''
         
         self.label=0
@@ -57,7 +57,7 @@ class SlWord():
         #self.getVelocity()
         #self.findTopHandshape()
         ''''self.getHogFeature()'''
-        print self.wordName
+        #print self.wordName
         
         
         
@@ -86,8 +86,13 @@ class SlWord():
             self.keyNo=len(self.value)
 
         
-    def loadSkeleton(self,skeleton):
+    def loadSkeleton(self,skeleton0):
+        skeleton=skeleton0.split(",")
+        for i in range(len(skeleton)):
+            skeleton[i]=float(skeleton[i])
+        print len(skeleton)
         self.skeletons.append(skeleton)
+
         
     def findTopHandshape(self):
         
