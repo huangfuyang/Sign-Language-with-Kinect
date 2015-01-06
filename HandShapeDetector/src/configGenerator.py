@@ -7,7 +7,6 @@ SOCKET_CONFIG_FILE_NAME = 'socket.cfg'
 FILE_FORMAT_CONFIG_FILE_NAME = 'file_format.cfg'
 DEBUG_CONFIG_FILE_NAME = 'debug.cfg'
 SKELETON_CONFIG_FILE_NAME = 'skeleton.cfg'
-CAFFE_CONFIG_FILE_NAME = 'caffe.cfg'
 
 if not exists(CONFIG_DIRECTORY):
     makedirs(CONFIG_DIRECTORY)
@@ -59,19 +58,4 @@ config.set('Enumeration', 'Joint Types', ','.join(['head', 'shoulderLeft', 'shou
 config.set('Enumeration', 'Joint Data Keys', ','.join(['3d_x', '3d_y', '3d_z', 'color_x', 'color_y', 'depth_x', 'depth_y']))
 
 with open(join(CONFIG_DIRECTORY, SKELETON_CONFIG_FILE_NAME), 'wb') as configfile:
-    config.write(configfile)
-
-
-# For Caffe
-config = ConfigParser.RawConfigParser()
-config.add_section('Directory')
-config.set('Directory', 'Caffe Root', '')
-config.set('Directory', 'Caffe Python', 'python')
-config.set('Directory', 'Train', join('models', 'bvlc_reference_caffenet'))
-
-config.add_section('File')
-config.set('File', 'Model Definition', 'deploy.prototxt')
-config.set('File', 'Pre-trained model', 'bvlc_reference_caffenet.caffemodel')
-
-with open(join(CONFIG_DIRECTORY, CAFFE_CONFIG_FILE_NAME), 'wb') as configfile:
     config.write(configfile)

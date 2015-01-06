@@ -1,6 +1,10 @@
 import base64
 from json import JSONEncoder,JSONDecoder
+from PIL import Image
 import numpy as np
+from numpy import array
+import io
+
 
 class FrameConverter(object):
 
@@ -52,9 +56,11 @@ class FrameConverter(object):
         }
 
     def decode_image(self, encoded_image_frame):
-        encoded_image = encoded_image_frame['image']
-        image_shape = encoded_image_frame['shape']
-
-        depthFrame = base64.decodestring(encoded_image)
-        depthFrame = np.frombuffer(depthFrame,dtype='uint8')
-        return depthFrame.reshape(image_shape)
+        try:
+            depthFrame = base64.decodestring(encoded_image_frame)
+            bytes = bytearray(depthFrame)
+            image = Image.open(io.BytesIO(bytes))
+            encoded_image = array(image)
+        except:
+            return ""
+        return encoded_image

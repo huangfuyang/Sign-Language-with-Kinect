@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.equinox.internal.p2.ui.dialogs.InstallWizard.WizardSettings">
+		<item value="928" key="DIALOG_WIDTH"/>
+		<item value="0" key="DIALOG_Y_ORIGIN"/>
+		<item value="716" key="DIALOG_HEIGHT"/>
+		<item value="203" key="DIALOG_X_ORIGIN"/>
+		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
+	</section>
+	<section name="org.eclipse.equinox.internal.p2.ui.dialogs.InstallWizard.ResolutionResultsPage">
+		<item value="800" key="ListSashWeight"/>
+		<item value="400" key="NameColumnWidth"/>
+		<item value="200" key="DetailsSashWeight"/>
+		<item value="316" key="IDColumnWidth"/>
+		<item value="200" key="VersionColumnWidth"/>
+	</section>
+	<section name="org.eclipse.equinox.internal.p2.ui.dialogs.InstallWizard.SelectableIUsPage">
+		<item value="800" key="ListSashWeight"/>
+		<item value="480" key="NameColumnWidth"/>
+		<item value="200" key="DetailsSashWeight"/>
+		<item value="320" key="IDColumnWidth"/>
+		<item value="160" key="VersionColumnWidth"/>
+	</section>
+	<section name="AvailableIUsPage">
+		<item value="800" key="AvailableListSashWeight"/>
+		<item value="true" key="ResolveInstallWithAllSites"/>
+		<item value="336" key="AvailableVersionColumnWidth"/>
+		<item value="true" key="HideInstalledContent"/>
+		<item value="600" key="AvailableNameColumnWidth"/>
+		<item value="1" key="AvailableViewType"/>
+		<item value="false" key="FilterOnEnv"/>
+		<item value="200" key="AvailableDetailsSashWeight"/>
+		<item value="false" key="ShowLatestVersionsOnly"/>
+	</section>
+</section>
