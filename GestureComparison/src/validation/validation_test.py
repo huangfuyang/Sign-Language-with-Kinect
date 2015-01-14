@@ -16,7 +16,7 @@ ROOT_DIRECTORY = join(dirname(realpath(sys.argv[0])), '..', '..')
 
 left_hand = False
 right_hand = True
-smoothing = 0.05
+smoothing = 0.01
 sampling_rate = 100
 
 bspline_presenter = BSplinePresenter("B-Spline Presenter")
