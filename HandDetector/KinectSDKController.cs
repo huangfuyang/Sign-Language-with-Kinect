@@ -190,6 +190,7 @@ namespace CURELab.SignLanguage.HandDetector
         }
         short headDepth = 0;
         private int frame = 0;
+        private ColorImagePoint[] _mappedDepthLocations;
         private void AllFrameReady(object sender, AllFramesReadyEventArgs e)
         {
             //Console.Clear();
@@ -239,6 +240,7 @@ namespace CURELab.SignLanguage.HandDetector
                     var sw = Stopwatch.StartNew();
                     // Copy the pixel data from the image to a temporary array
                     depthFrame.CopyDepthImagePixelDataTo(this.depthPixels);
+                    _mappedDepthLocations = new ColorImagePoint[depthFrame.PixelDataLength];
                     // short[] depthData = new short[depthFrame.PixelDataLength];
                     // Get the min and max reliable depth for the current frame
                     int minDepth = depthFrame.MinDepth;
@@ -346,7 +348,10 @@ namespace CURELab.SignLanguage.HandDetector
                         Bitmap right = rightFront.ToBitmap();
 
                         socket = SocketManager.GetInstance();
-                        socket.SendData(right,skeleton);
+                        if (socket != null)
+                        {
+                            socket.SendData(right, skeleton);
+                        }
                         //socket.GetResponseAsync(right, new AsyncCallback(GetResponseImageCallback));
                         //right.Save(currentPath +"\\"+ frame.ToString() + ".jpg");
                         //right.Save(path + '\\' + frame.ToString() + ".jpg");

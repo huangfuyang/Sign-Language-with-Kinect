@@ -33,10 +33,6 @@ namespace CURELab.SignLanguage.HandDetector
 
         public static SocketManager GetInstance()
         {
-            if (Instance == null)
-            {
-                Instance = GetInstance("137.189.89.29", 8888);
-            }
             return Instance;
         }
         private SocketManager(string addr, int port)

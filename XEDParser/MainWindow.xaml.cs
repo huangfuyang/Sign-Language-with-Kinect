@@ -238,6 +238,7 @@ namespace XEDParser
                         var skeletons = new Skeleton[sFrame.SkeletonArrayLength];
                         sFrame.CopySkeletonDataTo(skeletons);
                         Skeleton skel = skeletons[0];
+                        
                         DepthImagePoint dp_csv;
                         ColorImagePoint cp_csv;
                         for (int i = 0; i < sFrame.FrameNumber-pre_skeleton_frame-1; i++)
@@ -251,6 +252,7 @@ namespace XEDParser
                             dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.Head].Position, DepthImageFormat.Resolution640x480Fps30);
                             cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.Head].Position, ColorImageFormat.RgbResolution640x480Fps30);
                             //head
+                            skel.Joints[JointType.Head].TrackingState
                             float headX = skel.Joints[JointType.Head].Position.X;
                             float headY = skel.Joints[JointType.Head].Position.Y;
                             float headZ = skel.Joints[JointType.Head].Position.Z;
@@ -451,7 +453,7 @@ namespace XEDParser
                             Directory.CreateDirectory(folder_selected + "\\" + single_file_name);
                         colorWriter = new VideoWriter(folder_selected + "\\" + single_file_name + "\\" + single_file_name + "_c.avi", 30, 640, 480, true);
                         depthWriter = new VideoWriter(folder_selected + "\\" + single_file_name + "\\" + single_file_name + "_d.avi", 30, 640, 480, true);
-                        FileStream file_name = File.Open(@folder_selected + "\\" + single_file_name + "\\" + single_file_name + ".csv", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                        FileStream file_name = File.Open(@folder_selected + "\\" + single_file_name + "\\" + single_file_name + ".csv", FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
                         skeWriter = new StreamWriter(file_name);
 
                         // !!!!  Detecting signer by the filename

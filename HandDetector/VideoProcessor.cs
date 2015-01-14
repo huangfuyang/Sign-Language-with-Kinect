@@ -41,7 +41,11 @@ namespace CURELab.SignLanguage.HandDetector
         // michael
         public const float MichaelRotateTan = 0.23f;
         // Aaron
+<<<<<<< xed
         public const float AaronRotateTan = 0.28f;
+=======
+        public const float AaronRotateTan = 0.31f;
+>>>>>>> local
 
         private const int handShapeWidth = 60;
         private const int handShapeHeight = 60;
@@ -158,10 +162,20 @@ namespace CURELab.SignLanguage.HandDetector
                 // one frame skeleton
                 while (reader.ReadRow(row))
                 {
+<<<<<<< xed
                     var skt = new MySkeleton();
                     int step = 9;
                     // one joint
                     for (int i = 0; i < row.Count; i += step)
+=======
+                    var skt = new MySkeleton(14);
+                    if (row[0].ToLower().Trim().Equals("untracked") || 
+                        row[0].ToLower().Trim().Equals("null"))
+                    {
+                        skt.Tracked = false;
+                    }
+                    else
+>>>>>>> local
                     {
                         var type = MyJointType.Head;
                         var joint = new MyJoint()
@@ -208,7 +222,39 @@ namespace CURELab.SignLanguage.HandDetector
                 }
                 else
                 {
+<<<<<<< xed
                     headDepth = img.Data[headPosition.X, headPosition.Y, 0];
+=======
+                    headPosition = sktList[CurrentFrame][MyJointType.Head].PosDepth;
+                    headDepth = Math.Min((int)img[headPosition.Y, headPosition.X].Green,(int)img[headPosition.Y, headPosition.X].Red);
+                    headDepth = Math.Min(headDepth, (int) img[headPosition.Y, headPosition.X].Blue);
+                    PointF hr = sktList[CurrentFrame][MyJointType.HandR].PosDepth;
+                    PointF hl = sktList[CurrentFrame][MyJointType.HandL].PosDepth;
+                    PointF er = sktList[CurrentFrame][MyJointType.ElbowR].PosDepth;
+                    PointF el = sktList[CurrentFrame][MyJointType.ElbowL].PosDepth;
+                    PointF hip = sktList[CurrentFrame][MyJointType.HipCenter].PosDepth;
+                    // hand is lower than hip
+                    //Console.WriteLine(sktList[CurrentFrame][MyJointType.HandR].Pos3D.Y);
+                    //Console.WriteLine(sktList[CurrentFrame][MyJointType.ElbowR].Pos3D.Y);
+                    //Console.WriteLine(sktList[CurrentFrame][MyJointType.HipCenter].Pos3D.Y);
+                    //Console.WriteLine("  {0}",sktList[CurrentFrame][MyJointType.HandR].Pos3D.Y - sktList[CurrentFrame][MyJointType.HipCenter].Pos3D.Y);
+                    //Console.WriteLine("-------------");
+                    if (sktList[CurrentFrame][MyJointType.HandR].Pos3D.Y <
+                        sktList[CurrentFrame][MyJointType.HipCenter].Pos3D.Y - 0.1)
+                    {
+                        isSkip = true;
+                    }
+                    if (sktList[CurrentFrame][MyJointType.HandL].Pos3D.Y >
+                        -0.02f)
+                    {
+                        leftHandRaise = true;
+                    }
+
+                    rightVector.X = (hr.X - er.X);
+                    rightVector.Y = (hr.Y - er.Y);
+                    leftVector.X = (hl.X - el.X);
+                    leftVector.Y = (hl.Y - el.Y);
+>>>>>>> local
                 }
                 //***********cull image*****************
                 var depthImg = img.ThresholdToZeroInv(new Bgr(headDepth - CullingThresh, headDepth - CullingThresh, headDepth - CullingThresh));
@@ -219,6 +265,7 @@ namespace CURELab.SignLanguage.HandDetector
 
                 Image<Gray, Byte> rightFront = null;
                 Image<Gray, Byte> leftFront = null;
+<<<<<<< xed
 
                 PointF rightVector = new PointF(-10,-10);
                 PointF leftVector = new PointF(10,-10);
@@ -256,6 +303,10 @@ namespace CURELab.SignLanguage.HandDetector
                 HandShapeModel handModel = null;
                 int handDepth = (int)(3200.0 / 255 * headDepth + 800);
                 if (!isSkip)
+=======
+                // isskip is invalid coz no hip data
+                if (cull> 0 && !isSkip)
+>>>>>>> local
                 {
                     handModel = m_opencv.FindHandPart(ref depthImg, out rightFront, out leftFront, handDepth, rightVector, leftVector, leftHandRaise);
                 }
