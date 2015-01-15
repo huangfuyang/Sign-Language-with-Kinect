@@ -30,7 +30,7 @@ class CSVReader(object):
                 current_line_data = np.fromstring(current_line, sep=',')
 
                 if arr is None:
-                    arr = current_line_data
+                    arr = np.atleast_2d(current_line_data)
                 else:
                     if no_of_dropped_frame > 0:
                         # Check for dropped frame
