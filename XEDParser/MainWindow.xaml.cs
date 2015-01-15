@@ -120,18 +120,34 @@ namespace XEDParser
         }
 
         Colorizer colorizer;
+        /// <summary>
+        /// Format we will use for the depth stream
+        /// </summary>
+        private const DepthImageFormat DepthFormat = DepthImageFormat.Resolution640x480Fps30;
+
+        /// <summary>
+        /// Format we will use for the color stream
+        /// </summary>
+        private const ColorImageFormat ColorFormat = ColorImageFormat.RgbResolution640x480Fps30;
+        /// <summary>
+        /// Intermediate storage for the depth to color mapping
+        /// </summary>
+        private ColorImagePoint[] colorCoordinates;
         public MainWindow()
         {
             ConsoleManager.Show();
+            Console.WriteLine("initialization");
             InitializeComponent();
             this.sensorChooser = new KinectSensorChooser();
             this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
             this.sensorChooserUi.KinectSensorChooser = this.sensorChooser;
+            Console.WriteLine("sensor start.....");
             this.sensorChooser.Start();
             DepthTS = 0;
             ColorTS = 0;
             timer = new System.Timers.Timer(20);
             timer.Elapsed += timer_Elapsed;
+            Console.WriteLine("initialized");
         }
 
         private void SensorChooserOnKinectChanged(object sender, KinectChangedEventArgs args)
@@ -156,12 +172,14 @@ namespace XEDParser
                 CurrentKinectSensor = args.NewSensor;
                 try
                 {
-                    args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
-                    args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
+                    args.NewSensor.DepthStream.Enable(DepthFormat);
+                    args.NewSensor.ColorStream.Enable(ColorFormat);
                     args.NewSensor.SkeletonStream.Enable();
 
                     depthPixels = new DepthImagePixel[CurrentKinectSensor.DepthStream.FramePixelDataLength];
                     _colorPixels = new byte[CurrentKinectSensor.ColorStream.FramePixelDataLength];
+                    _depthPixels = new byte[CurrentKinectSensor.DepthStream.FramePixelDataLength*3];
+                    colorCoordinates = new ColorImagePoint[CurrentKinectSensor.DepthStream.FramePixelDataLength];
                     try
                     {
                         
@@ -187,8 +205,9 @@ namespace XEDParser
                 error = true;
             }
         }
-       
+
         private byte[] _colorPixels;
+        private byte[] _depthPixels;
         private DepthImagePixel[] depthPixels;
 
         private int GetRealCurrentFrame(long tsOffset)
@@ -692,13 +711,19 @@ namespace XEDParser
                             depthFrame.CopyDepthImagePixelDataTo(depthPixels);
                             //int minDepth = depthFrame.MinDepth;
                             //int maxDepth = depthFrame.MaxDepth;
+
                             int width = depthFrame.Width;
                             int height = depthFrame.Height;
                             //Console.WriteLine("Depth:{0} {1}" ,DepthTS,count);
 
-                            colorizer.TransformAndConvertDepthFrame(depthPixels, _colorPixels);
+                            CurrentKinectSensor.CoordinateMapper.MapDepthFrameToColorFrame(
+                                   DepthFormat,
+                                   this.depthPixels,
+                                   ColorFormat,
+                                   this.colorCoordinates);
+                            colorizer.TransformAndConvertDepthFrame(depthPixels, _depthPixels, colorCoordinates);
 
-                            var depthImg = ImageConverter.Array2Image(_colorPixels, width, height, width * 4).Convert<Bgr, byte>();
+                            var depthImg = ImageConverter.Array2Image(_depthPixels, width, height, width * 3);
                             if (depthImg.Ptr != IntPtr.Zero)
                             {
                                 for (int i = 0; i < count; i++)
