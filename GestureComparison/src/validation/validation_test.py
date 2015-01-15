@@ -1,6 +1,7 @@
 import sys
 from os.path import join,dirname,realpath
 
+from hand_presenter import HandPresenter
 from bspline_presenter import BSplinePresenter
 from body_box_presenter import BodyBoxPresenter
 from dtw_presenter import DTWPresenter
@@ -19,12 +20,13 @@ right_hand = True
 smoothing = 0.01
 sampling_rate = 100
 
+hand_presenter = HandPresenter("Hand Presenter")
 bspline_presenter = BSplinePresenter("B-Spline Presenter")
 body_box_presenter = BodyBoxPresenter("Body Box Presenter")
 dtw_presenter = DTWPresenter("DTW Presenter")
 
 csv_reader = CSVReader(ROOT_DIRECTORY)
-hand_selector = HandSelector("Hand Selector", left_hand, right_hand)
+hand_selector = HandSelector("Hand Selector", left_hand, right_hand, [hand_presenter])
 body_box_extractor = BodyBoxExtractor("Body Box Extractor", [body_box_presenter])
 bspline_preprocessor = BSplinePreprocessor("B-Spline Preprocessor", smoothing, sampling_rate, [bspline_presenter])
 dtw_processor = DTWProcessor("DTW Processor", 2, [dtw_presenter])

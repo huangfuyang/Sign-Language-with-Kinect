@@ -2,8 +2,8 @@ import numpy as np
 from abstract_classes import AbstractProcessor
 
 class HandSelector(AbstractProcessor):
-    def __init__(self, name, select_left, select_right):
-        super(HandSelector, self).__init__(name, None)
+    def __init__(self, name, select_left, select_right, presenters):
+        super(HandSelector, self).__init__(name, presenters)
         self.select_left = select_left
         self.select_right = select_right
 
