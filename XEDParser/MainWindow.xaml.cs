@@ -252,7 +252,7 @@ namespace XEDParser
                             dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.Head].Position, DepthImageFormat.Resolution640x480Fps30);
                             cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.Head].Position, ColorImageFormat.RgbResolution640x480Fps30);
                             //head
-                            skel.Joints[JointType.Head].TrackingState
+                            //skel.Joints[JointType.Head].TrackingState;
                             float headX = skel.Joints[JointType.Head].Position.X;
                             float headY = skel.Joints[JointType.Head].Position.Y;
                             float headZ = skel.Joints[JointType.Head].Position.Z;
@@ -546,7 +546,7 @@ namespace XEDParser
                 if (!Directory.Exists(folder_selected + "\\" + single_file_name))
                     Directory.CreateDirectory(folder_selected + "\\" + single_file_name);   // Create the folder if it is not existed
 
-                FileStream file_name = File.Open(@folder_selected + "\\" + single_file_name + "\\" + single_file_name + ".csv", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                FileStream file_name = File.Open(@folder_selected + "\\" + single_file_name + "\\" + single_file_name + ".csv", FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
                 skeWriter = new StreamWriter(file_name);
                 Console.WriteLine("Successful for setting the writter");
 
