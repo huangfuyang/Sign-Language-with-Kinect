@@ -19,7 +19,7 @@ class TaskRunner(object):
             return
 
         try:
-            filtered_data = data
+            filtered_data = {'raw_data': data}
             for preprocessor in self.preprocessors:
                 filtered_data = preprocessor.doProcess(filtered_data)
 

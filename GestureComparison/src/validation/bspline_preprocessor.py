@@ -10,10 +10,11 @@ class BSplinePreprocessor(AbstractProcessor):
         self.sampling_rate = sampling_rate
 
     def process(self, data):
-        (tck, uu) = si.splprep(data.transpose(), s=self.smoothing)
+        (tck, uu) = si.splprep(data['hands'].transpose(), s=self.smoothing)
         space = np.linspace(0,1,self.sampling_rate)
-        spline = np.array(si.splev(space, tck)).transpose()
 
-        preprocessed_data = {'spline': spline, 'tck': tck, 'uu': uu}
+        data['tck'] = tck
+        data['uu'] = uu
+        data['spline'] = np.array(si.splev(space, tck)).transpose()
 
-        return preprocessed_data
+        return data
