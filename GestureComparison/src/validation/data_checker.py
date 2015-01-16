@@ -27,5 +27,5 @@ for data_directory in data_directories:
     except IOError:
         continue
 
-selected_signs = [data_name for data_name,data in check_results.items() if data['has_hip'] and data['oneOrTwo'] is 1 and data['handRecognized']]
+selected_signs = [{data_name: data} for data_name,data in check_results.items() if data['has_hip'] and data['oneOrTwo'] is 1 and data['handRecognized'] and data['difficulty'] <= 2]
 print sorted(selected_signs)
