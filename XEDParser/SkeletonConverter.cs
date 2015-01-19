@@ -1,5 +1,6 @@
 ﻿using Microsoft.Kinect;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,8 +14,25 @@ namespace XEDParser
         private JointType[] jointTypes = new JointType[]{ JointType.Head, JointType.ShoulderLeft, JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowLeft, JointType.ElbowRight, JointType.WristLeft, JointType.WristRight, JointType.HandLeft, JointType.HandRight, JointType.Spine, JointType.HipLeft, JointType.HipCenter, JointType.HipRight };
         private const DepthImageFormat depthImageFormat = DepthImageFormat.Resolution640x480Fps30;
         private const ColorImageFormat colorImageFormat = ColorImageFormat.RgbResolution640x480Fps30;
+        private StringBuilder skeletonLines = new StringBuilder();
 
-        public String getSkeletonLine(KinectSensor CurrentKinectSensor, JointCollection joints) {
+        public void clear()
+        {
+            skeletonLines.Clear();
+        }
+
+        public void addNullLine()
+        {
+            skeletonLines.AppendLine("null");
+        }
+
+        public void addUntrackedLine()
+        {
+            skeletonLines.AppendLine("untracked");
+        }
+
+        public void addSkeletonLine(KinectSensor CurrentKinectSensor, JointCollection joints)
+        {
             float[] dataLine = new float[7 * jointTypes.Length];
             DepthImagePoint dp_csv;
             ColorImagePoint cp_csv;
@@ -33,8 +51,12 @@ namespace XEDParser
                 dataLine[i * 7 + 5] = dp_csv.X;
                 dataLine[i * 7 + 6] = dp_csv.Y;
             }
+            skeletonLines.AppendLine(string.Join(",", dataLine));
+        }
 
-            return string.Join(",", dataLine);
+        public String getSkeletonToString()
+        {
+            return skeletonLines.ToString();
         }
     }
 }

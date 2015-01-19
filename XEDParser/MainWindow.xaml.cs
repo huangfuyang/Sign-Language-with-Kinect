@@ -262,21 +262,21 @@ namespace XEDParser
                         
                         for (int i = 0; i < sFrame.FrameNumber-pre_skeleton_frame-1; i++)
                         {
-                            skeWriter.WriteLine("null");
+                            mSkeletonConverter.addNullLine();
                         }
                         pre_skeleton_frame = sFrame.FrameNumber;
                         if (skel.TrackingState == SkeletonTrackingState.Tracked)
                         {
-                            skeWriter.WriteLine(mSkeletonConverter.getSkeletonLine(CurrentKinectSensor, skel.Joints));
+                            mSkeletonConverter.addSkeletonLine(CurrentKinectSensor, skel.Joints);
                         }
                         else
                         {
-                            skeWriter.WriteLine("untracked");
+                            mSkeletonConverter.addUntrackedLine();
                         }
                     }
                     else
                     {
-                        skeWriter.WriteLine("null");
+                        mSkeletonConverter.addNullLine();
                     }
 
                 }
@@ -406,6 +406,7 @@ namespace XEDParser
 
                 FileStream file_name = File.Open(@folder_selected + "\\" + single_file_name + "\\" + single_file_name + ".csv", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                 skeWriter = new StreamWriter(file_name);
+                mSkeletonConverter.clear();
                 Console.WriteLine("Successful for setting the writter");
 
                 // !!!!  Detecting signer by the filename
@@ -452,6 +453,8 @@ namespace XEDParser
                     }
                     //Console.WriteLine("Waiting...");
                 }
+
+                skeWriter.Write(mSkeletonConverter.getSkeletonToString());
                 System.Threading.Thread.Sleep(2000);
                 CloseAllWriter();
 
