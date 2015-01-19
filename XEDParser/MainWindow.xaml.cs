@@ -287,17 +287,6 @@ namespace XEDParser
             }
         }
 
-        private void color_FrameReady(object sender, ColorImageFrameReadyEventArgs e)
-        {
-
-        }
-
-        private void depth_FrameReady(object sender, DepthImageFrameReadyEventArgs e)
-        {
-            
-            
-        }
-
         private void frame_threading()
         {
             int i = 0;
@@ -635,14 +624,6 @@ namespace XEDParser
         private string GenerateSkeletonArgs(Skeleton s)
         {
             return null;
-        }
-
-        private System.Drawing.Point SkeletonPointToScreen(SkeletonPoint skelpoint)
-        {
-            // Convert point to depth space.  
-            // We are not using depth directly, but we do want the points in our 640x480 output resolution.
-            DepthImagePoint depthPoint = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skelpoint, DepthImageFormat.Resolution640x480Fps30);
-            return new System.Drawing.Point(depthPoint.X, depthPoint.Y);
         }
 
         private void btn_Start_Kinect(object sender, RoutedEventArgs e)
