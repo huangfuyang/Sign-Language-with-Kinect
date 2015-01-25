@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Kinect.Toolkit;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,13 @@ namespace EducationSystem
         public SplashPage()
         {
             InitializeComponent();
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            KinectSensorChooser sensorChooser = new KinectSensorChooser();
+            sensorChooserUi.KinectSensorChooser = sensorChooser;
+            sensorChooser.Start(); 
         }
     }
 }

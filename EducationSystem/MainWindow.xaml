@@ -1,8 +1,13 @@
 ﻿<Window x:Class="EducationSystem.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:k="http://schemas.microsoft.com/kinect/2013"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <Frame Name="frmPageContainer" NavigationUIVisibility="Hidden" Panel.ZIndex="1" Source="/EducationSystem;component/SplashPage.xaml" ></Frame>
+        <k:KinectRegion Name="kinectRegion">
+            <Grid Name="kinectRegionGrid">
+                <Frame Name="frmPageContainer" NavigationUIVisibility="Hidden" Panel.ZIndex="1" Source="/EducationSystem;component/SplashPage.xaml" ></Frame>
+            </Grid>
+        </k:KinectRegion>
     </Grid>
 </Window>
