@@ -9,7 +9,7 @@
     </Window.Resources>
     <Grid>
         <k:KinectRegion Name="kinectRegion" KinectSensor="{Binding Source={x:Static local:KinectState.Instance}, Path=CurrentKinectSensor}">
-            <Frame Name="frmPageContainer" />
+			<Frame Name="frmPageContainer" Source="SplashPage.xaml" />
         </k:KinectRegion>
         <k:KinectUserViewer VerticalAlignment="Top" HorizontalAlignment="Right" k:KinectRegion.KinectRegion="{Binding ElementName=kinectRegion}" Height="100" UserColoringMode="HighlightPrimary" PrimaryUserColor="Red" />
         <k:KinectSensorChooserUI HorizontalAlignment="Right" VerticalAlignment="Top" Name="sensorChooserUi" k:KinectSensorChooser="{Binding Source={StaticResource sensorChooser}}" />
