@@ -30,6 +30,7 @@ namespace EducationSystem
         {
             KinectSensorChooser sensorChooser = new KinectSensorChooser();
             sensorChooserUi.KinectSensorChooser = sensorChooser;
+            sensorChooser.KinectChanged += KinectState.Instance.OnKinectChanged;
             sensorChooser.Start(); 
         }
     }
