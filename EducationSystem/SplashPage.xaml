@@ -6,7 +6,7 @@
       xmlns:k="http://schemas.microsoft.com/kinect/2013"
       mc:Ignorable="d" 
       d:DesignHeight="300" d:DesignWidth="300"
-	Title="SplashPage" Loaded="Page_Loaded">
+      Title="SplashPage">
 
     <Grid>
         

@@ -1,10 +1,6 @@
-﻿using Microsoft.Kinect;
+﻿using System;
+using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EducationSystem
 {
@@ -27,7 +23,7 @@ namespace EducationSystem
         }
 
         private KinectState() { }
-        
+
         public static KinectState Instance
         {
             get
