@@ -19,5 +19,10 @@ namespace EducationSystem
             sensorChooser.KinectChanged += KinectState.Instance.OnKinectChanged;
             sensorChooser.Start();
         }
+
+        private void Window_Closed(object sender, System.EventArgs e)
+        {
+            KinectState.Instance.StopKinect();
+        }
     }
 }
