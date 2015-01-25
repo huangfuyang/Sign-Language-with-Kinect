@@ -3,6 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        
+        <Frame Name="frmPageContainer" NavigationUIVisibility="Hidden" Panel.ZIndex="1" Source="/EducationSystem;component/SplashPage.xaml" ></Frame>
     </Grid>
 </Window>
