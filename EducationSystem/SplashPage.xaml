@@ -9,7 +9,6 @@
 	Title="SplashPage" Loaded="Page_Loaded">
 
     <Grid>
-        <k:KinectSensorChooserUI HorizontalAlignment="Right" VerticalAlignment="Top" Name="sensorChooserUi" />
-        <k:KinectUserViewer VerticalAlignment="Top" HorizontalAlignment="Right" k:KinectRegion.KinectRegion="{Binding ElementName=kinectRegion}" Height="100" UserColoringMode="HighlightPrimary" PrimaryUserColor="Red" />
+        
     </Grid>
 </Page>

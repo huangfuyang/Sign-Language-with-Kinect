@@ -28,10 +28,7 @@ namespace EducationSystem
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            KinectSensorChooser sensorChooser = new KinectSensorChooser();
-            sensorChooserUi.KinectSensorChooser = sensorChooser;
-            sensorChooser.KinectChanged += KinectState.Instance.OnKinectChanged;
-            sensorChooser.Start(); 
+
         }
     }
 }

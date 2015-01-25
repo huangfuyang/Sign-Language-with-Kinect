@@ -2,12 +2,16 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:k="http://schemas.microsoft.com/kinect/2013"
-        Title="MainWindow" Height="350" Width="525">
+        xmlns:local="clr-namespace:EducationSystem"
+        Title="MainWindow" Height="350" Width="525" Loaded="Window_Loaded">
+    <Window.Resources>
+        <k:KinectSensorChooser x:Key="sensorChooser"></k:KinectSensorChooser>
+    </Window.Resources>
     <Grid>
-        <k:KinectRegion Name="kinectRegion">
-            <Grid Name="kinectRegionGrid">
-                <Frame Name="frmPageContainer" NavigationUIVisibility="Hidden" Panel.ZIndex="1" Source="/EducationSystem;component/SplashPage.xaml" ></Frame>
-            </Grid>
+        <k:KinectRegion Name="kinectRegion" KinectSensor="{Binding Source={x:Static local:KinectState.Instance}, Path=CurrentKinectSensor}">
+            <Frame Name="frmPageContainer" />
         </k:KinectRegion>
+        <k:KinectUserViewer VerticalAlignment="Top" HorizontalAlignment="Right" k:KinectRegion.KinectRegion="{Binding ElementName=kinectRegion}" Height="100" UserColoringMode="HighlightPrimary" PrimaryUserColor="Red" />
+        <k:KinectSensorChooserUI HorizontalAlignment="Right" VerticalAlignment="Top" Name="sensorChooserUi" k:KinectSensorChooser="{Binding Source={StaticResource sensorChooser}}" />
     </Grid>
 </Window>
