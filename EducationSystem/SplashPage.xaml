@@ -10,7 +10,7 @@
       Title="SplashPage">
 
     <Grid>
-		<k:KinectTileButton x:Name="btnStart" Label="Start!" Width="Auto" Height="Auto">
+		<k:KinectTileButton x:Name="btnStart" Label="Start!" Width="Auto" Height="Auto" Click="btnStart_Click">
 			<k:KinectTileButton.Style>
 				<Style TargetType="{x:Type k:KinectTileButton}">
 					<Setter Property="Visibility" Value="Hidden" />

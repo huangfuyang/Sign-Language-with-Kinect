@@ -24,5 +24,10 @@ namespace EducationSystem
             b.Stretch = Stretch.Fill;
             btnStart.Background = b;
         }
+
+        private void btnStart_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            this.NavigationService.Navigate(new Uri("HomePage.xaml", UriKind.Relative));
+        }
     }
 }
