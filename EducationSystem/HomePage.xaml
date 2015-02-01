@@ -3,11 +3,23 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:k="http://schemas.microsoft.com/kinect/2013"
       mc:Ignorable="d" 
-      d:DesignHeight="300" d:DesignWidth="300"
+      d:DesignHeight="768" d:DesignWidth="1024"
       Title="HomePage">
 
 	<Grid>
-		
+		<Grid.RowDefinitions>
+			<RowDefinition/>
+			<RowDefinition/>
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition/>
+			<ColumnDefinition/>
+		</Grid.ColumnDefinitions>
+		<k:KinectTileButton x:Name="btnDictionary" Label="Dictionary" Width="Auto" Height="Auto" Grid.Row="0" Grid.Column="0"/>
+		<k:KinectTileButton x:Name="btnLearn" Label="Learn" Width="Auto" Height="Auto" Grid.Row="0" Grid.Column="1"/>
+		<k:KinectTileButton x:Name="btnQuiz" Label="Quiz" Width="Auto" Height="Auto" Grid.Row="1" Grid.Column="0"/>
+		<k:KinectTileButton x:Name="btnGame" Label="Game" Width="Auto" Height="Auto" Grid.Row="1" Grid.Column="1"/>
 	</Grid>
 </Page>
