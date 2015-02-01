@@ -128,6 +128,12 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\IconUserJoinedLeft.png" />
+    <Resource Include="Images\IconUserNotJoinedLeft.png" />
+    <Resource Include="Images\IconUserJoinedRight.png" />
+    <Resource Include="Images\IconUserNotJoinedRight.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
