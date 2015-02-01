@@ -3,13 +3,25 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:k="http://schemas.microsoft.com/kinect/2013"
         xmlns:local="clr-namespace:EducationSystem"
-        Title="MainWindow" Height="350" Width="525" Loaded="Window_Loaded" Closed="Window_Closed">
+        Title="MainWindow" Height="900" Width="1440" WindowState="Maximized" Loaded="Window_Loaded" Closed="Window_Closed">
     <Window.Resources>
         <k:KinectSensorChooser x:Key="sensorChooser"></k:KinectSensorChooser>
     </Window.Resources>
     <Grid>
         <k:KinectRegion Name="kinectRegion" KinectSensor="{Binding Source={x:Static local:KinectState.Instance}, Path=CurrentKinectSensor}">
-			<Frame Name="frmPageContainer" NavigationUIVisibility="Hidden" Source="SplashPage.xaml" />
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition/>
+					<RowDefinition Height="768"/>
+					<RowDefinition/>
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition/>
+					<ColumnDefinition Width="1024"/>
+					<ColumnDefinition/>
+				</Grid.ColumnDefinitions>
+				<Frame Name="frmPageContainer" NavigationUIVisibility="Hidden" Source="SplashPage.xaml" Grid.Row="1" Grid.Column="1" />
+			</Grid>
         </k:KinectRegion>
         <k:KinectUserViewer VerticalAlignment="Top" HorizontalAlignment="Right" k:KinectRegion.KinectRegion="{Binding ElementName=kinectRegion}" Height="100" UserColoringMode="HighlightPrimary" PrimaryUserColor="Red" />
         <k:KinectSensorChooserUI HorizontalAlignment="Right" VerticalAlignment="Top" Name="sensorChooserUi" k:KinectSensorChooser="{Binding Source={StaticResource sensorChooser}}" />
