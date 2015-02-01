@@ -2,6 +2,7 @@
 using System.Reflection;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
+using Microsoft.Kinect.Toolkit.Controls;
 
 namespace EducationSystem
 {
@@ -21,6 +22,13 @@ namespace EducationSystem
         {
             get { return _currentKinectSensor; }
             set { SetProperty(ref _currentKinectSensor, value, true); }
+        }
+
+        private KinectRegion _kinectRegion;
+        public KinectRegion KinectRegion
+        {
+            get { return _kinectRegion; }
+            set { SetProperty(ref _kinectRegion, value, true); }
         }
 
         private KinectState() { }
@@ -111,6 +119,7 @@ namespace EducationSystem
             ClearEventInvocations(CurrentKinectSensor, "SkeletonFrameReady");
             ClearEventInvocations(CurrentKinectSensor, "DepthFrameReady");
             ClearEventInvocations(CurrentKinectSensor, "ColorFrameReady");
+            ClearEventInvocations(KinectRegion, "HandPointersUpdated");
 
             CurrentKinectSensor.Stop();
         }

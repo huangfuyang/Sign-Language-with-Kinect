@@ -16,6 +16,8 @@ namespace EducationSystem
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             KinectSensorChooser sensorChooser = (KinectSensorChooser)this.Resources["sensorChooser"];
+
+            KinectState.Instance.KinectRegion = kinectRegion;
             sensorChooser.KinectChanged += KinectState.Instance.OnKinectChanged;
             sensorChooser.Start();
         }

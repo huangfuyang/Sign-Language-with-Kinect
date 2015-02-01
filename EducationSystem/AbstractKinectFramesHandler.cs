@@ -1,13 +1,15 @@
 ﻿using System.Threading;
 using Microsoft.Kinect;
+using Microsoft.Kinect.Toolkit.Controls;
 
 namespace EducationSystem
 {
-    abstract class AbstractKinectFramesHandler
+    abstract class AbstractKinectFramesHandler : AutoNotifyPropertyChanged
     {
         public abstract void SkeletonFrameCallback(long timestamp, int frameNumber, Skeleton[] skeletonData);
         public abstract void DepthFrameCallback(long timestamp, int frameNumber, DepthImagePixel[] depthPixels);
         public abstract void ColorFrameCallback(long timestamp, int frameNumber, byte[] colorPixels);
+        public abstract void HandPointersCallback(long timestamp, HandPointer[] handPointers);
 
         private bool isRegisterAllFrameReady;
 
@@ -28,6 +30,8 @@ namespace EducationSystem
                 sensor.DepthFrameReady += sensor_DepthFrameReady;
                 sensor.ColorFrameReady += sensor_ColorFrameReady;
             }
+
+            KinectState.Instance.KinectRegion.HandPointersUpdated += KinectRegion_HandPointersUpdated;
         }
 
         private void sensor_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
@@ -50,6 +54,20 @@ namespace EducationSystem
             handleSkeletonFrame(e.OpenSkeletonFrame());
             handleDepthImageFrame(e.OpenDepthImageFrame());
             handleColorImageFrame(e.OpenColorImageFrame());
+        }
+
+        private void KinectRegion_HandPointersUpdated(object sender, System.EventArgs e)
+        {
+            HandPointer[] handPointers = new HandPointer[KinectState.Instance.KinectRegion.HandPointers.Count];
+            KinectState.Instance.KinectRegion.HandPointers.CopyTo(handPointers, 0);
+            long timestampOfLastUpdate = long.MinValue;
+
+            foreach (HandPointer handPointer in handPointers)
+            {
+                timestampOfLastUpdate = System.Math.Max(handPointer.TimestampOfLastUpdate, timestampOfLastUpdate);
+            }
+
+            ThreadPool.QueueUserWorkItem(new WaitCallback(o => HandPointersCallback(timestampOfLastUpdate, handPointers)));
         }
 
         private void handleSkeletonFrame(SkeletonFrame skeletonFrame)
