@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
 
 namespace EducationSystem
 {
@@ -10,6 +11,11 @@ namespace EducationSystem
         public HomePage()
         {
             InitializeComponent();
+        }
+
+        private void btnGame_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            this.NavigationService.Navigate(new Uri("GamePage.xaml", UriKind.Relative));
         }
     }
 }

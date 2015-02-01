@@ -20,6 +20,6 @@
 		<k:KinectTileButton x:Name="btnDictionary" Label="Dictionary" Width="Auto" Height="Auto" Grid.Row="0" Grid.Column="0"/>
 		<k:KinectTileButton x:Name="btnLearn" Label="Learn" Width="Auto" Height="Auto" Grid.Row="0" Grid.Column="1"/>
 		<k:KinectTileButton x:Name="btnQuiz" Label="Quiz" Width="Auto" Height="Auto" Grid.Row="1" Grid.Column="0"/>
-		<k:KinectTileButton x:Name="btnGame" Label="Game" Width="Auto" Height="Auto" Grid.Row="1" Grid.Column="1"/>
+		<k:KinectTileButton x:Name="btnGame" Label="Game" Width="Auto" Height="Auto" Grid.Row="1" Grid.Column="1" Click="btnGame_Click"/>
 	</Grid>
 </Page>
