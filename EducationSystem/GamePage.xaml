@@ -56,6 +56,6 @@
 				</Style>
 			</Image.Style>
 		</Image>
-		<k:KinectTileButton Grid.Row="2" Content="Start" Height="Auto" Margin="10" Name="WelcomeStartButton" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Foreground="White" />
+		<k:KinectTileButton Grid.Row="2" Content="Go!" Height="Auto" Margin="10" Name="btnStartGame" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Foreground="White" Click="btnStartGame_Click" />
 	</Grid>
 </Page>

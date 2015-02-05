@@ -65,6 +65,9 @@
     </ApplicationDefinition>
     <Compile Include="AbstractKinectFramesHandler.cs" />
     <Compile Include="ActiveUserDetector.cs" />
+    <Compile Include="GameIntroductionPage.xaml.cs">
+      <DependentUpon>GameIntroductionPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>
     </Compile>
@@ -76,6 +79,10 @@
     <Compile Include="SplashPage.xaml.cs">
       <DependentUpon>SplashPage.xaml</DependentUpon>
     </Compile>
+    <Page Include="GameIntroductionPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="GamePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -133,6 +140,9 @@
     <Resource Include="Images\IconUserNotJoinedLeft.png" />
     <Resource Include="Images\IconUserJoinedRight.png" />
     <Resource Include="Images\IconUserNotJoinedRight.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Signing.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
