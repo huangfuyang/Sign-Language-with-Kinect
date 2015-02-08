@@ -20,7 +20,7 @@
 					<ColumnDefinition Width="1024"/>
 					<ColumnDefinition/>
 				</Grid.ColumnDefinitions>
-				<Frame Name="frmPageContainer" NavigationUIVisibility="Hidden" Source="SplashPage.xaml" Grid.Row="1" Grid.Column="1" />
+				<Frame Name="frmPageContainer" NavigationUIVisibility="Hidden" Grid.Row="1" Grid.Column="1" />
 			</Grid>
         </k:KinectRegion>
         <k:KinectUserViewer VerticalAlignment="Top" HorizontalAlignment="Right" k:KinectRegion.KinectRegion="{Binding ElementName=kinectRegion}" Height="100" UserColoringMode="HighlightPrimary" PrimaryUserColor="Red" />

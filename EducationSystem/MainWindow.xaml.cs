@@ -18,8 +18,18 @@ namespace EducationSystem
             KinectSensorChooser sensorChooser = (KinectSensorChooser)this.Resources["sensorChooser"];
 
             KinectState.Instance.KinectRegion = kinectRegion;
+
+            KinectState.Instance.PropertyChanged += KinectState_PropertyChanged;
             sensorChooser.KinectChanged += KinectState.Instance.OnKinectChanged;
             sensorChooser.Start();
+        }
+
+        void KinectState_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if ("CurrentKinectSensor".Equals(e.PropertyName))
+            {
+                frmPageContainer.Source = new System.Uri("SplashPage.xaml", System.UriKind.RelativeOrAbsolute);
+            }
         }
 
         private void Window_Closed(object sender, System.EventArgs e)
