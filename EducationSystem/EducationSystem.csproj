@@ -71,6 +71,9 @@
     <Compile Include="GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GamePlayPage.xaml.cs">
+      <DependentUpon>GamePlayPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="util\AutoNotifyPropertyChanged.cs" />
     <Compile Include="HomePage.xaml.cs">
       <DependentUpon>HomePage.xaml</DependentUpon>
@@ -84,6 +87,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="GamePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GamePlayPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

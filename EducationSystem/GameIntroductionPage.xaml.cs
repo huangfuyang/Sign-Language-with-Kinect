@@ -51,5 +51,11 @@ namespace EducationSystem
 
             InitializeComponent();
         }
+
+        private void btnStartGame_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            GamePlayPage gamePlayPage = new GamePlayPage();
+            this.NavigationService.Navigate(gamePlayPage);
+        }
     }
 }

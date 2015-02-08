@@ -32,6 +32,6 @@
 			<Label Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="18" Content="{Binding GameDescription, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:GameIntroductionPage}}}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="1"/>
 		</Grid>
 		<Image Grid.Column="1" Source="{Binding GameDescriptionImage, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:GameIntroductionPage}}}"/>
-		<k:KinectTileButton Grid.Column="0" Grid.ColumnSpan="2" Content="Start the Game!" Height="Auto" Margin="10" x:Name="btnStartGame" Grid.Row="1" HorizontalContentAlignment="Center" Foreground="White" Width="Auto" FontSize="72" FontWeight="Thin"/>
+		<k:KinectTileButton Grid.Column="0" Grid.ColumnSpan="2" Content="Start the Game!" Height="Auto" Margin="10" x:Name="btnStartGame" Grid.Row="1" HorizontalContentAlignment="Center" Foreground="White" Width="Auto" FontSize="72" FontWeight="Thin" Click="btnStartGame_Click"/>
 	</Grid>
 </Page>
