@@ -65,6 +65,7 @@
     </ApplicationDefinition>
     <Compile Include="AbstractKinectFramesHandler.cs" />
     <Compile Include="ActiveUserDetector.cs" />
+    <Compile Include="GameInformationModel.cs" />
     <Compile Include="GameIntroductionPage.xaml.cs">
       <DependentUpon>GameIntroductionPage.xaml</DependentUpon>
     </Compile>
