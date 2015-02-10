@@ -1,0 +1,28 @@
+﻿<Page x:Class="EducationSystem.GameSelectionPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:k="http://schemas.microsoft.com/kinect/2013"
+	  xmlns:local="clr-namespace:EducationSystem"
+      mc:Ignorable="d" 
+      d:DesignHeight="768" d:DesignWidth="1024"
+	Title="GameSelectionPage">
+	
+	<Page.Resources>
+		<DataTemplate x:Key="GamePanelItemTemplate" DataType="{x:Type local:GameInformationModel}">
+			<k:KinectTileButton Label="{Binding Title}" ToolTip="{Binding ShortDescription}" Tag="{Binding}" Width="Auto" Height="Auto" />
+		</DataTemplate>
+		<x:Array x:Key="GameInformationModels" Type="{x:Type local:GameInformationModel}" />
+	</Page.Resources>
+	
+    <Grid>
+		<ItemsControl Name="GamePanel" ItemTemplate="{Binding Source={StaticResource GamePanelItemTemplate}}">
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<UniformGrid Rows="1" />
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
+		</ItemsControl>
+	</Grid>
+</Page>
