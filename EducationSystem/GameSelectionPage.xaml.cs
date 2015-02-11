@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Windows.Controls;
 using System.Xml;
+using Microsoft.Kinect.Toolkit.Controls;
 
 namespace EducationSystem
 {
@@ -32,9 +33,11 @@ namespace EducationSystem
             }
         }
 
-        void button_Click(object sender, System.Windows.RoutedEventArgs e)
+        void GameButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            throw new System.NotImplementedException();
+            GameInformationModel gameInformationModel = (sender as KinectTileButton).Tag as GameInformationModel;
+            GameIntroductionPage gameIntroductionPage = new GameIntroductionPage(gameInformationModel);
+            this.NavigationService.Navigate(gameIntroductionPage);
         }
     }
 }

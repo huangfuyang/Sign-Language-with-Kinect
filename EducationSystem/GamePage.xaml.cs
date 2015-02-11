@@ -11,8 +11,11 @@ namespace EducationSystem
     {
         public readonly DependencyProperty ActiveUserCount = DependencyProperty.Register("ActiveUserCount", typeof(int), typeof(GamePage));
 
-        public GamePage()
+        private GameIntroductionPage gameIntroduction;
+
+        public GamePage(GameIntroductionPage gameIntroduction)
         {
+            this.gameIntroduction = gameIntroduction;
             InitializeComponent();
 
             ActiveUserDetector activeUserDetector = (ActiveUserDetector)this.Resources["ActiveUserDetector"];
@@ -24,7 +27,6 @@ namespace EducationSystem
 
         private void btnStartGame_Click(object sender, RoutedEventArgs e)
         {
-            GameIntroductionPage gameIntroduction = new GameIntroductionPage("Data/XML/gameIntroduction.xml");
             this.NavigationService.Navigate(gameIntroduction);
         }
     }

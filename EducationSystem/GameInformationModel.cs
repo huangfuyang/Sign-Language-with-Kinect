@@ -2,7 +2,7 @@
 using System.Xml;
 namespace EducationSystem
 {
-    class GameInformationModel
+    public class GameInformationModel
     {
         private string _title;
         public string Title
@@ -22,10 +22,10 @@ namespace EducationSystem
             get { return _description; }
         }
 
-        private string _gamePageLink;
-        public string GamePageLink
+        private string _gamePageType;
+        public string GamePageType
         {
-            get { return _gamePageLink; }
+            get { return _gamePageType; }
         }
 
         public GameInformationModel(XmlNode source)
@@ -33,7 +33,7 @@ namespace EducationSystem
             _title = source["Title"].InnerText;
             _shortDescription = source["ShortDescription"].InnerText;
             _description = source["Description"].InnerText;
-            _gamePageLink = source["GamePageLink"].InnerText;
+            _gamePageType = source["GamePageType"].InnerText;
         }
     }
 }

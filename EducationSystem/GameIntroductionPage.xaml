@@ -28,8 +28,8 @@
 				<RowDefinition Height="Auto"/>
 				<RowDefinition/>
 			</Grid.RowDefinitions>
-			<Label Foreground="{StaticResource KinectPurpleBrush}" FontSize="48" FontFamily="Segoe UI" FontWeight="Light" Content="{Binding GameTitle, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:GameIntroductionPage}}}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-			<Label Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="18" Content="{Binding GameDescription, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:GameIntroductionPage}}}" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="1"/>
+			<Label FontSize="48" FontFamily="Segoe UI" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="0" Foreground="{StaticResource KinectPurpleBrush}" Content="{Binding Title}" FontWeight="Light" />
+			<Label FontSize="18" FontFamily="Segoe UI" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="1" Foreground="{StaticResource MediumGreyBrush}" Content="{Binding Description}" />
 		</Grid>
 		<Image Grid.Column="1" Source="{Binding GameDescriptionImage, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:GameIntroductionPage}}}"/>
 		<k:KinectTileButton Grid.Column="0" Grid.ColumnSpan="2" Content="Start the Game!" Height="Auto" Margin="10" x:Name="btnStartGame" Grid.Row="1" HorizontalContentAlignment="Center" Foreground="White" Width="Auto" FontSize="72" FontWeight="Thin" Click="btnStartGame_Click"/>

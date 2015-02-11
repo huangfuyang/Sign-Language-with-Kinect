@@ -11,7 +11,7 @@
 	
 	<Page.Resources>
 		<DataTemplate x:Key="GamePanelItemTemplate" DataType="{x:Type local:GameInformationModel}">
-			<k:KinectTileButton Label="{Binding Title}" ToolTip="{Binding ShortDescription}" Tag="{Binding}" Width="Auto" Height="Auto" />
+			<k:KinectTileButton Label="{Binding Title}" ToolTip="{Binding ShortDescription}" Tag="{Binding}" Width="Auto" Height="Auto" Click="GameButton_Click" />
 		</DataTemplate>
 		<x:Array x:Key="GameInformationModels" Type="{x:Type local:GameInformationModel}" />
 	</Page.Resources>

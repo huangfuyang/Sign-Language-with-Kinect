@@ -1,8 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using System.Xml;
 
 namespace EducationSystem
 {
@@ -11,19 +9,6 @@ namespace EducationSystem
     /// </summary>
     public partial class GameIntroductionPage : Page
     {
-        private string _gameTitle = "Title";
-        public string GameTitle
-        {
-            get { return _gameTitle; }
-            set { _gameTitle = value; }
-        }
-
-        private string _gameDescription = "Description";
-        public string GameDescription
-        {
-            get { return _gameDescription; }
-            set { _gameDescription = value; }
-        }
 
         private string _gameDescriptionImagePath = "Data/Images/back01.png";
         public BitmapImage GameDescriptionImage
@@ -38,23 +23,17 @@ namespace EducationSystem
             }
         }
 
-        public GameIntroductionPage(string path)
+        public GameIntroductionPage(GameInformationModel informationModel)
         {
-            XmlDocument xmldoc = new XmlDocument();
-            FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
-
-            xmldoc.Load(fs);
-            GameTitle = xmldoc.GetElementsByTagName("Title")[0].InnerText;
-            GameDescription = xmldoc.GetElementsByTagName("Description")[0].InnerText;
+            this.DataContext = informationModel;
             _gameDescriptionImagePath = "Images/Signing.png";
-            Console.WriteLine("{0} - {1}", this.Resources["GameTitle"], this.Resources["GameDescription"]);
-
             InitializeComponent();
         }
 
         private void btnStartGame_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            GamePlayPage gamePlayPage = new GamePlayPage();
+            string gamePlayTypeString = String.Format("{0}.{1}", this.GetType().Namespace, ((GameInformationModel)this.DataContext).GamePageType);
+            Page gamePlayPage = (Page)Activator.CreateInstance(Type.GetType(gamePlayTypeString));
             this.NavigationService.Navigate(gamePlayPage);
         }
     }
