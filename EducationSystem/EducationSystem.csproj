@@ -81,6 +81,10 @@
     <Compile Include="GameSelectionPage.xaml.cs">
       <DependentUpon>GameSelectionPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SignNumGame\GameManager.cs" />
+    <Compile Include="SignNumGame\Point.cs" />
+    <Compile Include="SignNumGame\Tile.cs" />
+    <Compile Include="SignNumGame\Grid.cs" />
     <Compile Include="util\AutoNotifyPropertyChanged.cs" />
     <Compile Include="HomePage.xaml.cs">
       <DependentUpon>HomePage.xaml</DependentUpon>
