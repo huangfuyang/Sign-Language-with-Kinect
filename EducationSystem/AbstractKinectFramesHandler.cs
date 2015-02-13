@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using System.Windows;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit.Controls;
 
@@ -13,8 +14,23 @@ namespace EducationSystem
 
         private bool isRegisterAllFrameReady;
 
+        private enum GripState { Released, Gripped }
+        private GripState lastGripStatus;
+        private Point gripPoint;
+        private UIElement element;
+        private HandPointer capturedHandPointer;
+        private HandPointer grippedHandpointer;
+
         public AbstractKinectFramesHandler(bool isRegisterAllFrameReady = true)
+            : this(KinectState.Instance.KinectRegion, isRegisterAllFrameReady)
         {
+
+        }
+
+        public AbstractKinectFramesHandler(UIElement element, bool isRegisterAllFrameReady = true)
+        {
+            this.lastGripStatus = GripState.Released;
+            this.element = element;
             this.isRegisterAllFrameReady = isRegisterAllFrameReady;
         }
 
@@ -31,7 +47,127 @@ namespace EducationSystem
                 sensor.ColorFrameReady += sensor_ColorFrameReady;
             }
 
+            KinectRegion.AddHandPointerGotCaptureHandler(element, this.OnHandPointerCaptured);
+            KinectRegion.AddHandPointerLostCaptureHandler(element, this.OnHandPointerLostCapture);
+            KinectRegion.AddHandPointerEnterHandler(element, this.OnHandPointerEnter);
+            KinectRegion.AddHandPointerMoveHandler(element, this.OnHandPointerMove);
+            KinectRegion.AddHandPointerPressHandler(element, this.OnHandPointerPress);
+            KinectRegion.AddHandPointerGripHandler(element, this.OnHandPointerGrip);
+            KinectRegion.AddHandPointerGripReleaseHandler(element, this.OnHandPointerGripRelease);
+            KinectRegion.AddQueryInteractionStatusHandler(element, this.OnQueryInteractionStatus);
+            KinectRegion.SetIsGripTarget(element, true);
             KinectState.Instance.KinectRegion.HandPointersUpdated += KinectRegion_HandPointersUpdated;
+        }
+
+        private void HandleHandPointerGrip(HandPointer handPointer)
+        {
+            if (handPointer == null)
+            {
+                return;
+            }
+
+            if (this.capturedHandPointer != handPointer)
+            {
+                if (handPointer.Captured == null)
+                {
+                    handPointer.Capture(element);
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            this.lastGripStatus = GripState.Gripped;
+            this.gripPoint = handPointer.GetPosition(element);
+        }
+
+        private void OnHandPointerCaptured(object sender, HandPointerEventArgs kinectHandPointerEventArgs)
+        {
+            if (this.capturedHandPointer != null)
+            {
+                this.capturedHandPointer.Capture(null);
+            }
+            this.capturedHandPointer = kinectHandPointerEventArgs.HandPointer;
+            kinectHandPointerEventArgs.Handled = true;
+        }
+
+        private void OnHandPointerLostCapture(object sender, HandPointerEventArgs kinectHandPointerEventArgs)
+        {
+            if (this.capturedHandPointer == kinectHandPointerEventArgs.HandPointer)
+            {
+                this.capturedHandPointer = null;
+                this.lastGripStatus = GripState.Released;
+                kinectHandPointerEventArgs.Handled = true;
+            }
+        }
+
+        private void OnHandPointerEnter(object sender, HandPointerEventArgs kinectHandPointerEventArgs)
+        {
+            if (kinectHandPointerEventArgs.HandPointer.IsPrimaryHandOfUser && kinectHandPointerEventArgs.HandPointer.IsPrimaryUser)
+            {
+                kinectHandPointerEventArgs.Handled = true;
+                if (this.grippedHandpointer == kinectHandPointerEventArgs.HandPointer)
+                {
+                    this.HandleHandPointerGrip(kinectHandPointerEventArgs.HandPointer);
+                    this.grippedHandpointer = null;
+                }
+            }
+        }
+
+        private void OnHandPointerMove(object sender, HandPointerEventArgs kinectHandPointerEventArgs)
+        {
+            if (element.Equals(kinectHandPointerEventArgs.HandPointer.Captured))
+            {
+                kinectHandPointerEventArgs.Handled = true;
+
+                if (this.lastGripStatus == GripState.Released)
+                {
+                    return;
+                }
+
+                if (!kinectHandPointerEventArgs.HandPointer.IsInteractive)
+                {
+                    this.lastGripStatus = GripState.Released;
+                }
+            }
+        }
+
+        private void OnHandPointerPress(object sender, HandPointerEventArgs kinectHandPointerEventArgs)
+        {
+            if (element.Equals(kinectHandPointerEventArgs.HandPointer.Captured))
+            {
+                kinectHandPointerEventArgs.Handled = true;
+            }
+        }
+
+        private void OnHandPointerGrip(object sender, HandPointerEventArgs kinectHandPointerEventArgs)
+        {
+            if (kinectHandPointerEventArgs.HandPointer.IsPrimaryUser
+                && kinectHandPointerEventArgs.HandPointer.IsPrimaryHandOfUser
+                && kinectHandPointerEventArgs.HandPointer.IsInteractive)
+            {
+                this.HandleHandPointerGrip(kinectHandPointerEventArgs.HandPointer);
+                kinectHandPointerEventArgs.Handled = true;
+            }
+        }
+
+        private void OnHandPointerGripRelease(object sender, HandPointerEventArgs kinectHandPointerEventArgs)
+        {
+            if (element.Equals(kinectHandPointerEventArgs.HandPointer.Captured))
+            {
+                kinectHandPointerEventArgs.Handled = true;
+                this.lastGripStatus = GripState.Released;
+            }
+        }
+
+        private void OnQueryInteractionStatus(object sender, QueryInteractionStatusEventArgs queryInteractionStatusEventArgs)
+        {
+            if (element.Equals(queryInteractionStatusEventArgs.HandPointer.Captured))
+            {
+                queryInteractionStatusEventArgs.IsInGripInteraction = this.lastGripStatus == GripState.Gripped;
+                queryInteractionStatusEventArgs.Handled = true;
+            }
         }
 
         private void sensor_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
