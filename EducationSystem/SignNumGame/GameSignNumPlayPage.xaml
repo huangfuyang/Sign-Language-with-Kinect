@@ -22,7 +22,7 @@
 	</Page.Resources>
 	
     <Grid>
-		<ItemsControl Name="GameBoardPanel" ItemTemplate="{Binding Source={StaticResource GamePanelItemTemplate}}">
+		<ItemsControl Name="GameBoardPanel" ItemTemplate="{Binding Source={StaticResource GamePanelItemTemplate}}" Background="AliceBlue">
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
 					<Grid>

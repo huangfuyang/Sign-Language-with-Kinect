@@ -11,6 +11,7 @@ namespace EducationSystem
         public virtual void DepthFrameCallback(long timestamp, int frameNumber, DepthImagePixel[] depthPixels) { }
         public virtual void ColorFrameCallback(long timestamp, int frameNumber, byte[] colorPixels) { }
         public virtual void HandPointersCallback(long timestamp, HandPointer[] handPointers) { }
+        public virtual void OnHandPointerGripRelease(HandPointer grippedHandpointer, Point startGripPoint, Point endGripPoint) { }
 
         private bool isRegisterAllFrameReady;
 
@@ -53,7 +54,7 @@ namespace EducationSystem
             KinectRegion.AddHandPointerMoveHandler(element, this.OnHandPointerMove);
             KinectRegion.AddHandPointerPressHandler(element, this.OnHandPointerPress);
             KinectRegion.AddHandPointerGripHandler(element, this.OnHandPointerGrip);
-            KinectRegion.AddHandPointerGripReleaseHandler(element, this.OnHandPointerGripRelease);
+            KinectRegion.AddHandPointerGripReleaseHandler(element, this._onHandPointerGripRelease);
             KinectRegion.AddQueryInteractionStatusHandler(element, this.OnQueryInteractionStatus);
             KinectRegion.SetIsGripTarget(element, true);
             KinectState.Instance.KinectRegion.HandPointersUpdated += KinectRegion_HandPointersUpdated;
@@ -152,12 +153,13 @@ namespace EducationSystem
             }
         }
 
-        private void OnHandPointerGripRelease(object sender, HandPointerEventArgs kinectHandPointerEventArgs)
+        private void _onHandPointerGripRelease(object sender, HandPointerEventArgs kinectHandPointerEventArgs)
         {
             if (element.Equals(kinectHandPointerEventArgs.HandPointer.Captured))
             {
                 kinectHandPointerEventArgs.Handled = true;
                 this.lastGripStatus = GripState.Released;
+                OnHandPointerGripRelease(kinectHandPointerEventArgs.HandPointer, gripPoint, kinectHandPointerEventArgs.HandPointer.GetPosition(element));
             }
         }
 
