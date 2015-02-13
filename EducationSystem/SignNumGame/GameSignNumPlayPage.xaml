@@ -5,13 +5,19 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:EducationSystem"
 	  xmlns:local_game="clr-namespace:EducationSystem.SignNumGame"
+      xmlns:local_util="clr-namespace:EducationSystem.util"
       mc:Ignorable="d" 
       d:DesignHeight="768" d:DesignWidth="1024"
 	Title="GameSignNumPlayPage" KeyUp="Page_KeyUp" Loaded="Page_Loaded">
 	
 	<Page.Resources>
+		<local_util:ImagePathConverter x:Key="ImagePathConverter" />
 		<DataTemplate x:Key="GamePanelItemTemplate" DataType="{x:Type local_game:Tile}">
-			<Label FontSize="72" FontFamily="Segoe UI" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{Binding Value}" FontWeight="Light" BorderThickness="5" BorderBrush="Black" />
+			<Label FontSize="72" FontFamily="Segoe UI" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{Binding Value}" FontWeight="Light" BorderThickness="5" BorderBrush="Black" >
+				<Label.Background>
+					<ImageBrush ImageSource="{Binding Value, Converter={StaticResource ImagePathConverter}}" Stretch="Uniform"/>
+				</Label.Background>
+			</Label>
 		</DataTemplate>
 	</Page.Resources>
 	
