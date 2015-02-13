@@ -7,10 +7,10 @@ namespace EducationSystem
 {
     abstract class AbstractKinectFramesHandler : AutoNotifyPropertyChanged
     {
-        public abstract void SkeletonFrameCallback(long timestamp, int frameNumber, Skeleton[] skeletonData);
-        public abstract void DepthFrameCallback(long timestamp, int frameNumber, DepthImagePixel[] depthPixels);
-        public abstract void ColorFrameCallback(long timestamp, int frameNumber, byte[] colorPixels);
-        public abstract void HandPointersCallback(long timestamp, HandPointer[] handPointers);
+        public virtual void SkeletonFrameCallback(long timestamp, int frameNumber, Skeleton[] skeletonData) { }
+        public virtual void DepthFrameCallback(long timestamp, int frameNumber, DepthImagePixel[] depthPixels) { }
+        public virtual void ColorFrameCallback(long timestamp, int frameNumber, byte[] colorPixels) { }
+        public virtual void HandPointersCallback(long timestamp, HandPointer[] handPointers) { }
 
         private bool isRegisterAllFrameReady;
 

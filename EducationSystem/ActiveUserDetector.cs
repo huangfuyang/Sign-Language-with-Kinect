@@ -1,6 +1,5 @@
 ﻿
 using System.Collections.Generic;
-using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit.Controls;
 namespace EducationSystem
 {
@@ -12,21 +11,6 @@ namespace EducationSystem
         {
             get { return _activeUserCount; }
             set { SetProperty(ref _activeUserCount, value, true); }
-        }
-
-        public override void SkeletonFrameCallback(long timestamp, int frameNumber, Skeleton[] skeletonData)
-        {
-
-        }
-
-        public override void DepthFrameCallback(long timestamp, int frameNumber, DepthImagePixel[] depthPixels)
-        {
-
-        }
-
-        public override void ColorFrameCallback(long timestamp, int frameNumber, byte[] colorPixels)
-        {
-
         }
 
         public override void HandPointersCallback(long timestamp, HandPointer[] handPointers)
