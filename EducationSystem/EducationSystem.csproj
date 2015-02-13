@@ -82,6 +82,9 @@
       <DependentUpon>GameSelectionPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="SignNumGame\GameManager.cs" />
+    <Compile Include="SignNumGame\GameSignNumPlayPage.xaml.cs">
+      <DependentUpon>GameSignNumPlayPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SignNumGame\Point.cs" />
     <Compile Include="SignNumGame\Tile.cs" />
     <Compile Include="SignNumGame\Grid.cs" />
@@ -129,6 +132,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="SignNumGame\GameSignNumPlayPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="SplashPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
