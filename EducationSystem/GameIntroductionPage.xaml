@@ -1,0 +1,37 @@
+﻿<Page x:Class="EducationSystem.GameIntroductionPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:k="http://schemas.microsoft.com/kinect/2013"
+      xmlns:sys="clr-namespace:System;assembly=mscorlib"
+      xmlns:local="clr-namespace:EducationSystem"
+      mc:Ignorable="d" 
+      d:DesignHeight="768" d:DesignWidth="1024"
+	Title="GameIntroductionPage">
+
+	<Page.Resources>
+		<SolidColorBrush x:Key="KinectPurpleBrush" Color="#52318F"/>
+		<SolidColorBrush x:Key="MediumGreyBrush" Color="#6e6e6e"/>
+	</Page.Resources>
+	<Grid Margin="20">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="1.618*"/>
+			<ColumnDefinition/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="1.618*"/>
+			<RowDefinition/>
+		</Grid.RowDefinitions>
+		<Grid Grid.Row="0">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition/>
+			</Grid.RowDefinitions>
+			<Label FontSize="48" FontFamily="Segoe UI" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="0" Foreground="{StaticResource KinectPurpleBrush}" Content="{Binding Title}" FontWeight="Light" />
+			<Label FontSize="18" FontFamily="Segoe UI" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="1" Foreground="{StaticResource MediumGreyBrush}" Content="{Binding Description}" />
+		</Grid>
+		<Image Grid.Column="1" Source="{Binding GameDescriptionImage, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:GameIntroductionPage}}}"/>
+		<k:KinectTileButton Grid.Column="0" Grid.ColumnSpan="2" Content="Start the Game!" Height="Auto" Margin="10" x:Name="btnStartGame" Grid.Row="1" HorizontalContentAlignment="Center" Foreground="White" Width="Auto" FontSize="72" FontWeight="Thin" Click="btnStartGame_Click"/>
+	</Grid>
+</Page>
