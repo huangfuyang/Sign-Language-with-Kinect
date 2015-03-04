@@ -80,7 +80,7 @@ namespace EducationSystem
             }
 
             this.lastGripStatus = GripState.Gripped;
-            this.gripPoint = handPointer.GetPosition(element);
+            this.gripPoint = handPointer.GetPosition(Application.Current.MainWindow);
         }
 
         private void OnHandPointerCaptured(object sender, HandPointerEventArgs kinectHandPointerEventArgs)
@@ -97,6 +97,7 @@ namespace EducationSystem
         {
             if (this.capturedHandPointer == kinectHandPointerEventArgs.HandPointer)
             {
+                this.capturedHandPointer.Capture(null);
                 this.capturedHandPointer = null;
                 this.lastGripStatus = GripState.Released;
                 kinectHandPointerEventArgs.Handled = true;
@@ -157,9 +158,18 @@ namespace EducationSystem
         {
             if (element.Equals(kinectHandPointerEventArgs.HandPointer.Captured))
             {
+                Point newHandPosition = kinectHandPointerEventArgs.HandPointer.GetPosition(Application.Current.MainWindow);
+                double windowWidth = Application.Current.MainWindow.ActualWidth;
+                double windowHeight = Application.Current.MainWindow.ActualHeight;
+
                 kinectHandPointerEventArgs.Handled = true;
+                kinectHandPointerEventArgs.HandPointer.Capture(null);
                 this.lastGripStatus = GripState.Released;
-                OnHandPointerGripRelease(kinectHandPointerEventArgs.HandPointer, gripPoint, kinectHandPointerEventArgs.HandPointer.GetPosition(element));
+
+                if (newHandPosition.X >= 0 && newHandPosition.Y >= 0 && newHandPosition.X < windowWidth && newHandPosition.Y < windowHeight)
+                {
+                    OnHandPointerGripRelease(kinectHandPointerEventArgs.HandPointer, gripPoint, newHandPosition);
+                }
             }
         }
 
