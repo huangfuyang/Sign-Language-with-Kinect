@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Emgu.CV;
 using Microsoft.Kinect;
 using Newtonsoft.Json;
 
@@ -14,28 +16,72 @@ namespace CURELab.SignLanguage.HandDetector
 {
     class FrameData
     {
-        public string depth { get; set; }
-        public string color { get; set; }
+        public string right { get; set; }
+        public string left { get; set; }
         public string skeleton { get; set; }
         public string label { get; set; }
+        public string position { get; set; }
     }
     public static class FrameConverter
     {
-        public static string Encode(Bitmap hand, Skeleton skeleton)
+        public static string EncodeImage(IImage bmp)
         {
-            byte[] imageData;
+            if (bmp == null)
+            {
+                return null;
+            }
+            return EncodeImage(bmp.Bitmap);
+        }
+
+        public static string EncodeImage(Bitmap bmp)
+        {
+            if (bmp == null)
+            {
+                return null;
+            }
             string bmpString;
             using (var stream = new MemoryStream())
             {
-                hand.Save(stream, ImageFormat.Jpeg);
-                imageData = stream.ToArray();
-                bmpString= Convert.ToBase64String(imageData);
+                bmp.Save(stream, ImageFormat.Bmp);
+                var imageData = stream.ToArray();
+                bmpString = Convert.ToBase64String(imageData);
+            }
+            return bmpString;
+
+        }
+        public static string Encode(HandShapeModel hand, Skeleton skeleton)
+        {
+            var right = EncodeImage(hand.RightColor);
+            var left = EncodeImage(hand.LeftColor);
+            var pos = String.Format("{0},{1},{2},{3}",
+                hand.right.GetXCenter(), hand.right.GetYCenter(), hand.left.GetXCenter(), hand.left.GetYCenter());
+            var frame = new FrameData()
+            {
+                right = right,
+                left = left,
+                skeleton = GetFrameDataArgString(skeleton),
+                label = hand.type.ToString(),
+                position = pos
+            };
+            var jsonData = JsonConvert.SerializeObject(frame, Formatting.Indented);
+            return jsonData;
+        }
+
+        public static string Encode(Bitmap img)
+        {
+            string bmpString;
+            
+            using (var stream = new MemoryStream())
+            {
+                img.Save(stream, ImageFormat.Bmp);
+                var imageData = stream.ToArray();
+                bmpString = Convert.ToBase64String(imageData);
             }
             var frame = new FrameData()
             {
-                depth = bmpString,
-                color = null,
-                skeleton = GetFrameDataArgString(skeleton),
+                right = bmpString,
+                left = null,
+                skeleton = null,
                 label = ""
             };
             var jsonData = JsonConvert.SerializeObject(frame, Formatting.Indented);
@@ -46,8 +92,8 @@ namespace CURELab.SignLanguage.HandDetector
         {
             var frame = new FrameData()
             {
-                depth = null,
-                color = null,
+                right= null,
+                left = null,
                 skeleton = null,
                 label = label
             };
@@ -59,7 +105,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             if (skeleton == null)
             {
-                return "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
+                return "";
             }
             if (skeleton.TrackingState != SkeletonTrackingState.Tracked)
             {
@@ -82,7 +128,12 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 JointType jointType = jointTypes[i];
                 SkeletonPoint point = skeleton.Joints[jointType].Position;
-                s += String.Format("{0},{1},{2},", point.X, point.Y, point.Z);
+                var cp = KinectSDKController.sensor.CoordinateMapper.MapSkeletonPointToColorPoint(point,
+                    ColorImageFormat.RgbResolution640x480Fps30);
+                var dp = KinectSDKController.sensor.CoordinateMapper.MapSkeletonPointToDepthPoint(point,
+                    DepthImageFormat.Resolution640x480Fps30);
+                s += String.Format("{0},{1},{2},{3},{4},{5},{6},", point.X, point.Y, point.Z,
+                    cp.X,cp.Y,dp.X,dp.Y);
             }
             if (s.Length>0)
             {

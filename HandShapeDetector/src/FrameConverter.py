@@ -16,18 +16,18 @@ class FrameConverter(object):
     def setDebug(self, debug):
         self.debug = debug
 
-    def encode(self, depthFrame, colorFrame, labelFrame, skeletonFrame):
+    def encode(self, right, left, labelFrame, skeletonFrame):
         encodedObject = {
-            'depth': self.encode_image(depthFrame),
-            'color': self.encode_image(colorFrame),
+            'right': self.encode_image(right),
+            'left': self.encode_image(left),
             'label': labelFrame,
             'skeleton': skeletonFrame
         }
         encodedJSON = self.encoder.encode(encodedObject)
         if self.debug:
             decodedFrame = self.decode(encodedJSON)
-            assert np.array_equal(decodedFrame['depth_image'], depthFrame)
-            assert np.array_equal(decodedFrame['color_image'], colorFrame)
+            assert np.array_equal(decodedFrame['right'], right)
+            assert np.array_equal(decodedFrame['left'], left)
             assert np.array_equal(decodedFrame['label'], labelFrame)
             assert np.array_equal(decodedFrame['skeleton'], skeletonFrame)
 
@@ -35,18 +35,18 @@ class FrameConverter(object):
 
     def decode(self, json):
         decodedDict = self.decoder.decode(json)
-        depthFrame = self.decode_image(decodedDict['depth'])
-        colorFrame = self.decode_image(decodedDict['color'])
+        right = self.decode_image(decodedDict['right'])
+        left = self.decode_image(decodedDict['left'])
         labelFrame = decodedDict['label']
         skeletonFrame = decodedDict['skeleton']
 
         return {
-            'depth_image': depthFrame,
-            'color_image': colorFrame,
+            'right': right,
+            'left': left,
             'label': labelFrame,
             'skeleton': skeletonFrame
         }
-
+    # obstacle
     def encode_image(self, original_image):
         encoded_image = base64.b64encode(original_image)
         image_shape = original_image.shape
@@ -62,5 +62,5 @@ class FrameConverter(object):
             image = Image.open(io.BytesIO(bytes))
             encoded_image = array(image)
         except:
-            return ""
+            return None
         return encoded_image

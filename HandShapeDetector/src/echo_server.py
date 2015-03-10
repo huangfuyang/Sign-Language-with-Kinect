@@ -39,7 +39,7 @@ class EchoHandler(asynchat.async_chat):
         self.set_terminator('#TERMINATOR#')
 
     def collect_incoming_data(self, data):
-        #self.logger.debug('collect_incoming_data() -> (%d bytes)\n"""%s"""', len(data), data)
+        # self.logger.debug('collect_incoming_data() -> (%d bytes)\n"""%s"""', len(data), data)
         self.received_data.append(data)
 
     def found_terminator(self):

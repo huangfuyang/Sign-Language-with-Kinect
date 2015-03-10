@@ -22,7 +22,7 @@
         <Viewbox Grid.Row="1" Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Center">
             <Image Name="img_depth" Width="640" Height="480" Margin="5"/>
         </Viewbox>
-        <Grid Grid.Column="0" Grid.Row="2">
+        <Grid Grid.Column="0" Grid.Row="2" Visibility="Hidden">
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
@@ -49,8 +49,11 @@
             </Viewbox>
         </Grid>
        
-        <StackPanel x:Name="SPn_right" Grid.Column="1" Grid.Row="2" Margin="5,0,5,10">
-            <Label x:Name="lbl_recording" Content="Recording" Foreground="Red" FontSize="15" Visibility="{Binding Path=IsRecording, Converter={StaticResource BoolToVis}, TargetNullValue=Collapsed, FallbackValue=Collapsed}" />
+        <StackPanel x:Name="SPn_right" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Margin="5,0,5,10">
+            <Label HorizontalAlignment="Center" x:Name="lbl_recording" Content="Recording" Foreground="Red" FontSize="15" Visibility="{Binding Path=IsRecording, Converter={StaticResource BoolToVis}, FallbackValue=Hidden}" />
+            <Label HorizontalAlignment="Center" x:Name="lbl_candidate1" Content="Candidate1"  FontSize="15"  />
+            <Label HorizontalAlignment="Center" x:Name="lbl_candidate2" Content=""  FontSize="15"  />
+            <Label HorizontalAlignment="Center" x:Name="lbl_candidate3" Content=""  FontSize="15"  />
 
 
         </StackPanel>
@@ -67,9 +70,9 @@
             >
             <MenuItem Header="Device">
                 <MenuItem Header="Kinect" Click="Menu_Kinect_Click" />
-                <MenuItem Header="Gesture" Click="Menu_Gesture_Click" />
-                <MenuItem Header="OpenNI" Click="Menu_OpenNI_Click"/>
-                <MenuItem Header="ONI file" Click="Menu_ONI_Click"/>
+                <MenuItem Header="Server" Click="Menu_Server_Click" />
+                <MenuItem Header="Train" Click="Menu_Train_Click" />
+                <MenuItem Header="End" Click="Menu_End_Click" />
                 <Separator />
                 <MenuItem Header="Exit" Click="Menu_Exit_Click"/>
             </MenuItem>

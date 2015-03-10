@@ -1,4 +1,6 @@
-﻿using Emgu.CV.Structure;
+﻿using System.Security.Principal;
+using System.Windows.Controls;
+using Emgu.CV.Structure;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -163,6 +165,20 @@ namespace CURELab.SignLanguage.HandDetector
             box.size = new SizeF(r.Width,r.Height);
             box.angle = 0;
             return box;
+        }
+
+        public static PointF GetCenter(this Rectangle r)
+        {
+            return new PointF(r.X+r.Width/2,r.Y+r.Height/2);
+        }
+
+        public static Rectangle Unite(this Rectangle r1, Rectangle r2)
+        {
+            int x = Math.Min(r1.X, r2.X);
+            int y = Math.Min(r1.Y, r2.Y);
+            int width = Math.Max(r1.Right, r2.Right) - x;
+            int height= Math.Max(r1.Bottom, r2.Bottom) - y;
+            return new Rectangle(x,y,width,height);
         }
     }
 }

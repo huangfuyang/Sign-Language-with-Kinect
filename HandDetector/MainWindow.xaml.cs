@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
@@ -12,6 +13,9 @@ using System.Windows.Media.Imaging;
 using System.IO;
 using System.Windows.Forms;
 using CURELab.SignLanguage.StaticTools;
+using Emgu.CV;
+using Emgu.CV.Features2D;
+using Emgu.CV.Structure;
 
 namespace CURELab.SignLanguage.HandDetector
 {
@@ -39,6 +43,7 @@ namespace CURELab.SignLanguage.HandDetector
         private KinectStudioController m_kinectStudioController;
         private DBManager m_DBmanager;
         private SocketManager socket;
+        private Dictionary<string, string> fullWordList;
         public MainWindow()
         {
             InitializeComponent();
@@ -57,25 +62,36 @@ namespace CURELab.SignLanguage.HandDetector
             ConsoleManager.Show();
             m_OpenCVController = OpenCVController.GetSingletonInstance();
 
-            RegisterThreshold("canny", ref OpenCVController.CANNY_THRESH, 100, 8);
-            RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
-            RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
-            RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
-            RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 40);
-            //socket = SocketManager.GetInstance("127.0.0.1",51243);
-            //socket = SocketManager.GetInstance("137.189.89.29", 51243);
-           
-            //for (int i = 0; i < 1; i++)
-            //{
-            //    socket.SendData(new Bitmap("t.jpg"),null);
-            //    Thread.Sleep(33);
-            //    socket.SendData(new Bitmap("t1.jpg"),null);
-            //    Thread.Sleep(33);
-            //    socket.SendEnd();
-            //    //socket.GetResponseAsync(, new AsyncCallback(GetResponseImageCallback));
-            //}
-            Menu_Kinect_Click(this, e);
+            //RegisterThreshold("canny", ref OpenCVController.CANNY_THRESH, 100, 8);
+            //RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
+            //RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
+            //RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
+            //RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 40);
+
+            //Menu_Kinect_Click(this, e);
+            Menu_Server_Click(this, e);
+            //Menu_Train_Click(this, e);
             //MenuItem_Test_Click(this, e);
+
+            // load word list
+            fullWordList = new Dictionary<string, string>();
+            using (var wl = File.Open("wordlist.txt", FileMode.Open))
+            {
+                using (StreamReader sw = new StreamReader(wl))
+                {
+                    var line = sw.ReadLine();
+                    while (!String.IsNullOrEmpty(line))
+                    {
+                        var t = line.Split();
+                        fullWordList.Add(t[1], t[3]);
+                        line = sw.ReadLine();
+                    }
+                    sw.Close();
+                }
+                wl.Close();
+            }
+
+
         }
 
         private unsafe void RegisterThreshold(string valuename, ref double thresh, double max, double initialValue)
@@ -161,6 +177,94 @@ namespace CURELab.SignLanguage.HandDetector
             }
 
         }
+        private void Menu_Server_Click(object sender, RoutedEventArgs e)
+        {
+            //socket = SocketManager.GetInstance("127.0.0.1", 51243);
+            socket = SocketManager.GetInstance("137.189.89.29", 51243);
+
+            Menu_Kinect_Click(sender, e);
+            //var hand = new HandShapeModel(HandEnum.Both)
+            //{
+            //    RightColor = new Image<Bgr, byte>("right.jpg"),
+            //    LeftColor = new Image<Bgr, byte>("left.jpg")
+            //};
+
+            //var hand1 = new HandShapeModel(HandEnum.Intersect)
+            //{
+            //    RightColor = new Image<Bgr, byte>("intersect.jpg")
+            //};
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    socket.SendData(hand1, null);
+            //    Thread.Sleep(33);
+            //    socket.SendData(hand, null);
+            //    Thread.Sleep(33);
+
+            //}
+            //socket.SendEnd();
+            AsnycDataRecieved();
+        }
+
+        private void AsnycDataRecieved()
+        {
+            var t = new Thread(new ThreadStart(DataRecieved));
+            t.Start();
+        }
+
+        private void DataRecieved()
+        {
+            if (socket != null)
+            {
+                Console.WriteLine("waiting reponse");
+
+                while (true)
+                {
+                    try
+                    {
+                        var r = socket.GetResponse();
+                        if (r == null)
+                        {
+                            Console.WriteLine("finish receive");
+                            break;
+                        }
+                        if (r != "0" && r != "")
+                        {
+                            r = r.Trim();
+                            Console.WriteLine("Data:{0}", r);
+                            var w = String.Format("Data:{0} word:{1}", r, fullWordList[r]);
+                            Console.WriteLine(w);
+                            this.Dispatcher.BeginInvoke((Action)delegate()
+                                    {
+                                        lbl_candidate1.Content = fullWordList[r];
+                                    });
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        //Console.WriteLine("receive data error:{0}",e);
+                    }
+
+                }
+
+            }
+        }
+
+        private void Menu_Train_Click(object sender, RoutedEventArgs e)
+        {
+            ResetAll();
+            m_KinectController = KinectTrainer.GetSingletonInstance();
+            this.DataContext = m_KinectController;
+            m_KinectController.Initialize();
+            this.img_color.Source = m_KinectController.ColorWriteBitmap;
+            this.img_depth.Source = m_KinectController.DepthWriteBitmap;
+            FolderBrowserDialog fbd = new FolderBrowserDialog();
+            DialogResult result = fbd.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+                (m_KinectController as KinectTrainer).OpenDir(fbd.SelectedPath);
+
+            //fbd.SelectedPath = @"D:\Kinect data\test\";
+            //lbl_folder.Content = files.Length.ToString();
+        }
 
         private void Menu_Kinect_Click(object sender, RoutedEventArgs e)
         {
@@ -182,15 +286,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         private void Menu_Gesture_Click(object sender, RoutedEventArgs e)
         {
-            for (int i = 0; i < 1; i++)
-            {
-                socket.SendData(new Bitmap("t.jpg"), null);
-                Thread.Sleep(33);
-                socket.SendData(new Bitmap("t1.jpg"), null);
-                Thread.Sleep(33);
-                socket.SendEnd();
-                //socket.GetResponseAsync(, new AsyncCallback(GetResponseImageCallback));
-            }
+
         }
 
         private void ResetAll()
@@ -272,7 +368,7 @@ namespace CURELab.SignLanguage.HandDetector
                 }
                 foreach (var dir in folder.GetDirectories())
                 {
-                    
+
                     foreach (var item in dir.GetFiles("*.xed"))
                     {
                         string fileName = item.Name;
@@ -281,7 +377,7 @@ namespace CURELab.SignLanguage.HandDetector
                         wordList.Add(wordModel);
                     }
                 }
-                Console.WriteLine(wordList.Count()+" words to process");
+                Console.WriteLine(wordList.Count() + " words to process");
             }
 
         }
@@ -321,7 +417,7 @@ namespace CURELab.SignLanguage.HandDetector
             }
             m_DBmanager.Commit();
             m_DBmanager.Close();
-            sr.Close(); 
+            sr.Close();
             #endregion
 
             #region kmeans
@@ -359,7 +455,7 @@ namespace CURELab.SignLanguage.HandDetector
                 {
                     KinectSDKController.AngleRotateTan = KinectSDKController.MichaelRotateTan;
                 }
-               // Console.WriteLine("current threshold:"+KinectSDKController.AngleRotateTan);
+                // Console.WriteLine("current threshold:"+KinectSDKController.AngleRotateTan);
                 m_DBmanager.BeginTrans();
                 m_DBmanager.AddWordSample(wordList[signIndex]);
                 m_kinectStudioController.Open_File(wordList[signIndex].FullName);
@@ -375,7 +471,13 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
 
-
-
+        private void Menu_End_Click(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("END");
+            if (socket != null)
+            {
+                socket.SendEnd();
+            }
+        }
     }
 }

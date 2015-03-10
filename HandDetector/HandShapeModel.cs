@@ -10,7 +10,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Windows;
+using Emgu.CV;
 using Microsoft.Kinect;
+using Point = System.Drawing.Point;
 
 
 namespace CURELab.SignLanguage.HandDetector
@@ -18,7 +21,7 @@ namespace CURELab.SignLanguage.HandDetector
     /// <summary>
     /// hand shape model
     /// </summary>
-    public class HandShapeModel
+    public class HandShapeModel:IDisposable
     {
         public long frame = 0;
         private int hogSize;
@@ -38,6 +41,14 @@ namespace CURELab.SignLanguage.HandDetector
         // hog left side view
         public float[] hogLeftSide;
 
+        public IImage RightColor;
+        public IImage RightDepth;
+        public IImage LeftColor;
+        public IImage LeftDepth;
+
+        public Rectangle right;
+        public Rectangle left;
+        public Rectangle intersectCenter;
         // skeleton data
         public string skeletonData = "";
 
@@ -141,11 +152,43 @@ namespace CURELab.SignLanguage.HandDetector
             //}
             return s;
         }
-        public HandShapeModel()
+        public HandShapeModel(HandEnum type)
         {
-
+            this.type = type;
         }
 
 
+        public void Dispose()
+        {
+            this.Dispose(true);
+            //GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (RightColor != null)
+            {
+                RightColor.Dispose();
+            }
+            if (RightDepth != null)
+            {
+                RightDepth.Dispose();
+            }
+            if (LeftColor != null)
+            {
+                LeftColor.Dispose();
+            } if (LeftDepth != null)
+            {
+                LeftDepth.Dispose();
+            }
+            }
+        }
+
+        ~HandShapeModel()
+        {
+            this.Dispose(false);
+        }
     }
 }

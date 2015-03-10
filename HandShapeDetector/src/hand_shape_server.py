@@ -4,13 +4,13 @@ from echo_server import EchoServer
 from FrameConverter import FrameConverter
 import collections
 import pylab as plt
-
 class HandShapeServer(object):
 
     def __init__(self, port):
         self.converter = FrameConverter()
         self.server = EchoServer(port, self.received_data)
-
+        plt.ion()
+        plt.show()
     def received_data(self, received_data):
         decoded_data = self.converter.decode(received_data)
         return self.process_data(decoded_data)
@@ -18,11 +18,13 @@ class HandShapeServer(object):
     def process_data(self, decoded_data):
         # For debug
         sleep_time = random.randint(1, 10)
-        plt.subplot(1,2,1), plt.imshow(decoded_data['depth_image'])
-        # plt.subplot(1,2,2), plt.imshow(decoded_data['color_image'])
-        plt.show()
+        if decoded_data['right'] is not None:
+            plt.subplot(1,2,1), plt.imshow(decoded_data['right'])
+        if decoded_data['left'] is not None:
+            plt.subplot(1,2,2), plt.imshow(decoded_data['left'])
         arrive_time = time.strftime("%H:%M:%S")
-        time.sleep(sleep_time)
+        # plt.pause(0.033)
+            # time.sleep(sleep_time)
         message_to_send = "Arrive=%s, Sleep=%d, Response=%s, Message='%s'\n" % (arrive_time, sleep_time, time.strftime("%H:%M:%S"), self.flatten(decoded_data).keys())
         return message_to_send
 

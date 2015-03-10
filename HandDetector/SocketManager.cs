@@ -26,7 +26,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             if (Instance == null)
             {
-                Instance = new SocketManager(addr,port);
+                Instance = new SocketManager(addr, port);
             }
             return Instance;
         }
@@ -45,12 +45,34 @@ namespace CURELab.SignLanguage.HandDetector
             client.Connect(ipe);
 
             if (client.Connected)
-            {   
+            {
                 Console.WriteLine("connected");
                 ns = client.GetStream();
                 sw = new StreamWriter(ns);
             }
-        
+
+        }
+
+        public string GetResponse()
+        {
+            if (ns != null)
+            {
+                try
+                {
+                    byte[] myReadBuffer = new byte[1024];
+                    var numberOfBytesRead = ns.Read(myReadBuffer, 0, myReadBuffer.Length);
+                    var s = Encoding.ASCII.GetString(myReadBuffer, 0, numberOfBytesRead);
+                    return s.Trim();
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    ns.Close();
+                    ns = null;
+                }
+            }
+            return null;
         }
 
         public string GetResponse(string msg)
@@ -101,11 +123,32 @@ namespace CURELab.SignLanguage.HandDetector
             ac.BeginInvoke(msg, callback, "states");
         }
 
-        public string SendData(Bitmap img,Skeleton skeleton)
+        public string SendData(HandShapeModel model, Skeleton skeleton)
+        {
+            
+            if (sw != null)
+            {
+                try
+                {
+                    var data = FrameConverter.Encode(model, skeleton);
+                    sw.Write(data);
+                    sw.Write(SPLIT);
+                    sw.Flush();
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+               
+            }
+            return "TODO";
+        }
+
+        public string SendData(Bitmap bmp)
         {
             if (sw != null)
             {
-                var data = FrameConverter.Encode(img, skeleton);
+                var data = FrameConverter.Encode(bmp);
                 sw.Write(data);
                 sw.Write(SPLIT);
                 sw.Flush();
@@ -117,10 +160,15 @@ namespace CURELab.SignLanguage.HandDetector
         {
             if (sw != null)
             {
-                
-                sw.Write(FrameConverter.Encode("End"));
-                sw.Write(SPLIT);
-                sw.Flush();
+                try
+                {
+                    sw.Write(FrameConverter.Encode("End"));
+                    sw.Write(SPLIT);
+                    sw.Flush();
+                }
+                catch (Exception)
+                {
+                }
             }
         }
         public string GetResponse(Bitmap img)
@@ -156,7 +204,7 @@ namespace CURELab.SignLanguage.HandDetector
                         myCompleteMessage.AppendFormat("{0}", Encoding.ASCII.GetString(myReadBuffer, 0, numberOfBytesRead));
                     }
                     while (ns.DataAvailable);
-                    Console.WriteLine(total.ToString()+" bytes received");
+                    Console.WriteLine(total.ToString() + " bytes received");
                     //return myCompleteMessage.ToString().Split(SPLIT, StringSplitOptions.RemoveEmptyEntries);
                     return myCompleteMessage.ToString();
                 }

@@ -460,7 +460,7 @@ namespace XEDParser
                 Console.WriteLine("No xed file in this folder");
                 return;
             }
-            colorizer = new Colorizer(AaronRotateTan, CurrentKinectSensor.DepthStream.MaxDepth, CurrentKinectSensor.DepthStream.MinDepth);
+            colorizer = new Colorizer(MichaelRotateTan, CurrentKinectSensor.DepthStream.MaxDepth, CurrentKinectSensor.DepthStream.MinDepth);
 
             while (Is_running)
             {
@@ -575,7 +575,8 @@ namespace XEDParser
                 else if (single_file_name.Contains("Anita"))
                     colorizer.Angle = AnitaRotateTan;
                 else if (single_file_name.Contains("Aaron"))
-                    colorizer.Angle = AaronRotateTan;
+                    colorizer.Angle = 
+                 * RotateTan;
 
                 // !!!! End of detecting signer by the filename
                 Console.WriteLine("Angle: " + colorizer.Angle);*/
@@ -678,7 +679,7 @@ namespace XEDParser
                             //Console.WriteLine("Color {0} {1} {2} {3} {4}", FirstTimeStamp, colorFrame.Timestamp, colorFrame.Timestamp - FirstTimeStamp, frameNumber,count);
 
                             colorFrame.CopyPixelDataTo(this._colorPixels);
-                            var img = ImageConverter.Array2Image(_colorPixels, 640, 480, 640 * 4).Convert<Bgr, byte>();
+                            var img = ImageConverter.Array2Image<Bgra>(_colorPixels, 640, 480, 640 * 4).Convert<Bgr, byte>();
                             if (img.Ptr != IntPtr.Zero)
                             {
                                 for (int i = 0; i < count; i++)
@@ -723,7 +724,7 @@ namespace XEDParser
                                    this.colorCoordinates);
                             colorizer.TransformAndConvertDepthFrame(depthPixels, _depthPixels, colorCoordinates);
 
-                            var depthImg = ImageConverter.Array2Image(_depthPixels, width, height, width * 3);
+                            var depthImg = ImageConverter.Array2Image<Bgr>(_depthPixels, width, height, width * 3);
                             if (depthImg.Ptr != IntPtr.Zero)
                             {
                                 for (int i = 0; i < count; i++)
@@ -829,7 +830,7 @@ namespace XEDParser
             string[] files;
             if (DialogResult != null)
                 files = Directory.GetFiles(fbd.SelectedPath);
-            //fbd.SelectedPath = @"F:\Aaron\test\";
+            //fbd.SelectedPath = @"D:\Kinect data\test\";
             //lbl_folder.Content = files.Length.ToString();
             lbl_folder.Content = fbd.SelectedPath;
             folder_selected = fbd.SelectedPath;

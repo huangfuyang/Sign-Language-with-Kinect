@@ -138,6 +138,7 @@
     <Compile Include="HandShapeModel.cs" />
     <Compile Include="KalmanFilter.cs" />
     <Compile Include="KinectStudioController.cs" />
+    <Compile Include="KinectTrainer.cs" />
     <Compile Include="PointHelper.cs" />
     <Compile Include="SignWordModel.cs" />
     <Compile Include="SocketManager.cs" />
