@@ -40,6 +40,8 @@ namespace XEDParser
         //adding
         CURELab.SignLanguage.HandDetector.KinectStudioController controler = CURELab.SignLanguage.HandDetector.KinectStudioController.GetSingleton();
 
+        private SkeletonConverter mSkeletonConverter = new SkeletonConverter();
+
         public int PreColorFrameNumber = -1;
         public int PreDepthFrameNumber = -1;
         public int first_skeleton_frame_number = -1;
@@ -258,175 +260,23 @@ namespace XEDParser
                         sFrame.CopySkeletonDataTo(skeletons);
                         Skeleton skel = skeletons[0];
                         
-                        DepthImagePoint dp_csv;
-                        ColorImagePoint cp_csv;
                         for (int i = 0; i < sFrame.FrameNumber-pre_skeleton_frame-1; i++)
                         {
-                            skeWriter.WriteLine("null");
+                            mSkeletonConverter.addNullLine();
                         }
                         pre_skeleton_frame = sFrame.FrameNumber;
                         if (skel.TrackingState == SkeletonTrackingState.Tracked)
                         {
-                            #region skeleton
-                            dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.Head].Position, DepthImageFormat.Resolution640x480Fps30);
-                            cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.Head].Position, ColorImageFormat.RgbResolution640x480Fps30);
-                            //head
-                            //skel.Joints[JointType.Head].TrackingState;
-                            float headX = skel.Joints[JointType.Head].Position.X;
-                            float headY = skel.Joints[JointType.Head].Position.Y;
-                            float headZ = skel.Joints[JointType.Head].Position.Z;
-                            float headX_color = cp_csv.X;
-                            float headY_color = cp_csv.Y;
-                            float headX_depth = dp_csv.X;
-                            float headY_depth = dp_csv.Y;
-
-                            //shoulder
-                            dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.ShoulderLeft].Position, DepthImageFormat.Resolution640x480Fps30);
-                            cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.ShoulderLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);
-                            float shoulderLX = skel.Joints[JointType.ShoulderLeft].Position.X;
-                            float shoulderLY = skel.Joints[JointType.ShoulderLeft].Position.Y;
-                            float shoulderLZ = skel.Joints[JointType.ShoulderLeft].Position.Z;
-                            float shoulderLX_color = cp_csv.X;
-                            float shoulderLY_color = cp_csv.Y;
-                            float shoulderLX_depth = dp_csv.X;
-                            float shoulderLY_depth = dp_csv.Y;
-
-                            dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.ShoulderCenter].Position, DepthImageFormat.Resolution640x480Fps30);
-                            cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.ShoulderCenter].Position, ColorImageFormat.RgbResolution640x480Fps30);
-                            float shoulderCX = skel.Joints[JointType.ShoulderCenter].Position.X;
-                            float shoulderCY = skel.Joints[JointType.ShoulderCenter].Position.Y;
-                            float shoulderCZ = skel.Joints[JointType.ShoulderCenter].Position.Z;
-                            float shoulderCX_color = cp_csv.X;
-                            float shoulderCY_color = cp_csv.Y;
-                            float shoulderCX_depth = dp_csv.X;
-                            float shoulderCY_depth = dp_csv.Y;
-
-                            dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.ShoulderRight].Position, DepthImageFormat.Resolution640x480Fps30);
-                            cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.ShoulderRight].Position, ColorImageFormat.RgbResolution640x480Fps30);
-                            float shoulderRX = skel.Joints[JointType.ShoulderRight].Position.X;
-                            float shoulderRY = skel.Joints[JointType.ShoulderRight].Position.Y;
-                            float shoulderRZ = skel.Joints[JointType.ShoulderRight].Position.Z;
-                            float shoulderRX_color = cp_csv.X;
-                            float shoulderRY_color = cp_csv.Y;
-                            float shoulderRX_depth = dp_csv.X;
-                            float shoulderRY_depth = dp_csv.Y;
-
-                            //elbow
-                            dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.ElbowLeft].Position, DepthImageFormat.Resolution640x480Fps30);
-                            cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.ElbowLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);
-                            float elbowLX = skel.Joints[JointType.ElbowLeft].Position.X;
-                            float elbowLY = skel.Joints[JointType.ElbowLeft].Position.Y;
-                            float elbowLZ = skel.Joints[JointType.ElbowLeft].Position.Z;
-                            float elbowLX_color = cp_csv.X;
-                            float elbowLY_color = cp_csv.Y;
-                            float elbowLX_depth = dp_csv.X;
-                            float elbowLY_depth = dp_csv.Y;
-
-                            dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.ElbowRight].Position, DepthImageFormat.Resolution640x480Fps30);
-                            cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.ElbowRight].Position, ColorImageFormat.RgbResolution640x480Fps30);
-                            float elbowRX = skel.Joints[JointType.ElbowRight].Position.X;
-                            float elbowRY = skel.Joints[JointType.ElbowRight].Position.Y;
-                            float elbowRZ = skel.Joints[JointType.ElbowRight].Position.Z;
-                            float elbowRX_color = cp_csv.X;
-                            float elbowRY_color = cp_csv.Y;
-                            float elbowRX_depth = dp_csv.X;
-                            float elbowRY_depth = dp_csv.Y;
-
-                            //writst
-                            dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.WristLeft].Position, DepthImageFormat.Resolution640x480Fps30);
-                            cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.WristLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);
-                            float wristLX = skel.Joints[JointType.WristLeft].Position.X;
-                            float wristLY = skel.Joints[JointType.WristLeft].Position.Y;
-                            float wristLZ = skel.Joints[JointType.WristLeft].Position.Z;
-                            float wristLX_color = cp_csv.X;
-                            float wristLY_color = cp_csv.Y;
-                            float wristLX_depth = dp_csv.X;
-                            float wristLY_depth = dp_csv.Y;
-
-                            dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.WristRight].Position, DepthImageFormat.Resolution640x480Fps30);
-                            cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.WristRight].Position, ColorImageFormat.RgbResolution640x480Fps30);
-                            float wristRX = skel.Joints[JointType.WristRight].Position.X;
-                            float wristRY = skel.Joints[JointType.WristRight].Position.Y;
-                            float wristRZ = skel.Joints[JointType.WristRight].Position.Z;
-                            float wristRX_color = cp_csv.X;
-                            float wristRY_color = cp_csv.Y;
-                            float wristRX_depth = dp_csv.X;
-                            float wristRY_depth = dp_csv.Y;
-
-                            // hand
-                            dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.HandLeft].Position, DepthImageFormat.Resolution640x480Fps30);
-                            cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.HandLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);
-                            float handLX = skel.Joints[JointType.HandLeft].Position.X;
-                            float handLY = skel.Joints[JointType.HandLeft].Position.Y;
-                            float handLZ = skel.Joints[JointType.HandLeft].Position.Z;
-                            float handLX_color = cp_csv.X;
-                            float handLY_color = cp_csv.Y;
-                            float handLX_depth = dp_csv.X;
-                            float handLY_depth = dp_csv.Y;
-
-                            dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.HandRight].Position, DepthImageFormat.Resolution640x480Fps30);
-                            cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.HandRight].Position, ColorImageFormat.RgbResolution640x480Fps30);
-                            float handRX = skel.Joints[JointType.HandRight].Position.X;
-                            float handRY = skel.Joints[JointType.HandRight].Position.Y;
-                            float handRZ = skel.Joints[JointType.HandRight].Position.Z;
-                            float handRX_color = cp_csv.X;
-                            float handRY_color = cp_csv.Y;
-                            float handRX_depth = dp_csv.X;
-                            float handRY_depth = dp_csv.Y;
-
-                            //spine
-                            dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.Spine].Position, DepthImageFormat.Resolution640x480Fps30);
-                            cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.Spine].Position, ColorImageFormat.RgbResolution640x480Fps30);
-                            float spineX = skel.Joints[JointType.Spine].Position.X;
-                            float spineY = skel.Joints[JointType.Spine].Position.Y;
-                            float spineZ = skel.Joints[JointType.Spine].Position.Z;
-                            float spineX_color = cp_csv.X;
-                            float spineY_color = cp_csv.Y;
-                            float spineX_depth = dp_csv.X;
-                            float spineY_depth = dp_csv.Y;
-
-                            //hip
-                            dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.HipLeft].Position, DepthImageFormat.Resolution640x480Fps30);
-                            cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.HipLeft].Position, ColorImageFormat.RgbResolution640x480Fps30);
-                            float hipLX = skel.Joints[JointType.HipLeft].Position.X;
-                            float hipLY = skel.Joints[JointType.HipLeft].Position.Y;
-                            float hipLZ = skel.Joints[JointType.HipLeft].Position.Z;
-                            float hipLX_color = cp_csv.X;
-                            float hipLY_color = cp_csv.Y;
-                            float hipLX_depth = dp_csv.X;
-                            float hipLY_depth = dp_csv.Y;
-
-                            dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.HipCenter].Position, DepthImageFormat.Resolution640x480Fps30);
-                            cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.HipCenter].Position, ColorImageFormat.RgbResolution640x480Fps30);
-                            float hipCX = skel.Joints[JointType.HipCenter].Position.X;
-                            float hipCY = skel.Joints[JointType.HipCenter].Position.Y;
-                            float hipCZ = skel.Joints[JointType.HipCenter].Position.Z;
-                            float hipCX_color = cp_csv.X;
-                            float hipCY_color = cp_csv.Y;
-                            float hipCX_depth = dp_csv.X;
-                            float hipCY_depth = dp_csv.Y;
-
-                            dp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.HipRight].Position, DepthImageFormat.Resolution640x480Fps30);
-                            cp_csv = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.HipRight].Position, ColorImageFormat.RgbResolution640x480Fps30);
-                            float hipRX = skel.Joints[JointType.HipRight].Position.X;
-                            float hipRY = skel.Joints[JointType.HipRight].Position.Y;
-                            float hipRZ = skel.Joints[JointType.HipRight].Position.Z;
-                            float hipRX_color = cp_csv.X;
-                            float hipRY_color = cp_csv.Y;
-                            float hipRX_depth = dp_csv.X;
-                            float hipRY_depth = dp_csv.Y;
-                        #endregion
-                            skeWriter.WriteLine("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31},{32},{33},{34},{35},{36},{37},{38},{39},{40},{41},{42},{43},{44},{45},{46},{47},{48},{49},{50},{51},{52},{53},{54},{55},{56},{57},{58},{59},{60},{61},{62},{63},{64},{65},{66},{67},{68},{69},{70},{71},{72},{73},{74},{75},{76},{77},{78},{79},{80},{81},{82},{83},{84},{85},{86},{87},{88},{89},{90},{91},{92},{93},{94},{95},{96},{97}", headX, headY, headZ, headX_color, headY_color, headX_depth, headY_depth, shoulderLX, shoulderLY, shoulderLZ, shoulderLX_color, shoulderLY_color, shoulderLX_depth, shoulderLY_depth, shoulderCX, shoulderCY, shoulderCZ, shoulderCX_color, shoulderCY_color, shoulderCX_depth, shoulderCY_depth, shoulderRX, shoulderRY, shoulderRZ, shoulderRX_color, shoulderRY_color, shoulderRX_depth, shoulderRY_depth, elbowLX, elbowLY, elbowLZ, elbowLX_color, elbowLY_color, elbowLX_depth, elbowLY_depth, elbowRX, elbowRY, elbowRZ, elbowRX_color, elbowRY_color, elbowRX_depth, elbowRY_depth, wristLX, wristLY, wristLZ, wristLX_color, wristLY_color, wristLX_depth, wristLY_depth, wristRX, wristRY, wristRZ, wristRX_color, wristRY_color, wristRX_depth, wristRY_depth, handLX, handLY, handLZ, handLX_color, handLY_color, handLX_depth, handLY_depth, handRX, handRY, handRZ, handRX_color, handRY_color, handRX_depth, handRY_depth, spineX, spineY, spineZ, spineX_color, spineY_color, spineX_depth, spineY_depth, hipLX, hipLY, hipLZ, hipLX_color, hipLY_color, hipLX_depth, hipLY_depth, hipCX, hipCY, hipCZ, hipCX_color, hipCY_color, hipCX_depth, hipCY_depth, hipRX, hipRY, hipRZ, hipRX_color, hipRY_color, hipRX_depth, hipRY_depth);
-
+                            mSkeletonConverter.addSkeletonLine(CurrentKinectSensor, skel.Joints);
                         }
                         else
                         {
-                            skeWriter.WriteLine("untracked");
+                            mSkeletonConverter.addUntrackedLine();
                         }
                     }
                     else
                     {
-                        skeWriter.WriteLine("null");
+                        mSkeletonConverter.addNullLine();
                     }
 
                 }
@@ -435,17 +285,6 @@ namespace XEDParser
             {
                 Waiting -= 1;
             }
-        }
-
-        private void color_FrameReady(object sender, ColorImageFrameReadyEventArgs e)
-        {
-
-        }
-
-        private void depth_FrameReady(object sender, DepthImageFrameReadyEventArgs e)
-        {
-            
-            
         }
 
         private void frame_threading()
@@ -565,8 +404,9 @@ namespace XEDParser
                 if (!Directory.Exists(folder_selected + "\\" + single_file_name))
                     Directory.CreateDirectory(folder_selected + "\\" + single_file_name);   // Create the folder if it is not existed
 
-                FileStream file_name = File.Open(@folder_selected + "\\" + single_file_name + "\\" + single_file_name + ".csv", FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+                FileStream file_name = File.Open(@folder_selected + "\\" + single_file_name + "\\" + single_file_name + ".csv", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                 skeWriter = new StreamWriter(file_name);
+                mSkeletonConverter.clear();
                 Console.WriteLine("Successful for setting the writter");
 
                 // !!!!  Detecting signer by the filename
@@ -614,6 +454,8 @@ namespace XEDParser
                     }
                     //Console.WriteLine("Waiting...");
                 }
+
+                skeWriter.Write(mSkeletonConverter.getSkeletonToString());
                 System.Threading.Thread.Sleep(2000);
                 CloseAllWriter();
 
@@ -786,14 +628,6 @@ namespace XEDParser
         private string GenerateSkeletonArgs(Skeleton s)
         {
             return null;
-        }
-
-        private System.Drawing.Point SkeletonPointToScreen(SkeletonPoint skelpoint)
-        {
-            // Convert point to depth space.  
-            // We are not using depth directly, but we do want the points in our 640x480 output resolution.
-            DepthImagePoint depthPoint = CurrentKinectSensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skelpoint, DepthImageFormat.Resolution640x480Fps30);
-            return new System.Drawing.Point(depthPoint.X, depthPoint.Y);
         }
 
         private void btn_Start_Kinect(object sender, RoutedEventArgs e)
