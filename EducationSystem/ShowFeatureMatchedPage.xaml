@@ -4,19 +4,42 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       mc:Ignorable="d" 
-      d:DesignHeight="800" d:DesignWidth="1440"
+      d:DesignHeight="768" d:DesignWidth="1024"
 	Title="ShowFeatureMatchedPage" Loaded="Page_Loaded">
-
+	
     <Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition/>
 			<RowDefinition/>
 		</Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="640"/>
+			<ColumnDefinition Width="0.618*"/>
 			<ColumnDefinition/>
 		</Grid.ColumnDefinitions>
-		<Image Name="KinectViewImage" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Width="640" Height="480"/>
-
+		<Image Name="KinectViewImage" Grid.Column="0" Grid.Row="0" Grid.RowSpan="1"/>
+		<Canvas Name="BodyPartCanvas" Grid.Column="1" Grid.Row="0" x:FieldModifier="public">
+			<Canvas.Background>
+				<ImageBrush ImageSource="Images/BodyDiagram.png" Stretch="Uniform"/>
+			</Canvas.Background>
+			<Ellipse
+				Canvas.Top="{Binding DominantHandPointTop}"
+				Canvas.Left="{Binding DominantHandPointLeft}"
+				Fill="#FF0000FF"
+				Height="{Binding DotSize}"
+				Width="{Binding DotSize}"
+				StrokeThickness="0"
+				Stroke="#FF0000FF"/>
+		</Canvas>
+		<WrapPanel Grid.Column="0" Grid.Row="1">
+			<TextBox  Text="{Binding DominantHandPointLeft}" TextChanged="TextBox_TextChanged" />
+			<TextBox Text="{Binding DominantHandPointTop}" TextChanged="TextBox_TextChanged_1" />
+			<TextBox Text="{Binding DotSize}" TextChanged="TextBox_TextChanged_2" />
+		</WrapPanel>
+		<DataGrid Name="FeatureDataGrid" Grid.Column="1" Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{Binding FeatureList}" x:FieldModifier="public">
+			<DataGrid.Columns>
+				<DataGridTextColumn Width="200" Binding="{Binding FeatureName}"/>
+				<DataGridTextColumn Width="1*" Binding="{Binding Value}"/>
+			</DataGrid.Columns>
+		</DataGrid>
 	</Grid>
 </Page>

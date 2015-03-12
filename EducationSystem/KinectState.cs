@@ -70,7 +70,13 @@ namespace EducationSystem
                 {
                     args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
                     args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
-                    args.NewSensor.SkeletonStream.Enable();
+                    TransformSmoothParameters smoothPara = new TransformSmoothParameters();
+                    smoothPara.Correction = 0.5f;
+                    smoothPara.JitterRadius = 0.3f;
+                    smoothPara.MaxDeviationRadius = 0.1f;
+                    smoothPara.Prediction = 0.1f;
+                    smoothPara.Smoothing = 0.5f;
+                    args.NewSensor.SkeletonStream.Enable(smoothPara);
 
                     try
                     {

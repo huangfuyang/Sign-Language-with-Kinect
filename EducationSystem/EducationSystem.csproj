@@ -65,6 +65,8 @@
     </ApplicationDefinition>
     <Compile Include="AbstractKinectFramesHandler.cs" />
     <Compile Include="ActiveUserDetector.cs" />
+    <Compile Include="BodyPartDetector.cs" />
+    <Compile Include="FeatureViewModel.cs" />
     <Compile Include="GameInformationModel.cs" />
     <Compile Include="GameIntroductionPage.xaml.cs">
       <DependentUpon>GameIntroductionPage.xaml</DependentUpon>
@@ -184,6 +186,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Signing.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\BodyDiagram.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
