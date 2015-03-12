@@ -356,8 +356,8 @@ namespace CURELab.SignLanguage.HandDetector
                     if (!IsRecording && !isSkip)
                     {
                         Console.WriteLine("RECORDING");
-                        //currentPath = path + frame.ToString();
-                        //System.IO.Directory.CreateDirectory(currentPath);
+                        currentPath = path + frame.ToString();
+                        System.IO.Directory.CreateDirectory(currentPath);
                         IsRecording = true;
                     }
                     //stop recording
@@ -366,7 +366,7 @@ namespace CURELab.SignLanguage.HandDetector
                         Console.WriteLine("END");
                         if (socket != null)
                         {
-                            socket.SendEnd();
+                            socket.SendEndAsync();
                         }
                         IsRecording = false;
                     }
@@ -377,6 +377,7 @@ namespace CURELab.SignLanguage.HandDetector
                     if (!isSkip && skeleton != null)
                     {
 
+                        handModel.skeletonData = FrameConverter.GetFrameDataArgString(skeleton);
                         if (handModel.intersectCenter != Rectangle.Empty
                                 && !leftHandRaise)
                         {
@@ -392,14 +393,14 @@ namespace CURELab.SignLanguage.HandDetector
                             socket = SocketManager.GetInstance();
                             if (socket != null)
                             {
-                                socket.SendData(handModel, skeleton);
+                                socket.SendDataAsync(handModel);
                             }
                             Console.WriteLine(handModel.type);
                             
-                            //var colorRight= handModel.RightColor;
-                            //string fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
-                            //    currentPath, frame.ToString(), handModel.type, 'C');
-                            //colorRight.Save(fileName);
+                            var colorRight= handModel.RightColor;
+                            string fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
+                                currentPath, frame.ToString(), 'C');
+                            colorRight.Save(fileName);
 
                             //var depthRight = handModel.RightDepth;
                             //fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
@@ -428,6 +429,7 @@ namespace CURELab.SignLanguage.HandDetector
         private string path = @"D:\handimages\";
         private string currentPath = @"D:\handimages\";
 
+        public delegate string SendHandler(HandShapeModel model);
 
         private void GetResponseCallback(IAsyncResult result)
         {

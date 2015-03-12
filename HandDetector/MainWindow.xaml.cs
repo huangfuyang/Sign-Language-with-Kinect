@@ -68,8 +68,8 @@ namespace CURELab.SignLanguage.HandDetector
             //RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
             //RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 40);
 
-            //Menu_Kinect_Click(this, e);
-            Menu_Server_Click(this, e);
+            Menu_Kinect_Click(this, e);
+            //Menu_Server_Click(this, e);
             //Menu_Train_Click(this, e);
             //MenuItem_Test_Click(this, e);
 

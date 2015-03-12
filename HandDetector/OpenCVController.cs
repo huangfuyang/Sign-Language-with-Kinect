@@ -313,7 +313,7 @@ namespace CURELab.SignLanguage.HandDetector
                     var d = depthMap[colorIndex/bytePerPixel].Depth;
                     //if (!(U > 100 && U < 121 && V > 138 && V < 170))//aaron
                     //if (!(U > 100 && U < 135 && V > 138 && V < 170))//Micheal
-                    if (!(U > 100 && U < 125 && V > 134 && V < 170) || d > headDepth + 200 || d==0) //fuyang
+                    if (!(U > 95 && U < 125 && V > 134 && V < 170) || d > headDepth + 200 || d==0) //fuyang
                     {
                         colorPixels[colorIndex] = 0;
                         colorPixels[colorIndex + 1] = 0;

@@ -49,7 +49,7 @@ namespace CURELab.SignLanguage.HandDetector
             return bmpString;
 
         }
-        public static string Encode(HandShapeModel hand, Skeleton skeleton)
+        public static string Encode(HandShapeModel hand)
         {
             var right = EncodeImage(hand.RightColor);
             var left = EncodeImage(hand.LeftColor);
@@ -59,7 +59,7 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 right = right,
                 left = left,
-                skeleton = GetFrameDataArgString(skeleton),
+                skeleton = hand.skeletonData,
                 label = hand.type.ToString(),
                 position = pos
             };
@@ -101,7 +101,7 @@ namespace CURELab.SignLanguage.HandDetector
             return jsonData;
         }
 
-        private static string GetFrameDataArgString(Skeleton skeleton)
+        public static string GetFrameDataArgString(Skeleton skeleton)
         {
             if (skeleton == null)
             {

@@ -12,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Microsoft.Kinect;
+using System.Threading;
 
 namespace CURELab.SignLanguage.HandDetector
 {
@@ -22,6 +23,8 @@ namespace CURELab.SignLanguage.HandDetector
         private NetworkStream ns;
         private StreamWriter sw;
         private string SPLIT = "#TERMINATOR#";
+        private Queue<string> SendQueue;
+        private Thread sendThread;
         public static SocketManager GetInstance(string addr, int port)
         {
             if (Instance == null)
@@ -50,7 +53,9 @@ namespace CURELab.SignLanguage.HandDetector
                 ns = client.GetStream();
                 sw = new StreamWriter(ns);
             }
-
+            SendQueue = new Queue<string>();
+            sendThread = new Thread(new ThreadStart(SendThreadCall));
+            sendThread.Start();
         }
 
         public string GetResponse()
@@ -123,20 +128,66 @@ namespace CURELab.SignLanguage.HandDetector
             ac.BeginInvoke(msg, callback, "states");
         }
 
-        public string SendData(HandShapeModel model, Skeleton skeleton)
+        private void SendThreadCall()
+        {
+            while (true)
+            {
+                try
+                {
+                    string data = null;
+                    int count = 0;
+                    lock (SendQueue)
+                    {
+                        if (SendQueue.Count() > 0)
+                        {
+                            data = SendQueue.Dequeue();
+                        }
+                        count = SendQueue.Count();
+                    }
+                    if (data != null)
+                    {
+                        lock (sw)
+                        {
+                            sw.Write(data);
+                            sw.Flush();
+                            //Console.WriteLine("{0} char sent {1} msg left", data.Length, count);
+                        }
+                    }
+                }
+                catch (Exception e )
+                {
+                    Console.WriteLine(e);
+                }
+                
+                Thread.Sleep(5);
+        
+            }
+        }
+        public void SendDataAsync(HandShapeModel model)
+        { 
+            var data = FrameConverter.Encode(model) + SPLIT;
+            lock (SendQueue)
+            {
+                SendQueue.Enqueue(data);
+                //Console.WriteLine("{0} items", SendQueue.Count);
+            }
+        }
+
+        public string SendData(HandShapeModel model)
         {
             
             if (sw != null)
             {
                 try
                 {
-                    var data = FrameConverter.Encode(model, skeleton);
-                    sw.Write(data);
-                    sw.Write(SPLIT);
-                    sw.Flush();
+                    var data = FrameConverter.Encode(model);
+                    sw.WriteAsync(data + SPLIT);
+                    //sw.Flush();
+                    Console.WriteLine("send data");
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.WriteLine(e);
                     return null;
                 }
                
@@ -156,6 +207,14 @@ namespace CURELab.SignLanguage.HandDetector
             return "TODO";
         }
 
+        public void SendEndAsync()
+        {
+            var data = FrameConverter.Encode("End") + SPLIT;
+            lock (SendQueue)
+            {
+                SendQueue.Enqueue(data);
+            }
+        }
         public void SendEnd()
         {
             if (sw != null)

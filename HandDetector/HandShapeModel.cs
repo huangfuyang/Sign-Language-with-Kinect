@@ -76,10 +76,6 @@ namespace CURELab.SignLanguage.HandDetector
             }
             this.type = type;
             skeletonData = "";
-            for (int i = 0; i < 42; i++)
-            {
-                skeletonData += ",NULL";
-            }
         }
 
        
