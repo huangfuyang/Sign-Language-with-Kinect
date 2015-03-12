@@ -105,7 +105,7 @@ namespace EducationSystem
                 {
                     if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
                     {
-                        BodyPart bodyPart = detector.decide(skeleton);
+                        Tuple<BodyPart, BodyPart> bodyPartForHands = detector.decide(skeleton);
 
                         Joint hand1 = skeleton.Joints[isRightHandPrimary ? JointType.HandRight : JointType.HandLeft];
                         Joint hand2 = skeleton.Joints[isRightHandPrimary ? JointType.HandLeft : JointType.HandRight];
@@ -138,7 +138,7 @@ namespace EducationSystem
                             }
                             else if ("Region".Equals(viewModel.FeatureName))
                             {
-                                viewModel.Value = bodyPart.ToString();
+                                viewModel.Value = bodyPartForHands.Item1.ToString();
                             }
                         }
 
@@ -147,7 +147,7 @@ namespace EducationSystem
                             showFeatureMatchedPage.DominantHandPointLeft = 421 + (int)(relativePosition.X * (467 - 375) / 2);
                             //showFeatureMatchedPage.DominantHandPointTop = 421 + (int)(relativePosition.Y * (467 - 375) / 2);
                             showFeatureMatchedPage.FeatureDataGrid.Items.Refresh();
-                            showFeatureMatchedPage.BodyPart = bodyPart.ToString();
+                            showFeatureMatchedPage.BodyPart = bodyPartForHands.Item1.ToString();
                         });
                     }
                 }
