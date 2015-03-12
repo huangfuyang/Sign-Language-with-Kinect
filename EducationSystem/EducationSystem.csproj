@@ -190,6 +190,18 @@
   <ItemGroup>
     <Resource Include="Images\BodyDiagram.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Regions\BodyLeft.png" />
+    <Resource Include="Images\Regions\BodyRight.png" />
+    <Resource Include="Images\Regions\HeadLeft.png" />
+    <Resource Include="Images\Regions\HeadRight.png" />
+    <Resource Include="Images\Regions\NoneLeft.png" />
+    <Resource Include="Images\Regions\NoneRight.png" />
+    <Resource Include="Images\Regions\TorsoBottomLeft.png" />
+    <Resource Include="Images\Regions\TorsoBottomRight.png" />
+    <Resource Include="Images\Regions\TorsoTopLeft.png" />
+    <Resource Include="Images\Regions\TorsoTopRight.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

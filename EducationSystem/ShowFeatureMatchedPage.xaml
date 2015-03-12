@@ -29,6 +29,44 @@
 				Width="{Binding DotSize}"
 				StrokeThickness="0"
 				Stroke="#FF0000FF"/>
+			<Image Name="BodyPartOverlay" Width="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}}"  Height="{Binding ActualHeight, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}}" x:FieldModifier="public">
+				<Image.Style>
+					<Style TargetType="Image">
+						<Style.Triggers>
+							<DataTrigger Value="HEAD_LEFT" Binding="{Binding BodyPart}">
+								<Setter Property="Source" Value="Images/Regions/HeadLeft.png"/>
+							</DataTrigger>
+							<DataTrigger Value="HEAD_RIGHT" Binding="{Binding BodyPart}">
+								<Setter Property="Source" Value="Images/Regions/HeadRight.png"/>
+							</DataTrigger>
+							<DataTrigger Value="TORSO_TOP_LEFT" Binding="{Binding BodyPart}">
+								<Setter Property="Source" Value="Images/Regions/TorsoTopLeft.png"/>
+							</DataTrigger>
+							<DataTrigger Value="TORSO_TOP_RIGHT" Binding="{Binding BodyPart}">
+								<Setter Property="Source" Value="Images/Regions/TorsoTopRight.png"/>
+							</DataTrigger>
+							<DataTrigger Value="TORSO_BOTTOM_LEFT" Binding="{Binding BodyPart}">
+								<Setter Property="Source" Value="Images/Regions/TorsoBottomLeft.png"/>
+							</DataTrigger>
+							<DataTrigger Value="TORSO_BOTTOM_RIGHT" Binding="{Binding BodyPart}">
+								<Setter Property="Source" Value="Images/Regions/TorsoBottomRight.png"/>
+							</DataTrigger>
+							<DataTrigger Value="BODY_LEFT" Binding="{Binding BodyPart}">
+								<Setter Property="Source" Value="Images/Regions/BodyLeft.png"/>
+							</DataTrigger>
+							<DataTrigger Value="BODY_RIGHT" Binding="{Binding BodyPart}">
+								<Setter Property="Source" Value="Images/Regions/BodyRight.png"/>
+							</DataTrigger>
+							<DataTrigger Value="NONE_LEFT" Binding="{Binding BodyPart}">
+								<Setter Property="Source" Value="Images/Regions/NoneLeft.png"/>
+							</DataTrigger>
+							<DataTrigger Value="NONE_RIGHT" Binding="{Binding BodyPart}">
+								<Setter Property="Source" Value="Images/Regions/NoneRight.png"/>
+							</DataTrigger>
+						</Style.Triggers>						
+					</Style>
+				</Image.Style>
+			</Image>
 		</Canvas>
 		<WrapPanel Grid.Column="0" Grid.Row="1">
 			<TextBox  Text="{Binding DominantHandPointLeft}" TextChanged="TextBox_TextChanged" />

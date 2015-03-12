@@ -51,6 +51,15 @@ namespace EducationSystem
             set { SetValue(DotSizeProperty, value); }
         }
 
+        public static readonly DependencyProperty BodyPartProperty =
+            DependencyProperty.Register("BodyPart", typeof(string), typeof(ShowFeatureMatchedPage), null);
+
+        public string BodyPart
+        {
+            get { return BodyPart; }
+            set { SetValue(BodyPartProperty, value); }
+        }
+
         private ShowFeatureMatchedPageFramesHandler framesHandler;
 
         public ShowFeatureMatchedPage()
@@ -138,6 +147,7 @@ namespace EducationSystem
                             showFeatureMatchedPage.DominantHandPointLeft = 421 + (int)(relativePosition.X * (467 - 375) / 2);
                             //showFeatureMatchedPage.DominantHandPointTop = 421 + (int)(relativePosition.Y * (467 - 375) / 2);
                             showFeatureMatchedPage.FeatureDataGrid.Items.Refresh();
+                            showFeatureMatchedPage.BodyPart = bodyPart.ToString();
                         });
                     }
                 }
@@ -160,6 +170,10 @@ namespace EducationSystem
                     frameLock.ExitWriteLock();
                 }
             }
+        }
+
+        private void drawRegionOnCanvas(BodyPart bodyPart)
+        {
 
         }
 

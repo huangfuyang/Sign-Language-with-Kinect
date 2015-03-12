@@ -2,7 +2,7 @@
 using Microsoft.Kinect;
 namespace EducationSystem
 {
-    public enum BodyPart { NONE, HEAD_LEFT, HEAD_RIGHT, TORSO_TOP_LEFT, TORSO_TOP_RIGHT, TORSO_BOTTOM_LEFT, TORSO_BOTTOM_RIGHT, BODY_LEFT, BODY_RIGHT }
+    public enum BodyPart { NONE, NONE_LEFT, NONE_RIGHT, HEAD_LEFT, HEAD_RIGHT, TORSO_TOP_LEFT, TORSO_TOP_RIGHT, TORSO_BOTTOM_LEFT, TORSO_BOTTOM_RIGHT, BODY_LEFT, BODY_RIGHT }
 
     class BodyPartDetector
     {
@@ -11,7 +11,7 @@ namespace EducationSystem
         private BodyPart[,] bodyPartMapping = new BodyPart[3, 4] { 
             {BodyPart.HEAD_LEFT, BodyPart.HEAD_LEFT, BodyPart.HEAD_RIGHT, BodyPart.HEAD_RIGHT},
             {BodyPart.BODY_LEFT, BodyPart.TORSO_TOP_LEFT, BodyPart.TORSO_TOP_RIGHT, BodyPart.BODY_RIGHT},
-            {BodyPart.NONE, BodyPart.TORSO_BOTTOM_LEFT, BodyPart.TORSO_BOTTOM_RIGHT, BodyPart.NONE}
+            {BodyPart.NONE_LEFT, BodyPart.TORSO_BOTTOM_LEFT, BodyPart.TORSO_BOTTOM_RIGHT, BodyPart.NONE_RIGHT}
         };
 
         public BodyPart decide(Skeleton skeleton)
@@ -48,7 +48,6 @@ namespace EducationSystem
                 yRegion = 1;
             }
 
-            //System.Console.WriteLine(bodyPartMapping[yRegion, xRegion]);
             return bodyPartMapping[yRegion, xRegion];
         }
     }
