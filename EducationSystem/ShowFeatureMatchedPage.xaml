@@ -68,7 +68,7 @@
 				</Image.Style>
 			</Image>
 		</Canvas>
-		<WrapPanel Grid.Column="0" Grid.Row="1">
+		<WrapPanel Grid.Column="0" Grid.Row="1" Visibility="Collapsed">
 			<TextBox  Text="{Binding DominantHandPointLeft}" TextChanged="TextBox_TextChanged" />
 			<TextBox Text="{Binding DominantHandPointTop}" TextChanged="TextBox_TextChanged_1" />
 			<TextBox Text="{Binding DotSize}" TextChanged="TextBox_TextChanged_2" />
@@ -79,5 +79,10 @@
 				<DataGridTextColumn Width="1*" Binding="{Binding Value}"/>
 			</DataGrid.Columns>
 		</DataGrid>
+		<Label Grid.Row="1"  FontSize="32" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+			<Label.Content>
+				<AccessText TextWrapping="Wrap" Text="{Binding CurrectWaitingState}"/>
+			</Label.Content>
+		</Label>
 	</Grid>
 </Page>

@@ -28,7 +28,7 @@ namespace EducationSystem
         {
             if ("CurrentKinectSensor".Equals(e.PropertyName))
             {
-                frmPageContainer.Source = new System.Uri("ShowFeatureMatchedPage.xaml", System.UriKind.RelativeOrAbsolute);
+                frmPageContainer.Source = new System.Uri("SplashPage.xaml", System.UriKind.RelativeOrAbsolute);
             }
         }
 

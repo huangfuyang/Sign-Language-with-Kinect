@@ -56,8 +56,17 @@ namespace EducationSystem
 
         public string BodyPart
         {
-            get { return BodyPart; }
+            get { return (string)GetValue(BodyPartProperty); }
             set { SetValue(BodyPartProperty, value); }
+        }
+
+        public static readonly DependencyProperty CurrectWaitingStateProperty =
+            DependencyProperty.Register("CurrectWaitingState", typeof(string), typeof(ShowFeatureMatchedPage), null);
+
+        public string CurrectWaitingState
+        {
+            get { return (string)GetValue(CurrectWaitingStateProperty); }
+            set { SetValue(CurrectWaitingStateProperty, value); }
         }
 
         private ShowFeatureMatchedPageFramesHandler framesHandler;
@@ -89,7 +98,7 @@ namespace EducationSystem
         private class ShowFeatureMatchedPageFramesHandler : AbstractKinectFramesHandler
         {
             private BodyPartDetector detector = new BodyPartDetector();
-            private PrickSignDetector prickSignDetector = new PrickSignDetector();
+            private PrickSignDetector prickSignDetector;
             private ShowFeatureMatchedPage showFeatureMatchedPage;
             private ReaderWriterLockSlim frameLock;
             private bool isRightHandPrimary = true;
@@ -98,6 +107,7 @@ namespace EducationSystem
             {
                 this.showFeatureMatchedPage = showFeatureMatchedPage;
                 this.frameLock = new ReaderWriterLockSlim();
+                this.prickSignDetector = new PrickSignDetector(showFeatureMatchedPage);
             }
 
             public override void SkeletonFrameCallback(long timestamp, int frameNumber, Skeleton[] skeletonData)
