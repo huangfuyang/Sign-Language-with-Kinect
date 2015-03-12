@@ -89,6 +89,7 @@ namespace EducationSystem
         private class ShowFeatureMatchedPageFramesHandler : AbstractKinectFramesHandler
         {
             private BodyPartDetector detector = new BodyPartDetector();
+            private PrickSignDetector prickSignDetector = new PrickSignDetector();
             private ShowFeatureMatchedPage showFeatureMatchedPage;
             private ReaderWriterLockSlim frameLock;
             private bool isRightHandPrimary = true;
@@ -106,6 +107,7 @@ namespace EducationSystem
                     if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
                     {
                         Tuple<BodyPart, BodyPart> bodyPartForHands = detector.decide(skeleton);
+                        prickSignDetector.Update(skeleton);
 
                         Joint hand1 = skeleton.Joints[isRightHandPrimary ? JointType.HandRight : JointType.HandLeft];
                         Joint hand2 = skeleton.Joints[isRightHandPrimary ? JointType.HandLeft : JointType.HandRight];

@@ -83,6 +83,7 @@
     <Compile Include="GameSelectionPage.xaml.cs">
       <DependentUpon>GameSelectionPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PrickSignDetector.cs" />
     <Compile Include="ShowFeatureMatchedPage.xaml.cs">
       <DependentUpon>ShowFeatureMatchedPage.xaml</DependentUpon>
     </Compile>
