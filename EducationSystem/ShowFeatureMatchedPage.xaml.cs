@@ -112,10 +112,13 @@ namespace EducationSystem
 
             public override void SkeletonFrameCallback(long timestamp, int frameNumber, Skeleton[] skeletonData)
             {
+                bool isTracked = false;
+
                 foreach (Skeleton skeleton in skeletonData)
                 {
                     if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
                     {
+                        isTracked = true;
                         Tuple<BodyPart, BodyPart> bodyPartForHands = detector.decide(skeleton);
                         prickSignDetector.Update(skeleton);
 
@@ -124,7 +127,6 @@ namespace EducationSystem
                         Joint shoulderLeft = skeleton.Joints[JointType.ShoulderLeft];
                         Joint shoulderCenter = skeleton.Joints[JointType.ShoulderCenter];
                         Joint shoulderRight = skeleton.Joints[JointType.ShoulderRight];
-                        //Joint spine = skeleton.Joints[JointType.Spine];
                         Point relativePosition = new Point();
 
                         if (hand1.Position.X > shoulderCenter.Position.X)
@@ -162,6 +164,14 @@ namespace EducationSystem
                             showFeatureMatchedPage.BodyPart = bodyPartForHands.Item1.ToString();
                         });
                     }
+                }
+
+                if (!isTracked)
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        showFeatureMatchedPage.BodyPart = "";
+                    });
                 }
             }
 
