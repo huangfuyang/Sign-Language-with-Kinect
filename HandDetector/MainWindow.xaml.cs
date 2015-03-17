@@ -68,8 +68,8 @@ namespace CURELab.SignLanguage.HandDetector
             //RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
             //RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 40);
 
-            Menu_Kinect_Click(this, e);
-            //Menu_Server_Click(this, e);
+            //Menu_Kinect_Click(this, e);
+            Menu_Server_Click(this, e);
             //Menu_Train_Click(this, e);
             //MenuItem_Test_Click(this, e);
 
@@ -180,8 +180,9 @@ namespace CURELab.SignLanguage.HandDetector
         private void Menu_Server_Click(object sender, RoutedEventArgs e)
         {
             //socket = SocketManager.GetInstance("127.0.0.1", 51243);
-            socket = SocketManager.GetInstance("137.189.89.29", 51243);
-
+            //socket = SocketManager.GetInstance("137.189.89.29", 51243);
+            socket = SocketManager.GetInstance("192.168.209.67", 51243);
+            
             Menu_Kinect_Click(sender, e);
             //var hand = new HandShapeModel(HandEnum.Both)
             //{

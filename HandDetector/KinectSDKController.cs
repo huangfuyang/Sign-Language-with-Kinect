@@ -317,7 +317,7 @@ namespace CURELab.SignLanguage.HandDetector
                     PointF leftVector = PointF.Empty;
                     bool isSkip = true;
                     bool leftHandRaise = false;
-                    var handModel = m_OpenCVController.FindHandFromColor(depthImg, colorPixels, _mappedDepthLocations, headPosition, headDepth);
+                    var handModel = m_OpenCVController.FindHandFromColor(depthImg, ref colorPixels, _mappedDepthLocations, headPosition, headDepth);
                     if (handModel == null)
                     {
                         handModel = new HandShapeModel(HandEnum.None);
@@ -356,8 +356,8 @@ namespace CURELab.SignLanguage.HandDetector
                     if (!IsRecording && !isSkip)
                     {
                         Console.WriteLine("RECORDING");
-                        currentPath = path + frame.ToString();
-                        System.IO.Directory.CreateDirectory(currentPath);
+                        //currentPath = path + frame.ToString();
+                        //System.IO.Directory.CreateDirectory(currentPath);
                         IsRecording = true;
                     }
                     //stop recording
@@ -397,10 +397,10 @@ namespace CURELab.SignLanguage.HandDetector
                             }
                             Console.WriteLine(handModel.type);
                             
-                            var colorRight= handModel.RightColor;
-                            string fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
-                                currentPath, frame.ToString(), 'C');
-                            colorRight.Save(fileName);
+                            //var colorRight= handModel.RightColor;
+                            //string fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
+                            //    currentPath, frame.ToString(), 'C');
+                            //colorRight.Save(fileName);
 
                             //var depthRight = handModel.RightDepth;
                             //fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",

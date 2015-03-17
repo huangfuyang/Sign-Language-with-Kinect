@@ -46,7 +46,7 @@ namespace CURELab.SignLanguage.HandDetector
             CANNY_CONNECT_THRESH = 20;
             Hog_Descriptor = new HOGDescriptor(new Size(60, 60), new Size(10, 10), new Size(5, 5), new Size(5, 5), 9, 1, -1, 0.2, false);
             viewer = new ImageViewer();
-            viewer.Show();
+            //viewer.Show();
             headRec = new Rectangle(new Point(320, 0), new Size());
             rightRec = new Rectangle(new Point(640, 480), new Size());
             leftRec = new Rectangle(new Point(0, 480), new Size());
@@ -289,7 +289,7 @@ namespace CURELab.SignLanguage.HandDetector
         private Rectangle leftRec;
         private int headMinDepth;
         public HandShapeModel FindHandFromColor(
-            Image<Gray, byte> depthImage, byte[] colorPixels, DepthImagePoint[] depthMap, PointF head, int headDepth
+            Image<Gray, byte> depthImage, ref byte[] colorPixels, DepthImagePoint[] depthMap, PointF head, int headDepth
             )
         {
             //Console.WriteLine(headDepth + 200);
@@ -313,7 +313,7 @@ namespace CURELab.SignLanguage.HandDetector
                     var d = depthMap[colorIndex/bytePerPixel].Depth;
                     //if (!(U > 100 && U < 121 && V > 138 && V < 170))//aaron
                     //if (!(U > 100 && U < 135 && V > 138 && V < 170))//Micheal
-                    if (!(U > 95 && U < 125 && V > 134 && V < 170) || d > headDepth + 200 || d==0) //fuyang
+                    if (!(U > 95 && U < 135 && V > 134 && V < 170) || d > headDepth + 200 || d==0) //fuyang
                     {
                         colorPixels[colorIndex] = 0;
                         colorPixels[colorIndex + 1] = 0;
@@ -390,7 +390,7 @@ namespace CURELab.SignLanguage.HandDetector
             }
             DrawRects(handModel,colorImg);
             viewer.Image = colorImg;
-            colorImg.Dispose();
+            colorPixels = colorImg.Convert<Bgra, byte>().Bytes;
             return handModel;
         }
 
@@ -692,6 +692,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             var DyncontourTemp = FindContour(image);
             var rectList = new List<Rectangle>();
+            int cull_length = 80;
             for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt64() != 0; DyncontourTemp = DyncontourTemp.HNext)
             {
                 //iterate contours
@@ -700,7 +701,7 @@ namespace CURELab.SignLanguage.HandDetector
                 {
                     continue;
                 }
-                if (cull &&(DyncontourTemp.GetMinAreaRect().center.X>560 || DyncontourTemp.GetMinAreaRect().center.X<80))
+                if (cull &&(DyncontourTemp.GetMinAreaRect().center.X>640-cull_length || DyncontourTemp.GetMinAreaRect().center.X<cull_length))
                 {
                     continue;
                 }
