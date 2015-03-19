@@ -299,6 +299,7 @@ namespace CURELab.SignLanguage.HandDetector
             int height = 480;
             int bytePerPixel = colorPixels.Length / width / height;
             // loop over each row and column of the depth
+
             for (int colorIndex = 0; colorIndex < colorPixels.Length; colorIndex += bytePerPixel)
             {
                 try
@@ -311,9 +312,10 @@ namespace CURELab.SignLanguage.HandDetector
                     var U = ((-38 * R - 74 * G + 112 * B + 128) >> 8) + 128;
                     var V = ((112 * R - 94 * G - 18 * B + 128) >> 8) + 128;
                     var d = depthMap[colorIndex/bytePerPixel].Depth;
-                    //if (!(U > 100 && U < 121 && V > 138 && V < 170))//aaron
+                    //if (!(U > 100 && U < 129 && V > 140 && V < 170))//aaron
                     //if (!(U > 100 && U < 135 && V > 138 && V < 170))//Micheal
-                    if (!(U > 95 && U < 135 && V > 134 && V < 170) || d > headDepth + 200 || d==0) //fuyang
+                    //if (!(U > 95 && U < 135 && V > 134 && V < 170) || d > headDepth + 200 || d == 0) //realtime
+                    if (!(U > 95 && U < 135 && V > 134 && V < 170) || d > headDepth + 200) //realtime with hole filling
                     {
                         colorPixels[colorIndex] = 0;
                         colorPixels[colorIndex + 1] = 0;
@@ -692,20 +694,21 @@ namespace CURELab.SignLanguage.HandDetector
         {
             var DyncontourTemp = FindContour(image);
             var rectList = new List<Rectangle>();
-            int cull_length = 80;
+            int cull_length = 120;
             for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt64() != 0; DyncontourTemp = DyncontourTemp.HNext)
             {
+                var rect = DyncontourTemp.BoundingRectangle;
                 //iterate contours
-                if (DyncontourTemp.GetMinAreaRect().GetTrueArea() < minSize
-                    || DyncontourTemp.GetMinAreaRect().GetTrueArea() > maxSize)
+                if (rect.GetRectArea() < minSize
+                    || rect.GetRectArea() > maxSize)
                 {
                     continue;
                 }
-                if (cull &&(DyncontourTemp.GetMinAreaRect().center.X>640-cull_length || DyncontourTemp.GetMinAreaRect().center.X<cull_length))
+                if (cull &&(rect.GetXCenter()>640-cull_length || rect.GetXCenter()<cull_length))
                 {
                     continue;
                 }
-                rectList.Add(DyncontourTemp.GetMinAreaRect().MinAreaRect());
+                rectList.Add(rect);
             }
             for (int i = 0; i < rectList.Count; i++)
             {

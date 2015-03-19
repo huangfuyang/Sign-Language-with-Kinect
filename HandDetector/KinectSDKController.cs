@@ -153,7 +153,7 @@ namespace CURELab.SignLanguage.HandDetector
                 this.colorizer = new Colorizer(AngleRotateTan,800,3000);
                 rightHandPosition = new System.Drawing.Point();
                 headPosition = new Point(320,0);
-                headDepth = 1500;
+                headDepth = 800;
                 sensor.Start();
                 rightFirst = Rectangle.Empty;
                 leftFirst = Rectangle.Empty;
@@ -225,7 +225,7 @@ namespace CURELab.SignLanguage.HandDetector
                     var skeletons = new Skeleton[skeletonFrame.SkeletonArrayLength];
                     //Console.WriteLine("ske:{0}", skeletonFrame.Timestamp);
                     skeletonFrame.CopySkeletonDataTo(skeletons);
-                    var s = skeletons.Where(x => x.TrackingState == SkeletonTrackingState.Tracked).
+                    var s = skeletons.Where(x => x.TrackingState != SkeletonTrackingState.NotTracked).
                         OrderBy(x => x.Position.Z);
                     if (s.Count()>0)
                     {
@@ -264,6 +264,7 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 if (depthFrame != null)
                 {
+                    socket = SocketManager.GetInstance();
                     var sw = Stopwatch.StartNew();
                     // Copy the pixel data from the image to a temporary array
                     //Console.WriteLine("dep:{0}", depthFrame.Timestamp);
@@ -281,6 +282,7 @@ namespace CURELab.SignLanguage.HandDetector
                     int width = depthFrame.Width;
                     int height = depthFrame.Height;
 
+                    //Console.WriteLine("Frame {0} Time {1}",depthFrame.FrameNumber,depthFrame.Timestamp);
                     if (headTracked)
                     {
                         try
@@ -356,8 +358,11 @@ namespace CURELab.SignLanguage.HandDetector
                     if (!IsRecording && !isSkip)
                     {
                         Console.WriteLine("RECORDING");
-                        //currentPath = path + frame.ToString();
-                        //System.IO.Directory.CreateDirectory(currentPath);
+                        currentPath = path + frame.ToString();
+                        if (socket == null)
+                        {
+                            System.IO.Directory.CreateDirectory(currentPath);
+                        }
                         IsRecording = true;
                     }
                     //stop recording
@@ -390,24 +395,26 @@ namespace CURELab.SignLanguage.HandDetector
                             {
                                 handModel.type = HandEnum.Right;
                             }
-                            socket = SocketManager.GetInstance();
                             if (socket != null)
                             {
                                 socket.SendDataAsync(handModel);
                             }
                             Console.WriteLine(handModel.type);
                             
-                            //var colorRight= handModel.RightColor;
-                            //string fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
-                            //    currentPath, frame.ToString(), 'C');
-                            //colorRight.Save(fileName);
+                            var colorRight= handModel.RightColor;
+                            string fileName = String.Format("{0}\\{1}.jpg",
+                                currentPath, frame.ToString());
+                            if (socket == null)
+                            {
+                                colorRight.Save(fileName);
+                            }
 
                             //var depthRight = handModel.RightDepth;
                             //fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
                             //    currentPath, frame.ToString(), handModel.type, 'D');
                             //depthRight.Save(fileName);
                             
-                            //frame++;
+                            frame++;
                             //ImageConverter.UpdateWriteBMP(WrtBMP_RightHandFront, right);
                         }
                         
