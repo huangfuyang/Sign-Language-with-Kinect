@@ -113,13 +113,15 @@ namespace EducationSystem
             public override void SkeletonFrameCallback(long timestamp, int frameNumber, Skeleton[] skeletonData)
             {
                 bool isTracked = false;
+                Tuple<BodyPart, BodyPart> bodyPartForHands = null;
+                Point relativePosition = new Point();
 
                 foreach (Skeleton skeleton in skeletonData)
                 {
                     if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
                     {
                         isTracked = true;
-                        Tuple<BodyPart, BodyPart> bodyPartForHands = detector.decide(skeleton);
+                        bodyPartForHands = detector.decide(skeleton);
                         prickSignDetector.Update(skeleton);
 
                         Joint hand1 = skeleton.Joints[isRightHandPrimary ? JointType.HandRight : JointType.HandLeft];
@@ -127,7 +129,6 @@ namespace EducationSystem
                         Joint shoulderLeft = skeleton.Joints[JointType.ShoulderLeft];
                         Joint shoulderCenter = skeleton.Joints[JointType.ShoulderCenter];
                         Joint shoulderRight = skeleton.Joints[JointType.ShoulderRight];
-                        Point relativePosition = new Point();
 
                         if (hand1.Position.X > shoulderCenter.Position.X)
                         {
@@ -138,41 +139,40 @@ namespace EducationSystem
                             relativePosition.X = -(hand1.Position.X - shoulderCenter.Position.X) / (shoulderLeft.Position.X - shoulderCenter.Position.X);
                         }
 
+                        relativePosition.Y = 0;
+
                         foreach (FeatureViewModel viewModel in showFeatureMatchedPage.FeatureList)
                         {
                             if ("Dominant Hand X".Equals(viewModel.FeatureName))
                             {
                                 viewModel.Value = relativePosition.X.ToString();
-                                Console.WriteLine(relativePosition.X);
                             }
-                            else if ("Dominant Hand X".Equals(viewModel.FeatureName))
+                            else if ("Dominant Hand Y".Equals(viewModel.FeatureName))
                             {
                                 viewModel.Value = relativePosition.Y.ToString();
-                                Console.WriteLine(relativePosition.Y);
                             }
                             else if ("Region".Equals(viewModel.FeatureName))
                             {
                                 viewModel.Value = bodyPartForHands.Item1.ToString();
                             }
                         }
-
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            showFeatureMatchedPage.DominantHandPointLeft = 421 + (int)(relativePosition.X * (467 - 375) / 2);
-                            //showFeatureMatchedPage.DominantHandPointTop = 421 + (int)(relativePosition.Y * (467 - 375) / 2);
-                            showFeatureMatchedPage.FeatureDataGrid.Items.Refresh();
-                            showFeatureMatchedPage.BodyPart = bodyPartForHands.Item1.ToString();
-                        });
                     }
                 }
 
-                if (!isTracked)
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    Application.Current.Dispatcher.Invoke(() =>
+                    if (isTracked && bodyPartForHands != null)
+                    {
+                        showFeatureMatchedPage.DominantHandPointLeft = 421 + (int)(relativePosition.X * (467 - 375) / 2);
+                        showFeatureMatchedPage.DominantHandPointTop = 135 - (int)(relativePosition.Y * (135 - 65) / 2);
+                        showFeatureMatchedPage.FeatureDataGrid.Items.Refresh();
+                        showFeatureMatchedPage.BodyPart = bodyPartForHands.Item1.ToString();
+                    }
+                    else
                     {
                         showFeatureMatchedPage.BodyPart = "";
-                    });
-                }
+                    }
+                });
             }
 
             public override void ColorFrameCallback(long timestamp, int frameNumber, byte[] colorPixels)
