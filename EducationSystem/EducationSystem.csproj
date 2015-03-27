@@ -65,7 +65,10 @@
     </ApplicationDefinition>
     <Compile Include="AbstractKinectFramesHandler.cs" />
     <Compile Include="ActiveUserDetector.cs" />
-    <Compile Include="BodyPartDetector.cs" />
+    <Compile Include="Detectors\AbstractDetector.cs" />
+    <Compile Include="Detectors\BodyPartDetector.cs" />
+    <Compile Include="Detectors\ReleaseHandDetector.cs" />
+    <Compile Include="Detectors\TouchDetector.cs" />
     <Compile Include="FeatureViewModel.cs" />
     <Compile Include="GameInformationModel.cs" />
     <Compile Include="GameIntroductionPage.xaml.cs">

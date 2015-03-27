@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using EducationSystem.Detectors;
 using Microsoft.Kinect;
 
 namespace EducationSystem
@@ -7,6 +8,9 @@ namespace EducationSystem
     public class PrickSignDetector
     {
         private BodyPartDetector bodyPartDetector = new BodyPartDetector();
+        private TouchDetector touchDetector = new TouchDetector();
+        private StraightMovementDetector straightMovementDetector = new StraightMovementDetector();
+        private ReleaseHandDetector releaseHandDetector = new ReleaseHandDetector();
         private WaitState currentWaitingState = WaitState.START;
         private ShowFeatureMatchedPage showFeatureMatchedPage;
 
@@ -34,7 +38,7 @@ namespace EducationSystem
                 case WaitState.START:
                     {
                         setStateString("Waiting Release Hands", 0);
-                        if (IsReleaseHands(bodyPartForHands))
+                        if (releaseHandDetector.decide(bodyPartForHands))
                         {
                             currentWaitingState = WaitState.INITIAL_HANDSHAPE_POSITION;
                         }
@@ -43,7 +47,7 @@ namespace EducationSystem
                 case WaitState.INITIAL_HANDSHAPE_POSITION:
                     {
                         setStateString("Waiting Initial handshape at correct position", 0);
-                        if (IsInitialHandShapeAndPositionMatched(skeleton, bodyPartForHands))
+                        if (IsInitialPosition(bodyPartForHands))
                         {
                             currentWaitingState = WaitState.TOUCH;
                         }
@@ -52,7 +56,7 @@ namespace EducationSystem
                 case WaitState.TOUCH:
                     {
                         setStateString("Waiting Hands Touching", 1);
-                        if (IsTouchAtCertainPositionWIthCorrectHandShape(skeleton, bodyPartForHands))
+                        if (touchDetector.decide(skeleton))
                         {
                             currentWaitingState = WaitState.DONE;
                         }
@@ -61,7 +65,7 @@ namespace EducationSystem
                 case WaitState.DONE:
                     {
                         setStateString("All DONE!", 2);
-                        if (IsReleaseHands(bodyPartForHands))
+                        if (releaseHandDetector.decide(bodyPartForHands))
                         {
                             currentWaitingState = WaitState.INITIAL_HANDSHAPE_POSITION;
                         }
@@ -70,22 +74,10 @@ namespace EducationSystem
             }
         }
 
-        public bool IsInitialHandShapeAndPositionMatched(Skeleton skeleton, Tuple<BodyPart, BodyPart> bodyPartForHands)
+        public bool IsInitialPosition(Tuple<BodyPart, BodyPart> bodyPartForHands)
         {
-
             return (bodyPartForHands.Item1 == BodyPart.TORSO_TOP_RIGHT || bodyPartForHands.Item1 == BodyPart.BODY_RIGHT)
                 && (bodyPartForHands.Item2 == BodyPart.TORSO_TOP_LEFT || bodyPartForHands.Item2 == BodyPart.BODY_LEFT);
-        }
-
-        public bool IsTouchAtCertainPositionWIthCorrectHandShape(Skeleton skeleton, Tuple<BodyPart, BodyPart> bodyPartForHands)
-        {
-            float handDiff = Math.Abs(skeleton.Joints[JointType.HandLeft].Position.X - skeleton.Joints[JointType.HandRight].Position.X);
-            return handDiff < 0.1;
-        }
-
-        public bool IsReleaseHands(Tuple<BodyPart, BodyPart> bodyPartForHands)
-        {
-            return bodyPartForHands.Item1 == BodyPart.NONE_RIGHT && bodyPartForHands.Item2 == BodyPart.NONE_LEFT;
         }
 
         private enum WaitState { START, INITIAL_HANDSHAPE_POSITION, TOUCH, DONE }

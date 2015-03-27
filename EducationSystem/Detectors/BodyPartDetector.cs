@@ -1,11 +1,11 @@
 ﻿
 using System;
 using Microsoft.Kinect;
-namespace EducationSystem
+namespace EducationSystem.Detectors
 {
     public enum BodyPart { NONE, NONE_LEFT, NONE_RIGHT, HEAD_LEFT, HEAD_RIGHT, TORSO_TOP_LEFT, TORSO_TOP_RIGHT, TORSO_BOTTOM_LEFT, TORSO_BOTTOM_RIGHT, BODY_LEFT, BODY_RIGHT }
 
-    class BodyPartDetector
+    class BodyPartDetector : AbstractDetector<Skeleton, Tuple<BodyPart, BodyPart>>
     {
         private bool isRightHandPrimary = true;
 
@@ -51,7 +51,7 @@ namespace EducationSystem
             return bodyPartMapping[yRegion, xRegion];
         }
 
-        public Tuple<BodyPart, BodyPart> decide(Skeleton skeleton)
+        public override Tuple<BodyPart, BodyPart> decide(Skeleton skeleton)
         {
             SkeletonPoint primaryHand = skeleton.Joints[isRightHandPrimary ? JointType.HandRight : JointType.HandLeft].Position;
             SkeletonPoint secondaryHand = skeleton.Joints[!isRightHandPrimary ? JointType.HandRight : JointType.HandLeft].Position;
