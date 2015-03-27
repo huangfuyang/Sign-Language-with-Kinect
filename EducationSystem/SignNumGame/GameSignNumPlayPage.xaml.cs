@@ -62,7 +62,7 @@ namespace EducationSystem.SignNumGame
 
             System.Windows.Application.Current.MainWindow.KeyDown += new KeyEventHandler(Page_KeyUp);
 
-            framesHandler = new GameSignNumPlayFramesHandler(this, GameBoardPanel);
+            framesHandler = new GameSignNumPlayFramesHandler(this, GameBoardGrid);
             framesHandler.RegisterCallbackToSensor(KinectState.Instance.CurrentKinectSensor);
         }
 

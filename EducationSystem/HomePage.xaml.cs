@@ -15,7 +15,7 @@ namespace EducationSystem
 
         private void btnGame_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            this.NavigationService.Navigate(new Uri("GameSelectionPage.xaml", UriKind.Relative));
+            this.NavigationService.Navigate(new Uri("SignNumGame/GameSignNumPlayPage.xaml", UriKind.Relative));
         }
 
         private void btnLearn_Click(object sender, System.Windows.RoutedEventArgs e)

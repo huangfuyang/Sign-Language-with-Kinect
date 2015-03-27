@@ -69,6 +69,24 @@ namespace EducationSystem
             set { SetValue(CurrectWaitingStateProperty, value); }
         }
 
+        public static readonly DependencyProperty NumOfFeatureProperty =
+            DependencyProperty.Register("NumOfFeature", typeof(int), typeof(ShowFeatureMatchedPage), null);
+
+        public int NumOfFeature
+        {
+            get { return (int)GetValue(NumOfFeatureProperty); }
+            set { SetValue(NumOfFeatureProperty, value); }
+        }
+
+        public static readonly DependencyProperty NumOfFeatureCompletedProperty =
+    DependencyProperty.Register("NumOfFeatureCompleted", typeof(int), typeof(ShowFeatureMatchedPage), null);
+
+        public int NumOfFeatureCompleted
+        {
+            get { return (int)GetValue(NumOfFeatureCompletedProperty); }
+            set { SetValue(NumOfFeatureCompletedProperty, value); }
+        }
+
         private ShowFeatureMatchedPageFramesHandler framesHandler;
 
         public ShowFeatureMatchedPage()

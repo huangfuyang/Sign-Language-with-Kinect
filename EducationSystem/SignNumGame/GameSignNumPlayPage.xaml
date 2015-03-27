@@ -20,33 +20,38 @@
 			</Label>
 		</DataTemplate>
 	</Page.Resources>
-	
-    <Grid>
-		<ItemsControl Name="GameBoardPanel" ItemTemplate="{Binding Source={StaticResource GamePanelItemTemplate}}" Background="AliceBlue">
-			<ItemsControl.ItemsPanel>
-				<ItemsPanelTemplate>
-					<Grid>
-						<Grid.RowDefinitions>
-							<RowDefinition/>
-							<RowDefinition/>
-							<RowDefinition/>
-							<RowDefinition/>
-						</Grid.RowDefinitions>
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition/>
-							<ColumnDefinition/>
-							<ColumnDefinition/>
-							<ColumnDefinition/>
-						</Grid.ColumnDefinitions>
-					</Grid>
-				</ItemsPanelTemplate>
-			</ItemsControl.ItemsPanel>
-			<ItemsControl.ItemContainerStyle>
-				<Style>
-					<Setter Property="Grid.Row" Value="{Binding Position.Y}" />
-					<Setter Property="Grid.Column" Value="{Binding Position.X}" />
-				</Style>
-			</ItemsControl.ItemContainerStyle>
-		</ItemsControl>
+	<Page.Background>
+		<ImageBrush Stretch="Uniform" ImageSource="/EducationSystem;component/Images/GameBack.png"/>
+	</Page.Background>
+
+	<Grid>
+		<Grid Name="GameBoardGrid" Margin="5,170,5,5" Background="#7FFFFFFF">
+			<ItemsControl Name="GameBoardPanel" ItemTemplate="{Binding Source={StaticResource GamePanelItemTemplate}}" ForceCursor="True">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition/>
+								<RowDefinition/>
+								<RowDefinition/>
+								<RowDefinition/>
+							</Grid.RowDefinitions>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition/>
+								<ColumnDefinition/>
+								<ColumnDefinition/>
+								<ColumnDefinition/>
+							</Grid.ColumnDefinitions>
+						</Grid>
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+				<ItemsControl.ItemContainerStyle>
+					<Style>
+						<Setter Property="Grid.Row" Value="{Binding Position.Y}" />
+						<Setter Property="Grid.Column" Value="{Binding Position.X}" />
+					</Style>
+				</ItemsControl.ItemContainerStyle>
+			</ItemsControl>
+		</Grid>
 	</Grid>
 </Page>

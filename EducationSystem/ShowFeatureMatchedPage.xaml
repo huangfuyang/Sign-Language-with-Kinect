@@ -6,8 +6,11 @@
       mc:Ignorable="d" 
       d:DesignHeight="768" d:DesignWidth="1024"
 	Title="ShowFeatureMatchedPage" Loaded="Page_Loaded">
-	
-    <Grid>
+	<Page.Background>
+		<ImageBrush Stretch="Uniform" ImageSource="Images/GameBack.png"/>
+	</Page.Background>
+
+	<Grid Margin="10">
 		<Grid.RowDefinitions>
 			<RowDefinition/>
 			<RowDefinition/>
@@ -16,11 +19,9 @@
 			<ColumnDefinition Width="0.618*"/>
 			<ColumnDefinition/>
 		</Grid.ColumnDefinitions>
-		<Image Name="KinectViewImage" Grid.Column="0" Grid.Row="0" Grid.RowSpan="1"/>
-		<Canvas Name="BodyPartCanvas" Grid.Column="1" Grid.Row="0" x:FieldModifier="public">
-			<Canvas.Background>
-				<ImageBrush ImageSource="Images/BodyDiagram.png" Stretch="Uniform"/>
-			</Canvas.Background>
+		<Image Name="KinectViewImage" Grid.Column="1" Grid.Row="0" Grid.RowSpan="1"/>
+		<Canvas Name="BodyPartCanvas" Grid.Column="0" Grid.Row="1" x:FieldModifier="public" Background="#7FFFFFFF">
+			<Image Source="Images/BodyDiagram.png" Width="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}}"  Height="{Binding ActualHeight, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}}" />
 			<Ellipse
 				Canvas.Top="{Binding DominantHandPointTop}"
 				Canvas.Left="{Binding DominantHandPointLeft}"
@@ -28,7 +29,8 @@
 				Height="{Binding DotSize}"
 				Width="{Binding DotSize}"
 				StrokeThickness="0"
-				Stroke="#FF0000FF"/>
+				Stroke="#FF0000FF"
+				Visibility="Hidden"/>
 			<Image Name="BodyPartOverlay" Width="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}}"  Height="{Binding ActualHeight, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}}" x:FieldModifier="public">
 				<Image.Style>
 					<Style TargetType="Image">
@@ -63,26 +65,33 @@
 							<DataTrigger Value="NONE_RIGHT" Binding="{Binding BodyPart}">
 								<Setter Property="Source" Value="Images/Regions/NoneRight.png"/>
 							</DataTrigger>
-						</Style.Triggers>						
+						</Style.Triggers>
 					</Style>
 				</Image.Style>
 			</Image>
 		</Canvas>
 		<WrapPanel Grid.Column="0" Grid.Row="1" Visibility="Collapsed">
-			<TextBox  Text="{Binding DominantHandPointLeft}" TextChanged="TextBox_TextChanged" />
+			<TextBox Text="{Binding DominantHandPointLeft}" TextChanged="TextBox_TextChanged" />
 			<TextBox Text="{Binding DominantHandPointTop}" TextChanged="TextBox_TextChanged_1" />
 			<TextBox Text="{Binding DotSize}" TextChanged="TextBox_TextChanged_2" />
 		</WrapPanel>
-		<DataGrid Name="FeatureDataGrid" Grid.Column="1" Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{Binding FeatureList}" x:FieldModifier="public">
+		<Grid Grid.Column="1" Grid.Row="1">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="100"/>
+				<RowDefinition/>
+			</Grid.RowDefinitions>
+			<ProgressBar Grid.Row="0" Value="{Binding NumOfFeatureCompleted}" Maximum="{Binding NumOfFeature}" Foreground="#7F01D328" BorderBrush="{x:Null}" Background="{x:Null}" Margin="5"/>
+			<Label Grid.Row="1" FontSize="32" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="5" Background="#7FFFFFFF">
+				<Label.Content>
+					<AccessText TextWrapping="Wrap" Text="{Binding CurrectWaitingState}"/>
+				</Label.Content>
+			</Label>
+		</Grid>
+		<DataGrid Name="FeatureDataGrid" Grid.Column="1" Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{Binding FeatureList}" x:FieldModifier="public" Visibility="Collapsed">
 			<DataGrid.Columns>
 				<DataGridTextColumn Width="200" Binding="{Binding FeatureName}"/>
 				<DataGridTextColumn Width="1*" Binding="{Binding Value}"/>
 			</DataGrid.Columns>
 		</DataGrid>
-		<Label Grid.Row="1"  FontSize="32" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-			<Label.Content>
-				<AccessText TextWrapping="Wrap" Text="{Binding CurrectWaitingState}"/>
-			</Label.Content>
-		</Label>
 	</Grid>
 </Page>

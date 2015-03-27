@@ -6,11 +6,14 @@
       xmlns:k="http://schemas.microsoft.com/kinect/2013"
 	  xmlns:local="clr-namespace:EducationSystem"
       mc:Ignorable="d" 
-      d:DesignHeight="300" d:DesignWidth="300"
+      d:DesignHeight="768" d:DesignWidth="1024"
       Title="SplashPage">
 
-    <Grid>
+	<Grid>
 		<k:KinectTileButton x:Name="btnStart" Label="Start!" Width="Auto" Height="Auto" Click="btnStart_Click">
+			<k:KinectTileButton.Background>
+				<ImageBrush Stretch="Uniform" ImageSource="Images/SplashPageBack.png"/>
+			</k:KinectTileButton.Background>
 			<k:KinectTileButton.Style>
 				<Style TargetType="{x:Type k:KinectTileButton}">
 					<Setter Property="Visibility" Value="Hidden" />

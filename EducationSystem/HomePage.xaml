@@ -7,19 +7,50 @@
       mc:Ignorable="d" 
       d:DesignHeight="768" d:DesignWidth="1024"
       Title="HomePage">
+	<Page.Background>
+		<ImageBrush ImageSource="Images/MainMenuBack.png"/>
+	</Page.Background>
 
-	<Grid>
+	<Grid Margin="20,20,100,40">
+		<Grid.Background>
+			<ImageBrush/>
+		</Grid.Background>
 		<Grid.RowDefinitions>
-			<RowDefinition/>
-			<RowDefinition/>
+			<RowDefinition Height="1*" MinHeight="10px"/>
+			<RowDefinition Height="420"/>
+			<RowDefinition Height="1*" MinHeight="10px"/>
 		</Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition/>
-			<ColumnDefinition/>
+			<ColumnDefinition Width="1.618*"/>
+			<ColumnDefinition Width="400"/>
 		</Grid.ColumnDefinitions>
-		<k:KinectTileButton x:Name="btnDictionary" Label="Dictionary" Width="Auto" Height="Auto" Grid.Row="0" Grid.Column="0"/>
-		<k:KinectTileButton x:Name="btnLearn" Label="Learn" Width="Auto" Height="Auto" Grid.Row="0" Grid.Column="1" Click="btnLearn_Click"/>
-		<k:KinectTileButton x:Name="btnQuiz" Label="Quiz" Width="Auto" Height="Auto" Grid.Row="1" Grid.Column="0"/>
-		<k:KinectTileButton x:Name="btnGame" Label="Game" Width="Auto" Height="Auto" Grid.Row="1" Grid.Column="1" Click="btnGame_Click"/>
+		
+		<Grid Grid.Row="1" Grid.Column="2">
+			<Grid.RowDefinitions>
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition/>
+			</Grid.ColumnDefinitions>
+
+			<k:KinectTileButton x:Name="btnLearn" Width="Auto" Height="Auto" Grid.Row="0" Grid.Column="0" BorderThickness="0" Click="btnLearn_Click">
+				<k:KinectTileButton.Background>
+					<ImageBrush ImageSource="Images/MainMenuItem1.png" Stretch="Uniform"/>
+				</k:KinectTileButton.Background>
+			</k:KinectTileButton>
+			<k:KinectTileButton x:Name="btnQuiz" Width="Auto" Height="Auto" Grid.Row="1" Grid.Column="0" BorderThickness="0">
+				<k:KinectTileButton.Background>
+					<ImageBrush ImageSource="Images/MainMenuItem2.png" Stretch="Uniform"/>
+				</k:KinectTileButton.Background>
+			</k:KinectTileButton>
+			<k:KinectTileButton x:Name="btnGame" Width="Auto" Height="Auto" Grid.Row="2" Grid.Column="0" BorderThickness="0" Click="btnGame_Click">
+				<k:KinectTileButton.Background>
+					<ImageBrush ImageSource="Images/MainMenuItem3.png" Stretch="Uniform"/>
+				</k:KinectTileButton.Background>
+			</k:KinectTileButton>
+		</Grid>
+		
 	</Grid>
 </Page>

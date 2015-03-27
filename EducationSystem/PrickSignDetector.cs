@@ -13,13 +13,15 @@ namespace EducationSystem
         public PrickSignDetector(ShowFeatureMatchedPage showFeatureMatchedPage)
         {
             this.showFeatureMatchedPage = showFeatureMatchedPage;
+            this.showFeatureMatchedPage.NumOfFeature = 2;
         }
 
-        private void setStateString(string state)
+        private void setStateString(string state, int numOfFeatureCompleted)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
                 showFeatureMatchedPage.CurrectWaitingState = state;
+                showFeatureMatchedPage.NumOfFeatureCompleted = numOfFeatureCompleted;
             });
         }
 
@@ -31,7 +33,7 @@ namespace EducationSystem
             {
                 case WaitState.START:
                     {
-                        setStateString("Waiting Release Hands");
+                        setStateString("Waiting Release Hands", 0);
                         if (IsReleaseHands(bodyPartForHands))
                         {
                             currentWaitingState = WaitState.INITIAL_HANDSHAPE_POSITION;
@@ -40,7 +42,7 @@ namespace EducationSystem
                     }
                 case WaitState.INITIAL_HANDSHAPE_POSITION:
                     {
-                        setStateString("Waiting Initial handshape at correct position");
+                        setStateString("Waiting Initial handshape at correct position", 0);
                         if (IsInitialHandShapeAndPositionMatched(skeleton, bodyPartForHands))
                         {
                             currentWaitingState = WaitState.TOUCH;
@@ -49,7 +51,7 @@ namespace EducationSystem
                     }
                 case WaitState.TOUCH:
                     {
-                        setStateString("Waiting Hands Touching");
+                        setStateString("Waiting Hands Touching", 1);
                         if (IsTouchAtCertainPositionWIthCorrectHandShape(skeleton, bodyPartForHands))
                         {
                             currentWaitingState = WaitState.DONE;
@@ -58,7 +60,7 @@ namespace EducationSystem
                     }
                 case WaitState.DONE:
                     {
-                        setStateString("All DONE!");
+                        setStateString("All DONE!", 2);
                         if (IsReleaseHands(bodyPartForHands))
                         {
                             currentWaitingState = WaitState.INITIAL_HANDSHAPE_POSITION;
