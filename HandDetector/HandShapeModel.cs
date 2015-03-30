@@ -49,7 +49,7 @@ namespace CURELab.SignLanguage.HandDetector
         public Rectangle right;
         public Rectangle left;
         public Rectangle intersectCenter;
-        // skeleton data
+        // currentSkeleton data
         public string skeletonData = "";
 
         public HandShapeModel(int hogSize, HandEnum type)
@@ -103,7 +103,7 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 JointType jointType = jointTypes[i];
                 if (skeleton != null )
-                 //if (skeleton != null && skeleton.Joints[jointType].TrackingState != JointTrackingState.NotTracked)
+                 //if (currentSkeleton != null && currentSkeleton.Joints[jointType].TrackingState != JointTrackingState.NotTracked)
                 {
                     SkeletonPoint point = skeleton.Joints[jointType].Position;
                     s += String.Format(", {0}, {1}, {2}", point.X, point.Y, point.Z);

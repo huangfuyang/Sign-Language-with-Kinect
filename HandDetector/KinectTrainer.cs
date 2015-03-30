@@ -33,6 +33,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             controler = KinectStudioController.GetSingleton();
             Connected = controler.Connect();
+            m_OpenCVController.ShowImg();
         }
 
         public long FirstTimeStamp
@@ -56,7 +57,49 @@ namespace CURELab.SignLanguage.HandDetector
             return singleInstance;
         }
 
-        
+        /// <summary>
+        /// Use the sticky currentSkeleton logic to choose a player that we want to set as foreground. This means if the app
+        /// is tracking a player already, we keep tracking the player until it leaves the sight of the camera, 
+        /// and then pick the closest player to be tracked as foreground.
+        /// </summary>
+        private void ChooseSkeleton(Skeleton[] skeletons)
+        {
+            var isTrackedSkeltonVisible = false;
+            var nearestDistance = float.MaxValue;
+            var skeletonId = 0;
+            Skeleton skeleton = null;
+            foreach (var skel in skeletons)
+            {
+                if (null == skel)
+                {
+                    continue;
+                }
+
+                if (skel.TrackingState != SkeletonTrackingState.Tracked)
+                {
+                    continue;
+                }
+
+                //if (skel.TrackingId == this.currentlyTrackedSkeletonId)
+                //{
+                //    isTrackedSkeltonVisible = true;
+                //    break;
+                //}
+
+                if (skel.Position.Z < nearestDistance)
+                {
+                    nearestDistance = skel.Position.Z;
+                    skeletonId = skel.TrackingId;
+                    skeleton = skel;
+                }
+            }
+
+            if (!isTrackedSkeltonVisible && skeletonId != 0)
+            {
+                currentSkeleton = skeleton;
+                //Console.WriteLine(currentlyTrackedSkeletonId);
+            }
+        }
 
         private int firstFrame = 0;
         private Rectangle rightFirst;
@@ -68,6 +111,7 @@ namespace CURELab.SignLanguage.HandDetector
                 return;
             }
             string line = "";
+            headTracked = false;
             using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
             {
                 if (skeletonFrame != null)
@@ -81,23 +125,23 @@ namespace CURELab.SignLanguage.HandDetector
                     {
                         FirstTimeStamp = skeletonFrame.Timestamp;
                     }
-                    //Console.WriteLine("skeleton {0} first {1}",skeletonFrame.Timestamp,FirstTimeStamp);
+                    //Console.WriteLine("currentSkeleton {0} first {1}",skeletonFrame.Timestamp,FirstTimeStamp);
                     VideoFrame = GetRealCurrentFrame(skeletonFrame.Timestamp - FirstTimeStamp);
-                    //Console.WriteLine("skeleton:{0}", VideoFrame);
-                    line = VideoFrame.ToString() + ",null";
+                    //Console.WriteLine("currentSkeleton:{0}", VideoFrame);
                     var skeletons = new Skeleton[skeletonFrame.SkeletonArrayLength];
                     skeletonFrame.CopySkeletonDataTo(skeletons);
-                    foreach (var skel in skeletons)
+                    ChooseSkeleton(skeletons);
+                    if (currentSkeleton != null)
                     {
-                        if (skel.TrackingState == SkeletonTrackingState.Tracked)
+                        if (currentSkeleton.Joints[JointType.Head].TrackingState == JointTrackingState.Tracked)
                         {
-                            SkeletonPoint head = skel.Joints[JointType.Head].Position;
+                            headTracked = true;
+                            SkeletonPoint head = currentSkeleton.Joints[JointType.Head].Position;
                             headPosition = SkeletonPointToScreen(head);
-                            skeleton = skel;
-                            line = VideoFrame.ToString() + "," + GetSkeletonArgs(skel);
                         }
                     }
-                    
+                    line = VideoFrame.ToString() + "," + GetSkeletonArgs(currentSkeleton);
+                   
                 }
                 
             }
@@ -153,11 +197,7 @@ namespace CURELab.SignLanguage.HandDetector
                     int width = depthFrame.Width;
                     int height = depthFrame.Height;
 
-                    if (headPosition.X == 0)
-                    {
-                        headDepth = 1500;
-                    }
-                    else
+                    if (headTracked)
                     {
                         try
                         {
@@ -192,41 +232,51 @@ namespace CURELab.SignLanguage.HandDetector
                     PointF leftVector = PointF.Empty;
                     bool isSkip = true;
                     bool leftHandRaise = false;
-                    if (skeleton != null && skeleton.TrackingState == SkeletonTrackingState.Tracked)
+                    HandShapeModel handModel = null;
+                    //if (!isSkip)
                     {
-                        PointF hr = SkeletonPointToScreen(skeleton.Joints[JointType.HandRight].Position);
-                        PointF hl = SkeletonPointToScreen(skeleton.Joints[JointType.HandLeft].Position);
-                        PointF er = SkeletonPointToScreen(skeleton.Joints[JointType.ElbowRight].Position);
-                        PointF el = SkeletonPointToScreen(skeleton.Joints[JointType.ElbowLeft].Position);
-                        PointF hip = SkeletonPointToScreen(skeleton.Joints[JointType.HipCenter].Position);
-                        // hand is lower than hip
-                        //Console.WriteLine(skeleton.Joints[JointType.HandRight].Position.Y);
-                        //Console.WriteLine(skeleton.Joints[JointType.HipCenter].Position.Y);
-                        //Console.WriteLine("-------------");
-                        if (skeleton.Joints[JointType.HandRight].Position.Y >
-                            skeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
-                        {
-                            isSkip = false;
-                        }
-                        if (skeleton.Joints[JointType.HandLeft].Position.Y >
-                            skeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
+                        handModel = m_OpenCVController.FindHandFromColor(depthImg, colorPixels, _mappedDepthLocations, headPosition, headDepth);
+                    }
+                    if (handModel != null && handModel.type != HandEnum.None)
+                    {
+                        if (!handModel.left.IsCloseTo(leftFirst) ||
+                           (handModel.intersectCenter != Rectangle.Empty && handModel.intersectCenter.GetYCenter()> leftFirst.GetYCenter()+30))
                         {
                             leftHandRaise = true;
                         }
+                    }
+                    
+                    //Console.WriteLine("recog:{0}", sw.ElapsedMilliseconds);
+                    if (currentSkeleton != null )
+                    {
+                        PointF hr = SkeletonPointToScreen(currentSkeleton.Joints[JointType.HandRight].Position);
+                        PointF hl = SkeletonPointToScreen(currentSkeleton.Joints[JointType.HandLeft].Position);
+                        PointF er = SkeletonPointToScreen(currentSkeleton.Joints[JointType.ElbowRight].Position);
+                        PointF el = SkeletonPointToScreen(currentSkeleton.Joints[JointType.ElbowLeft].Position);
+                        PointF hip = SkeletonPointToScreen(currentSkeleton.Joints[JointType.HipCenter].Position);
+                        // hand is lower than hip
+                        //Console.WriteLine(currentSkeleton.Joints[JointType.HandRight].Position.Y);
+                        //Console.WriteLine(currentSkeleton.Joints[JointType.HipCenter].Position.Y);
+                        //Console.WriteLine("-------------");
+                        if (currentSkeleton.Joints[JointType.HandRight].Position.Y >
+                            currentSkeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
+                        {
+                            isSkip = false;
+                        }
 
-                        //Console.WriteLine(skeleton.Joints[JointType.HandRight].Position.Y);
+                        //if (currentSkeleton.Joints[JointType.HandLeft].Position.Y >currentSkeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
+                        //{
+                            //leftHandRaise = true;
+                        //}
+
+                        //Console.WriteLine(currentSkeleton.Joints[JointType.HandRight].Position.Y);
 
                         rightVector.X = (hr.X - er.X);
                         rightVector.Y = (hr.Y - er.Y);
                         leftVector.X = (hl.X - el.X);
                         leftVector.Y = (hl.Y - el.Y);
                     }
-                    HandShapeModel handModel = null;
-                    //if (!isSkip)
-                    {
-                        handModel = m_OpenCVController.FindHandFromColor(depthImg, ref colorPixels, _mappedDepthLocations, headPosition, headDepth);
-
-                    }
+                    
                     //Console.WriteLine("recog:{0}", sw.ElapsedMilliseconds);
                     //sw.Restart();
                     VideoFrame = GetRealCurrentFrame(depthFrame.Timestamp - FirstTimeStamp);
@@ -239,41 +289,57 @@ namespace CURELab.SignLanguage.HandDetector
                             leftFirst = handModel.left;
                         }
                         if (handModel.intersectCenter != Rectangle.Empty
-                                && (handModel.intersectCenter.IsCloseTo(rightFirst)
-                                || handModel.intersectCenter.IsCloseTo(leftFirst)))
+                                && !leftHandRaise)
                         {
                             //false intersect right hand behind head and left hand on initial position
                         }
                         else
                         {
-                            // to overcome the problem of right hand lost and left hand recognized as intersected.
-                            if (handModel.RightColor != null && !handModel.right.IsCloseTo(rightFirst) && !handModel.right.IsCloseTo(leftFirst))
+                            if (handModel.type == HandEnum.Intersect)
                             {
-                                var colorRight = handModel.RightColor;
-                                string fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
-                                    HandshapePath, VideoFrame.ToString(), handModel.type, 'C');
-                                colorRight.Save(fileName);
-                                var depthRight = handModel.RightDepth;
-                                fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
-                                    HandshapePath, VideoFrame.ToString(), handModel.type, 'D');
-                                //depthRight.Save(fileName);
+                                if (handModel.RightColor != null && !handModel.intersectCenter.IsCloseTo(rightFirst) && !handModel.intersectCenter.IsCloseTo(leftFirst))
+                                {
+                                    var colorRight = handModel.RightColor;
+                                    string fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
+                                        HandshapePath, VideoFrame.ToString(), handModel.type, 'C');
+                                    colorRight.Save(fileName);
+                                    var depthRight = handModel.RightDepth;
+                                    fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
+                                        HandshapePath, VideoFrame.ToString(), handModel.type, 'D');
+                                    //depthRight.Save(fileName);
+                                }
                             }
-                            if (handModel.LeftColor != null && !handModel.left.IsCloseTo(leftFirst))
+                            else
                             {
-                                var colorleft = handModel.LeftColor;
-                                string fileName = String.Format("{0}\\{4}\\{1}_{2}_{3}.jpg",
-                                    HandshapePath, VideoFrame.ToString(), handModel.type, 'C', "left");
-                                colorleft.Save(fileName);
+                                // to overcome the problem of right hand lost and left hand recognized as intersected.
+                                if (handModel.RightColor != null && !handModel.right.IsCloseTo(rightFirst) && !handModel.right.IsCloseTo(leftFirst))
+                                {
+                                    var colorRight = handModel.RightColor;
+                                    string fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
+                                        HandshapePath, VideoFrame.ToString(), handModel.type, 'C');
+                                    colorRight.Save(fileName);
+                                    var depthRight = handModel.RightDepth;
+                                    fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
+                                        HandshapePath, VideoFrame.ToString(), handModel.type, 'D');
+                                    //depthRight.Save(fileName);
+                                }
+                                if (handModel.LeftColor != null && !handModel.left.IsCloseTo(leftFirst))
+                                {
+                                    var colorleft = handModel.LeftColor;
+                                    string fileName = String.Format("{0}\\{4}\\{1}_{2}_{3}.jpg",
+                                        HandshapePath, VideoFrame.ToString(), handModel.type, 'C', "left");
+                                    colorleft.Save(fileName);
 
-                                var depthleft = handModel.LeftDepth;
-                                fileName = String.Format("{0}\\{4}\\{1}_{2}_{3}.jpg",
-                                    HandshapePath, VideoFrame.ToString(), handModel.type, 'D', "left");
-                                //depthleft.Save(fileName);
+                                    var depthleft = handModel.LeftDepth;
+                                    fileName = String.Format("{0}\\{4}\\{1}_{2}_{3}.jpg",
+                                        HandshapePath, VideoFrame.ToString(), handModel.type, 'D', "left");
+                                    //depthleft.Save(fileName);
+                                }
                             }
+                            
+                            line += GetHandModelString(handModel);
                         }
                        
-                        line += GetHandModelString(handModel);
-                        handModel.Dispose();
 
                     }
                     depthImg.Dispose();
@@ -325,12 +391,14 @@ namespace CURELab.SignLanguage.HandDetector
 
         public override void Reset()
         {
+            //base.Reset();
             m_OpenCVController.Reset();
             CurrentFrame = 0;
             PreviousFrame = 0;
             FirstTimeStamp = long.MaxValue;
             rightFirst = Rectangle.Empty;
             leftFirst = Rectangle.Empty;
+            currentSkeleton = null;
         }
         private void ControlThread(object obj)
         {
@@ -346,10 +414,6 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 try
                 {
-                    if (i % 10 == 9)
-                    {
-                        GC.Collect();
-                    }
                     var single_file_name = System.IO.Path.GetFileNameWithoutExtension(fileNames[i]);
                     dir = Path.GetDirectoryName(fileNames[i]);
                     CreateFolder(dir + "\\" + single_file_name,false);
@@ -411,7 +475,7 @@ namespace CURELab.SignLanguage.HandDetector
                 
                 if (skel.TrackingState == SkeletonTrackingState.Tracked)
                 {
-                    #region skeleton
+                    #region currentSkeleton
                     dp_csv = sensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skel.Joints[JointType.Head].Position, DepthImageFormat.Resolution640x480Fps30);
                     cp_csv = sensor.CoordinateMapper.MapSkeletonPointToColorPoint(skel.Joints[JointType.Head].Position, ColorImageFormat.RgbResolution640x480Fps30);
                     //head

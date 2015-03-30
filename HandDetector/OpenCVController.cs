@@ -150,6 +150,7 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
 
+        
         #region Hand recognition
 
 
@@ -288,11 +289,25 @@ namespace CURELab.SignLanguage.HandDetector
         private Rectangle rightRec;
         private Rectangle leftRec;
         private int headMinDepth;
+
+        public void ShowImg()
+        {
+            viewer.Show();
+        }
+
         public HandShapeModel FindHandFromColor(
-            Image<Gray, byte> depthImage, ref byte[] colorPixels, DepthImagePoint[] depthMap, PointF head, int headDepth
+            Image<Gray, byte> depthImage, byte[] colorPixels, DepthImagePoint[] depthMap, PointF head, int headDepth)
+        {
+            byte[] t;
+            var r = FindHandFromColor(depthImage, colorPixels, depthMap, head, headDepth,out t);
+            return r;
+        }
+
+        public HandShapeModel FindHandFromColor(
+            Image<Gray, byte> depthImage, byte[] colorPixels, DepthImagePoint[] depthMap, PointF head, int headDepth,out byte[] processImg
             )
         {
-            //Console.WriteLine(headDepth + 200);
+            //Console.WriteLine(headDepth -30);
             //Console.WriteLine("head min:{0}", headMinDepth);CV
             //Console.WriteLine("head :x{0} y{1}", head.X,head.Y);
             int width = 640;
@@ -313,9 +328,9 @@ namespace CURELab.SignLanguage.HandDetector
                     var V = ((112 * R - 94 * G - 18 * B + 128) >> 8) + 128;
                     var d = depthMap[colorIndex/bytePerPixel].Depth;
                     //if (!(U > 100 && U < 129 && V > 140 && V < 170))//aaron
-                    //if (!(U > 100 && U < 135 && V > 138 && V < 170))//Micheal
+                    if (!(U > 100 && U < 135 && V > 137 && V < 170))//Micheal
                     //if (!(U > 95 && U < 135 && V > 134 && V < 170) || d > headDepth + 200 || d == 0) //realtime
-                    if (!(U > 95 && U < 135 && V > 134 && V < 170) || d > headDepth + 200) //realtime with hole filling
+                    //if (!(U > 95 && U < 135 && V > 137 && V < 170) || colorPixels[colorIndex + 3] == 0) //realtime with hole filling
                     {
                         colorPixels[colorIndex] = 0;
                         colorPixels[colorIndex + 1] = 0;
@@ -335,6 +350,7 @@ namespace CURELab.SignLanguage.HandDetector
             var clist = FindContourRect(binaryImg, 3);
             HandShapeModel handModel = null;
             //Console.WriteLine(headMinDepth);
+            headMinDepth = headDepth-30;
             switch (clist.Count)
             {
                 case 1://two hands and head touch
@@ -352,23 +368,24 @@ namespace CURELab.SignLanguage.HandDetector
                     headRec = clist[0];
                     if (!rightRec.IsCloseTo(headRec,2) && !leftRec.IsCloseTo(headRec,2))
                     {
-                        var cdepth = GetRectMinDepth(headRec, depthMap);
-                        if (cdepth < 10000)
-                        {
-                            if (headMinDepth == 0)
-                            {
-                                headMinDepth = cdepth;
-                            }
-                            else
-                            {
-                                // head hand occluded
-                                // do not use when real time
-                                if (cdepth >= headMinDepth - 50 || Math.Abs(headMinDepth-headDepth)>200)
-                                {
-                                    headMinDepth = cdepth;
-                                }
-                            }
-                        }
+                        //var cdepth = GetRectMinDepth(headRec, depthMap);
+                        //if (cdepth < 10000)
+                        //{
+                        //    if (headMinDepth == 0)
+                        //    {
+                        //        headMinDepth = cdepth;
+                        //    }
+                        //    else
+                        //    {
+                        //        // head hand occluded
+                        //        // do not use when real time
+                        //        if (cdepth >= headMinDepth - 50 || Math.Abs(headMinDepth-headDepth)>200)
+                        //        {
+                        //            headMinDepth = cdepth;
+                        //        }
+                        //    }
+                        //}
+                        //****temp modify***
                     }
                    
                     handModel = new HandShapeModel(HandEnum.Both)
@@ -392,7 +409,7 @@ namespace CURELab.SignLanguage.HandDetector
             }
             DrawRects(handModel,colorImg);
             viewer.Image = colorImg;
-            colorPixels = colorImg.Convert<Bgra, byte>().Bytes;
+            processImg = colorImg.Convert<Bgra, byte>().Bytes;
             return handModel;
         }
 
@@ -442,7 +459,6 @@ namespace CURELab.SignLanguage.HandDetector
 
         private HandShapeModel GetSubImageByRectAndDepth(Image<Gray, Byte> depthImage, Image<Gray, Byte> colorImage, List<Rectangle> rects, int depth, DepthImagePoint[] depthMap)
         {
-
             if (rects == null || rects.Count == 0)
             {
                 return null;
@@ -468,6 +484,10 @@ namespace CURELab.SignLanguage.HandDetector
                     srect.X += rect.X;
                     srect.Y += rect.Y;
                     AssertRectangle(ref srect);
+                    if (srect.GetRectArea()<1000)
+                    {
+                        return null;
+                    }
                     ret = new HandShapeModel(HandEnum.Intersect)//intersect touch
                     {
                         RightColor = GetSubImageByRect(colorImage,srect),
@@ -519,25 +539,12 @@ namespace CURELab.SignLanguage.HandDetector
                 }
                 var binaryImg = colorImage.Copy(rect).ThresholdToZeroInv(new Gray(240));
                 var clist = FindContourRect(binaryImg, 1,false);
-                binaryImg.Dispose();
                 //Intersect untouch
                 if (clist.Count == 0)
                 {
-                    var cdepth = GetRectMinDepth(headTouch, depthMap);
-                    if (cdepth < 10000)
+                    if (untouchRec.GetRectArea() < 1000)
                     {
-                        if (headMinDepth == 0)
-                        {
-                            headMinDepth = cdepth;
-                        }
-                        else
-                        {
-                            // head hand occluded
-                            if (cdepth >= headMinDepth - 50)
-                            {
-                                headMinDepth = cdepth;
-                            }
-                        }
+                        return null;
                     }
                     ret = new HandShapeModel(HandEnum.Intersect)
                     {
@@ -665,7 +672,7 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
 
-        int minSize = 400;
+        int minSize = 200;
         int maxSize = 40000;
         private List<MCvBox2D> FindContourMBox(Image<Gray, byte> image, int count)
         {
@@ -697,10 +704,11 @@ namespace CURELab.SignLanguage.HandDetector
             int cull_length = 120;
             for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt64() != 0; DyncontourTemp = DyncontourTemp.HNext)
             {
+                
                 var rect = DyncontourTemp.BoundingRectangle;
                 //iterate contours
-                if (rect.GetRectArea() < minSize
-                    || rect.GetRectArea() > maxSize)
+                if (DyncontourTemp.Area < minSize
+                    || DyncontourTemp.Area > maxSize)
                 {
                     continue;
                 }

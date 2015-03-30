@@ -182,27 +182,14 @@ namespace CURELab.SignLanguage.HandDetector
             //socket = SocketManager.GetInstance("127.0.0.1", 51243);
             socket = SocketManager.GetInstance("137.189.89.29", 51243);
             //socket = SocketManager.GetInstance("192.168.209.67", 51243);
-            
-            Menu_Kinect_Click(sender, e);
-            //var hand = new HandShapeModel(HandEnum.Both)
-            //{
-            //    RightColor = new Image<Bgr, byte>("right.jpg"),
-            //    LeftColor = new Image<Bgr, byte>("left.jpg")
-            //};
 
-            //var hand1 = new HandShapeModel(HandEnum.Intersect)
-            //{
-            //    RightColor = new Image<Bgr, byte>("intersect.jpg")
-            //};
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    socket.SendData(hand1, null);
-            //    Thread.Sleep(33);
-            //    socket.SendData(hand, null);
-            //    Thread.Sleep(33);
-
-            //}
-            //socket.SendEnd();
+            ResetAll();
+            m_KinectController = KinectRealtime.GetSingletonInstance(socket);
+            this.DataContext = m_KinectController;
+            m_KinectController.Initialize();
+            this.img_color.Source = m_KinectController.ColorWriteBitmap;
+            this.img_depth.Source = m_KinectController.DepthWriteBitmap;
+            m_KinectController.Start();
             AsnycDataRecieved();
         }
 
@@ -275,12 +262,6 @@ namespace CURELab.SignLanguage.HandDetector
             m_KinectController.Initialize();
             this.img_color.Source = m_KinectController.ColorWriteBitmap;
             this.img_depth.Source = m_KinectController.DepthWriteBitmap;
-            this.img_leftFront.Source = m_KinectController.WrtBMP_LeftHandFront;
-            this.img_rightFront.Source = m_KinectController.WrtBMP_RightHandFront;
-            this.img_candidate3.Source = m_KinectController.WrtBMP_Candidate3;
-            this.img_candidate2.Source = m_KinectController.WrtBMP_Candidate2;
-            this.img_candidate1.Source = m_KinectController.WrtBMP_Candidate1;
-
             m_KinectController.Start();
         }
 
