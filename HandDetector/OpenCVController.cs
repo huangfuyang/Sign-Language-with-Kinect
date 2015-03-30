@@ -36,6 +36,7 @@ namespace CURELab.SignLanguage.HandDetector
     public class OpenCVController : INotifyPropertyChanged
     {
         public static double CANNY_THRESH;
+        public static double VMIN;
         public static double CANNY_CONNECT_THRESH;
         public HOGDescriptor Hog_Descriptor;
         private ImageViewer viewer;
@@ -328,7 +329,7 @@ namespace CURELab.SignLanguage.HandDetector
                     var V = ((112 * R - 94 * G - 18 * B + 128) >> 8) + 128;
                     var d = depthMap[colorIndex/bytePerPixel].Depth;
                     //if (!(U > 100 && U < 129 && V > 140 && V < 170))//aaron
-                    if (!(U > 100 && U < 135 && V > 137 && V < 170))//Micheal
+                    if (!(U > 100 && U < 135 && V > VMIN && V < 170))//Micheal
                     //if (!(U > 95 && U < 135 && V > 134 && V < 170) || d > headDepth + 200 || d == 0) //realtime
                     //if (!(U > 95 && U < 135 && V > 137 && V < 170) || colorPixels[colorIndex + 3] == 0) //realtime with hole filling
                     {

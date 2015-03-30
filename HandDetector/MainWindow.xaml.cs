@@ -62,7 +62,7 @@ namespace CURELab.SignLanguage.HandDetector
             ConsoleManager.Show();
             m_OpenCVController = OpenCVController.GetSingletonInstance();
 
-            //RegisterThreshold("canny", ref OpenCVController.CANNY_THRESH, 100, 8);
+            RegisterThreshold("V min", ref OpenCVController.VMIN, 150, 134);
             //RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
             //RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
             //RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
