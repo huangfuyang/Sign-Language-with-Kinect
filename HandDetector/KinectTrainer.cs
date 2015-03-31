@@ -239,8 +239,7 @@ namespace CURELab.SignLanguage.HandDetector
                     }
                     if (handModel != null && handModel.type != HandEnum.None)
                     {
-                        if (!handModel.left.IsCloseTo(leftFirst) ||
-                           (handModel.intersectCenter != Rectangle.Empty && handModel.intersectCenter.GetYCenter()> leftFirst.GetYCenter()+30))
+                        if (!handModel.left.IsCloseTo(leftFirst))
                         {
                             leftHandRaise = true;
                         }
@@ -288,12 +287,12 @@ namespace CURELab.SignLanguage.HandDetector
                             rightFirst = handModel.right;
                             leftFirst = handModel.left;
                         }
-                        if (handModel.intersectCenter != Rectangle.Empty
-                                && !leftHandRaise)
-                        {
-                            //false intersect right hand behind head and left hand on initial position
-                        }
-                        else
+                        //if (handModel.intersectCenter != Rectangle.Empty
+                        //        && !leftHandRaise)
+                        //{
+                        //    //false intersect right hand behind head and left hand on initial position
+                        //}
+                        //else
                         {
                             if (handModel.type == HandEnum.Intersect)
                             {

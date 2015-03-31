@@ -218,13 +218,7 @@ namespace CURELab.SignLanguage.HandDetector
                     {
 
                         handModel.skeletonData = FrameConverter.GetFrameDataArgString(currentSkeleton);
-                        if (handModel.intersectCenter != Rectangle.Empty
-                                && !leftHandRaise)
-                        {
-                            //false intersect right hand behind head and left hand on initial position
-                            // to overcome the problem of right hand lost and left hand recognized as intersected.
-                        }
-                        else
+                        if (handModel.type == HandEnum.Intersect)
                         {
                             if (!leftHandRaise && handModel.type == HandEnum.Both)
                             {

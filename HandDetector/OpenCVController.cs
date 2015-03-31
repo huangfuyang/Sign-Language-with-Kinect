@@ -329,8 +329,8 @@ namespace CURELab.SignLanguage.HandDetector
                     var V = ((112 * R - 94 * G - 18 * B + 128) >> 8) + 128;
                     var d = depthMap[colorIndex/bytePerPixel].Depth;
                     //if (!(U > 100 && U < 129 && V > 140 && V < 170))//aaron
-                    //if (!(U > 100 && U < 135 && V > VMIN && V < 170) || channel == 4 && colorPixels[colorIndex + 3] == 0)//Micheal
-                    if (!(U > 95 && U < 135 && V > 134 && V < 170) || d > headDepth + 200 || d == 0) //realtime
+                    if (!(U > 100 && U < 135 && V > VMIN && V < 170) || channel == 4 && colorPixels[colorIndex + 3] == 0)//Micheal
+                    //if (!(U > 95 && U < 135 && V > 134 && V < 170) || d > headDepth + 200 || d == 0) //realtime
                     //if (!(U > 95 && U < 135 && V > 137 && V < 170) || colorPixels[colorIndex + 3] == 0) //realtime with hole filling
                     {
                         colorPixels[colorIndex] = 0;
@@ -351,7 +351,6 @@ namespace CURELab.SignLanguage.HandDetector
             var clist = FindContourRect(binaryImg, 3);
             HandShapeModel handModel = null;
             //Console.WriteLine(headMinDepth);
-            headMinDepth = headDepth-30;
             switch (clist.Count)
             {
                 case 1://two hands and head touch
@@ -367,6 +366,7 @@ namespace CURELab.SignLanguage.HandDetector
                     rightRec = tlist[1];
                     leftRec = tlist[0];
                     headRec = clist[0];
+                    headMinDepth = headDepth-30;
                     if (!rightRec.IsCloseTo(headRec,2) && !leftRec.IsCloseTo(headRec,2))
                     {
                         //var cdepth = GetRectMinDepth(headRec, depthMap);
@@ -411,6 +411,12 @@ namespace CURELab.SignLanguage.HandDetector
             DrawRects(handModel,colorImg);
             viewer.Image = colorImg;
             processImg = colorImg.Convert<Bgra, byte>().Bytes;
+            if (handModel != null &&
+                !handModel.right.IsCloseTo(handModel.left,10) && 
+                handModel.type == HandEnum.Intersect)
+            {
+                return null;
+            }
             return handModel;
         }
 
@@ -724,7 +730,7 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 for (int j = i+1; j < rectList.Count; j++)
                 {
-                    if (rectList[i].IsCloseTo(rectList[j]))
+                    if (rectList[i].IsCloseTo(rectList[j],2))
                     {
                         rectList[j] = rectList[i].Unite(rectList[j]);
                         rectList.RemoveAt(i);

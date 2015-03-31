@@ -2,11 +2,12 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:CURELab.SignLanguage.HandDetector"
-        Title="Sign Language Recognition System" Height="768" Width="1024" Loaded="WindowLoaded" Closing="WindowClosing" KeyDown="Window_KeyDown_1" ResizeMode="NoResize">
+        xmlns:k="http://schemas.microsoft.com/kinect/2013"
+        Title="Sign Language Recognition System" Height="768" Width="1024" Loaded="WindowLoaded" Closing="WindowClosing" ResizeMode="NoResize">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </Window.Resources>
-    <Grid>
+    <Grid Name="grd_main">
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
             <RowDefinition Height="1*"/>
@@ -16,6 +17,11 @@
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
+        <k:KinectRegion Name="kinectRegion" Grid.ColumnSpan="2" Grid.RowSpan="2">
+            <Grid Name="kinectRegionGrid" />
+        </k:KinectRegion>
+        <k:KinectSensorChooserUI Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Top" Name="sensorChooserUi" />
+        <k:KinectUserViewer Grid.Row="0" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Right" k:KinectRegion.KinectRegion="{Binding ElementName=kinectRegion}" Height="100" UserColoringMode="HighlightPrimary" PrimaryUserColor="Red" />
         <Viewbox Grid.Row="1" Grid.Column="0" Stretch="Uniform" HorizontalAlignment="Center">
             <Image Name="img_color" Width="640" Height="480" Margin="5"/>
         </Viewbox>
@@ -73,17 +79,10 @@
                 <MenuItem Header="Server" Click="Menu_Server_Click" />
                 <MenuItem Header="Train" Click="Menu_Train_Click" />
                 <MenuItem Header="TrainHand" Click="Menu_TrainHand_Click" />
-                <MenuItem Header="End" Click="Menu_End_Click" />
-                <Separator />
-                <MenuItem Header="Exit" Click="Menu_Exit_Click"/>
             </MenuItem>
             <MenuItem Header="KinectStudio">
                 <MenuItem Header="Start" Click="MenuItem_Start_Click"  />
                 <MenuItem Header="Connect" Click="MenuItem_Connect_Click" />
-                <MenuItem Header="Open" Click="MenuItem_Open_Click"/>
-                <Separator />
-                <MenuItem Header="Run" Click="MenuItem_Run_Click"/>
-                <MenuItem Header="Test" Click="MenuItem_Test_Click"/>
             </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="Log"/>

@@ -12,10 +12,14 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.IO;
 using System.Windows.Forms;
+using CURELab.SignLanguage.HandDetector.Pages;
 using CURELab.SignLanguage.StaticTools;
 using Emgu.CV;
 using Emgu.CV.Features2D;
 using Emgu.CV.Structure;
+using Microsoft.Kinect;
+using Microsoft.Kinect.Toolkit;
+using System.Windows.Controls;
 
 namespace CURELab.SignLanguage.HandDetector
 {
@@ -37,39 +41,37 @@ namespace CURELab.SignLanguage.HandDetector
         /// </summary>
         public WriteableBitmap depthBitmap;
 
-        public WriteableBitmap grayBitmap;
         private KinectController m_KinectController;
-        private OpenCVController m_OpenCVController;
         private KinectStudioController m_kinectStudioController;
-        private DBManager m_DBmanager;
         private SocketManager socket;
         private Dictionary<string, string> fullWordList;
+        private KinectSensorChooser sensorChooser;
+
+        //pages
+        private Page startPage;
         public MainWindow()
         {
             InitializeComponent();
+            this.startPage = new StartPage();
+            //this.kinectRegionGrid.Children.Add(this.startPage);
             m_kinectStudioController = KinectStudioController.GetSingleton();
-            HandShapeClassifier.GetSingleton();
-        }
-
-        private void GetResponseImageCallback(IAsyncResult result)
-        {
-            var handler = (SocketManager.AsyncBitmapCaller)((AsyncResult)result).AsyncDelegate;
-            Console.WriteLine(handler.EndInvoke(result));
         }
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
             ConsoleManager.Show();
-            m_OpenCVController = OpenCVController.GetSingletonInstance();
-
+            this.sensorChooser = new KinectSensorChooser();
+            //this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
+            this.sensorChooserUi.KinectSensorChooser = this.sensorChooser;
+            this.sensorChooser.Start(); 
             RegisterThreshold("V min", ref OpenCVController.VMIN, 150, 134);
             //RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
             //RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
             //RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
             //RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 40);
 
-            //Menu_Kinect_Click(this, e);  //test
-            Menu_TrainHand_Click(this, e);//train hand shape
+            Menu_Kinect_Click(this, e);  //test
+            //Menu_TrainHand_Click(this, e);//train hand shape
             //Menu_Server_Click(this, e);//real time recog
             //Menu_Train_Click(this, e);//train data
             //MenuItem_Test_Click(this, e);//test
@@ -95,6 +97,20 @@ namespace CURELab.SignLanguage.HandDetector
 
         }
 
+        /// <summary>
+        /// Execute shutdown tasks
+        /// </summary>
+        /// <param name="sender">object sending the event</param>
+        /// <param name="e">event arguments</param>
+        private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (m_KinectController != null)
+            {
+                m_KinectController.Shutdown();
+
+            }
+        }
+
         private unsafe void RegisterThreshold(string valuename, ref double thresh, double max, double initialValue)
         {
 
@@ -112,87 +128,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         }
 
-
-
-        private void Initialize()
-        {
-        }
-
-        /// <summary>
-        /// Execute shutdown tasks
-        /// </summary>
-        /// <param name="sender">object sending the event</param>
-        /// <param name="e">event arguments</param>
-        private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (m_KinectController != null)
-            {
-                m_KinectController.Shutdown();
-
-            }
-        }
-
-
-        private void Kinect_Setup()
-        {
-
-        }
-
-        private void Menu_Exit_Click(object sender, RoutedEventArgs e)
-        {
-
-            if (m_KinectController != null)
-            {
-                m_KinectController.Shutdown();
-
-            }
-            Environment.Exit(0);
-        }
-
-        private void Menu_OpenNI_Click(object sender, RoutedEventArgs e)
-        {
-            ResetAll();
-            m_KinectController = OpenNIController.GetSingletonInstance();
-            statusBar.DataContext = m_KinectController;
-            m_KinectController.Initialize();
-            this.img_color.Source = m_KinectController.ColorWriteBitmap;
-            this.img_depth.Source = m_KinectController.ProcessedDepthBitmap;
-            m_KinectController.Start();
-        }
-
-        private void Menu_ONI_Click(object sender, RoutedEventArgs e)
-        {
-            ResetAll();
-            Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog();
-            ofd.DefaultExt = ".oni";
-            ofd.Filter = "oni file|*.oni";
-            if (ofd.ShowDialog() == true)
-            {
-                m_KinectController = OpenNIController.GetSingletonInstance();
-                statusBar.DataContext = m_KinectController;
-                m_KinectController.Initialize(ofd.FileName);
-                this.img_color.Source = m_KinectController.ColorWriteBitmap;
-                this.img_depth.Source = m_KinectController.ProcessedDepthBitmap;
-                this.img_leftFront.Source = m_KinectController.GrayWriteBitmap;
-                m_KinectController.Start();
-            }
-
-        }
-        private void Menu_Server_Click(object sender, RoutedEventArgs e)
-        {
-            //socket = SocketManager.GetInstance("127.0.0.1", 51243);
-            socket = SocketManager.GetInstance("137.189.89.29", 51243);
-            //socket = SocketManager.GetInstance("192.168.209.67", 51243);
-
-            ResetAll();
-            m_KinectController = KinectRealtime.GetSingletonInstance(socket);
-            this.DataContext = m_KinectController;
-            m_KinectController.Initialize();
-            this.img_color.Source = m_KinectController.ColorWriteBitmap;
-            this.img_depth.Source = m_KinectController.DepthWriteBitmap;
-            m_KinectController.Start();
-            AsnycDataRecieved();
-        }
+  
 
         private void AsnycDataRecieved()
         {
@@ -236,6 +172,22 @@ namespace CURELab.SignLanguage.HandDetector
                 }
 
             }
+        }
+
+        private void Menu_Server_Click(object sender, RoutedEventArgs e)
+        {
+            //socket = SocketManager.GetInstance("127.0.0.1", 51243);
+            socket = SocketManager.GetInstance("137.189.89.29", 51243);
+            //socket = SocketManager.GetInstance("192.168.209.67", 51243);
+
+            ResetAll();
+            m_KinectController = KinectRealtime.GetSingletonInstance(socket);
+            this.DataContext = m_KinectController;
+            m_KinectController.Initialize();
+            this.img_color.Source = m_KinectController.ColorWriteBitmap;
+            this.img_depth.Source = m_KinectController.DepthWriteBitmap;
+            m_KinectController.Start();
+            AsnycDataRecieved();
         }
 
         private void Menu_Train_Click(object sender, RoutedEventArgs e)
@@ -289,20 +241,6 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
-        private void Window_KeyDown_1(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            switch (e.Key)
-            {
-
-                case Key.Space:
-                    m_KinectController.TogglePause();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-
         private bool _isConnected;
 
         public bool IsConnected
@@ -334,139 +272,51 @@ namespace CURELab.SignLanguage.HandDetector
             IsConnected = m_kinectStudioController.Start();
         }
 
-        private List<SignWordModel> wordList;
-        private void MenuItem_Open_Click(object sender, RoutedEventArgs e)
+        private void SensorChooserOnKinectChanged(object sender, KinectChangedEventArgs args)
         {
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.RootFolder = Environment.SpecialFolder.MyComputer;
-            dialog.SelectedPath = @"D:\Kinect data\Aaron\Aaron 1-180";
-            DialogResult result = dialog.ShowDialog();
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                string folderName = dialog.SelectedPath;
-                string dbPath = @"D:\Kinect data\Aaron\Aaron 1-180\database_empty.db";
-                m_DBmanager = DBManager.GetSingleton(dbPath);
-                DirectoryInfo folder = new DirectoryInfo(folderName);
-                wordList = new List<SignWordModel>();
-                foreach (var item in folder.GetFiles("*.xed"))
-                {
-                    string fileName = item.Name;
-                    string[] s = fileName.Split();
-                    SignWordModel wordModel = new SignWordModel(s[0], s[1], item.FullName, fileName);
-                    wordList.Add(wordModel);
-                }
-                foreach (var dir in folder.GetDirectories())
-                {
 
-                    foreach (var item in dir.GetFiles("*.xed"))
-                    {
-                        string fileName = item.Name;
-                        string[] s = fileName.Split();
-                        SignWordModel wordModel = new SignWordModel(s[0], s[1], item.FullName, fileName);
-                        wordList.Add(wordModel);
-                    }
+            bool error = false;
+
+            if (args.OldSensor != null)
+            {
+                try
+                {
+                    args.OldSensor.DepthStream.Disable();
+                    args.OldSensor.ColorStream.Disable();
                 }
-                Console.WriteLine(wordList.Count() + " words to process");
+                catch (InvalidOperationException) { error = true; }
             }
 
-        }
-
-        int signIndex = 0;
-        private void MenuItem_Run_Click(object sender, RoutedEventArgs e)
-        {
-            signIndex = 0;
-            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-            timer.Interval = 1000;
-            timer.Tick += timer_Tick;
-            timer.Start();
-
-        }
-        private void MenuItem_Test_Click(object sender, RoutedEventArgs e)
-        {
-            #region mog txt to database
-            StreamReader sr = new StreamReader(File.Open(@"J:\Kinect data\mog141-180.txt", FileMode.Open));
-            string dataPath = @"J:\Kinect data\database141-181.db";
-            m_DBmanager = DBManager.GetSingleton(dataPath);
-            m_DBmanager.BeginTrans();
-
-            string line = sr.ReadLine();
-            int count = 1;
-            while (line != null && line != "")
+            if (args.NewSensor != null)
             {
-                string[] cell = line.Split();
-                int frame = Convert.ToInt32(cell[1]);
-                bool isRight = cell[2] == "r";
-                if (cell.Count() >= 27)
+                try
                 {
-                    float[] Mog = cell.Skip(3).Take(24).Select(x => Convert.ToSingle(x)).ToArray();
-                    m_DBmanager.UpdateMogData(frame, Mog, isRight);
+                    args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
+                    args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
+                    args.NewSensor.SkeletonStream.Enable();
+                    args.NewSensor.DepthStream.Range = DepthRange.Default;
+                    args.NewSensor.Start();
                 }
-                Console.WriteLine(count++);
-                line = sr.ReadLine();
-            }
-            m_DBmanager.Commit();
-            m_DBmanager.Close();
-            sr.Close();
-            #endregion
-
-            #region kmeans
-
-            #endregion
-        }
-
-
-        void timer_Tick(object sender, EventArgs e)
-        {
-            //end
-            if (signIndex >= wordList.Count())
-            {
-                Console.WriteLine("finish");
-                ((System.Windows.Forms.Timer)sender).Stop();
-            }
-            if (!m_DBmanager.Begin)
-            {
-                //begin
-                m_KinectController.Reset();
-                m_OpenCVController.Reset();
-                Console.WriteLine("[{0}/{1} {2:P}] \nloading:{3}",
-                    signIndex, wordList.Count(),
-                    (float)signIndex / wordList.Count(),
-                    wordList[signIndex].File);
-                if (wordList[signIndex].Signer == "Aaron")
+                catch (InvalidOperationException)
                 {
-                    KinectSDKController.AngleRotateTan = KinectSDKController.AaronRotateTan;
+                    error = true;
                 }
-                else if (wordList[signIndex].Signer == "Anita")
-                {
-                    KinectSDKController.AngleRotateTan = KinectSDKController.AnitaRotateTan;
-                }
-                else
-                {
-                    KinectSDKController.AngleRotateTan = KinectSDKController.MichaelRotateTan;
-                }
-                // Console.WriteLine("current threshold:"+KinectSDKController.AngleRotateTan);
-                m_DBmanager.BeginTrans();
-                m_DBmanager.AddWordSample(wordList[signIndex]);
-                m_kinectStudioController.Open_File(wordList[signIndex].FullName);
-                m_kinectStudioController.Run();
-                m_DBmanager.Begin = true;
-                signIndex++;
             }
             else
             {
-                //running
-                Console.WriteLine("waiting");
+                error = true;
             }
-        }
 
-
-        private void Menu_End_Click(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("END");
-            if (socket != null)
-            {
-                socket.SendEnd();
-            }
+            //if (!error)
+            //{
+            //    this.kinectRegion.KinectSensor = systemStatusCollection.CurrentKinectSensor = args.NewSensor;
+            //    systemStatusCollection.IsKinectAllSet = true;
+            //}
+            //else
+            //{
+            //    this.kinectRegion.KinectSensor = systemStatusCollection.CurrentKinectSensor = null;
+            //    systemStatusCollection.IsKinectAllSet = false;
+            //}
         }
 
 
