@@ -297,15 +297,15 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
         public HandShapeModel FindHandFromColor(
-            Image<Gray, byte> depthImage, byte[] colorPixels, DepthImagePoint[] depthMap, PointF head, int headDepth)
+            Image<Gray, byte> depthImage, byte[] colorPixels, DepthImagePoint[] depthMap, PointF head, int headDepth,int channel)
         {
             byte[] t;
-            var r = FindHandFromColor(depthImage, colorPixels, depthMap, head, headDepth,out t);
+            var r = FindHandFromColor(depthImage, colorPixels, depthMap, head, headDepth,out t,channel);
             return r;
         }
 
         public HandShapeModel FindHandFromColor(
-            Image<Gray, byte> depthImage, byte[] colorPixels, DepthImagePoint[] depthMap, PointF head, int headDepth,out byte[] processImg
+            Image<Gray, byte> depthImage, byte[] colorPixels, DepthImagePoint[] depthMap, PointF head, int headDepth, out byte[] processImg, int channel
             )
         {
             //Console.WriteLine(headDepth -30);
@@ -329,8 +329,8 @@ namespace CURELab.SignLanguage.HandDetector
                     var V = ((112 * R - 94 * G - 18 * B + 128) >> 8) + 128;
                     var d = depthMap[colorIndex/bytePerPixel].Depth;
                     //if (!(U > 100 && U < 129 && V > 140 && V < 170))//aaron
-                    if (!(U > 100 && U < 135 && V > VMIN && V < 170))//Micheal
-                    //if (!(U > 95 && U < 135 && V > 134 && V < 170) || d > headDepth + 200 || d == 0) //realtime
+                    //if (!(U > 100 && U < 135 && V > VMIN && V < 170) || channel == 4 && colorPixels[colorIndex + 3] == 0)//Micheal
+                    if (!(U > 95 && U < 135 && V > 134 && V < 170) || d > headDepth + 200 || d == 0) //realtime
                     //if (!(U > 95 && U < 135 && V > 137 && V < 170) || colorPixels[colorIndex + 3] == 0) //realtime with hole filling
                     {
                         colorPixels[colorIndex] = 0;
@@ -535,7 +535,8 @@ namespace CURELab.SignLanguage.HandDetector
                 {
                     for (int j = rect.X; j < rect.X + rect.Width; j++)
                     {
-                        data[i, j, 0] = depthMap[i*640 + j].Depth < depth ? data[i, j, 0] : byte.MinValue;
+                        data[i, j, 0] = depthMap[i * 640 + j].Depth > depth || depthMap[i * 640 + j].Depth ==0
+                            ? byte.MinValue : data[i, j, 0];
                     }
                 }
                 var binaryImg = colorImage.Copy(rect).ThresholdToZeroInv(new Gray(240));

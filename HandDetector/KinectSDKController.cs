@@ -359,7 +359,7 @@ namespace CURELab.SignLanguage.HandDetector
                     bool isSkip = true;
                     bool leftHandRaise = false;
                     byte[] processImg;
-                    var handModel = m_OpenCVController.FindHandFromColor(depthImg, colorPixels, _mappedDepthLocations, headPosition, headDepth, out processImg);
+                    var handModel = m_OpenCVController.FindHandFromColor(depthImg, colorPixels, _mappedDepthLocations, headPosition, headDepth, out processImg,3);
                     if (handModel == null)
                     {
                         handModel = new HandShapeModel(HandEnum.None);
@@ -397,8 +397,7 @@ namespace CURELab.SignLanguage.HandDetector
                     if (!IsRecording && !isSkip)
                     {
                         Console.WriteLine("RECORDING");
-                        currentPath = path + frame.ToString();
-                            //System.IO.Directory.CreateDirectory(currentPath);
+                        
                         IsRecording = true;
                     }
                     //stop recording
@@ -428,17 +427,7 @@ namespace CURELab.SignLanguage.HandDetector
                                 handModel.type = HandEnum.Right;
                             }
                             Console.WriteLine(handModel.type);
-                            
-                            var colorRight= handModel.RightColor;
-                            string fileName = String.Format("{0}\\{1}.jpg",
-                                currentPath, frame.ToString());
-
-                            //var depthRight = handModel.RightDepth;
-                            //fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
-                            //    currentPath, frame.ToString(), handModel.type, 'D');
-                            //depthRight.Save(fileName);
-                            
-                            frame++;
+                           
                             //ImageConverter.UpdateWriteBMP(WrtBMP_RightHandFront, right);
                         }
                         

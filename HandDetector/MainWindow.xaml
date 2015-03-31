@@ -72,6 +72,7 @@
                 <MenuItem Header="Kinect" Click="Menu_Kinect_Click" />
                 <MenuItem Header="Server" Click="Menu_Server_Click" />
                 <MenuItem Header="Train" Click="Menu_Train_Click" />
+                <MenuItem Header="TrainHand" Click="Menu_TrainHand_Click" />
                 <MenuItem Header="End" Click="Menu_End_Click" />
                 <Separator />
                 <MenuItem Header="Exit" Click="Menu_Exit_Click"/>

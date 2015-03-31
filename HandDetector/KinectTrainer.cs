@@ -235,7 +235,7 @@ namespace CURELab.SignLanguage.HandDetector
                     HandShapeModel handModel = null;
                     //if (!isSkip)
                     {
-                        handModel = m_OpenCVController.FindHandFromColor(depthImg, colorPixels, _mappedDepthLocations, headPosition, headDepth);
+                        handModel = m_OpenCVController.FindHandFromColor(depthImg, colorPixels, _mappedDepthLocations, headPosition, headDepth,3);
                     }
                     if (handModel != null && handModel.type != HandEnum.None)
                     {

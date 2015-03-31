@@ -68,10 +68,11 @@ namespace CURELab.SignLanguage.HandDetector
             //RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
             //RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 40);
 
-            Menu_Kinect_Click(this, e);
-            //Menu_Server_Click(this, e);
-            //Menu_Train_Click(this, e);
-            //MenuItem_Test_Click(this, e);
+            //Menu_Kinect_Click(this, e);  //test
+            Menu_TrainHand_Click(this, e);//train hand shape
+            //Menu_Server_Click(this, e);//real time recog
+            //Menu_Train_Click(this, e);//train data
+            //MenuItem_Test_Click(this, e);//test
 
             // load word list
             fullWordList = new Dictionary<string, string>();
@@ -266,9 +267,15 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
 
-        private void Menu_Gesture_Click(object sender, RoutedEventArgs e)
+        private void Menu_TrainHand_Click(object sender, RoutedEventArgs e)
         {
-
+            ResetAll();
+            m_KinectController = KinectHandShape.GetSingletonInstance();
+            this.DataContext = m_KinectController;
+            m_KinectController.Initialize();
+            this.img_color.Source = m_KinectController.ColorWriteBitmap;
+            this.img_depth.Source = m_KinectController.DepthWriteBitmap;
+            m_KinectController.Start();
         }
 
         private void ResetAll()
@@ -461,5 +468,7 @@ namespace CURELab.SignLanguage.HandDetector
                 socket.SendEnd();
             }
         }
+
+
     }
 }

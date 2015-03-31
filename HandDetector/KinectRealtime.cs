@@ -196,7 +196,7 @@ namespace CURELab.SignLanguage.HandDetector
                     bool rightHandRaise = false;
                     bool leftHandRaise = false;
                     byte[] processImg;
-                    var handModel = m_OpenCVController.FindHandFromColor(depthImg, colorPixels, _mappedDepthLocations, headPosition, headDepth, out processImg);
+                    var handModel = m_OpenCVController.FindHandFromColor(depthImg, colorPixels, _mappedDepthLocations, headPosition, headDepth, out processImg,4);
                     if (handModel == null)
                     {
                         handModel = new HandShapeModel(HandEnum.None);
