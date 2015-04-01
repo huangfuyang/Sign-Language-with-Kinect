@@ -68,6 +68,7 @@
     <Compile Include="Detectors\AbstractDetector.cs" />
     <Compile Include="Detectors\BodyPartDetector.cs" />
     <Compile Include="Detectors\ReleaseHandDetector.cs" />
+    <Compile Include="Detectors\StraightMovementDetector.cs" />
     <Compile Include="Detectors\TouchDetector.cs" />
     <Compile Include="FeatureViewModel.cs" />
     <Compile Include="GameInformationModel.cs" />

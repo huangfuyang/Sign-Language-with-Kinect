@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Media.Media3D;
 using EducationSystem.Detectors;
 using Microsoft.Kinect;
 
@@ -32,6 +33,7 @@ namespace EducationSystem
         public void Update(Skeleton skeleton)
         {
             Tuple<BodyPart, BodyPart> bodyPartForHands = bodyPartDetector.decide(skeleton);
+            Tuple<Point3D, Point3D> directions = straightMovementDetector.decide(new Tuple<Skeleton, int>(skeleton, 5));
 
             switch (currentWaitingState)
             {
