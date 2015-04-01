@@ -20,6 +20,7 @@ using Emgu.CV.Structure;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
 using System.Windows.Controls;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace CURELab.SignLanguage.HandDetector
 {
@@ -48,12 +49,12 @@ namespace CURELab.SignLanguage.HandDetector
         private KinectSensorChooser sensorChooser;
 
         //pages
-        private Page startPage;
+        private UserControl startPage;
         public MainWindow()
         {
             InitializeComponent();
             this.startPage = new StartPage();
-            //this.kinectRegionGrid.Children.Add(this.startPage);
+            this.kinectRegionGrid.Children.Add(this.startPage);
             m_kinectStudioController = KinectStudioController.GetSingleton();
         }
 
@@ -70,9 +71,9 @@ namespace CURELab.SignLanguage.HandDetector
             //RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
             //RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 40);
 
-            Menu_Kinect_Click(this, e);  //test
+            //Menu_Kinect_Click(this, e);  //test
             //Menu_TrainHand_Click(this, e);//train hand shape
-            //Menu_Server_Click(this, e);//real time recog
+            Menu_Server_Click(this, e);//real time recog
             //Menu_Train_Click(this, e);//train data
             //MenuItem_Test_Click(this, e);//test
 
@@ -181,7 +182,7 @@ namespace CURELab.SignLanguage.HandDetector
             //socket = SocketManager.GetInstance("192.168.209.67", 51243);
 
             ResetAll();
-            m_KinectController = KinectRealtime.GetSingletonInstance(socket);
+            m_KinectController = KinectRealtime.GetSingletonInstance(socket,this);
             this.DataContext = m_KinectController;
             m_KinectController.Initialize();
             this.img_color.Source = m_KinectController.ColorWriteBitmap;
@@ -294,7 +295,6 @@ namespace CURELab.SignLanguage.HandDetector
                     args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
                     args.NewSensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
                     args.NewSensor.SkeletonStream.Enable();
-                    args.NewSensor.DepthStream.Range = DepthRange.Default;
                     args.NewSensor.Start();
                 }
                 catch (InvalidOperationException)

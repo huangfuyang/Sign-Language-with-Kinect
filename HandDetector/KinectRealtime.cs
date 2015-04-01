@@ -10,6 +10,8 @@ using System.Windows.Media.Imaging;
 using Emgu.CV.Structure;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit.BackgroundRemoval;
+using Brush = System.Windows.Media.Brush;
+using Brushes = System.Windows.Media.Brushes;
 using Point = System.Drawing.Point;
 
 namespace CURELab.SignLanguage.HandDetector
@@ -18,18 +20,19 @@ namespace CURELab.SignLanguage.HandDetector
     {
         private BackgroundRemovedColorStream backgroundRemovedColorStream;
         private SocketManager socket;
-
-        private KinectRealtime(SocketManager socket)
+        private MainWindow mwWindow;
+        private KinectRealtime(SocketManager socket,MainWindow mw)
             : base()
         {
             this.socket = socket;
+            mwWindow = mw;
         }
 
-        public static KinectController GetSingletonInstance(SocketManager socket)
+        public static KinectController GetSingletonInstance(SocketManager socket, MainWindow mw)
         {
             if (singleInstance == null)
             {
-                singleInstance = new KinectRealtime(socket);
+                singleInstance = new KinectRealtime(socket,mw);
             }
             return singleInstance;
         }
@@ -63,8 +66,8 @@ namespace CURELab.SignLanguage.HandDetector
                 sensor.DepthStream.Enable(DepthFormat);
                 sensor.SkeletonStream.Enable();
                 this.backgroundRemovedColorStream = new BackgroundRemovedColorStream(sensor);
-                this.backgroundRemovedColorStream.Enable(ColorFormat, DepthFormat);
-                this.backgroundRemovedColorStream.BackgroundRemovedFrameReady += this.BackgroundRemovedFrameReadyHandler;
+                //this.backgroundRemovedColorStream.Enable(ColorFormat, DepthFormat);
+                //this.backgroundRemovedColorStream.BackgroundRemovedFrameReady += this.BackgroundRemovedFrameReadyHandler;
                 //sensor.DepthStream.Range = DepthRange.Near;
                 // Allocate space to put the pixels we'll receive           
                 this.colorPixels = new byte[sensor.ColorStream.FramePixelDataLength];
@@ -74,7 +77,7 @@ namespace CURELab.SignLanguage.HandDetector
                 _mappedColorLocations = new ColorImagePoint[sensor.DepthStream.FramePixelDataLength];
                 _mappedDepthLocations = new DepthImagePoint[sensor.DepthStream.FramePixelDataLength];
                 // This is the bitmap we'll display on-screen
-                this.ColorWriteBitmap = new WriteableBitmap(sensor.ColorStream.FrameWidth, sensor.ColorStream.FrameHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgra32, null);
+                this.ColorWriteBitmap = new WriteableBitmap(sensor.ColorStream.FrameWidth, sensor.ColorStream.FrameHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgr32, null);
                 this.DepthWriteBitmap = new WriteableBitmap(sensor.DepthStream.FrameWidth, sensor.DepthStream.FrameHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgr32, null);
                 // Add an event handler to be called whenever there is new frame data
                 this.Status = Properties.Resources.Connected;
@@ -123,16 +126,16 @@ namespace CURELab.SignLanguage.HandDetector
                 if (colorFrame != null)
                 {
                     // Copy the pixel data from the image to a temporary array
-                    //colorFrame.CopyPixelDataTo(this.colorPixels);
+                    colorFrame.CopyPixelDataTo(this.colorPixels);
                     //Console.WriteLine("col:{0}", colorFrame.Timestamp);
 
-                    this.backgroundRemovedColorStream.ProcessColor(colorFrame.GetRawPixelData(), colorFrame.Timestamp);
+                    //this.backgroundRemovedColorStream.ProcessColor(colorFrame.GetRawPixelData(), colorFrame.Timestamp);
                     // Write the pixel data into our bitmap
-                    //this.ColorWriteBitmap.WritePixels(
-                    //    new System.Windows.Int32Rect(0, 0, this.ColorWriteBitmap.PixelWidth, this.ColorWriteBitmap.PixelHeight),
-                    //    this.colorPixels,
-                    //    this.ColorWriteBitmap.PixelWidth * sizeof(int),
-                    //    0);
+                    this.ColorWriteBitmap.WritePixels(
+                        new System.Windows.Int32Rect(0, 0, this.ColorWriteBitmap.PixelWidth, this.ColorWriteBitmap.PixelHeight),
+                        this.colorPixels,
+                        this.ColorWriteBitmap.PixelWidth * sizeof(int),
+                        0);
                 }
             }
 
@@ -195,12 +198,7 @@ namespace CURELab.SignLanguage.HandDetector
 
                     bool rightHandRaise = false;
                     bool leftHandRaise = false;
-                    byte[] processImg;
-                    var handModel = m_OpenCVController.FindHandFromColor(depthImg, colorPixels, _mappedDepthLocations, headPosition, headDepth, out processImg,4);
-                    if (handModel == null)
-                    {
-                        handModel = new HandShapeModel(HandEnum.None);
-                    }
+                   
                     //Console.WriteLine("recog:{0}", sw.ElapsedMilliseconds);
                     if (currentSkeleton != null && handModel.type != HandEnum.None)
                     {
@@ -225,14 +223,24 @@ namespace CURELab.SignLanguage.HandDetector
 
 
                     }
+                    byte[] processImg;
+                    HandShapeModel handModel = null;
+                    handModel = m_OpenCVController.FindHandFromColor(depthImg, colorPixels, _mappedDepthLocations, headPosition, headDepth, out processImg, 4);
+                    if (handModel == null)
+                    {
+                        handModel = new HandShapeModel(HandEnum.None);
+                    }
+                    
                     //start recording
                     if (!IsRecording && rightHandRaise)
                     {
                         Console.WriteLine("RECORDING");
                         IsRecording = true;
+                        mwWindow.lbl_candidate1.Content = "錄製中";
+                        mwWindow.lbl_candidate1.Foreground = Brushes.Red;
                     }
                     //stop recording
-                    if (IsRecording && !rightHandRaise && !leftHandRaise)
+                    if (IsRecording && handModel.type != HandEnum.None && !rightHandRaise && !leftHandRaise)
                     {
                         Console.WriteLine("END");
                         if (socket != null)
@@ -240,6 +248,8 @@ namespace CURELab.SignLanguage.HandDetector
                             socket.SendEndAsync();
                         }
                         IsRecording = false;
+                        mwWindow.lbl_candidate1.Content = "等待結果";
+                        mwWindow.lbl_candidate1.Foreground = Brushes.Black;
                     }
 
 

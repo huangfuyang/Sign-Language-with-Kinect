@@ -433,6 +433,7 @@ namespace CURELab.SignLanguage.HandDetector
                         
                        
                     }
+                    Console.WriteLine(handModel.right.GetCenter());
                    
                     //*******************upadte UI
                     this.DepthWriteBitmap.WritePixels(

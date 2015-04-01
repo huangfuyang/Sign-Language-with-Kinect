@@ -7,28 +7,37 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </Window.Resources>
-    <Grid Name="grd_main">
+    <Grid Name="grd_main" >
+        <Grid.Background>
+            <ImageBrush ImageSource="/img/VocabBack.png"/>
+        </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="1*"/>
+            <RowDefinition Height="91*"/>
+            <RowDefinition Height="154*"/>
+            <RowDefinition Height="58*"/>
+            <RowDefinition Height="57*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="461*"/>
+            <ColumnDefinition Width="486*"/>
+            <ColumnDefinition Width="71*"/>
         </Grid.ColumnDefinitions>
-        <k:KinectRegion Name="kinectRegion" Grid.ColumnSpan="2" Grid.RowSpan="2">
-            <Grid Name="kinectRegionGrid" />
+        <k:KinectRegion Name="kinectRegion" Grid.ColumnSpan="3" Grid.RowSpan="5">
+            <Grid Name="kinectRegionGrid">
+
+            </Grid>
         </k:KinectRegion>
-        <k:KinectSensorChooserUI Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Top" Name="sensorChooserUi" />
-        <k:KinectUserViewer Grid.Row="0" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Right" k:KinectRegion.KinectRegion="{Binding ElementName=kinectRegion}" Height="100" UserColoringMode="HighlightPrimary" PrimaryUserColor="Red" />
-        <Viewbox Grid.Row="1" Grid.Column="0" Stretch="Uniform" HorizontalAlignment="Center">
+        <k:KinectSensorChooserUI Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Top" Name="sensorChooserUi" Height="20" Width="40" />
+        <k:KinectUserViewer Grid.Row="0" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Right" k:KinectRegion.KinectRegion="{Binding ElementName=kinectRegion}" Height="100" UserColoringMode="HighlightPrimary" PrimaryUserColor="Red" Grid.RowSpan="2" Width="133" Grid.ColumnSpan="2" />
+        <Viewbox Grid.Row="2" Grid.Column="0" Stretch="Uniform" HorizontalAlignment="Center" Margin="80,0,20,0" Grid.RowSpan="2">
             <Image Name="img_color" Width="640" Height="480" Margin="5"/>
         </Viewbox>
-        <Viewbox Grid.Row="1" Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Center">
+        <MediaElement x:Name="me_rawImage" Grid.Row="2" Grid.Column="1" Visibility="Collapsed"/>
+        <Viewbox Grid.Row="2" Stretch="Uniform" HorizontalAlignment="Center" Grid.Column="1" Margin="70,0,55,0" Width="408">
             <Image Name="img_depth" Width="640" Height="480" Margin="5"/>
         </Viewbox>
-        <Grid Grid.Column="0" Grid.Row="2" Visibility="Hidden">
+        <Grid Grid.Column="0" Grid.Row="2" Visibility="Hidden" Grid.RowSpan="3">
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
@@ -54,17 +63,17 @@
                 <Image Name="img_candidate3" Width="60" Height="60" Margin="5"/>
             </Viewbox>
         </Grid>
-       
-        <StackPanel x:Name="SPn_right" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="1" Margin="5,0,5,10">
-            <Label HorizontalAlignment="Center" x:Name="lbl_recording" Content="Recording" Foreground="Red" FontSize="30" Visibility="{Binding Path=IsRecording, Converter={StaticResource BoolToVis}, FallbackValue=Hidden}" />
-            <Label HorizontalAlignment="Center" x:Name="lbl_candidate1" Content="Candidate1"  FontSize="50"  />
-            <Label HorizontalAlignment="Center" x:Name="lbl_candidate2" Content=""  FontSize="15"  />
-            <Label HorizontalAlignment="Center" x:Name="lbl_candidate3" Content=""  FontSize="15"  />
+
+        <StackPanel x:Name="SPn_right" Grid.Column="1" Grid.Row="3" Margin="5,0,5,10" Grid.RowSpan="2" Grid.ColumnSpan="2">
+            <!--<Label HorizontalAlignment="Center" x:Name="lbl_recording" Content="Recording" Foreground="Red" FontSize="30" Visibility="{Binding Path=IsRecording, Converter={StaticResource BoolToVis}, FallbackValue=Hidden}" />-->
+            <Label HorizontalAlignment="Center" x:Name="lbl_candidate1" Content="等待中"  FontSize="50"  />
+            <Label HorizontalAlignment="Center" x:Name="lbl_candidate2" Content=""  FontSize="15"  Visibility="Collapsed"/>
+            <Label HorizontalAlignment="Center" x:Name="lbl_candidate3" Content=""  FontSize="15"  Visibility="Collapsed"/>
 
 
         </StackPanel>
-       
-        <StatusBar Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Name="statusBar" VerticalAlignment="Bottom" Background="White" >
+
+        <StatusBar Grid.Row="4" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" Name="statusBar" VerticalAlignment="Bottom" Background="White" Height="28" >
             <StatusBarItem Padding="0 0 0 10">
                 <TextBlock Name="statusBarText" Text="{Binding Path=Status, Mode=OneWay}" Margin="5 2 0 0"></TextBlock>
             </StatusBarItem>
@@ -72,7 +81,7 @@
                 <TextBlock Name="statusBarKinectStudio" Margin="5 2 0 0"></TextBlock>
             </StatusBarItem>
         </StatusBar>
-        <Menu Grid.ColumnSpan="2" x:Name="menu" DockPanel.Dock="Top" VerticalAlignment="Top"
+        <Menu Grid.ColumnSpan="3" x:Name="menu" VerticalAlignment="Top" Height="20"
             >
             <MenuItem Header="Device">
                 <MenuItem Header="Kinect" Click="Menu_Kinect_Click" />

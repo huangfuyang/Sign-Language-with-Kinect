@@ -321,19 +321,21 @@ namespace CURELab.SignLanguage.HandDetector
                                     fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
                                         HandshapePath, VideoFrame.ToString(), handModel.type, 'D');
                                     //depthRight.Save(fileName);
-                                }
-                                if (handModel.LeftColor != null && !handModel.left.IsCloseTo(leftFirst))
-                                {
-                                    var colorleft = handModel.LeftColor;
-                                    string fileName = String.Format("{0}\\{4}\\{1}_{2}_{3}.jpg",
-                                        HandshapePath, VideoFrame.ToString(), handModel.type, 'C', "left");
-                                    colorleft.Save(fileName);
+                                    //left hand
+                                    if (handModel.LeftColor != null && !handModel.left.IsCloseTo(leftFirst))
+                                    {
+                                        var colorleft = handModel.LeftColor;
+                                        fileName = String.Format("{0}\\{4}\\{1}_{2}_{3}.jpg",
+                                            HandshapePath, VideoFrame.ToString(), handModel.type, 'C', "left");
+                                        colorleft.Save(fileName);
 
-                                    var depthleft = handModel.LeftDepth;
-                                    fileName = String.Format("{0}\\{4}\\{1}_{2}_{3}.jpg",
-                                        HandshapePath, VideoFrame.ToString(), handModel.type, 'D', "left");
-                                    //depthleft.Save(fileName);
+                                        var depthleft = handModel.LeftDepth;
+                                        fileName = String.Format("{0}\\{4}\\{1}_{2}_{3}.jpg",
+                                            HandshapePath, VideoFrame.ToString(), handModel.type, 'D', "left");
+                                        //depthleft.Save(fileName);
+                                    }
                                 }
+
                             }
                             
                             line += GetHandModelString(handModel);

@@ -31,7 +31,6 @@ namespace SignLanguageEducationSystem {
 			bi.EndInit();
 
 			ImageBrush b = new ImageBrush(bi);
-			b.AlignmentY = 0;
 			b.Stretch = Stretch.Fill;
 			btnStart.Background = b;
 		}

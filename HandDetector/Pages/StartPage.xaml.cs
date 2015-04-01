@@ -18,24 +18,28 @@ namespace CURELab.SignLanguage.HandDetector.Pages
     /// <summary>
     /// Interaction logic for StartPage.xaml
     /// </summary>
-    public partial class StartPage : Page
+    public partial class StartPage : UserControl
     {
         public StartPage()
         {
             InitializeComponent();
+            Uri u = new Uri(@"img/back01.png", UriKind.Relative);
             BitmapImage bi = new BitmapImage();
             bi.BeginInit();
-            bi.UriSource = new Uri("img/back01.png", UriKind.Relative);
+            bi.UriSource = u;
             bi.EndInit();
-
             ImageBrush b = new ImageBrush(bi);
-            b.AlignmentY = 0;
             b.Stretch = Stretch.Fill;
             btnStart.Background = b;
         }
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
+            UIElementCollection children = ((Panel)this.Parent).Children;
+            if (children.Contains(this))
+            {
+                children.Remove(this);
+            }
             Console.WriteLine("clicked");
         }
     }
