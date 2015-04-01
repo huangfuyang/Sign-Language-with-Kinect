@@ -45,7 +45,7 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
         public long CurrentSign = 0;
-        private int currentFrame = 0;
+        public int currentFrame = 0;
         private static DBManager singleton;
 
         private SQLiteTransaction tran;
@@ -191,6 +191,7 @@ namespace CURELab.SignLanguage.HandDetector
             preFrame = currentFrame;
         }
 
+        public SignWordModel CurrentModel;
         public void AddWordSample(SignWordModel wordModel)
         {
 
@@ -211,7 +212,7 @@ namespace CURELab.SignLanguage.HandDetector
                 long lastId = (long)insertCommand.ExecuteScalar();
                 CurrentSign = lastId;
                 currentFrame = 0;
-
+                CurrentModel = wordModel;
                 // update count
                 string update = @"UPDATE SignWord 
                 set count = count +1

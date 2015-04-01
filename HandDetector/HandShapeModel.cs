@@ -10,9 +10,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using Emgu.CV.Structure;
+using System.Windows;
+using Emgu.CV;
 using Microsoft.Kinect;
-using CURELab.SignLanguage.HandDetector.Model;
+using Point = System.Drawing.Point;
 
 
 namespace CURELab.SignLanguage.HandDetector
@@ -20,7 +21,7 @@ namespace CURELab.SignLanguage.HandDetector
     /// <summary>
     /// hand shape model
     /// </summary>
-    public class HandShapeModel
+    public class HandShapeModel:IDisposable
     {
         public long frame = 0;
         private int hogSize;
@@ -40,10 +41,15 @@ namespace CURELab.SignLanguage.HandDetector
         // hog left side view
         public float[] hogLeftSide;
 
-        public MCvBox2D handPosRight;
-        public MCvBox2D handPosLeft;
+        public IImage RightColor;
+        public IImage RightDepth;
+        public IImage LeftColor;
+        public IImage LeftDepth;
 
-        // skeleton data
+        public Rectangle right;
+        public Rectangle left;
+        public Rectangle intersectCenter;
+        // currentSkeleton data
         public string skeletonData = "";
 
         public HandShapeModel(int hogSize, HandEnum type)
@@ -70,10 +76,6 @@ namespace CURELab.SignLanguage.HandDetector
             }
             this.type = type;
             skeletonData = "";
-            for (int i = 0; i < 42; i++)
-            {
-                skeletonData += ",NULL";
-            }
         }
 
        
@@ -91,17 +93,17 @@ namespace CURELab.SignLanguage.HandDetector
         private string GetFrameDataArgString(Skeleton skeleton)
         {
             string s = String.Empty;
-            JointType[] jointTypes = new JointType[] { JointType.Head, JointType.ShoulderCenter, 
-                JointType.ShoulderLeft, JointType.ShoulderRight, JointType.Spine, JointType.HipCenter,
-                JointType.HipLeft, JointType.HipRight, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft,
-                JointType.ElbowRight, JointType.WristRight, JointType.HandRight };
+            JointType[] jointTypes = new JointType[] { JointType.Head, JointType.ShoulderLeft,JointType.ShoulderCenter, 
+                JointType.ShoulderRight, JointType.ElbowLeft, JointType.ElbowRight, JointType.WristLeft,  JointType.WristRight, 
+                JointType.HandLeft,JointType.HandRight,JointType.Spine,  JointType.HipLeft,JointType.HipCenter,
+               JointType.HipRight };
 
             //Joints X, Y
             for (int i = 0; i < jointTypes.Length; i++)
             {
                 JointType jointType = jointTypes[i];
                 if (skeleton != null )
-                 //if (skeleton != null && skeleton.Joints[jointType].TrackingState != JointTrackingState.NotTracked)
+                 //if (currentSkeleton != null && currentSkeleton.Joints[jointType].TrackingState != JointTrackingState.NotTracked)
                 {
                     SkeletonPoint point = skeleton.Joints[jointType].Position;
                     s += String.Format(", {0}, {1}, {2}", point.X, point.Y, point.Z);
@@ -146,11 +148,43 @@ namespace CURELab.SignLanguage.HandDetector
             //}
             return s;
         }
-        public HandShapeModel()
+        public HandShapeModel(HandEnum type)
         {
-
+            this.type = type;
         }
 
 
+        public void Dispose()
+        {
+            this.Dispose(true);
+            //GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (RightColor != null)
+            {
+                RightColor.Dispose();
+            }
+            if (RightDepth != null)
+            {
+                RightDepth.Dispose();
+            }
+            if (LeftColor != null)
+            {
+                LeftColor.Dispose();
+            } if (LeftDepth != null)
+            {
+                LeftDepth.Dispose();
+            }
+            }
+        }
+
+        ~HandShapeModel()
+        {
+            this.Dispose(false);
+        }
     }
 }

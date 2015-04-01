@@ -65,9 +65,25 @@ namespace CURELab.SignLanguage.HandDetector
         /// </summary>
         private bool initializeTransformTable = false;
 
+        private float angle;
+        public float Angle
+        {
+            get { return angle; }
+            set
+            {
+                angle = value;
+                InitializeTransformTable(MaxMaxDepth, angle);
+            }
+        }
+
         public Colorizer()
         {
-
+            
+        }
+        public Colorizer(float transformAngle, int min, int max)
+        {
+            this.Angle = transformAngle;
+            intensityTable = GetColorMappingTable(min, max);
         }
 
         public void CullImage(Image<Bgr,byte> img, int cull )
@@ -78,14 +94,14 @@ namespace CURELab.SignLanguage.HandDetector
           DepthImagePixel[] depthFrame,
           int minDepth,
           int maxDepth,
-          byte[] colorFrame,
+          byte[] depthPixel,
           float transformAngle,
           short cullingThreshold,
           System.Drawing.Point headPostition)
         {
             // Test that the buffer lengths are appropriately correlated, which allows us to use only one
             // value as the loop condition.
-            if ((depthFrame.Length * Bgr32BytesPerPixel) != colorFrame.Length)
+            if ((depthFrame.Length * Bgr32BytesPerPixel) != depthPixel.Length)
             {
                 throw new InvalidOperationException();
             }
@@ -98,7 +114,7 @@ namespace CURELab.SignLanguage.HandDetector
             // process data
 
             for (int depthIndex = 0, colorIndex = 0;
-                colorIndex < colorFrame.Length;
+                colorIndex < depthPixel.Length;
                 depthIndex++, colorIndex += Bgr32BytesPerPixel)
             {
                 try
@@ -111,9 +127,9 @@ namespace CURELab.SignLanguage.HandDetector
 
 
                     // Write color pixel to buffer
-                    colorFrame[colorIndex + RedIndex] = color;
-                    colorFrame[colorIndex + GreenIndex] = color;
-                    colorFrame[colorIndex + BlueIndex] = color;
+                    depthPixel[colorIndex + RedIndex] = color;
+                    depthPixel[colorIndex + GreenIndex] = color;
+                    depthPixel[colorIndex + BlueIndex] = color;
                 }
                 catch (Exception)
                 {
@@ -122,6 +138,50 @@ namespace CURELab.SignLanguage.HandDetector
                
             }
         }
+
+
+        public void TransformAndConvertDepthFrame(DepthImagePixel[] depthFrame, byte[] depthPixels, ColorImagePoint[] coordinate)
+        {
+
+
+            // Test that the buffer lengths are appropriately correlated, which allows us to use only one
+            // value as the loop condition.
+            if (depthFrame.Length != depthPixels.Length)
+            {
+                throw new InvalidOperationException();
+            }
+            //get intensity map
+            byte[] mappingTable = this.intensityTable;
+
+            // process data
+            Array.Clear(depthPixels, 0, depthPixels.Length);
+            for (int depthIndex = 0; depthIndex < depthFrame.Length; depthIndex++)
+            {
+                var cpixel = coordinate[depthIndex];
+                int colorInDepthX = cpixel.X;
+                int colorInDepthY = cpixel.Y;
+                if (colorInDepthX > 0 && colorInDepthX < 640 && colorInDepthY >= 0 &&
+                        colorInDepthY < 480 )
+                {
+                    short depth = depthFrame[depthIndex].Depth;
+                    if (depth < MaxMaxDepth / 2 && depth >= 0)
+                    {
+                        //transform
+                        depth = TwoD_intensityTable[depthIndex / 640, depth];
+                        // look up in intensity table
+                        byte color = mappingTable[(ushort)depth];
+                        int colorIndex = colorInDepthY * 640 + colorInDepthX;
+
+                        // Write color pixel to buffer
+                        depthPixels[colorIndex] = color;
+                    }
+                   
+                }
+                   
+               
+            }
+        }
+
 
         private void InitializeTransformTable(int maxDepth, float angle)
         {
@@ -196,6 +256,33 @@ namespace CURELab.SignLanguage.HandDetector
             }
             return this.intensityTable;
         }
+
+        private byte[] GetColorMappingTable(int minDepth, int maxDepth)
+        {
+
+            // Fill in the "near" portion of the table with solid color
+            for (int i = 0; i < minDepth; i++)
+            {
+                this.intensityTable[i] = 255;
+            }
+
+            // Fill in the "far" portion of the table with solid color
+            for (int i = maxDepth; i < MaxMaxDepth; i++)
+            {
+                this.intensityTable[i] = 255;
+            }
+
+
+            // Fill in values that will be rendered normally with a gray gradient
+            for (int i = minDepth; i < maxDepth; i++)
+            {
+
+                this.intensityTable[i] = (byte)(255f / (maxDepth - minDepth) * (i - minDepth));
+            }
+
+            return this.intensityTable;
+        }
+
 
 
     }

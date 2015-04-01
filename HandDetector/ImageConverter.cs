@@ -63,17 +63,17 @@ namespace CURELab.SignLanguage.HandDetector
 
         }
 
-        public static Image<Bgra, byte> Array2Image(byte[] data, int width, int height, int stride)
+        public static Image<T, byte> Array2Image<T>(byte[] data, int width, int height, int stride) where T : struct, IColor
         {
             unsafe
             {
                 fixed (byte* p_data = data)
                 {
-
-                    return new Image<Bgra, byte>(width, height, stride, (IntPtr)p_data);
+                    return new Image<T, byte>(width, height, stride, (IntPtr)p_data);
 
                 }
             }
+
         }
 
         public static System.Drawing.Bitmap WriteBMPtoBMP(WriteableBitmap writeBmp)

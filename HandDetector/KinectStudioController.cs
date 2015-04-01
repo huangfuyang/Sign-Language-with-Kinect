@@ -29,16 +29,17 @@ namespace CURELab.SignLanguage.HandDetector
 
         private IntPtr dllEntry = IntPtr.Zero;
 
-        private int FirstFrame { get; set; }      
+        private int FirstFrame { get; set; }
+        IntPtr hToolStrip = IntPtr.Zero;
 
         public static KinectStudioController GetSingleton()
         {
-            if (singleton ==null)
+            if (singleton == null)
             {
                 singleton = new KinectStudioController();
             }
             return singleton;
-        
+
         }
 
         private KinectStudioController()
@@ -48,7 +49,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         public bool Start()
         {
-            String path = "C:\\Program Files\\Microsoft SDKs\\Kinect\\Developer Toolkit v1.7.0\\Tools\\KinectStudio\\KinectStudio.exe";
+            String path = "C:\\Program Files\\Microsoft SDKs\\Kinect\\Developer Toolkit v1.8.0\\Tools\\KinectStudio\\KinectStudio.exe";
             Process.Start(path);
             Thread.Sleep(1000);
             return Connect();
@@ -67,7 +68,7 @@ namespace CURELab.SignLanguage.HandDetector
         public void Open_File(string path)
         {
             FirstFrame = 0;
-            IntPtr hToolStrip = win32API.FindWindowEx(hWnd, IntPtr.Zero, null, "toolStrip1");
+            hToolStrip = win32API.FindWindowEx(hWnd, IntPtr.Zero, null, "toolStrip1");
             if (hToolStrip == IntPtr.Zero)
             {
                 return;
@@ -78,7 +79,7 @@ namespace CURELab.SignLanguage.HandDetector
             int x = 28, y = 10;
             win32API.PostMessage(hToolStrip, win32API.WM_LBUTTONDOWN, 0, (y << 16) + x);
             win32API.PostMessage(hToolStrip, win32API.WM_LBUTTONUP, 0, (y << 16) + x);
-            Thread.Sleep(1000);
+            Thread.Sleep(1500);
             win32API.EnumWindows(new win32API.EnumWindowsProc(EnumWindowsFunc), p_processid);
             IntPtr hOpen = hWindow;
             // find folder
@@ -88,11 +89,11 @@ namespace CURELab.SignLanguage.HandDetector
             // button ok
             IntPtr hOpenButton = GetWindowChildBFSByIndex(hOpen, 5);
             win32API.SendMessage(hOpenButton, win32API.BM_CLICK, 0, 0);
-            
+
         }
         public void Run()
         {
-            IntPtr hToolStrip = win32API.FindWindowEx(hWnd, IntPtr.Zero, null, "toolStrip1");
+            hToolStrip = win32API.FindWindowEx(hWnd, IntPtr.Zero, null, "toolStrip1");
             if (hToolStrip == IntPtr.Zero)
             {
                 return;
@@ -102,8 +103,21 @@ namespace CURELab.SignLanguage.HandDetector
             win32API.PostMessage(hToolStrip, win32API.WM_LBUTTONUP, 0, (y << 16) + x);
         }
 
+        public bool Run_by_clik()
+        {
+            hToolStrip = win32API.FindWindowEx(hWnd, IntPtr.Zero, null, "toolStrip1");
+            if (hToolStrip == IntPtr.Zero)
+            {
+                return false;
+            }
+            int x = 340, y = 15;
+            win32API.PostMessage(hToolStrip, win32API.WM_LBUTTONDOWN, 0, (y << 16) + x);
+            win32API.PostMessage(hToolStrip, win32API.WM_LBUTTONUP, 0, (y << 16) + x);
+            return true;
+        }
+
         public void ReadFirstFrame()
-        { 
+        {
             IntPtr dllEntry = IntPtr.Zero;
             Process[] pros = Process.GetProcessesByName("KinectStudio");
             Process pro = pros[0];
@@ -114,9 +128,9 @@ namespace CURELab.SignLanguage.HandDetector
                     if (pro.Modules[i].ModuleName == "KinectStudioNative.dll")
                     {
                         dllEntry = pro.Modules[i].EntryPointAddress;
-                        Console.WriteLine("KinectNative.dll addr: {0}",dllEntry.ToString("x8"));
+                        Console.WriteLine("KinectNative.dll addr: {0}", dllEntry.ToString("x8"));
                         dllEntry += Convert.ToInt32("208fbf", 16);
-                        Console.WriteLine("Frame addr:" + dllEntry.ToString("x8"));                       
+                        Console.WriteLine("Frame addr:" + dllEntry.ToString("x8"));
 
                     }
 
@@ -128,10 +142,10 @@ namespace CURELab.SignLanguage.HandDetector
             int min = int.MaxValue;
             for (int i = 0; i < 4; i++)
             {
-                
+
                 int tempValue = ReadMemoryValue(dllEntry, pro.Id);
                 Console.WriteLine("candidate Frame value:" + tempValue);
-                if (tempValue != 0 && tempValue< min)
+                if (tempValue != 0 && tempValue < min)
                 {
                     min = tempValue;
                 }
@@ -140,7 +154,19 @@ namespace CURELab.SignLanguage.HandDetector
                 Thread.Sleep(200);
             }
             FirstFrame = min;
-            
+
+        }
+
+        public void connect_kinect()
+        {
+            hToolStrip = win32API.FindWindowEx(hWnd, IntPtr.Zero, null, "toolStrip1");
+            if (hToolStrip == IntPtr.Zero)
+            {
+                return;
+            }
+            int x = 80, y = 15;
+            win32API.PostMessage(hToolStrip, win32API.WM_LBUTTONDOWN, 0, (y << 16) + x);
+            win32API.PostMessage(hToolStrip, win32API.WM_LBUTTONUP, 0, (y << 16) + x);
         }
 
         private bool EnumWindowsFindKinectStudio(IntPtr hWnd, int lParam)
@@ -209,7 +235,7 @@ namespace CURELab.SignLanguage.HandDetector
         }
         private IntPtr GetWindowChildBFSByIndex(IntPtr window, int index)
         {
-            IntPtr child = win32API.FindWindowEx(window, IntPtr.Zero, null, null); 
+            IntPtr child = win32API.FindWindowEx(window, IntPtr.Zero, null, null);
             for (int i = 0; i < index; i++)
             {
                 child = win32API.FindWindowEx(window, child, null, null);
@@ -246,7 +272,7 @@ namespace CURELab.SignLanguage.HandDetector
             Process pro = pros[0];
             if (dllEntry == IntPtr.Zero)
             {
-                
+
                 if (pro.ProcessName == "KinectStudio")
                 {
                     for (int i = 0; i < pro.Modules.Count; i++)
@@ -263,7 +289,7 @@ namespace CURELab.SignLanguage.HandDetector
                     }
                 }
             }
-           
+
             int frame = ReadMemoryValue(dllEntry, pro.Id);
             return frame;
         }

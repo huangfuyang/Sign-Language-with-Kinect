@@ -190,3 +190,7 @@ GestureComparison/res/*
 *.json
 *.xml
 *.pyc
+*.zip
+*.xml
+*.json
+*.rar

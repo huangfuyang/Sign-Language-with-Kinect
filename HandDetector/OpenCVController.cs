@@ -8,9 +8,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Configuration;
 using System.Text;
-
+using System.Windows;
+using System.Windows.Forms;
 using Emgu.Util;
 using Emgu.CV;
 using Emgu.CV.UI;
@@ -20,11 +20,15 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using Microsoft.Kinect;
+using Point = System.Drawing.Point;
+using Size = System.Drawing.Size;
+
 namespace CURELab.SignLanguage.HandDetector
 {
     public enum HandEnum
     {
-        Right, Left, Both, Intersect, None
+        Right, LeftTouch, RightTouch, Left, BothTouch,Both, Intersect, IntersectTouch, None
     }
     /// <summary>
     /// add summary here
@@ -32,15 +36,22 @@ namespace CURELab.SignLanguage.HandDetector
     public class OpenCVController : INotifyPropertyChanged
     {
         public static double CANNY_THRESH;
+        public static double VMIN;
         public static double CANNY_CONNECT_THRESH;
         public HOGDescriptor Hog_Descriptor;
-
+        private ImageViewer viewer;
         private static OpenCVController singletonInstance;
         private OpenCVController()
         {
             CANNY_THRESH = 10;
             CANNY_CONNECT_THRESH = 20;
             Hog_Descriptor = new HOGDescriptor(new Size(60, 60), new Size(10, 10), new Size(5, 5), new Size(5, 5), 9, 1, -1, 0.2, false);
+            viewer = new ImageViewer();
+            //viewer.Show();
+            headRec = new Rectangle(new Point(320, 0), new Size());
+            rightRec = new Rectangle(new Point(640, 480), new Size());
+            leftRec = new Rectangle(new Point(0, 480), new Size());
+            headMinDepth = 0;
 
         }
 
@@ -140,18 +151,18 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
 
+        
         #region Hand recognition
 
 
         private bool Intersect = false;
-        int minSize = 1200;
-        int maxSize = 40000;
+
         Point RightHandCenter = new Point();
         Point LeftHandCenter = new Point();
         int hogSize = 4356;
         Image<Gray, Byte> grayImg;
         public unsafe HandShapeModel FindHandPart(
-            ref Image<Bgr, byte> image,
+            ref Image<Bgra, Byte> image,
             out Image<Gray, Byte> rightFront,
             out Image<Gray, Byte> leftFront,
             int handDepth,
@@ -163,8 +174,8 @@ namespace CURELab.SignLanguage.HandDetector
             //process hand size
             if (handDepth > 0)
             {
-                begin = (int)(100.0 * 240.0 / handDepth / 0.39);
-                end = (int)(220 * 240.0 / handDepth / 0.39);
+                begin = (int)(130.0 * 240.0 / handDepth / 0.39);
+                end = (int)(250 * 240.0 / handDepth / 0.39);
                 minLength = (int)(150 * 240.0 / handDepth / 0.39);
             }
             else
@@ -173,6 +184,7 @@ namespace CURELab.SignLanguage.HandDetector
                 leftFront = null;
                 return null;
             }
+
             //Console.WriteLine(begin);
             //Console.WriteLine(end);
             //Console.WriteLine(minLength);
@@ -182,8 +194,7 @@ namespace CURELab.SignLanguage.HandDetector
             //find contour
             grayImg = image.Convert<Gray, byte>();
             Image<Gray, Byte> binaryImg = GetBinaryImg(image);
-            image = binaryImg.Convert<Bgr, byte>();
-            List<MCvBox2D> rectList = FindContourMBox(binaryImg);
+            var rectList = FindContourMBox(binaryImg, 2);
             //draw contour
             foreach (var rect in rectList)
             {
@@ -228,44 +239,38 @@ namespace CURELab.SignLanguage.HandDetector
                     model = new HandShapeModel(hogSize, HandEnum.Both);
                     model.hogLeft = leftHog;
                     model.hogRight = rightHog;
-                    model.handPosRight = SplittedRightHand;
-                    model.handPosLeft = SplittedLeftHand;
                 }
                 else if (rectList.Count() == 1) // one rectangle
                 {
                     string text = "";
                     leftFront = null;
-
+                    Intersect = false;
 
                     if (leftHandRaise || Intersect)
                     {
 
                         text = "Two hands";
-                        var recs = FindContourRect(binaryImg);
-                        if (recs.Count > 0)
+                        var twoHands = FindContourRect(binaryImg);
+                        if (twoHands != null && twoHands.Count > 0)
                         {
-                            var rec = recs[0];
-                            rightFront = GetSubImageByRect<Gray>(binaryImg, rec);
-                            MCvBox2D box = rec.ToCvBox2D();
-                            DrawHand(box, image, HandEnum.Intersect);
+                            rightFront = GetBinarySubImageByRect<Gray>(binaryImg, twoHands[0]);
+                            DrawHand(twoHands[0].ToCvBox2D(), image, HandEnum.Intersect);
                             float[] TwoHandHOG = CalHog(rightFront);
                             model = new HandShapeModel(hogSize, HandEnum.Intersect);
                             model.hogRight = TwoHandHOG;
-                            model.handPosRight = box;
                         }
-                            
+
                     }
                     else
                     {
                         text = "right";
                         MCvBox2D SplittedRightHand = SplitHand(rectList[0], HandEnum.Right, rightVector);
-                        //Console.WriteLine(SplittedRightHand.size.Height);
+
                         rightFront = GetSubImage<Gray>(binaryImg, SplittedRightHand, rectList[0].angle);
                         DrawHand(SplittedRightHand, image, HandEnum.Right);
                         float[] TwoHandHOG = CalHog(rightFront);
                         model = new HandShapeModel(hogSize, HandEnum.Right);
                         model.hogRight = TwoHandHOG;
-                        model.handPosRight = SplittedRightHand;
                     }
                     g.DrawString(text, textFont, Brushes.Red, 0, 20);
 
@@ -280,6 +285,333 @@ namespace CURELab.SignLanguage.HandDetector
             return model;
         }
 
+        // skin detection
+        private Rectangle headRec;
+        private Rectangle rightRec;
+        private Rectangle leftRec;
+        private int headMinDepth;
+
+        public void ShowImg()
+        {
+            viewer.Show();
+        }
+
+        public HandShapeModel FindHandFromColor(
+            Image<Gray, byte> depthImage, byte[] colorPixels, DepthImagePoint[] depthMap, PointF head, int headDepth,int channel)
+        {
+            byte[] t;
+            var r = FindHandFromColor(depthImage, colorPixels, depthMap, head, headDepth,out t,channel);
+            return r;
+        }
+
+        public HandShapeModel FindHandFromColor(
+            Image<Gray, byte> depthImage, byte[] colorPixels, DepthImagePoint[] depthMap, PointF head, int headDepth, out byte[] processImg, int channel
+            )
+        {
+            //Console.WriteLine(headDepth -30);
+            //Console.WriteLine("head min:{0}", headMinDepth);CV
+            //Console.WriteLine("head :x{0} y{1}", head.X,head.Y);
+            int width = 640;
+            int height = 480;
+            int bytePerPixel = colorPixels.Length / width / height;
+            // loop over each row and column of the depth
+
+            for (int colorIndex = 0; colorIndex < colorPixels.Length; colorIndex += bytePerPixel)
+            {
+                try
+                {
+
+                    var B = colorPixels[colorIndex];
+                    var G = colorPixels[colorIndex + 1];
+                    var R = colorPixels[colorIndex + 2];
+                    //var Y = ((66*R + 129*G + 25*B + 128) >> 8) + 16;
+                    var U = ((-38 * R - 74 * G + 112 * B + 128) >> 8) + 128;
+                    var V = ((112 * R - 94 * G - 18 * B + 128) >> 8) + 128;
+                    var d = depthMap[colorIndex/bytePerPixel].Depth;
+                    //if (!(U > 100 && U < 129 && V > 140 && V < 170))//aaron
+                    if (!(U > 100 && U < 135 && V > VMIN && V < 170) || channel == 4 && colorPixels[colorIndex + 3] == 0)//Micheal
+                    //if (!(U > 95 && U < 135 && V > 134 && V < 170) || d > headDepth + 200 || d == 0) //realtime
+                    //if (!(U > 95 && U < 135 && V > 137 && V < 170) || colorPixels[colorIndex + 3] == 0) //realtime with hole filling
+                    {
+                        colorPixels[colorIndex] = 0;
+                        colorPixels[colorIndex + 1] = 0;
+                        colorPixels[colorIndex + 2] = 0;  
+                    }
+
+                }
+                catch (Exception)
+                {     
+                    continue;
+                }
+
+            }
+            var colorImg = ImageConverter.Array2Image<Bgra>(colorPixels, width, height, width * bytePerPixel).
+                Convert<Gray, byte>().SmoothMedian(3);
+            var binaryImg = colorImg.ThresholdToZeroInv(new Gray(240));
+            var clist = FindContourRect(binaryImg, 3);
+            HandShapeModel handModel = null;
+            //Console.WriteLine(headMinDepth);
+            switch (clist.Count)
+            {
+                case 1://two hands and head touch
+                    handModel = GetSubImageByRectAndDepth(depthImage, colorImg, clist, headMinDepth, depthMap);
+                    break;
+                case 2:
+                    // touch or intersect
+                    handModel = GetSubImageByRectAndDepth(depthImage, colorImg, clist, headMinDepth, depthMap);
+                    break;
+                case 3:
+                    clist = clist.OrderBy(x => x.GetCenter().DistanceTo(head)).ToList();
+                    var tlist = clist.Skip(1).OrderBy(x => x.GetXCenter()).ToList();
+                    rightRec = tlist[1];
+                    leftRec = tlist[0];
+                    headRec = clist[0];
+                    headMinDepth = headDepth-30;
+                    if (!rightRec.IsCloseTo(headRec,2) && !leftRec.IsCloseTo(headRec,2))
+                    {
+                        //var cdepth = GetRectMinDepth(headRec, depthMap);
+                        //if (cdepth < 10000)
+                        //{
+                        //    if (headMinDepth == 0)
+                        //    {
+                        //        headMinDepth = cdepth;
+                        //    }
+                        //    else
+                        //    {
+                        //        // head hand occluded
+                        //        // do not use when real time
+                        //        if (cdepth >= headMinDepth - 50 || Math.Abs(headMinDepth-headDepth)>200)
+                        //        {
+                        //            headMinDepth = cdepth;
+                        //        }
+                        //    }
+                        //}
+                        //****temp modify***
+                    }
+                   
+                    handModel = new HandShapeModel(HandEnum.Both)
+                    {
+                        RightColor = GetSubImageByRect(colorImg, rightRec),
+                        RightDepth = GetSubImageByRect(depthImage, rightRec),
+                        LeftColor = GetSubImageByRect(colorImg, leftRec),
+                        LeftDepth = GetSubImageByRect(depthImage, leftRec),
+                        right = rightRec,
+                        left = leftRec
+                    };
+                    break;
+                default:
+                    break;
+
+            }
+            //Console.WriteLine("{0} {1}",leftRec.X,rightRec.X);
+            foreach (var rect in clist)
+            {
+                DrawPoly(rect.GetPoints(), colorImg, new MCvScalar(255, 255, 255));
+            }
+            DrawRects(handModel,colorImg);
+            viewer.Image = colorImg;
+            processImg = colorImg.Convert<Bgra, byte>().Bytes;
+            if (handModel != null &&
+                !handModel.right.IsCloseTo(handModel.left,10) && 
+                handModel.type == HandEnum.Intersect)
+            {
+                return null;
+            }
+            return handModel;
+        }
+
+        private void DrawRects(HandShapeModel model, Image<Gray, Byte> image)
+        {
+            if (model == null)
+            {
+                return;
+            }
+            switch (model.type)
+            {
+                case HandEnum.None:
+                    break;
+
+                case HandEnum.Both:
+                case HandEnum.BothTouch:
+                case HandEnum.LeftTouch:
+                case HandEnum.RightTouch:
+                    DrawPoly(model.left.GetPoints(), image, new MCvScalar(123, 123, 123));
+                    DrawPoly(model.right.GetPoints(), image, new MCvScalar(123, 123, 123));
+                    break;
+                case HandEnum.Intersect:
+                case HandEnum.IntersectTouch:
+                    DrawPoly(model.intersectCenter.GetPoints(), image, new MCvScalar(123, 123, 123));
+                    break;
+            }
+        }
+
+        private int GetRectMinDepth(Rectangle rect, DepthImagePoint[] depthMap)
+        {
+            int Min = int.MaxValue;
+            rect.X = rect.X < 0 ? 0 : rect.X;
+            rect.Y = rect.Y < 0 ? 0 : rect.Y;
+            rect.Width = rect.Width + rect.X > 640 ? 640 - rect.X : rect.Width;
+            rect.Height = rect.Height + rect.Y > 480 ? 480 - rect.Y : rect.Height;
+            for (int i = rect.Y; i < rect.Y + rect.Height; i++)
+            {
+                for (int j = rect.X; j < rect.X + rect.Width; j++)
+                {
+                    var d = depthMap[i * 640 + j].Depth;
+                    Min = d < Min && d != 0 ? d : Min;
+                }
+            }
+            return Min;
+
+        }
+
+        private HandShapeModel GetSubImageByRectAndDepth(Image<Gray, Byte> depthImage, Image<Gray, Byte> colorImage, List<Rectangle> rects, int depth, DepthImagePoint[] depthMap)
+        {
+            if (rects == null || rects.Count == 0)
+            {
+                return null;
+            }
+            HandShapeModel ret = null;
+            if (rects.Count == 1)//all parts occluded
+            {
+                var rect = rects[0];
+                AssertRectangle(ref rect);
+                var data = colorImage.Data;
+                for (int i = rect.Y; i < rect.Y + rect.Height; i++)
+                {
+                    for (int j = rect.X; j < rect.X + rect.Width; j++)
+                    {
+                        data[i, j, 0] = depthMap[i * 640 + j].Depth < depth ? data[i, j, 0] : byte.MinValue;
+                    }
+                }
+                var binaryImg = colorImage.Copy(rect).ThresholdToZeroInv(new Gray(240));
+                var clist = FindContourRect(binaryImg, 2,false);
+                if (clist.Count == 1) //Intersect touch
+                {
+                    var srect = clist[0];
+                    srect.X += rect.X;
+                    srect.Y += rect.Y;
+                    AssertRectangle(ref srect);
+                    if (srect.GetRectArea()<1000)
+                    {
+                        return null;
+                    }
+                    ret = new HandShapeModel(HandEnum.Intersect)//intersect touch
+                    {
+                        RightColor = GetSubImageByRect(colorImage,srect),
+                        RightDepth = GetSubImageByRect(depthImage,srect),
+                        right = rightRec,
+                        left = leftRec,
+                        intersectCenter = srect
+                    };
+                }
+                if (clist.Count == 2)
+                {
+                    clist = clist.OrderBy(x => x.GetXCenter()).ToList();
+                    leftRec = clist[0];
+                    rightRec = clist[1];
+                    leftRec.X += rect.X;
+                    leftRec.Y += rect.Y;
+                    rightRec.X += rect.X;
+                    rightRec.Y += rect.Y;
+                    AssertRectangle(ref leftRec);
+                    AssertRectangle(ref rightRec);
+                    ret = new HandShapeModel(HandEnum.Both) //Both touch
+                    {
+                        RightColor = GetSubImageByRect(colorImage, rightRec),
+                        RightDepth = GetSubImageByRect(depthImage, rightRec),
+                        LeftColor = GetSubImageByRect(colorImage, leftRec),
+                        LeftDepth = GetSubImageByRect(depthImage, leftRec),
+                        right = rightRec,
+                        left = leftRec
+                    };
+                }
+            }
+            //intersect or touch
+            if (rects.Count == 2)
+            {
+                rects = rects.OrderBy(x => x.GetCenter().DistanceTo(headRec.GetCenter())).ToList();
+                var headTouch = rects[0];
+                var untouchRec = rects[1];
+
+                var rect = headTouch;
+                AssertRectangle(ref rect);
+                AssertRectangle(ref untouchRec);
+                var data = colorImage.Data;
+                for (int i = rect.Y; i < rect.Y + rect.Height; i++)
+                {
+                    for (int j = rect.X; j < rect.X + rect.Width; j++)
+                    {
+                        data[i, j, 0] = depthMap[i * 640 + j].Depth > depth || depthMap[i * 640 + j].Depth ==0
+                            ? byte.MinValue : data[i, j, 0];
+                    }
+                }
+                var binaryImg = colorImage.Copy(rect).ThresholdToZeroInv(new Gray(240));
+                var clist = FindContourRect(binaryImg, 1,false);
+                //Intersect untouch
+                if (clist.Count == 0)
+                {
+                    if (untouchRec.GetRectArea() < 1000)
+                    {
+                        return null;
+                    }
+                    ret = new HandShapeModel(HandEnum.Intersect)
+                    {
+                        RightColor = GetSubImageByRect(colorImage,untouchRec),
+                        RightDepth = GetSubImageByRect(depthImage,untouchRec),
+                        right = rightRec,
+                        left = leftRec,
+                        intersectCenter = untouchRec
+                    };
+                }
+                // right or left touch face
+                if (clist.Count == 1)
+                {
+                    var srect = clist[0];
+                    srect.X += rect.X;
+                    srect.Y += rect.Y;
+                    AssertRectangle(ref srect);
+                    // right touch
+                    if (srect.X > untouchRec.X)
+                    {
+                        rightRec = srect;
+                        leftRec = untouchRec;
+                        ret = new HandShapeModel(HandEnum.Both)
+                        {
+                            RightColor = GetSubImageByRect(colorImage, rightRec),
+                            RightDepth = GetSubImageByRect(depthImage, rightRec),
+                            LeftColor = GetSubImageByRect(colorImage, leftRec),
+                            LeftDepth = GetSubImageByRect(depthImage, leftRec),
+                            right = rightRec,
+                            left = leftRec
+                        };
+                    }
+                    else //left touch
+                    {
+                        rightRec = untouchRec;
+                        leftRec = srect;
+                        ret = new HandShapeModel(HandEnum.Both)
+                        {
+                            RightColor = GetSubImageByRect(colorImage, rightRec),
+                            RightDepth = GetSubImageByRect(depthImage, rightRec),
+                            LeftColor = GetSubImageByRect(colorImage, leftRec),
+                            LeftDepth = GetSubImageByRect(depthImage, leftRec),
+                            right = rightRec,
+                            left = leftRec
+                        };
+                    }
+                }
+            }
+            //Console.WriteLine("x{0} y{1} w{2} h{3}",rect.X,rect.Y,rect.Width,rect.Height);
+            return ret;
+        }
+
+        private void AssertRectangle(ref Rectangle rect, int width = 640, int height = 480)
+        {
+            rect.X = rect.X < 0 ? 0 : rect.X;
+            rect.Y = rect.Y < 0 ? 0 : rect.Y;
+            rect.Width = rect.Width + rect.X > width ? width - rect.X : rect.Width;
+            rect.Height = rect.Height + rect.Y > height ? height - rect.Y : rect.Height;
+        }
         public float[] ResizeAndCalHog(ref Image<Bgr, byte> image)
         {
             Image<Gray, byte> binaryImg = GetBinaryImg(image);
@@ -308,11 +640,11 @@ namespace CURELab.SignLanguage.HandDetector
 
         public float[] CalHog(Image<Gray, byte> image)
         {
+            return null;
             if (image == null)
             {
                 return null;
             }
-            return null;
             return CalHog(image.Convert<Bgr, byte>());
         }
 
@@ -333,17 +665,7 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 return null;
             }
-            return image.Convert<Gray, byte>().ThresholdBinary
-                (new Gray(20), new Gray(255));
-        }
-
-        public Image<Gray, byte> GetBinaryImg(Image<Gray, byte> image)
-        {
-            if (image == null)
-            {
-                return null;
-            }
-            return image.ThresholdBinaryInv
+            return image.Convert<Gray, byte>().ThresholdBinaryInv
                 (new Gray(200), new Gray(255));
         }
 
@@ -358,30 +680,94 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
 
-        private unsafe List<MCvBox2D> FindContourMBox(Image<Gray, byte> image)
+        int minSize = 200;
+        int maxSize = 40000;
+        private List<MCvBox2D> FindContourMBox(Image<Gray, byte> image, int count)
         {
             Seq<System.Drawing.Point> DyncontourTemp = FindContourSeq(image);
-            List<MCvBox2D> rectList = new List<MCvBox2D>();
+            var rectList = new List<MCvBox2D>();
             for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt64() != 0; DyncontourTemp = DyncontourTemp.HNext)
             {
                 //iterate contours
                 if (DyncontourTemp.GetMinAreaRect().GetTrueArea() < minSize
-                    || DyncontourTemp.GetMinAreaRect().GetTrueArea() > maxSize)
+                    || DyncontourTemp.GetMinAreaRect().GetTrueArea() > maxSize ||
+                    (DyncontourTemp.GetMinAreaRect().center.X > 540 && DyncontourTemp.GetMinAreaRect().center.Y > 380))
                 {
                     continue;
                 }
                 rectList.Add(DyncontourTemp.GetMinAreaRect());
             }
-            if (rectList.Count() >= 3)
+
+            if (rectList.Count() > count)
             {
-                rectList = rectList.OrderBy(x => x.center.Y).Take(2).ToList();
+                rectList = rectList.OrderByDescending(x => x.MinAreaRect().GetRectArea()).Take(count).ToList();
             }
             return rectList;
         }
 
+        private List<Rectangle> FindContourRect(Image<Gray, byte> image, int count,bool cull = true)
+        {
+            var DyncontourTemp = FindContour(image);
+            var rectList = new List<Rectangle>();
+            int cull_length = 120;
+            for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt64() != 0; DyncontourTemp = DyncontourTemp.HNext)
+            {
+                
+                var rect = DyncontourTemp.BoundingRectangle;
+                //iterate contours
+                if (DyncontourTemp.Area < minSize
+                    || DyncontourTemp.Area > maxSize)
+                {
+                    continue;
+                }
+                if (cull &&(rect.GetXCenter()>640-cull_length || rect.GetXCenter()<cull_length))
+                {
+                    continue;
+                }
+                rectList.Add(rect);
+            }
+            for (int i = 0; i < rectList.Count; i++)
+            {
+                for (int j = i+1; j < rectList.Count; j++)
+                {
+                    if (rectList[i].IsCloseTo(rectList[j],2))
+                    {
+                        rectList[j] = rectList[i].Unite(rectList[j]);
+                        rectList.RemoveAt(i);
+                        i--;
+                        break;
+                    }
+                } 
+            }
+            if (rectList.Count() > count)
+            {
+                rectList = rectList.OrderByDescending(x => x.GetRectArea()).Take(count).ToList();
+            }
+            if (DyncontourTemp != null) DyncontourTemp.Clear();
+            return rectList;
+        }
+
+
+
         private List<Rectangle> FindContourRect(Image<Gray, byte> image)
         {
-            Seq<System.Drawing.Point> DyncontourTemp = FindContourSeq(image);
+            //Seq<System.Drawing.Point> DyncontourTemp = FindContourSeq(image);
+            //var rectList = new List<Rectangle>();
+            //for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt64() != 0; DyncontourTemp = DyncontourTemp.HNext)
+            //{
+            //    //iterate contours
+            //    if (DyncontourTemp.BoundingRectangle.GetRectArea() < minSize
+            //        || DyncontourTemp.BoundingRectangle.GetRectArea() > maxSize)
+            //    {
+            //        continue;
+            //    }
+            //    rectList.Add(DyncontourTemp.BoundingRectangle);
+                
+            //}
+            //rectList = rectList.OrderBy(x => x.GetYCenter()).ToList();
+            //DyncontourTemp.Clear()
+
+            var DyncontourTemp = FindContour(image);
             var rectList = new List<Rectangle>();
             for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt64() != 0; DyncontourTemp = DyncontourTemp.HNext)
             {
@@ -392,11 +778,16 @@ namespace CURELab.SignLanguage.HandDetector
                     continue;
                 }
                 rectList.Add(DyncontourTemp.BoundingRectangle);
+
             }
             rectList = rectList.OrderBy(x => x.GetYCenter()).ToList();
+            if (DyncontourTemp != null) DyncontourTemp.Clear();
             return rectList;
         }
-
+        private Contour<Point> FindContour(Image<Gray, byte> image) 
+        {
+            return image.FindContours(Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE, Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_EXTERNAL);
+        }
         private unsafe Seq<System.Drawing.Point> FindContourSeq(Image<Gray, byte> image)
         {
             //Find contours with no holes try CV_RETR_EXTERNAL to find holes
@@ -404,9 +795,7 @@ namespace CURELab.SignLanguage.HandDetector
             IntPtr Dynstorage = CvInvoke.cvCreateMemStorage(0);
             int n = CvInvoke.cvFindContours(image.Ptr, Dynstorage, ref Dyncontour, sizeof(MCvContour),
                 Emgu.CV.CvEnum.RETR_TYPE.CV_RETR_EXTERNAL, Emgu.CV.CvEnum.CHAIN_APPROX_METHOD.CV_CHAIN_APPROX_SIMPLE, new System.Drawing.Point(0, 0));
-            Seq<System.Drawing.Point> DyncontourTemp1 = new Seq<System.Drawing.Point>(Dyncontour, null);//方便对IntPtr类型进行操作
-            Seq<System.Drawing.Point> DyncontourTemp = DyncontourTemp1;
-            return DyncontourTemp;
+            return new Seq<System.Drawing.Point>(Dyncontour, null);//方便对IntPtr类型进行操作
         }
 
 
@@ -428,8 +817,8 @@ namespace CURELab.SignLanguage.HandDetector
             //    box.size.Height = width;
             //}
 
-            Image<T, Byte> mask = (image.Copy(box) * 255);
-            var img = ResizeImage<T>(mask, 60, 60);
+            Image<T, Byte> img = (image.Copy(box) * 255);
+            //img = ResizeImage<T>(img, 60, 60);
             return img;
 
         }
@@ -460,7 +849,7 @@ namespace CURELab.SignLanguage.HandDetector
             }
 
         }
-        private Image<T, Byte> GetSubImageByRect<T>(Image<T, Byte> image, Rectangle rect) where T : struct, IColor
+        private Image<T, Byte> GetBinarySubImageByRect<T>(Image<T, Byte> image, Rectangle rect) where T : struct, IColor
         {
 
             if (rect == null)
@@ -469,11 +858,28 @@ namespace CURELab.SignLanguage.HandDetector
             }
             rect.X = rect.X < 0 ? 0 : rect.X;
             rect.Y = rect.Y < 0 ? 0 : rect.Y;
-            Image<T, Byte> result = (image.Copy(rect) * 255).Resize(60, 60, Emgu.CV.CvEnum.INTER.CV_INTER_LINEAR);
+            Image<T, Byte> result = (image.Copy(rect) * 255);
+            //result = result.Resize(60, 60, Emgu.CV.CvEnum.INTER.CV_INTER_LINEAR);
             return result;
 
         }
 
+        private Image<Rgb , Byte> GetSubImageByRect<T>(Image<T, Byte> image, Rectangle rect) where T : struct, IColor
+        {
+
+            if (rect == null)
+            {
+                return null;
+            }
+            rect.X = rect.X < 0 ? 0 : rect.X;
+            rect.Y = rect.Y < 0 ? 0 : rect.Y;
+            rect.Width = rect.Width + rect.X > image.Width ? image.Width - rect.X : rect.Width;
+            rect.Height = rect.Height + rect.Y > image.Height ? image.Height - rect.Y : rect.Height;
+            //Console.WriteLine("x{0} y{1} w{2} h{3}",rect.X,rect.Y,rect.Width,rect.Height);
+            Image<Rgb, Byte> result = image.Copy(rect).Convert<Rgb, byte>();
+            return result;
+
+        }
         /// <summary>
         /// 将IplImage*转换为Bitmap（注：在OpenCV中IplImage* 对应EmguCV的IntPtr类型）       
         /// </summary>
@@ -509,7 +915,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         }
 
-        private void DrawHand(MCvBox2D rect, Image<Bgr, Byte> image, HandEnum handEnum)
+        private void DrawHand(MCvBox2D rect, Image<Bgra, Byte> image, HandEnum handEnum)
         {
             System.Drawing.Point[] points = rect.GetVertices().Select(x => x.ToPoint()).ToArray();
             DrawPoly(points, image, new MCvScalar(0, 0, 255));
@@ -530,7 +936,7 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
-        private void DrawPoly(System.Drawing.Point[] points, Image<Bgr, Byte> image, MCvScalar color)
+        private void DrawPoly(System.Drawing.Point[] points, IntPtr image, MCvScalar color)
         {
 
             if (points == null || points.Length <= 0)
@@ -539,11 +945,11 @@ namespace CURELab.SignLanguage.HandDetector
             }
             for (int j = 0; j < points.Length; j++)
             {
-                CvInvoke.cvLine(image, points[j], points[(j + 1) % points.Length], color, 2, Emgu.CV.CvEnum.LINE_TYPE.EIGHT_CONNECTED, 0);
+                CvInvoke.cvLine(image, points[j], points[(j + 1) % points.Length], color, 1, Emgu.CV.CvEnum.LINE_TYPE.EIGHT_CONNECTED, 0);
             }
         }
 
-        private void DrawPoint(Image<Bgr, Byte> image, Point point, MCvScalar color)
+        private void DrawPoint(Image<Bgra, Byte> image, Point point, MCvScalar color)
         {
             if (point == null || point == Point.Empty)
             {
@@ -573,7 +979,7 @@ namespace CURELab.SignLanguage.HandDetector
             PointF ap1 = new PointF();
             PointF ap2 = new PointF();
 
-          
+
             if (pl[0].DistanceTo(startP) > pl[2].DistanceTo(startP))
             {
                 shortP = pl[2];
@@ -584,12 +990,12 @@ namespace CURELab.SignLanguage.HandDetector
             size.Width = shortP.DistanceTo(startP);
             size.Height = longP.DistanceTo(startP);
             PointF shortEdge = new PointF(shortP.X - startP.X, shortP.Y - startP.Y);
-            float t_angle = (float)(Math.Atan(shortEdge.Tan())*180/Math.PI);
-  
+            float t_angle = (float)(Math.Atan(shortEdge.Tan()) * 180 / Math.PI);
+
             MCvBox2D box = new MCvBox2D();
             box.size = size;
             box.center = pl.GetCenter();
-       
+
             float longDis = longP.DistanceTo(startP);
             float shortDis = shortP.DistanceTo(startP);
             // x and long edge slope 
@@ -599,8 +1005,7 @@ namespace CURELab.SignLanguage.HandDetector
             float factor = Math.Max(Math.Abs(longP.Y - startP.Y) / longDis, Math.Abs(longP.X - startP.X) / longDis);
             int TransformEnd = Convert.ToInt32(factor * end);
             int TransformBegin = Convert.ToInt32(factor * begin);
-            //Console.WriteLine(TransformBegin);
-            //Console.WriteLine(TransformEnd);
+
             // > 45
             if (longslope < 0.707)//vert
             {
@@ -642,7 +1047,7 @@ namespace CURELab.SignLanguage.HandDetector
             else // horizontal 
             {
                 // point top for right hand
-                if (t_angle <0)
+                if (t_angle < 0)
                 {
                     if (handEnum == HandEnum.Right)
                     {
@@ -711,7 +1116,7 @@ namespace CURELab.SignLanguage.HandDetector
             //Point widthP = p.OrderBy(x => x.TanWith(lowP)).First();
             box.center = splittedHands.GetCenter();
             box.size.Height = startP.DistanceTo(ap1);
-            
+
             return box;
         }
 
@@ -766,7 +1171,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             try
             {
-                if (grayImg[p.ToPoint()].Intensity > 20)
+                if (grayImg[p.ToPoint()].Intensity < 200)
                 {
                     return true;
                 }
@@ -781,6 +1186,10 @@ namespace CURELab.SignLanguage.HandDetector
 
         public void Reset()
         {
+            headRec = new Rectangle(new Point(320, 0), new Size());
+            rightRec = new Rectangle(new Point(640, 480), new Size());
+            leftRec = new Rectangle(new Point(0, 480), new Size());
+            headMinDepth = 0;
             Intersect = false;
         }
         #region INotifyPropertyChanged 成员

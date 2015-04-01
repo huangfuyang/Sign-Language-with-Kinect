@@ -5,6 +5,7 @@
 // CLR：         4.0.30319.18444
 // project link：https://github.com/huangfuyang/Sign-Language-with-Kinect
 
+using Emgu.CV.Structure;
 using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
@@ -75,13 +76,13 @@ namespace XEDParser
             intensityTable = GetColorMappingTable(min, max, Angle);
         }
 
-        public void TransformAndConvertDepthFrame(DepthImagePixel[] depthFrame,byte[] colorFrame)
+        public void TransformAndConvertDepthFrame(DepthImagePixel[] depthFrame,byte[] depthPixels, ColorImagePoint[] coordinate)
         {
 
 
             // Test that the buffer lengths are appropriately correlated, which allows us to use only one
             // value as the loop condition.
-            if ((depthFrame.Length * Bgr32BytesPerPixel) != colorFrame.Length)
+            if ((depthFrame.Length * 3) != depthPixels.Length)
             {
                 throw new InvalidOperationException();
             }
@@ -89,10 +90,8 @@ namespace XEDParser
             byte[] mappingTable = this.intensityTable;
 
             // process data
-
-            for (int depthIndex = 0, colorIndex = 0;
-                colorIndex < colorFrame.Length;
-                depthIndex++, colorIndex += Bgr32BytesPerPixel)
+            Array.Clear(depthPixels,0,depthPixels.Length);
+            for (int depthIndex = 0;depthIndex < depthFrame.Length;depthIndex++)
             {
                 try
                 {
@@ -102,11 +101,12 @@ namespace XEDParser
                     // look up in intensity table
                     byte color = mappingTable[(ushort)depth];
 
+                    int colorIndex = 3*(coordinate[depthIndex].Y*640 + coordinate[depthIndex].X);
 
                     // Write color pixel to buffer
-                    colorFrame[colorIndex + RedIndex] = color;
-                    colorFrame[colorIndex + GreenIndex] = color;
-                    colorFrame[colorIndex + BlueIndex] = color;
+                    depthPixels[colorIndex + RedIndex] = color;
+                    depthPixels[colorIndex + GreenIndex] = color;
+                    depthPixels[colorIndex + BlueIndex] = color;
                 }
                 catch (Exception)
                 {

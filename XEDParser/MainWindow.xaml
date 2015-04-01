@@ -10,16 +10,17 @@
             <ColumnDefinition Width="413*"/>
         </Grid.ColumnDefinitions>
         <k:KinectSensorChooserUI HorizontalAlignment="Right" VerticalAlignment="Top" Name="sensorChooserUi" />
-        <Button x:Name="btn_Start" Content="Start" HorizontalAlignment="Left" Margin="130,263,0,0" VerticalAlignment="Top" Width="75" Click="btn_Start_Click" Grid.Column="1"/>
+        <Button x:Name="btn_Start" Content="Video Start" HorizontalAlignment="Left" Margin="130,263,0,0" VerticalAlignment="Top" Width="100" Click="btn_Start_Click" Grid.Column="1"/>
         <Button x:Name="btn_end" Content="End" HorizontalAlignment="Left" Margin="246,263,0,0" VerticalAlignment="Top" Width="75" Click="btn_end_Click" Grid.Column="1"/>
         <Label x:Name="lbl_Color" HorizontalAlignment="Left" Margin="189,90,0,0" VerticalAlignment="Top" Grid.Column="1"/>
         <Label x:Name="lbl_Depth" HorizontalAlignment="Left" Margin="189,110,0,0" VerticalAlignment="Top" Grid.Column="1"/>
         <Label x:Name="lbl_connect" Content="Not Connected" HorizontalAlignment="Left" Margin="85,108,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.495,2.075" Width="287" Grid.Column="1"/>
-        <Button x:Name="btn_connect" Content="Connect Kinect" HorizontalAlignment="Left" Margin="45,110,0,0" VerticalAlignment="Top" Width="106" Click="btn_Start_Kinect" Grid.ColumnSpan="2"/>
+        <Button x:Name="btn_connect" Content="Connect Kinect" HorizontalAlignment="Left" Margin="45,110,0,0" VerticalAlignment="Top" Width="106" Click="btn_Connect_Kinect" Grid.ColumnSpan="2"/>
         <Button x:Name="btn_folder" Content="Select Folder" HorizontalAlignment="Left" Margin="45,161,0,0" VerticalAlignment="Top" Width="106" Click="btn_Folder" Grid.ColumnSpan="2"/>
         <Button x:Name="btn_start" Content="Start Kinect" HorizontalAlignment="Left" Margin="45,60,0,0" VerticalAlignment="Top" Width="106" Click="btn_Start_Kinect" Grid.ColumnSpan="2"/>
         <Label Content="Welcome!" HorizontalAlignment="Left" Margin="45,10,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
         <Label x:Name="lbl_folder" Content="---" HorizontalAlignment="Left" Margin="85,161,0,0" VerticalAlignment="Top" Width="287" Grid.Column="1"/>
         <Label x:Name="lbl_process" Content="" HorizontalAlignment="Left" Margin="45,309,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.423,-0.78" Grid.ColumnSpan="2" Width="431"/>
+        <Button x:Name="btn_S_Start" Content="Skeleton Start" HorizontalAlignment="Left" Margin="130,290,0,0" VerticalAlignment="Top" Width="100" Click="btn_Ske_Start_Click" Grid.Column="1"/>
     </Grid>
 </Window>
