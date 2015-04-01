@@ -217,6 +217,12 @@
   <ItemGroup>
     <Resource Include="Images\GameBack.png" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HandDetector\HandDetector.csproj">
+      <Project>{bbd51a33-04c7-4d11-9599-f29c05c2026b}</Project>
+      <Name>HandDetector</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -22,5 +22,10 @@ namespace EducationSystem
         {
             this.NavigationService.Navigate(new Uri("ShowFeatureMatchedPage.xaml", UriKind.Relative));
         }
+
+        private void btnRecognition_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            this.NavigationService.Navigate(new Uri("/HandDetector;component/HandDetectorPage.xaml", UriKind.Relative));
+        }
     }
 }
