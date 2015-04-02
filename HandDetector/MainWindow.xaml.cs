@@ -54,7 +54,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             InitializeComponent();
             this.startPage = new StartPage();
-            this.kinectRegionGrid.Children.Add(this.startPage);
+            //this.kinectRegionGrid.Children.Add(this.startPage);
             m_kinectStudioController = KinectStudioController.GetSingleton();
         }
 
@@ -63,8 +63,8 @@ namespace CURELab.SignLanguage.HandDetector
             ConsoleManager.Show();
             this.sensorChooser = new KinectSensorChooser();
             //this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
-            this.sensorChooserUi.KinectSensorChooser = this.sensorChooser;
-            this.sensorChooser.Start(); 
+            //sensorChooserUi.KinectSensorChooser = this.sensorChooser;
+            //this.sensorChooser.Start(); 
             RegisterThreshold("V min", ref OpenCVController.VMIN, 150, 134);
             //RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
             //RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
@@ -153,9 +153,9 @@ namespace CURELab.SignLanguage.HandDetector
                             Console.WriteLine("finish receive");
                             break;
                         }
-                        if (r != "0" && r != "")
+                        r = r.Trim();
+                        if (r != "")
                         {
-                            r = r.Trim();
                             Console.WriteLine("Data:{0}", r);
                             var w = String.Format("Data:{0} word:{1}", r, fullWordList[r]);
                             Console.WriteLine(w);

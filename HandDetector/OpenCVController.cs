@@ -348,7 +348,7 @@ namespace CURELab.SignLanguage.HandDetector
             var colorImg = ImageConverter.Array2Image<Bgra>(colorPixels, width, height, width * bytePerPixel).
                 Convert<Gray, byte>().SmoothMedian(3);
             var binaryImg = colorImg.ThresholdToZeroInv(new Gray(240));
-            var clist = FindContourRect(binaryImg, 3);
+            var clist = FindContourRect(colorImg, 3);
             HandShapeModel handModel = null;
             //Console.WriteLine(headMinDepth);
             switch (clist.Count)
@@ -366,7 +366,8 @@ namespace CURELab.SignLanguage.HandDetector
                     rightRec = tlist[1];
                     leftRec = tlist[0];
                     headRec = clist[0];
-                    headMinDepth = headDepth-30;
+                    headMinDepth = headDepth-20;
+                    colorImg.FillConvexPoly(headRec.GetPoints(),new Gray(0));
                     if (!rightRec.IsCloseTo(headRec,2) && !leftRec.IsCloseTo(headRec,2))
                     {
                         //var cdepth = GetRectMinDepth(headRec, depthMap);
@@ -406,7 +407,7 @@ namespace CURELab.SignLanguage.HandDetector
             //Console.WriteLine("{0} {1}",leftRec.X,rightRec.X);
             foreach (var rect in clist)
             {
-                DrawPoly(rect.GetPoints(), colorImg, new MCvScalar(255, 255, 255));
+                //DrawPoly(rect.GetPoints(), colorImg, new MCvScalar(255, 255, 255));
             }
             DrawRects(handModel,colorImg);
             viewer.Image = colorImg;
@@ -707,7 +708,8 @@ namespace CURELab.SignLanguage.HandDetector
 
         private List<Rectangle> FindContourRect(Image<Gray, byte> image, int count,bool cull = true)
         {
-            var DyncontourTemp = FindContour(image);
+            var binaryImg = image.ThresholdToZeroInv(new Gray(240));
+            var DyncontourTemp = FindContour(binaryImg);
             var rectList = new List<Rectangle>();
             int cull_length = 120;
             for (; DyncontourTemp != null && DyncontourTemp.Ptr.ToInt64() != 0; DyncontourTemp = DyncontourTemp.HNext)
@@ -718,10 +720,12 @@ namespace CURELab.SignLanguage.HandDetector
                 if (DyncontourTemp.Area < minSize
                     || DyncontourTemp.Area > maxSize)
                 {
+                    image.FillConvexPoly(DyncontourTemp.ToArray(),new Gray(0));
                     continue;
                 }
                 if (cull &&(rect.GetXCenter()>640-cull_length || rect.GetXCenter()<cull_length))
                 {
+                    image.FillConvexPoly(DyncontourTemp.ToArray(), new Gray(0));
                     continue;
                 }
                 rectList.Add(rect);

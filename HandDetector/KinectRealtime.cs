@@ -200,7 +200,7 @@ namespace CURELab.SignLanguage.HandDetector
                     bool leftHandRaise = false;
                    
                     //Console.WriteLine("recog:{0}", sw.ElapsedMilliseconds);
-                    if (currentSkeleton != null && handModel.type != HandEnum.None)
+                    if (currentSkeleton != null)
                     {
                         // hand is lower than hip
                         //Console.WriteLine(currentSkeleton.Joints[JointType.HandLeft].Position.Y);
@@ -212,7 +212,6 @@ namespace CURELab.SignLanguage.HandDetector
                         {
                             rightHandRaise = true;
                         }
-                        //if (!handModel.left.IsCloseTo(leftFirst) || (handModel.intersectCenter != Rectangle.Empty && !handModel.intersectCenter.IsCloseTo(leftFirst)))
                         if (currentSkeleton.Joints[JointType.HandLeft].Position.Y > 
                             currentSkeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
                         {

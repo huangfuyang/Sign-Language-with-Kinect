@@ -28,7 +28,7 @@
 
             </Grid>
         </k:KinectRegion>
-        <k:KinectSensorChooserUI Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Top" Name="sensorChooserUi" Height="20" Width="40" />
+        <!--<k:KinectSensorChooserUI Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Top" Name="sensorChooserUi" Height="20" Width="40" />-->
         <k:KinectUserViewer Grid.Row="0" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Right" k:KinectRegion.KinectRegion="{Binding ElementName=kinectRegion}" Height="100" UserColoringMode="HighlightPrimary" PrimaryUserColor="Red" Grid.RowSpan="2" Width="133" Grid.ColumnSpan="2" />
         <Viewbox Grid.Row="2" Grid.Column="0" Stretch="Uniform" HorizontalAlignment="Center" Margin="80,0,20,0" Grid.RowSpan="2">
             <Image Name="img_color" Width="640" Height="480" Margin="5"/>
