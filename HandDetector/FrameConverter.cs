@@ -52,7 +52,11 @@ namespace CURELab.SignLanguage.HandDetector
         public static string Encode(HandShapeModel hand)
         {
             var right = EncodeImage(hand.RightColor);
-            var left = EncodeImage(hand.LeftColor);
+            string left = null;
+            if (hand.type == HandEnum.Both)
+            {
+                left = EncodeImage(hand.LeftColor);
+            }
             var pos = String.Format("{0},{1},{2},{3}",
                 hand.right.GetXCenter(), hand.right.GetYCenter(), hand.left.GetXCenter(), hand.left.GetYCenter());
             var frame = new FrameData()

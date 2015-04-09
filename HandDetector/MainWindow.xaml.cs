@@ -47,7 +47,6 @@ namespace CURELab.SignLanguage.HandDetector
         private SocketManager socket;
         private Dictionary<string, string> fullWordList;
         private KinectSensorChooser sensorChooser;
-
         //pages
         private UserControl startPage;
         public MainWindow()
@@ -76,7 +75,7 @@ namespace CURELab.SignLanguage.HandDetector
             Menu_Server_Click(this, e);//real time recog
             //Menu_Train_Click(this, e);//train data
             //MenuItem_Test_Click(this, e);//test
-
+            //TrainOnline();
             // load word list
             fullWordList = new Dictionary<string, string>();
             using (var wl = File.Open("wordlist.txt", FileMode.Open))
@@ -154,7 +153,7 @@ namespace CURELab.SignLanguage.HandDetector
                             break;
                         }
                         r = r.Trim();
-                        if (r != "")
+                        if (r != "" && r!= "0")
                         {
                             Console.WriteLine("Data:{0}", r);
                             var w = String.Format("Data:{0} word:{1}", r, fullWordList[r]);
@@ -224,6 +223,17 @@ namespace CURELab.SignLanguage.HandDetector
         {
             ResetAll();
             m_KinectController = KinectHandShape.GetSingletonInstance();
+            this.DataContext = m_KinectController;
+            m_KinectController.Initialize();
+            this.img_color.Source = m_KinectController.ColorWriteBitmap;
+            this.img_depth.Source = m_KinectController.DepthWriteBitmap;
+            m_KinectController.Start();
+        }
+
+        private void TrainOnline()
+        {
+            ResetAll();
+            m_KinectController = KinectTrainOnline.GetSingletonInstance(this);
             this.DataContext = m_KinectController;
             m_KinectController.Initialize();
             this.img_color.Source = m_KinectController.ColorWriteBitmap;

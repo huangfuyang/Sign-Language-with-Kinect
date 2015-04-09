@@ -153,6 +153,7 @@
     <Compile Include="KinectRealtime.cs" />
     <Compile Include="KinectStudioController.cs" />
     <Compile Include="KinectTrainer.cs" />
+    <Compile Include="KinectTrainOnline.cs" />
     <Compile Include="Pages\StartPage.xaml.cs">
       <DependentUpon>StartPage.xaml</DependentUpon>
     </Compile>
