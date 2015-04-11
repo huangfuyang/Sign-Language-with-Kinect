@@ -40,22 +40,31 @@ namespace CURELab.SignLanguage.HandDetector
         }
         private SocketManager(string addr, int port)
         {
-            client = new TcpClient();
-            IPAddress ipa = IPAddress.Parse(addr);
-            IPEndPoint ipe = new IPEndPoint(ipa, port);
-
-            Console.WriteLine("connecting");
-            client.Connect(ipe);
-
-            if (client.Connected)
+            try
             {
-                Console.WriteLine("connected");
-                ns = client.GetStream();
-                sw = new StreamWriter(ns);
+                Console.WriteLine("connecting");
+                client = new TcpClient();
+                IPAddress ipa = IPAddress.Parse(addr);
+                IPEndPoint ipe = new IPEndPoint(ipa, port);
+
+                client.Connect(ipe);
+
+                if (client.Connected)
+                {
+                    Console.WriteLine("connected");
+                    ns = client.GetStream();
+                    sw = new StreamWriter(ns);
+                }
+                SendQueue = new Queue<string>();
+                sendThread = new Thread(new ThreadStart(SendThreadCall));
+                sendThread.Start();
             }
-            SendQueue = new Queue<string>();
-            sendThread = new Thread(new ThreadStart(SendThreadCall));
-            sendThread.Start();
+            catch (Exception)
+            {
+                Console.WriteLine("not connected");
+                throw;
+            }
+            
         }
 
         public string GetResponse()

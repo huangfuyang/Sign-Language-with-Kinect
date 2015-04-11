@@ -12,6 +12,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Media.Imaging;
+using Microsoft.Kinect;
 
 
 namespace CURELab.SignLanguage.HandDetector
@@ -82,6 +83,11 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
+        public bool ShowFinal { get; set; }
+
+        public virtual void ChangeSensor(KinectSensor _sensor)
+        {
+        }
 
         protected OpenCVController m_OpenCVController;
 
@@ -97,6 +103,7 @@ namespace CURELab.SignLanguage.HandDetector
         protected static KinectController singleInstance;
 
         public virtual void Initialize(String uri = null) { }
+        public virtual void Initialize(KinectSensor _sensor) { }
         public virtual void Start() { }
         public virtual void Shutdown() { }
 

@@ -465,6 +465,14 @@ namespace CURELab.SignLanguage.HandDetector
             Console.WriteLine(handler.EndInvoke(result));
         }
 
+        public virtual void ChangeSensor(KinectSensor _sensor)
+        {
+            sensor = _sensor;
+            if (_sensor != null)
+            {
+
+            }
+        }
 
 
         public override void Run()

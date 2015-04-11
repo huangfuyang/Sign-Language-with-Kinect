@@ -28,8 +28,8 @@ namespace CURELab.SignLanguage.HandDetector
     class KinectTrainOnline : KinectTrainer
     {
         private BackgroundRemovedColorStream backgroundRemovedColorStream;
-        private MainWindow mwWindow;
-        private KinectTrainOnline(MainWindow mw)
+        private MainUI mwWindow;
+        private KinectTrainOnline(MainUI mw)
             : base()
         {
             mwWindow = mw;
@@ -37,7 +37,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         }
 
-        public static KinectController GetSingletonInstance(MainWindow mw)
+        public static KinectController GetSingletonInstance(MainUI mw)
         {
             if (singleInstance == null)
             {

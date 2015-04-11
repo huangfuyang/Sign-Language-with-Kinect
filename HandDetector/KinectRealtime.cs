@@ -4,9 +4,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using CURELab.SignLanguage.StaticTools;
 using Emgu.CV.Structure;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit.BackgroundRemoval;
@@ -20,19 +22,35 @@ namespace CURELab.SignLanguage.HandDetector
     {
         private BackgroundRemovedColorStream backgroundRemovedColorStream;
         private SocketManager socket;
-        private MainWindow mwWindow;
-        private KinectRealtime(SocketManager socket,MainWindow mw)
+        private MainUI mwWindow;
+        private bool IsInitialized = false;
+        private KinectRealtime(MainUI mw)
             : base()
         {
-            this.socket = socket;
+            try
+            {
+                //socket = SocketManager.GetInstance("127.0.0.1", 51243);
+                var socket = SocketManager.GetInstance("137.189.89.29", 51243);
+                //socket = SocketManager.GetInstance("192.168.209.67", 51243);
+                this.socket = socket;
+                AsnycDataRecieved();
+                ShowFinal = true;
+                IsInitialized = false;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("not connected");
+                
+            }
+          
             mwWindow = mw;
         }
 
-        public static KinectController GetSingletonInstance(SocketManager socket, MainWindow mw)
+        public static KinectController GetSingletonInstance(MainUI mw)
         {
             if (singleInstance == null)
             {
-                singleInstance = new KinectRealtime(socket,mw);
+                singleInstance = new KinectRealtime(mw);
             }
             return singleInstance;
         }
@@ -40,32 +58,31 @@ namespace CURELab.SignLanguage.HandDetector
         protected override void ChooseSkeleton(Skeleton[] skeletons)
         {
             base.ChooseSkeleton(skeletons);
-            backgroundRemovedColorStream.SetTrackedPlayer(currentlyTrackedSkeletonId);
+            //backgroundRemovedColorStream.SetTrackedPlayer(currentlyTrackedSkeletonId);
         }
 
-        public override void Initialize(string uri = null)
+        public override void ChangeSensor(KinectSensor _sensor)
+        {
+            base.ChangeSensor(_sensor);
+            if (IsInitialized)
+            {
+                sensor.AllFramesReady += AllFrameReady;
+            }
+        }
+
+        public override void Initialize(KinectSensor _sensor)
         {
             // Look through all sensors and start the first connected one.
             // This requires that a Kinect is connected at the time of app startup.
             // To make your app robust against plug/unplug, 
             // it is recommended to use KinectSensorChooser provided in Microsoft.Kinect.Toolkit (See components in Toolkit Browser).
-            foreach (var potentialSensor in KinectSensor.KinectSensors)
-            {
-                if (potentialSensor.Status == KinectStatus.Connected)
-                {
-                    sensor = potentialSensor;
-                    break;
-                }
-            }
+            sensor = _sensor;
 
 
-            if (null != sensor)
+            if (null != sensor && !IsInitialized)
             {
                 // Turn on the color stream to receive color frames
-                sensor.ColorStream.Enable(ColorFormat);
-                sensor.DepthStream.Enable(DepthFormat);
-                sensor.SkeletonStream.Enable();
-                this.backgroundRemovedColorStream = new BackgroundRemovedColorStream(sensor);
+                //this.backgroundRemovedColorStream = new BackgroundRemovedColorStream(sensor);
                 //this.backgroundRemovedColorStream.Enable(ColorFormat, DepthFormat);
                 //this.backgroundRemovedColorStream.BackgroundRemovedFrameReady += this.BackgroundRemovedFrameReadyHandler;
                 //sensor.DepthStream.Range = DepthRange.Near;
@@ -85,7 +102,7 @@ namespace CURELab.SignLanguage.HandDetector
                 this.colorizer = new Colorizer(AngleRotateTan, 800, 3000);
                 headPosition = new Point(320, 0);
                 headDepth = 800;
-                sensor.Start();
+                IsInitialized = true;
             }
 
             if (null == sensor)
@@ -107,7 +124,7 @@ namespace CURELab.SignLanguage.HandDetector
                     var skeletons = new Skeleton[skeletonFrame.SkeletonArrayLength];
                     //Console.WriteLine("ske:{0}", skeletonFrame.Timestamp);
                     skeletonFrame.CopySkeletonDataTo(skeletons);
-                    this.backgroundRemovedColorStream.ProcessSkeleton(skeletons, skeletonFrame.Timestamp);
+                    //this.backgroundRemovedColorStream.ProcessSkeleton(skeletons, skeletonFrame.Timestamp);
                     ChooseSkeleton(skeletons);
                     if (currentSkeleton != null)
                     {
@@ -131,7 +148,11 @@ namespace CURELab.SignLanguage.HandDetector
 
                     //this.backgroundRemovedColorStream.ProcessColor(colorFrame.GetRawPixelData(), colorFrame.Timestamp);
                     // Write the pixel data into our bitmap
-                    
+                    this.ColorWriteBitmap.WritePixels(
+                    new System.Windows.Int32Rect(0, 0, this.ColorWriteBitmap.PixelWidth, this.ColorWriteBitmap.PixelHeight),
+                    this.colorPixels,
+                    this.ColorWriteBitmap.PixelWidth * sizeof(int),
+                    0);
                 }
             }
 
@@ -141,7 +162,7 @@ namespace CURELab.SignLanguage.HandDetector
                 if (depthFrame != null)
                 {
                     socket = SocketManager.GetInstance();
-                    this.backgroundRemovedColorStream.ProcessDepth(depthFrame.GetRawPixelData(), depthFrame.Timestamp);
+                    //this.backgroundRemovedColorStream.ProcessDepth(depthFrame.GetRawPixelData(), depthFrame.Timestamp);
                     var sw = Stopwatch.StartNew();
                     // Copy the pixel data from the image to a temporary array
                     //Console.WriteLine("dep:{0}", depthFrame.Timestamp);
@@ -194,7 +215,7 @@ namespace CURELab.SignLanguage.HandDetector
 
                     bool rightHandRaise = false;
                     bool leftHandRaise = false;
-                   
+
                     //Console.WriteLine("recog:{0}", sw.ElapsedMilliseconds);
                     if (currentSkeleton != null)
                     {
@@ -202,13 +223,13 @@ namespace CURELab.SignLanguage.HandDetector
                         //Console.WriteLine(currentSkeleton.Joints[JointType.HandLeft].Position.Y);
                         //Console.WriteLine(currentSkeleton.Joints[JointType.HipCenter].Position.Y);
                         //Console.WriteLine("-------------");
-                        if (currentSkeleton.Joints[JointType.HandRight].Position.Y > 
+                        if (currentSkeleton.Joints[JointType.HandRight].Position.Y >
                             currentSkeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
-                            //if (handModel.right.GetYCenter() < hip.Y + 50 || (handModel.intersectCenter != Rectangle.Empty && handModel.intersectCenter.Y < hip.Y + 50))
+                        //if (handModel.right.GetYCenter() < hip.Y + 50 || (handModel.intersectCenter != Rectangle.Empty && handModel.intersectCenter.Y < hip.Y + 50))
                         {
                             rightHandRaise = true;
                         }
-                        if (currentSkeleton.Joints[JointType.HandLeft].Position.Y > 
+                        if (currentSkeleton.Joints[JointType.HandLeft].Position.Y >
                             currentSkeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
                         {
                             leftHandRaise = true;
@@ -225,7 +246,7 @@ namespace CURELab.SignLanguage.HandDetector
                     {
                         handModel = new HandShapeModel(HandEnum.None);
                     }
-                    
+
                     //start recording
                     if (!IsRecording && rightHandRaise)
                     {
@@ -275,17 +296,25 @@ namespace CURELab.SignLanguage.HandDetector
 
 
                     }
-                    this.ColorWriteBitmap.WritePixels(
-                        new System.Windows.Int32Rect(0, 0, this.ColorWriteBitmap.PixelWidth, this.ColorWriteBitmap.PixelHeight),
-                        this.colorPixels,
-                        this.ColorWriteBitmap.PixelWidth * sizeof(int),
-                        0);
+
                     //*******************upadte UI
-                    this.DepthWriteBitmap.WritePixels(
+                    if (ShowFinal)
+                    {
+                        this.DepthWriteBitmap.WritePixels(
                         new System.Windows.Int32Rect(0, 0, this.DepthWriteBitmap.PixelWidth, this.DepthWriteBitmap.PixelHeight),
                         processImg,
                         this.DepthWriteBitmap.PixelWidth * sizeof(int),
                         0);
+                    }
+                    else
+                    {
+                        this.DepthWriteBitmap.WritePixels(
+                      new System.Windows.Int32Rect(0, 0, this.DepthWriteBitmap.PixelWidth, this.DepthWriteBitmap.PixelHeight),
+                      colorPixels,
+                      this.DepthWriteBitmap.PixelWidth * sizeof(int),
+                      0);
+                    }
+                    
                     //ImageConverter.UpdateWriteBMP(DepthWriteBitmap, depthImg.ToBitmap());
                     // Console.WriteLine("Update UI:" + sw.ElapsedMilliseconds);
 
@@ -317,6 +346,70 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
+        private void AsnycDataRecieved()
+        {
+            var t = new Thread(new ThreadStart(DataRecieved));
+            t.Start();
+        }
+        private string[] SPLIT =  { "#TERMINATOR#" };
+        private void DataRecieved()
+        {
+            if (socket != null)
+            {
+                Console.WriteLine("waiting reponse");
+
+                while (true)
+                {
+                    try
+                    {
+                        var r = socket.GetResponse();
+                        if (r == null)
+                        {
+                            Console.WriteLine("finish receive");
+                            break;
+                        }
+                        r = r.Trim();
+                        var list = r.Split(SPLIT,StringSplitOptions.RemoveEmptyEntries);
+                        foreach (var s in list)
+                        {
+                            try
+                            {
+                                if (s != "" && s != "0")
+                                {
+                                    Console.WriteLine("Data:{0}", s);
+                                    var w = String.Format("Data:{0} word:{1}", s, DataContextCollection.GetInstance().fullWordList[s]);
+                                    Console.WriteLine(w);
+                                    System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+                                    {
+                                        mwWindow.lbl_candidate1.Content = DataContextCollection.GetInstance().fullWordList[s];
+                                    });
+                                }
+                                if (s.ToLower() == "redo")
+                                {
+                                    System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+                                    {
+                                        mwWindow.lbl_candidate1.Content = "請重做一次";
+                                    });
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                continue;
+                            }
+                            
+                        }                        
+                        
+                    }
+                    catch (Exception e)
+                    {
+                        //Console.WriteLine("receive data error:{0}",e);
+                    }
+
+                }
+
+            }
+        }
+
         public override void Start()
         {
             try
@@ -328,6 +421,15 @@ namespace CURELab.SignLanguage.HandDetector
             }
             catch (Exception)
             {
+            }
+        }
+
+        public override void Stop()
+        {
+            base.Stop();
+            if (sensor != null)
+            {
+                sensor.AllFramesReady -= AllFrameReady;
             }
         }
     }
