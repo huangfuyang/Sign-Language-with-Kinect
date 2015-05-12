@@ -309,7 +309,7 @@ namespace CURELab.SignLanguage.HandDetector
             Image<Gray, byte> depthImage, byte[] colorPixels, DepthImagePoint[] depthMap, PointF head, int headDepth, out byte[] processImg, int channel
             )
         {
-            //Console.WriteLine(headDepth -30);
+            Console.WriteLine(headDepth -30);
             //Console.WriteLine("head min:{0}", headMinDepth);
             //Console.WriteLine("head :x{0} y{1}", head.X,head.Y);
             int width = 640;
@@ -331,7 +331,7 @@ namespace CURELab.SignLanguage.HandDetector
                     var d = depthMap[colorIndex/bytePerPixel].Depth;
                     //if (!(U > 100 && U < 129 && V > 140 && V < 170))//aaron
                     //if (!(U > 100 && U < 135 && V > VMIN && V < 170) || channel == 4 && colorPixels[colorIndex + 3] == 0)//Micheal
-                    if (!(U > 95 && U < 135 && V > VMIN && V < 170) || d > headDepth + 300) //realtime
+                    if (!(U > 95 && U < 135 && V > VMIN && V < 170) || d > headDepth + 200) //realtime
                     //if (!(U > 95 && U < 135 && V > 137 && V < 170) || colorPixels[colorIndex + 3] == 0) //realtime with hole filling
                     {
                         colorPixels[colorIndex] = 0;
@@ -691,7 +691,7 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
 
-        int minSize = 200;
+        int minSize = 500;
         int maxSize = 90000;
         private List<MCvBox2D> FindContourMBox(Image<Gray, byte> image, int count)
         {

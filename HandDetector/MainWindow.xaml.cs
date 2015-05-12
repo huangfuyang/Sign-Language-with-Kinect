@@ -21,6 +21,8 @@ using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
 using System.Windows.Controls;
 using UserControl = System.Windows.Controls.UserControl;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace CURELab.SignLanguage.HandDetector
 {
@@ -68,6 +70,14 @@ namespace CURELab.SignLanguage.HandDetector
             //TrainOnline();
 
 
+            MathNet.Numerics.LinearAlgebra.Matrix<double> A = DenseMatrix.OfArray(new double[,] {
+                                                                                                            {1,1,1,1},
+                                                                                                            {1,2,3,4},
+                                                                                                            {4,3,2,1}});
+            Vector<double>[] nullspace = A.Kernel();
+
+            // verify: the following should be approximately (0,0,0)
+
 
         }
 
@@ -83,7 +93,7 @@ namespace CURELab.SignLanguage.HandDetector
                 sensor.Stop();
             }
 
-            sensorChooser.Stop();;
+            sensorChooser.Stop(); ;
         }
 
 
@@ -132,7 +142,7 @@ namespace CURELab.SignLanguage.HandDetector
             //this.DataContext = m_KinectController;
         }
 
- 
+
 
         private bool _isConnected;
 
@@ -209,7 +219,7 @@ namespace CURELab.SignLanguage.HandDetector
             }
             else
             {
-                this.kinectRegion.KinectSensor  = null;
+                this.kinectRegion.KinectSensor = null;
                 sensor = null;
             }
 
@@ -228,7 +238,7 @@ namespace CURELab.SignLanguage.HandDetector
                 kinectRegionGrid.Children.Add(mainUI);
                 mainUI.Start(sensor);
             }
-            
+
         }
 
         public void HideUI()

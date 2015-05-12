@@ -46,29 +46,19 @@ namespace CURELab.SignLanguage.HandDetector
             return singleInstance;
         }
 
-        public override void Initialize(string uri = null)
+        public override void Initialize(KinectSensor _sensor)
         {
             // Look through all sensors and start the first connected one.
             // This requires that a Kinect is connected at the time of app startup.
             // To make your app robust against plug/unplug, 
             // it is recommended to use KinectSensorChooser provided in Microsoft.Kinect.Toolkit (See components in Toolkit Browser).
-            foreach (var potentialSensor in KinectSensor.KinectSensors)
-            {
-                if (potentialSensor.Status == KinectStatus.Connected)
-                {
-                    sensor = potentialSensor;
-                    break;
-                }
-            }
-
+            sensor = _sensor;
+            ShowFinal = true;
 
             if (null != sensor)
             {
                 // Turn on the color stream to receive color frames
-                sensor.ColorStream.Enable(ColorFormat);
-                sensor.DepthStream.Enable(DepthFormat);
-                sensor.SkeletonStream.Enable();
-                this.backgroundRemovedColorStream = new BackgroundRemovedColorStream(sensor);
+                //this.backgroundRemovedColorStream = new BackgroundRemovedColorStream(sensor);
                 //this.backgroundRemovedColorStream.Enable(ColorFormat, DepthFormat);
                 //this.backgroundRemovedColorStream.BackgroundRemovedFrameReady += this.BackgroundRemovedFrameReadyHandler;
                 //sensor.DepthStream.Range = DepthRange.Near;
@@ -88,7 +78,6 @@ namespace CURELab.SignLanguage.HandDetector
                 this.colorizer = new Colorizer(AngleRotateTan, 800, 3000);
                 headPosition = new Point(320, 0);
                 headDepth = 800;
-                sensor.Start();
             }
 
             if (null == sensor)
@@ -112,7 +101,7 @@ namespace CURELab.SignLanguage.HandDetector
                     var skeletons = new Skeleton[skeletonFrame.SkeletonArrayLength];
                     //Console.WriteLine("ske:{0}", skeletonFrame.Timestamp);
                     skeletonFrame.CopySkeletonDataTo(skeletons);
-                    this.backgroundRemovedColorStream.ProcessSkeleton(skeletons, skeletonFrame.Timestamp);
+                   // this.backgroundRemovedColorStream.ProcessSkeleton(skeletons, skeletonFrame.Timestamp);
                     ChooseSkeleton(skeletons);
                     if (currentSkeleton != null)
                     {
@@ -322,15 +311,31 @@ namespace CURELab.SignLanguage.HandDetector
                         skeWriter.WriteLine(line);
                     }
                     //*******************upadte UI
-                    System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
+                    if (ShowFinal)
                     {
-                        this.DepthWriteBitmap.WritePixels(
-                            new System.Windows.Int32Rect(0, 0, this.DepthWriteBitmap.PixelWidth,
-                                this.DepthWriteBitmap.PixelHeight),
-                            processImg,
-                            this.DepthWriteBitmap.PixelWidth*sizeof (int),
-                            0);
-                    }));
+                        System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
+                        {
+                            this.DepthWriteBitmap.WritePixels(
+                                new System.Windows.Int32Rect(0, 0, this.DepthWriteBitmap.PixelWidth,
+                                    this.DepthWriteBitmap.PixelHeight),
+                                processImg,
+                                this.DepthWriteBitmap.PixelWidth*sizeof (int),
+                                0);
+                        }));
+                    }
+                    else
+                    {
+                        System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
+                        {
+                            this.DepthWriteBitmap.WritePixels(
+                                new System.Windows.Int32Rect(0, 0, this.DepthWriteBitmap.PixelWidth,
+                                    this.DepthWriteBitmap.PixelHeight),
+                                colorPixels,
+                                this.DepthWriteBitmap.PixelWidth*sizeof (int),
+                                0);
+                        }));
+                    }
+
                     //ImageConverter.UpdateWriteBMP(DepthWriteBitmap, depthImg.ToBitmap());
                     // Console.WriteLine("Update UI:" + sw.ElapsedMilliseconds);
                     End = TurnEnd;
@@ -393,7 +398,7 @@ namespace CURELab.SignLanguage.HandDetector
                 //}
                 //else
                 {
-                    var signFile = File.Open(@"C:\Users\fyhuang\Desktop\temp.txt",FileMode.Open);
+                    var signFile = File.Open(@"C:\Users\Administrator\Desktop\temp.txt", FileMode.Open);
                     StreamReader sr = new StreamReader(signFile);
                     string line = sr.ReadLine();
                     slist = new List<SignModel>();
@@ -409,8 +414,7 @@ namespace CURELab.SignLanguage.HandDetector
                         line = sr.ReadLine();
                     }
                     signFile.Close();
-                    viewer.Show();
-                    viewer.Image = new Image<Rgb, byte>("img\\back01.png");
+                 
                     Thread t = new Thread(ControlThread);
                     t.Start();
                 }
@@ -423,34 +427,56 @@ namespace CURELab.SignLanguage.HandDetector
         }
         private Timer My_Timer = new Timer();
         Capture _CCapture = null;
-        private void PlayVideo(string file)
+
+        private void PlayVideo(string name)
         {
-            viewer.Show();
-            if (_CCapture != null)
+            Thread t = new Thread(new ParameterizedThreadStart(PlayVideo));
+            t.Start(name);
+            t.Join();
+        }
+        private void PlayVideo(object file)
+        {
+            try
             {
-                _CCapture.Dispose();//dispose of current capture
+                if (_CCapture != null)
+                {
+                    _CCapture.Dispose(); //dispose of current capture
+                }
+                System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+                {
+                    viewer.Show();
+                });
+                _CCapture = new Capture(file as string);
+                int FrameRate = (int)_CCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_FPS);
+                int cframe = (int)_CCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_POS_FRAMES);
+                int framenumber = (int)_CCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_FRAME_COUNT);
+                while (_CCapture.Grab())
+                {
+                    var frame = _CCapture.RetrieveBgrFrame().Resize(800, 600, INTER.CV_INTER_LINEAR);
+                    System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+                    {
+                        viewer.Size = frame.Size;
+                        viewer.Image = frame;
+                    });
+                    Thread.Sleep(1000 / FrameRate);
+                }
             }
-            _CCapture = new Capture(file);
-            int FrameRate = (int)_CCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_FPS);
-            int cframe = (int)_CCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_POS_FRAMES);
-            int framenumber = (int)_CCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_FRAME_COUNT);
-            while (_CCapture.Grab())
+            catch (Exception e)
             {
-                viewer.Image = _CCapture.RetrieveBgrFrame();
-                Thread.Sleep(1000/FrameRate);
+                Console.WriteLine(e);
+                return;
             }
+            finally
+            {
+                System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+                {
+                    viewer.Hide();
+                });
+            }
+
         }
 
-        void _CCapture_ImageGrabbed(object sender, EventArgs e)
-        {
-            viewer.Image = _CCapture.RetrieveBgrFrame();
-            Capture c = sender as Capture;
-            int framenumber = (int)_CCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_FRAME_COUNT);
-            int cframe = (int)_CCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_POS_FRAMES);
-            if (cframe == framenumber)
-            {
-            }
-        }
+
         private bool TurnEnd = false;
         private bool End = false;
         private ImageViewer viewer;
@@ -458,7 +484,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
 
             string singner = "lzz";
-            string dir = @"D:\NewTrainingData\" + singner+"\\";
+            string dir = @"D:\TrainingData100\" + singner+"\\";
             for (int i = 0; i < slist.Count; i++)
             {
                 var m = slist[i];
@@ -475,7 +501,6 @@ namespace CURELab.SignLanguage.HandDetector
                 }));
                 Thread.Sleep(500);
                 PlayVideo(videoName);
-                viewer.Hide();
                 for (int j = 0; j < 10; j++)
                 {
                     currentDir = dir + m.ID + " " + singner+ " " + j.ToString();

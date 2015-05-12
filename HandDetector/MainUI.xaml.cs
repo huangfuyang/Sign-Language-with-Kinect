@@ -45,7 +45,12 @@ namespace CURELab.SignLanguage.HandDetector
         public MainUI()
         {
             InitializeComponent();
-            Menu_Server_Click(this, null);//real time recog
+            //Menu_Kinect_Click(this, e);  //test
+            //Menu_TrainHand_Click(this, e);//train hand shape
+            ServerMode();//real time recog
+            //Menu_Train_Click(this, e);//train data
+            //MenuItem_Test_Click(this, e);//test
+            //TrainOnlineMode();
         }
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
@@ -59,12 +64,7 @@ namespace CURELab.SignLanguage.HandDetector
             //RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
             //RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 40);
 
-            //Menu_Kinect_Click(this, e);  //test
-            //Menu_TrainHand_Click(this, e);//train hand shape
-            //Menu_Server_Click(this, e);//real time recog
-            //Menu_Train_Click(this, e);//train data
-            //MenuItem_Test_Click(this, e);//test
-            //TrainOnline();
+         
             foreach (var row in DataContextCollection.GetInstance().fullWordList)
             {
                 string name = row.Value;
@@ -166,7 +166,7 @@ namespace CURELab.SignLanguage.HandDetector
             //IsConnected = m_kinectStudioController.Start();
         }
 
-        private void Menu_Server_Click(object sender, RoutedEventArgs e)
+        private void ServerMode()
         {
             ResetAll();
             m_KinectController = KinectRealtime.GetSingletonInstance(this);
@@ -208,20 +208,13 @@ namespace CURELab.SignLanguage.HandDetector
             m_KinectController = KinectHandShape.GetSingletonInstance();
             this.DataContext = m_KinectController;
             m_KinectController.Initialize();
-            this.img_color.Source = m_KinectController.ColorWriteBitmap;
-            this.img_depth.Source = m_KinectController.DepthWriteBitmap;
             m_KinectController.Start();
         }
 
-        private void TrainOnline()
+        private void TrainOnlineMode()
         {
             ResetAll();
             m_KinectController = KinectTrainOnline.GetSingletonInstance(this);
-            this.DataContext = m_KinectController;
-            m_KinectController.Initialize();
-            this.img_color.Source = m_KinectController.ColorWriteBitmap;
-            this.img_depth.Source = m_KinectController.DepthWriteBitmap;
-            m_KinectController.Start();
         }
 
         private void ResetAll()
@@ -260,6 +253,11 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 m_KinectController.ShowFinal = !m_KinectController.ShowFinal;
             }
+        }
+
+        private void Menu_Server_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
