@@ -16,7 +16,7 @@ using Microsoft.Kinect;
 
 namespace CURELab.SignLanguage.HandDetector
 {
-    class KinectTrainer : KinectSDKController
+    public class KinectTrainer : KinectSDKController
     {
         protected string currentDir;
         private KinectStudioController controler;

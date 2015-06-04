@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using CURELab.SignLanguage.StaticTools;
 using Emgu.CV.Structure;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit.BackgroundRemoval;
@@ -18,13 +17,12 @@ using Point = System.Drawing.Point;
 
 namespace CURELab.SignLanguage.HandDetector
 {
-    class KinectRealtime : KinectSDKController
+    public class KinectRealtime : KinectSDKController
     {
         private BackgroundRemovedColorStream backgroundRemovedColorStream;
         private SocketManager socket;
-        private MainUI mwWindow;
         private bool IsInitialized = false;
-        private KinectRealtime(MainUI mw)
+        private KinectRealtime()
             : base()
         {
             try
@@ -43,14 +41,13 @@ namespace CURELab.SignLanguage.HandDetector
                 
             }
           
-            mwWindow = mw;
         }
 
-        public static KinectController GetSingletonInstance(MainUI mw)
+        public static KinectController GetSingletonInstance()
         {
             if (singleInstance == null)
             {
-                singleInstance = new KinectRealtime(mw);
+                singleInstance = new KinectRealtime();
             }
             return singleInstance;
         }

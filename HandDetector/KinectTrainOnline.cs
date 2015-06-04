@@ -25,23 +25,21 @@ using Timer = System.Windows.Forms.Timer;
 
 namespace CURELab.SignLanguage.HandDetector
 {
-    class KinectTrainOnline : KinectTrainer
+    public class KinectTrainOnline : KinectTrainer
     {
         private BackgroundRemovedColorStream backgroundRemovedColorStream;
-        private MainUI mwWindow;
-        private KinectTrainOnline(MainUI mw)
+        private KinectTrainOnline()
             : base()
         {
-            mwWindow = mw;
             viewer = new ImageViewer();
 
         }
 
-        public static KinectController GetSingletonInstance(MainUI mw)
+        public static KinectController GetSingletonInstance()
         {
             if (singleInstance == null)
             {
-                singleInstance = new KinectTrainOnline(mw);
+                singleInstance = new KinectTrainOnline();
             }
             return singleInstance;
         }
@@ -398,7 +396,7 @@ namespace CURELab.SignLanguage.HandDetector
                 //}
                 //else
                 {
-                    var signFile = File.Open(@"C:\Users\Administrator\Desktop\temp.txt", FileMode.Open);
+                    var signFile = File.Open(@"C:\Users\Administrator\Desktop\80-100.txt", FileMode.Open);
                     StreamReader sr = new StreamReader(signFile);
                     string line = sr.ReadLine();
                     slist = new List<SignModel>();

@@ -16,7 +16,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-using CURELab.SignLanguage.StaticTools;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using System.Drawing;

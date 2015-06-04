@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using CURELab.SignLanguage.HandDetector;
 using CURELab.SignLanguage.StaticTools;
 using Microsoft.Kinect.Toolkit;
 using Microsoft.Kinect.Toolkit.Controls;
@@ -22,8 +23,9 @@ using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.UI;
 using Microsoft.Kinect;
+using TrackBar = CURELab.SignLanguage.HandDetector.TrackBar;
 
-namespace CURELab.SignLanguage.HandDetector
+namespace SLRecognizer
 {
     /// <summary>
     /// Interaction logic for MainUI.xaml
@@ -169,7 +171,7 @@ namespace CURELab.SignLanguage.HandDetector
         private void ServerMode()
         {
             ResetAll();
-            m_KinectController = KinectRealtime.GetSingletonInstance(this);
+            m_KinectController = KinectRealtime.GetSingletonInstance();
            
         }
 
@@ -214,7 +216,7 @@ namespace CURELab.SignLanguage.HandDetector
         private void TrainOnlineMode()
         {
             ResetAll();
-            m_KinectController = KinectTrainOnline.GetSingletonInstance(this);
+            m_KinectController = KinectTrainOnline.GetSingletonInstance();
         }
 
         private void ResetAll()

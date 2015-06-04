@@ -14,7 +14,7 @@ using Point = System.Drawing.Point;
 
 namespace CURELab.SignLanguage.HandDetector
 {
-    class KinectHandShape : KinectSDKController
+    public class KinectHandShape : KinectSDKController
     {
         private BackgroundRemovedColorStream backgroundRemovedColorStream;
 

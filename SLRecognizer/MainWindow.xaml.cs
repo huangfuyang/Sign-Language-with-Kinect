@@ -1,29 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Drawing;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.IO;
-using System.Windows.Forms;
-using CURELab.SignLanguage.HandDetector.Pages;
-using Emgu.CV;
-using Emgu.CV.Features2D;
-using Emgu.CV.Structure;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using CURELab.SignLanguage.HandDetector;
+using CURELab.SignLanguage.StaticTools;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit;
-using System.Windows.Controls;
-using Application = System.Windows.Application;
-using UserControl = System.Windows.Controls.UserControl;
 
-
-namespace CURELab.SignLanguage.HandDetector
+namespace SLRecognizer
 {
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
@@ -66,8 +60,7 @@ namespace CURELab.SignLanguage.HandDetector
             //Menu_Train_Click(this, e);//train data
             //MenuItem_Test_Click(this, e);//test
             //TrainOnline();
-            // verify: the following should be approximately (0,0,0)
-
+        
 
         }
 
@@ -247,5 +240,5 @@ namespace CURELab.SignLanguage.HandDetector
 
 
     }
-   
+
 }

@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{BBD51A33-04C7-4D11-9599-F29C05C2026B}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CURELab.SignLanguage.HandDetector</RootNamespace>
     <AssemblyName>HandDetector</AssemblyName>
@@ -74,6 +74,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Accessibility" />
     <Reference Include="Emgu.CV">
@@ -87,9 +90,6 @@
     </Reference>
     <Reference Include="Emgu.Util">
       <HintPath>..\..\..\..\Emgu\emgucv-windows-universal-cuda 2.9.0.1922\bin\Emgu.Util.dll</HintPath>
-    </Reference>
-    <Reference Include="MathNet.Numerics">
-      <HintPath>..\packages\MathNet.Numerics.3.6.0\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Kinect, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Kinect.Toolkit, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -151,7 +151,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Colorizer.cs" />
-    <Compile Include="DataContextCollection.cs" />
     <Compile Include="DBManager.cs" />
     <Compile Include="FrameConverter.cs" />
     <Compile Include="HandShapeClassifier.cs" />
@@ -162,9 +161,6 @@
     <Compile Include="KinectStudioController.cs" />
     <Compile Include="KinectTrainer.cs" />
     <Compile Include="KinectTrainOnline.cs" />
-    <Compile Include="MainUI.xaml.cs">
-      <DependentUpon>MainUI.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Pages\StartPage.xaml.cs">
       <DependentUpon>StartPage.xaml</DependentUpon>
     </Compile>
@@ -176,10 +172,6 @@
       <DependentUpon>TrackBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="win32API.cs" />
-    <Page Include="MainUI.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -188,7 +180,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ConsoleManager.cs" />
     <Compile Include="DataTransferEventArgs.cs" />
     <Compile Include="ImageConverter.cs" />
     <Compile Include="ISubject.cs" />
