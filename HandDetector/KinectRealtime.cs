@@ -376,8 +376,9 @@ namespace CURELab.SignLanguage.HandDetector
                             {
                                 if (s != "" && s != "0")
                                 {
+                                    
                                     Console.WriteLine("Data:{0}", s);
-                                    var w = String.Format("Data:{0} word:{1}", s, DataContextCollection.GetInstance().fullWordList[s]);
+                                    var w = String.Format("Data:{0} word:{1}", s, DataContextCollection.GetInstance().fullWordList[s.Trim()]);
                                     Console.WriteLine(w);
                                     System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate()
                                     {

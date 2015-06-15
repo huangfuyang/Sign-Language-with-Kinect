@@ -12,6 +12,7 @@ namespace CURELab.SignLanguage.HandDetector
     {
         private static DataContextCollection instance;
         public Dictionary<string, string> fullWordList;
+        public Dictionary<string, string> WordList;
 
         private string status;
 
@@ -36,13 +37,14 @@ namespace CURELab.SignLanguage.HandDetector
         private DataContextCollection()
         {
             LoadVocab();
+            LoadTestVocab();
         }
 
         private void LoadVocab()
         {
             // load word list
             fullWordList = new Dictionary<string, string>();
-            using (var wl = File.Open("wordlist.txt", FileMode.Open))
+            using (var wl = File.Open("fullwordlist.txt", FileMode.Open))
             {
                 using (StreamReader sw = new StreamReader(wl))
                 {
@@ -58,6 +60,29 @@ namespace CURELab.SignLanguage.HandDetector
                 wl.Close();
             }
         }
+
+        private void LoadTestVocab()
+        {
+            // load word list
+            WordList = new Dictionary<string, string>();
+            using (var wl = File.Open("wordlist.txt", FileMode.Open))
+            {
+                using (StreamReader sw = new StreamReader(wl))
+                {
+                    var line = sw.ReadLine();
+                    while (!String.IsNullOrEmpty(line))
+                    {
+                        var t = line.Split();
+                        WordList.Add(t[1], t[3]);
+                        line = sw.ReadLine();
+                    }
+                    sw.Close();
+                }
+                wl.Close();
+            }
+        }
+
+
 
         #region INotifyPropertyChanged 成员
 

@@ -65,7 +65,7 @@ namespace CURELab.SignLanguage.HandDetector
             //RegisterThreshold("Culling", ref KinectSDKController.CullingThresh, 100, 40);
 
          
-            foreach (var row in DataContextCollection.GetInstance().fullWordList)
+            foreach (var row in DataContextCollection.GetInstance().WordList)
             {
                 string name = row.Value;
                 string id = row.Key;

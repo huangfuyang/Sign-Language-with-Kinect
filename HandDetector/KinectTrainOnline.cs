@@ -398,7 +398,7 @@ namespace CURELab.SignLanguage.HandDetector
                 //}
                 //else
                 {
-                    var signFile = File.Open(@"C:\Users\Administrator\Desktop\temp.txt", FileMode.Open);
+                    var signFile = File.Open(@"C:\Users\Administrator\Desktop\131-170.txt", FileMode.Open);
                     StreamReader sr = new StreamReader(signFile);
                     string line = sr.ReadLine();
                     slist = new List<SignModel>();
