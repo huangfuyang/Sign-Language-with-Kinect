@@ -340,69 +340,7 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
-        private void AsnycDataRecieved()
-        {
-            var t = new Thread(new ThreadStart(DataRecieved));
-            t.Start();
-        }
-        private string[] SPLIT =  { "#TERMINATOR#" };
-        private void DataRecieved()
-        {
-            if (socket != null)
-            {
-                Console.WriteLine("waiting reponse");
-
-                while (true)
-                {
-                    try
-                    {
-                        var r = socket.GetResponse();
-                        if (r == null)
-                        {
-                            Console.WriteLine("finish receive");
-                            break;
-                        }
-                        r = r.Trim();
-                        var list = r.Split(SPLIT,StringSplitOptions.RemoveEmptyEntries);
-                        foreach (var s in list)
-                        {
-                            try
-                            {
-                                if (s != "" && s != "0")
-                                {
-                                    Console.WriteLine("Data:{0}", s);
-                                    var w = String.Format("Data:{0} word:{1}", s, DataContextCollection.GetInstance().fullWordList[s]);
-                                    Console.WriteLine(w);
-                                    System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate()
-                                    {
-                                        mwWindow.lbl_candidate1.Content = DataContextCollection.GetInstance().fullWordList[s];
-                                    });
-                                }
-                                if (s.ToLower() == "redo")
-                                {
-                                    System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate()
-                                    {
-                                        mwWindow.lbl_candidate1.Content = "請重做一次";
-                                    });
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                continue;
-                            }
-                            
-                        }                        
-                        
-                    }
-                    catch (Exception e)
-                    {
-                        //Console.WriteLine("receive data error:{0}",e);
-                    }
-
-                }
-
-            }
-        }
+      
 
         public override void Start()
         {
