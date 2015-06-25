@@ -173,8 +173,8 @@ namespace SLRecognizer
         {
             ResetAll();
             m_KinectController = KinectRealtime.GetSingletonInstance();
-            this.socket = SocketManager.GetInstance("137.189.89.29", 51243);
-            AsnycDataRecieved();
+            //this.socket = SocketManager.GetInstance("137.189.89.29", 51243);
+            //AsnycDataRecieved();
         }
 
         private void Menu_Train_Click(object sender, RoutedEventArgs e)

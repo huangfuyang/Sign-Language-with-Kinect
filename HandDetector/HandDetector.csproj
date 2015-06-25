@@ -146,13 +146,10 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
     <Compile Include="Colorizer.cs" />
     <Compile Include="DBManager.cs" />
     <Compile Include="FrameConverter.cs" />
+    <Compile Include="HandExtractor.cs" />
     <Compile Include="HandShapeClassifier.cs" />
     <Compile Include="HandShapeModel.cs" />
     <Compile Include="KalmanFilter.cs" />
@@ -172,23 +169,11 @@
       <DependentUpon>TrackBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="win32API.cs" />
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="DataTransferEventArgs.cs" />
     <Compile Include="ImageConverter.cs" />
     <Compile Include="ISubject.cs" />
     <Compile Include="KinectController.cs" />
     <Compile Include="KinectSDKController.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
     <Page Include="Pages\StartPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

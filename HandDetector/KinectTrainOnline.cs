@@ -235,8 +235,8 @@ namespace CURELab.SignLanguage.HandDetector
                         System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                         {
                             IsRecording = true;
-                            mwWindow.lbl_candidate1.Content = "錄製中";
-                            mwWindow.lbl_candidate1.Foreground = Brushes.Red;
+                            //mwWindow.lbl_candidate1.Content = "錄製中";
+                            //mwWindow.lbl_candidate1.Foreground = Brushes.Red;
                         }));
                     }
                     //stop recording
@@ -247,8 +247,8 @@ namespace CURELab.SignLanguage.HandDetector
                         TurnEnd = true;
                         System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                         {
-                            mwWindow.lbl_candidate1.Content = "录制结束";
-                            mwWindow.lbl_candidate1.Foreground = Brushes.Black;
+                            //mwWindow.lbl_candidate1.Content = "录制结束";
+                            //mwWindow.lbl_candidate1.Foreground = Brushes.Black;
                         }));
                     }
 
@@ -488,14 +488,14 @@ namespace CURELab.SignLanguage.HandDetector
                 var m = slist[i];
                 System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                 {
-                    mwWindow.lbl_candidate1.Content = String.Format("播放:{0}", m.Name);
+                    //mwWindow.lbl_candidate1.Content = String.Format("播放:{0}", m.Name);
                 }));
                 Thread.Sleep(1000);
                 string videoName = String.Format("Videos\\{0}.mpg", m.ID);
                 PlayVideo(videoName);
                 System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                 {
-                    mwWindow.lbl_candidate1.Content = String.Format("播放:{0} 第二遍", m.Name);
+                    //mwWindow.lbl_candidate1.Content = String.Format("播放:{0} 第二遍", m.Name);
                 }));
                 Thread.Sleep(500);
                 PlayVideo(videoName);
@@ -514,7 +514,7 @@ namespace CURELab.SignLanguage.HandDetector
                     Directory.CreateDirectory(HandshapePath + "\\left");
                     System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                     {
-                        mwWindow.lbl_candidate1.Content = String.Format("开始录制第{0}遍", j + 1);
+                        //mwWindow.lbl_candidate1.Content = String.Format("开始录制第{0}遍", j + 1);
                     }));
                     if (sensor != null)
                     {

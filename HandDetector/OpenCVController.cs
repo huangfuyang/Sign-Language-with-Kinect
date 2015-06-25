@@ -309,7 +309,7 @@ namespace CURELab.SignLanguage.HandDetector
             Image<Gray, byte> depthImage, byte[] colorPixels, DepthImagePoint[] depthMap, PointF head, int headDepth, out byte[] processImg, int channel
             )
         {
-            Console.WriteLine(headDepth -30);
+            //Console.WriteLine(headDepth -30);
             //Console.WriteLine("head min:{0}", headMinDepth);
             //Console.WriteLine("head :x{0} y{1}", head.X,head.Y);
             int width = 640;

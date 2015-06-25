@@ -17,7 +17,6 @@ using System.Windows;
 using System.Windows.Threading;
 
 using System.CodeDom;
-using CURELab.SignLanguage.StaticTools;
 using Emgu.CV;
 using Emgu.CV.Structure;
 

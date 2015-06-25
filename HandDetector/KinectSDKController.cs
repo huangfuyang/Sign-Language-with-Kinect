@@ -76,6 +76,8 @@ namespace CURELab.SignLanguage.HandDetector
         const int handShapeHeight = 60;
         protected int VideoFrame;
 
+        protected HandExtractor m_extractor;
+
         /// <summary>
         /// Format we will use for the depth stream
         /// </summary>
@@ -88,6 +90,7 @@ namespace CURELab.SignLanguage.HandDetector
         protected KinectSDKController()
             : base()
         {
+            m_extractor = HandExtractor.GetSingletonInstance();
             KinectSensor.KinectSensors.StatusChanged += Kinect_StatusChanged;
         }
 

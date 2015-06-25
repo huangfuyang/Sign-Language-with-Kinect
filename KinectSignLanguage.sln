@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XEDParser", "XEDParser\XEDP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SLRecognizer", "SLRecognizer\SLRecognizer.csproj", "{2C5604A8-7BEE-4767-B3B6-B1271CC05359}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDLL", "TestDLL\TestDLL.csproj", "{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -252,6 +254,7 @@ Global
 		{2C5604A8-7BEE-4767-B3B6-B1271CC05359}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{2C5604A8-7BEE-4767-B3B6-B1271CC05359}.Debug|Win32.ActiveCfg = Debug|Any CPU
 		{2C5604A8-7BEE-4767-B3B6-B1271CC05359}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2C5604A8-7BEE-4767-B3B6-B1271CC05359}.Debug|x64.Build.0 = Debug|Any CPU
 		{2C5604A8-7BEE-4767-B3B6-B1271CC05359}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{2C5604A8-7BEE-4767-B3B6-B1271CC05359}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C5604A8-7BEE-4767-B3B6-B1271CC05359}.Release|Any CPU.Build.0 = Release|Any CPU
@@ -260,6 +263,21 @@ Global
 		{2C5604A8-7BEE-4767-B3B6-B1271CC05359}.Release|Win32.ActiveCfg = Release|Any CPU
 		{2C5604A8-7BEE-4767-B3B6-B1271CC05359}.Release|x64.ActiveCfg = Release|Any CPU
 		{2C5604A8-7BEE-4767-B3B6-B1271CC05359}.Release|x86.ActiveCfg = Release|Any CPU
+		{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}.Debug|x64.Build.0 = Debug|Any CPU
+		{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}.Release|Win32.ActiveCfg = Release|Any CPU
+		{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}.Release|x64.ActiveCfg = Release|Any CPU
+		{F4B251FA-3724-4105-9CC0-0BE3509F2EDC}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
