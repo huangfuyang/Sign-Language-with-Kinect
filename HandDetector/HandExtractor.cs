@@ -148,6 +148,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         public void OnColorFrameUpdated(byte[] colorPixels)
         {
+            colorPixels.CopyTo(this.colorPixels, 0);
             //this.backgroundRemovedColorStream.ProcessColor(colorFrame.GetRawPixelData(), colorFrame.Timestamp);
             // Write the pixel data into our bitmap
             //this.ColorWriteBitmap.WritePixels(
@@ -242,7 +243,7 @@ namespace CURELab.SignLanguage.HandDetector
             //if (currentSkeleton != null)
             {
 
-                handModel.skeletonData = FrameConverter.GetFrameDataArgString(currentSkeleton);
+                handModel.skeletonData = FrameConverter.GetFrameDataArgString(sensor, currentSkeleton);
                 if (handModel.intersectCenter != Rectangle.Empty
                         && !leftHandRaise)
                 {
