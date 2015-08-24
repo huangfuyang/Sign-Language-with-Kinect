@@ -178,6 +178,7 @@
     <Compile Include="HandDetectorPage.xaml.cs">
       <DependentUpon>HandDetectorPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HandExtractor.cs" />
     <Compile Include="HandShapeClassifier.cs" />
     <Compile Include="HandShapeModel.cs" />
     <Compile Include="KalmanFilter.cs" />
