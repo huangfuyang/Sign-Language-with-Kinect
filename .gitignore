@@ -178,9 +178,17 @@ FakesAssemblies/
 # Custom Ignore Rule
 Thumbs.db
 
+EducationSystem/Images
 HandShapeDetector/data
 HandShapeDetector/result
-HandShapeDetector/config
+HandShapeDetector/.idea/scopes/scope_settings.xml
+HandShapeDetector/.idea/workspace.xml
+GestureComparison/res/*
+*.zip
+*.rar
+*.cfg
+*.json
+*.xml
 *.pyc
 *.zip
 *.xml

@@ -4,23 +4,23 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls.Primitives;
 using Microsoft.Kinect;
 
 namespace CURELab.SignLanguage.HandDetector.Model
 {
     public class MySkeleton
     {
-        public List<MyJoint> Joints 
+        public MyJoint[] Joints 
         { get; set; }
+
+        public bool Tracked;
 
         public MySkeleton(int count = 20)
         {
-            Joints = new List<MyJoint>(count);
-            for (int i = 0; i < count; i++)
-            {
-                Joints.Add(new MyJoint());
-            }
-            
+            Joints = new MyJoint[20];
+            Tracked = true;
+
         }
         public MyJoint this[MyJointType key]
         {

@@ -175,7 +175,9 @@
     <Compile Include="Colorizer.cs" />
     <Compile Include="DBManager.cs" />
     <Compile Include="FrameConverter.cs" />
-    <Compile Include="HandExtractor.cs" />
+    <Compile Include="HandDetectorPage.xaml.cs">
+      <DependentUpon>HandDetectorPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="HandShapeClassifier.cs" />
     <Compile Include="HandShapeModel.cs" />
     <Compile Include="KalmanFilter.cs" />
@@ -195,6 +197,10 @@
       <DependentUpon>TrackBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="win32API.cs" />
+    <Page Include="HandDetectorPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Compile Include="DataTransferEventArgs.cs" />
     <Compile Include="ImageConverter.cs" />
     <Compile Include="ISubject.cs" />

@@ -1,0 +1,61 @@
+﻿<Page x:Class="EducationSystem.GamePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+	  xmlns:k="http://schemas.microsoft.com/kinect/2013"
+      xmlns:sys="clr-namespace:System;assembly=mscorlib"
+      xmlns:local="clr-namespace:EducationSystem"
+      mc:Ignorable="d" 
+      d:DesignHeight="768" d:DesignWidth="1024"
+	Title="GamePage">
+
+	<Page.Resources>
+		<local:ActiveUserDetector x:Key="ActiveUserDetector"></local:ActiveUserDetector>
+		<sys:String x:Key="UserNotJoinedLeftIconPath">Images/IconUserNotJoinedLeft.png</sys:String>
+		<sys:String x:Key="UserJoinedLeftIconPath">Images/IconUserJoinedLeft.png</sys:String>
+		<sys:String x:Key="UserNotJoinedRightIconPath">Images/IconUserNotJoinedRight.png</sys:String>
+		<sys:String x:Key="UserJoinedRightIconPath">Images/IconUserJoinedRight.png</sys:String>
+		<SolidColorBrush x:Key="KinectPurpleBrush" Color="#52318F"/>
+	</Page.Resources>
+	
+    <Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition/>
+			<RowDefinition Height="500"/>
+			<RowDefinition/>
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition/>
+			<ColumnDefinition/>
+		</Grid.ColumnDefinitions>
+		<TextBlock Foreground="{StaticResource KinectPurpleBrush}" FontSize="48" FontFamily="Segoe UI" FontWeight="Light" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                Rise your hand to join the game!
+		</TextBlock>
+		<Image Grid.Column="0" Grid.Row="1" Stretch="Uniform" HorizontalAlignment="Right">
+			<Image.Style>
+				<Style TargetType="{x:Type Image}">
+					<Setter Property="Source" Value="{Binding Source={StaticResource UserJoinedLeftIconPath}}"></Setter>
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding Source={StaticResource ActiveUserDetector}, Path=ActiveUserCount}" Value="0">
+							<Setter Property="Source" Value="{Binding Source={StaticResource UserNotJoinedLeftIconPath}}"></Setter>
+						</DataTrigger>
+					</Style.Triggers>
+				</Style>
+			</Image.Style>
+		</Image>
+		<Image Grid.Column="1" Grid.Row="1" Stretch="Uniform" HorizontalAlignment="Left">
+			<Image.Style>
+				<Style TargetType="{x:Type Image}">
+					<Setter Property="Source" Value="{Binding Source={StaticResource UserNotJoinedRightIconPath}}"></Setter>
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding Source={StaticResource ActiveUserDetector}, Path=ActiveUserCount}" Value="2">
+							<Setter Property="Source" Value="{Binding Source={StaticResource UserJoinedRightIconPath}}"></Setter>
+						</DataTrigger>
+					</Style.Triggers>
+				</Style>
+			</Image.Style>
+		</Image>
+		<k:KinectTileButton Grid.Row="2" Content="Go!" Height="Auto" Margin="10" Name="btnStartGame" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Foreground="White" Click="btnStartGame_Click" />
+	</Grid>
+</Page>

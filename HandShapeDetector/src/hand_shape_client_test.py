@@ -9,7 +9,7 @@ from hand_shape_client import HandShapeClient
 
 port = 51243
 ROOT_DIRECTORY = join(dirname(realpath(sys.argv[0])), '..')
-
+print ROOT_DIRECTORY
 # Read config form files
 config = ConfigParser.RawConfigParser()
 config.read(join(ROOT_DIRECTORY, 'config', 'file_format.cfg'))

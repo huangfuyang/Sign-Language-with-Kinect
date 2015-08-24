@@ -1,0 +1,56 @@
+﻿<Page x:Class="EducationSystem.HomePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:k="http://schemas.microsoft.com/kinect/2013"
+      mc:Ignorable="d" 
+      d:DesignHeight="768" d:DesignWidth="1024"
+      Title="HomePage">
+	<Page.Background>
+		<ImageBrush ImageSource="Images/MainMenuBack.png"/>
+	</Page.Background>
+
+	<Grid Margin="20,20,100,40">
+		<Grid.Background>
+			<ImageBrush/>
+		</Grid.Background>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="1*" MinHeight="10px"/>
+			<RowDefinition Height="420"/>
+			<RowDefinition Height="1*" MinHeight="10px"/>
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="1.618*"/>
+			<ColumnDefinition Width="400"/>
+		</Grid.ColumnDefinitions>
+		
+		<Grid Grid.Row="1" Grid.Column="2">
+			<Grid.RowDefinitions>
+				<RowDefinition />
+				<RowDefinition />
+				<RowDefinition />
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition/>
+			</Grid.ColumnDefinitions>
+
+			<k:KinectTileButton x:Name="btnRecognition" Width="Auto" Height="Auto" Grid.Row="0" Grid.Column="0" BorderThickness="0" Click="btnRecognition_Click">
+				<k:KinectTileButton.Background>
+					<ImageBrush ImageSource="Images/MainMenuItem1.png" Stretch="Uniform"/>
+				</k:KinectTileButton.Background>
+			</k:KinectTileButton>
+			<k:KinectTileButton x:Name="btnLearn" Width="Auto" Height="Auto" Grid.Row="1" Grid.Column="0" BorderThickness="0" Click="btnLearn_Click">
+				<k:KinectTileButton.Background>
+					<ImageBrush ImageSource="Images/MainMenuItem2.png" Stretch="Uniform"/>
+				</k:KinectTileButton.Background>
+			</k:KinectTileButton>
+			<k:KinectTileButton x:Name="btnGame" Width="Auto" Height="Auto" Grid.Row="2" Grid.Column="0" BorderThickness="0" Click="btnGame_Click">
+				<k:KinectTileButton.Background>
+					<ImageBrush ImageSource="Images/MainMenuItem3.png" Stretch="Uniform"/>
+				</k:KinectTileButton.Background>
+			</k:KinectTileButton>
+		</Grid>
+		
+	</Grid>
+</Page>

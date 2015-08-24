@@ -1,0 +1,27 @@
+﻿<Page x:Class="EducationSystem.GameOverPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      mc:Ignorable="d" 
+      d:DesignHeight="768" d:DesignWidth="1024"
+	Title="GameOverPage">
+
+	<Page.Resources>
+		<SolidColorBrush x:Key="KinectPurpleBrush" Color="#52318F"/>
+		<SolidColorBrush x:Key="MediumGreyBrush" Color="#6e6e6e"/>
+	</Page.Resources>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="1*"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="1*"/>
+		</Grid.RowDefinitions>
+		<Label Content="Your Rate" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="{StaticResource KinectPurpleBrush}" FontSize="48" FontFamily="Segoe UI" FontWeight="Light"/>
+		<Label Name="lblScore" Content="★★★★☆" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" HorizontalContentAlignment="Center"  VerticalContentAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="96" FontWeight="ExtraBlack"/>
+		<Label Name="lblComment" Content="Very Good!" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" HorizontalContentAlignment="Center"  VerticalContentAlignment="Center" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="56" FontWeight="ExtraBlack"/>
+	</Grid>
+</Page>
