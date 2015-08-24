@@ -105,7 +105,7 @@ namespace CURELab.SignLanguage.HandDetector
             return jsonData;
         }
 
-        public static string GetFrameDataArgString(Skeleton skeleton)
+        public static string GetFrameDataArgString(KinectSensor sensor, Skeleton skeleton)
         {
             if (skeleton == null)
             {
@@ -132,9 +132,9 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 JointType jointType = jointTypes[i];
                 SkeletonPoint point = skeleton.Joints[jointType].Position;
-                var cp = KinectSDKController.sensor.CoordinateMapper.MapSkeletonPointToColorPoint(point,
+                var cp = sensor.CoordinateMapper.MapSkeletonPointToColorPoint(point,
                     ColorImageFormat.RgbResolution640x480Fps30);
-                var dp = KinectSDKController.sensor.CoordinateMapper.MapSkeletonPointToDepthPoint(point,
+                var dp = sensor.CoordinateMapper.MapSkeletonPointToDepthPoint(point,
                     DepthImageFormat.Resolution640x480Fps30);
                 s += String.Format("{0},{1},{2},{3},{4},{5},{6},", point.X, point.Y, point.Z,
                     cp.X,cp.Y,dp.X,dp.Y);

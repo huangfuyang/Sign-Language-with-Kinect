@@ -61,7 +61,7 @@ namespace SLRecognizer
             //this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
             //sensorChooserUi.KinectSensorChooser = this.sensorChooser;
             //this.sensorChooser.Start(); 
-            RegisterThreshold("V min", ref OpenCVController.VMIN, 150, 134);
+            RegisterThreshold("V min", ref OpenCVController.VMIN, 150, OpenCVController.VMIN);
             //RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
             //RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
             //RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);

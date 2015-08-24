@@ -217,7 +217,7 @@ namespace CURELab.SignLanguage.HandDetector
                     if (IsRecording)
                     {
 
-                        handModel.skeletonData = FrameConverter.GetFrameDataArgString(currentSkeleton);
+                        handModel.skeletonData = FrameConverter.GetFrameDataArgString(sensor, currentSkeleton);
                         if (handModel.type == HandEnum.Intersect)
                         {
                             if (!leftHandRaise && handModel.type == HandEnum.Both)

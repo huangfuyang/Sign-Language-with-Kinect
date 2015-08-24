@@ -415,7 +415,7 @@ namespace CURELab.SignLanguage.HandDetector
                     if (!isSkip && currentSkeleton != null)
                     {
 
-                        handModel.skeletonData = FrameConverter.GetFrameDataArgString(currentSkeleton);
+                        handModel.skeletonData = FrameConverter.GetFrameDataArgString(sensor, currentSkeleton);
                         if (handModel.intersectCenter != Rectangle.Empty
                                 && !leftHandRaise)
                         {
