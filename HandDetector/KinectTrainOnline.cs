@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Emgu.CV;
@@ -22,24 +21,31 @@ using Brushes = System.Windows.Media.Brushes;
 using MessageBox = System.Windows.MessageBox;
 using Point = System.Drawing.Point;
 using Timer = System.Windows.Forms.Timer;
+using System.Windows.Controls;
 
 namespace CURELab.SignLanguage.HandDetector
 {
     public class KinectTrainOnline : KinectTrainer
     {
+        private string signer = "null";
+        private string file_path = "";
         private BackgroundRemovedColorStream backgroundRemovedColorStream;
-        private KinectTrainOnline()
+        private Label msg;
+        private KinectTrainOnline(string signer, string file, Label msgLabel)
             : base()
         {
             viewer = new ImageViewer();
-
+            this.signer = signer;
+            file_path = file;
+            msg = msgLabel;
+            Console.WriteLine("Signer is {0} \r\n file path is {1}", signer, file_path);
         }
 
-        public static KinectController GetSingletonInstance()
+        public static KinectController GetSingletonInstance(string signer, string file, Label msgLabel)
         {
             if (singleInstance == null)
             {
-                singleInstance = new KinectTrainOnline();
+                singleInstance = new KinectTrainOnline(signer , file, msgLabel);
             }
             return singleInstance;
         }
@@ -235,8 +241,8 @@ namespace CURELab.SignLanguage.HandDetector
                         System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                         {
                             IsRecording = true;
-                            //mwWindow.lbl_candidate1.Content = "錄製中";
-                            //mwWindow.lbl_candidate1.Foreground = Brushes.Red;
+                            msg.Content = "錄製中";
+                            msg.Foreground = Brushes.Red;
                         }));
                     }
                     //stop recording
@@ -247,8 +253,8 @@ namespace CURELab.SignLanguage.HandDetector
                         TurnEnd = true;
                         System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                         {
-                            //mwWindow.lbl_candidate1.Content = "录制结束";
-                            //mwWindow.lbl_candidate1.Foreground = Brushes.Black;
+                            msg.Content = "录制结束";
+                            msg.Foreground = Brushes.Black;
                         }));
                     }
 
@@ -370,7 +376,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             try
             {
-                OpenFileDialog fbd = new OpenFileDialog();
+                //OpenFileDialog fbd = new OpenFileDialog();
                 //DialogResult result = fbd.ShowDialog();
                 //if (result == System.Windows.Forms.DialogResult.OK)
                 //{
@@ -396,7 +402,7 @@ namespace CURELab.SignLanguage.HandDetector
                 //}
                 //else
                 {
-                    var signFile = File.Open(@"C:\Users\Administrator\Desktop\80-100.txt", FileMode.Open);
+                    var signFile = File.Open(file_path, FileMode.Open);
                     StreamReader sr = new StreamReader(signFile);
                     string line = sr.ReadLine();
                     slist = new List<SignModel>();
@@ -406,7 +412,7 @@ namespace CURELab.SignLanguage.HandDetector
                         SignModel model = new SignModel()
                         {
                             ID = s[1],
-                            Name = s[3]
+                            Name = s[2]
                         };
                         slist.Add(model);
                         line = sr.ReadLine();
@@ -450,7 +456,7 @@ namespace CURELab.SignLanguage.HandDetector
                 int framenumber = (int)_CCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_FRAME_COUNT);
                 while (_CCapture.Grab())
                 {
-                    var frame = _CCapture.RetrieveBgrFrame().Resize(800, 600, INTER.CV_INTER_LINEAR);
+                    var frame = _CCapture.RetrieveBgrFrame().Resize(800, 600, INTER.CV_INTER_LINEAR).Flip(FLIP.HORIZONTAL);
                     System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate()
                     {
                         viewer.Size = frame.Size;
@@ -481,27 +487,26 @@ namespace CURELab.SignLanguage.HandDetector
         private void ControlThread()
         {
 
-            string singner = "lzz";
-            string dir = @"D:\TrainingData100\" + singner+"\\";
+            string dir = @"D:\TrainingData\" + signer +"\\";
             for (int i = 0; i < slist.Count; i++)
             {
                 var m = slist[i];
                 System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                 {
-                    //mwWindow.lbl_candidate1.Content = String.Format("播放:{0}", m.Name);
+                    msg.Content = String.Format("({1}\\{2})播放:{0}", m.Name,i+1,slist.Count);
                 }));
                 Thread.Sleep(1000);
                 string videoName = String.Format("Videos\\{0}.mpg", m.ID);
                 PlayVideo(videoName);
                 System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                 {
-                    //mwWindow.lbl_candidate1.Content = String.Format("播放:{0} 第二遍", m.Name);
+                    msg.Content = String.Format("播放:{0} 第二遍", m.Name);
                 }));
                 Thread.Sleep(500);
                 PlayVideo(videoName);
                 for (int j = 0; j < 10; j++)
                 {
-                    currentDir = dir + m.ID + " " + singner+ " " + j.ToString();
+                    currentDir = dir + m.ID + " " + signer + " " + j.ToString();
                     Directory.CreateDirectory(currentDir);
                     FileStream file_name = File.Open(currentDir + "\\" + m.ID + ".csv", FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
                     if (skeWriter != null)
@@ -514,7 +519,7 @@ namespace CURELab.SignLanguage.HandDetector
                     Directory.CreateDirectory(HandshapePath + "\\left");
                     System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                     {
-                        //mwWindow.lbl_candidate1.Content = String.Format("开始录制第{0}遍", j + 1);
+                        msg.Content = String.Format("开始录制第{0}遍", j + 1);
                     }));
                     if (sensor != null)
                     {
@@ -522,7 +527,7 @@ namespace CURELab.SignLanguage.HandDetector
                     }
                     while (!End)
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(500);
                     }
                     TurnEnd = false;
                     End = false;

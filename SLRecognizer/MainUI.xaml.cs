@@ -50,10 +50,10 @@ namespace SLRecognizer
             InitializeComponent();
             //Menu_Kinect_Click(this, e);  //test
             //Menu_TrainHand_Click(this, e);//train hand shape
-            ServerMode();//real time recog
+            //ServerMode();//real time recog
             //Menu_Train_Click(this, e);//train data
             //MenuItem_Test_Click(this, e);//test
-            //TrainOnlineMode();
+            TrainOnlineMode();
         }
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
@@ -172,9 +172,9 @@ namespace SLRecognizer
         private void ServerMode()
         {
             ResetAll();
-            m_KinectController = KinectRealtime.GetSingletonInstance();
-            //this.socket = SocketManager.GetInstance("137.189.89.29", 51243);
-            //AsnycDataRecieved();
+            this.socket = SocketManager.GetInstance("137.189.90.112", 51243);
+            m_KinectController = KinectRealtime.GetSingletonInstance(this.socket);
+            AsnycDataRecieved();
         }
 
         private void Menu_Train_Click(object sender, RoutedEventArgs e)
@@ -218,7 +218,9 @@ namespace SLRecognizer
         private void TrainOnlineMode()
         {
             ResetAll();
-            m_KinectController = KinectTrainOnline.GetSingletonInstance();
+            string file = @"C:\Users\fyhuang\Desktop\350-400.txt";
+            string signer = "hfy";
+            m_KinectController = KinectTrainOnline.GetSingletonInstance(signer,file, lbl_candidate1);
         }
 
         private void AsnycDataRecieved()

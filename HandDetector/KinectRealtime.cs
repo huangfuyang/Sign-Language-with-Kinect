@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using Emgu.CV.Structure;
 using Microsoft.Kinect;
@@ -21,11 +22,15 @@ namespace CURELab.SignLanguage.HandDetector
     {
         private BackgroundRemovedColorStream backgroundRemovedColorStream;
         private bool IsInitialized = false;
-        private KinectRealtime()
+        private SocketManager socket;
+        private Label label;
+        private KinectRealtime(SocketManager _socket, Label _label)
             : base()
         {
             try
             {
+                socket = _socket;
+                label = _label;
                 ShowFinal = true;
                 IsInitialized = false;
             }
@@ -35,11 +40,11 @@ namespace CURELab.SignLanguage.HandDetector
             }
         }
 
-        public static KinectController GetSingletonInstance()
+        public static KinectController GetSingletonInstance(SocketManager socket, Label label)
         {
             if (singleInstance == null)
             {
-                singleInstance = new KinectRealtime();
+                singleInstance = new KinectRealtime(socket,label);
             }
             return singleInstance;
         }
@@ -105,8 +110,7 @@ namespace CURELab.SignLanguage.HandDetector
 
             if (handModel != null && handModel.type != HandEnum.None)
             {
-                string data = FrameConverter.Encode(handModel);
-                //TODO: send data to server
+                socket.SendDataAsync(handModel);
             }
 
         }
