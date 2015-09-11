@@ -665,7 +665,11 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 return null;
             }
-            return Hog_Descriptor.Compute(image, new Size(1, 1), new Size(0, 0), null);
+            if (Hog_Descriptor != null)
+            {
+                return Hog_Descriptor.Compute(image, new Size(1, 1), new Size(0, 0), null);
+            }
+            return null;
         }
 
 

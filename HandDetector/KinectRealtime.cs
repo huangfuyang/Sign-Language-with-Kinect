@@ -30,7 +30,7 @@ namespace CURELab.SignLanguage.HandDetector
             try
             {
                 //socket = SocketManager.GetInstance("127.0.0.1", 51243);
-                var socket = SocketManager.GetInstance("137.189.89.29", 51243);
+                var socket = SocketManager.GetInstance("137.189.90.112", 51243);
                 ////socket = SocketManager.GetInstance("192.168.209.67", 51243);
                 this.socket = socket;
                 AsnycDataRecieved();
