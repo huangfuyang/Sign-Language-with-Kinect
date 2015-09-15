@@ -181,11 +181,11 @@ namespace CURELab.SignLanguage.HandDetector
                         //Console.WriteLine("-------------");
                         if (currentSkeleton.Joints[JointType.HandRight].Position.Y > 
                             currentSkeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
-                            //if (handModel.right.GetYCenter() < hip.Y + 50 || (handModel.intersectCenter != Rectangle.Empty && handModel.intersectCenter.Y < hip.Y + 50))
+                            //if (handModel.right.GetYCenter() < hip.Y + 50 || (handModel.IntersectRectangle != Rectangle.Empty && handModel.IntersectRectangle.Y < hip.Y + 50))
                         {
                             rightHandRaise = true;
                         }
-                        //if (!handModel.left.IsCloseTo(leftFirst) || (handModel.intersectCenter != Rectangle.Empty && !handModel.intersectCenter.IsCloseTo(leftFirst)))
+                        //if (!handModel.left.IsCloseTo(leftFirst) || (handModel.IntersectRectangle != Rectangle.Empty && !handModel.IntersectRectangle.IsCloseTo(leftFirst)))
                         if (currentSkeleton.Joints[JointType.HandLeft].Position.Y > 
                             currentSkeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
                         {

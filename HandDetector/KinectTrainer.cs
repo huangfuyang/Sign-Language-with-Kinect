@@ -287,7 +287,7 @@ namespace CURELab.SignLanguage.HandDetector
                             rightFirst = handModel.right;
                             leftFirst = handModel.left;
                         }
-                        //if (handModel.intersectCenter != Rectangle.Empty
+                        //if (handModel.IntersectRectangle != Rectangle.Empty
                         //        && !leftHandRaise)
                         //{
                         //    //false intersect right hand behind head and left hand on initial position
@@ -296,7 +296,7 @@ namespace CURELab.SignLanguage.HandDetector
                         {
                             if (handModel.type == HandEnum.Intersect)
                             {
-                                if (handModel.RightColor != null && !handModel.intersectCenter.IsCloseTo(rightFirst) && !handModel.intersectCenter.IsCloseTo(leftFirst))
+                                if (handModel.RightColor != null && !handModel.IntersectRectangle.IsCloseTo(rightFirst) && !handModel.IntersectRectangle.IsCloseTo(leftFirst))
                                 {
                                     var colorRight = handModel.RightColor;
                                     string fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
@@ -370,7 +370,7 @@ namespace CURELab.SignLanguage.HandDetector
             r += GetRectangleString(model.left) + ",";
             if (model.type == HandEnum.Intersect || model.type == HandEnum.IntersectTouch)
             {
-                r += GetRectangleString(model.intersectCenter);                                
+                r += GetRectangleString(model.IntersectRectangle);                                
             }
             return r;
         }

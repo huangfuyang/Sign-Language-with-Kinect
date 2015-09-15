@@ -60,25 +60,37 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
 
-        public static System.Drawing.Point ToPoint(this PointF p)
+        public static Point ToPoint(this PointF p)
         {
             try
             {
                 int x = (int)p.X < 0 ? 0 : (int)p.X;
                 int y = (int)p.Y < 0 ? 0 : (int)p.Y;
-                return new System.Drawing.Point(x, y);
+                return new Point(x, y);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
-            return new System.Drawing.Point(0, 0);
+            return new Point(0, 0);
 
         }
-        public static System.Drawing.Point[] ToPoints(this PointF[] p)
+        public static Point[] ToPoints(this PointF[] p)
         {
             return p.Select(x => x.ToPoint()).ToArray();
 
+        }
+
+        public static double Distance(this Point2i p1, Point2i p2)
+        {
+            return Math.Sqrt((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y));
+        }
+
+
+
+        public static bool IsCloseTo(this Point2i p1, Point2i p2, double minDis = 20)
+        {
+            return p1.Distance(p2) < minDis;
         }
 
         public static bool IsCloseTo(this Rectangle r1, Rectangle r2, int minDis = 5)
@@ -118,7 +130,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             if (p1.X - p2.X == 0)
             {
-                return float.MaxValue;
+                return Single.MaxValue;
             }
             float result = (float)Math.Abs(p1.Y - p2.Y) / Math.Abs(p1.X - p2.X);
             return result;
@@ -128,7 +140,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             if (p1.X - p2.X == 0)
             {
-                return float.MaxValue;
+                return Single.MaxValue;
             }
             float result = (float)(p2.Y - p1.Y) / (p2.X - p1.X);
             return result;
@@ -144,7 +156,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             if (p.X == 0)
             {
-                return float.MaxValue;
+                return Single.MaxValue;
             }
             return p.Y / p.X;
         }
@@ -171,6 +183,16 @@ namespace CURELab.SignLanguage.HandDetector
         {
             return new PointF(r.X+r.Width/2,r.Y+r.Height/2);
         }
+
+        public static Point2i GetCenter2i(this Rectangle r)
+        {
+            return new Point2i()
+            {
+                x = (r.X + r.Width / 2),
+                y = (r.Y + r.Height / 2)
+            };
+        }
+
 
         public static Rectangle Unite(this Rectangle r1, Rectangle r2)
         {

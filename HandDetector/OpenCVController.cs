@@ -297,6 +297,13 @@ namespace CURELab.SignLanguage.HandDetector
             viewer.Show();
         }
 
+
+        public HandShapeModel FindHandFromColor(Image<Bgr,byte> colorImg, ushort[] depthData, Point2i head, int headDepth)
+        {
+            int width = 640;
+            int height = 480;
+            return null;
+        }
         public HandShapeModel FindHandFromColor(
             Image<Gray, byte> depthImage, byte[] colorPixels, DepthImagePoint[] depthMap, PointF head, int headDepth,int channel)
         {
@@ -442,7 +449,7 @@ namespace CURELab.SignLanguage.HandDetector
                     break;
                 case HandEnum.Intersect:
                 case HandEnum.IntersectTouch:
-                    DrawPoly(model.intersectCenter.GetPoints(), image, new MCvScalar(123, 123, 123));
+                    DrawPoly(model.IntersectRectangle.GetPoints(), image, new MCvScalar(123, 123, 123));
                     break;
             }
         }
@@ -505,7 +512,7 @@ namespace CURELab.SignLanguage.HandDetector
                         RightDepth = GetSubImageByRect(depthImage,srect),
                         right = rightRec,
                         left = leftRec,
-                        intersectCenter = srect
+                        IntersectRectangle = srect
                     };
                 }
                 if (clist.Count == 2)
@@ -566,7 +573,7 @@ namespace CURELab.SignLanguage.HandDetector
                         RightDepth = GetSubImageByRect(depthImage,untouchRec),
                         right = rightRec,
                         left = leftRec,
-                        intersectCenter = untouchRec
+                        IntersectRectangle = untouchRec
                     };
                 }
                 // right or left touch face

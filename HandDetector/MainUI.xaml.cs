@@ -47,10 +47,12 @@ namespace CURELab.SignLanguage.HandDetector
             InitializeComponent();
             //Menu_Kinect_Click(this, e);  //test
             //Menu_TrainHand_Click(this, e);//train hand shape
-            ServerMode();//real time recog
+            //ServerMode();//real time recog
             //Menu_Train_Click(this, e);//train data
             //MenuItem_Test_Click(this, e);//test
             //TrainOnlineMode();
+            OniMode();
+
         }
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
@@ -173,6 +175,15 @@ namespace CURELab.SignLanguage.HandDetector
            
         }
 
+        private OniReader oniReader;
+        private void OniMode()
+        {
+            //ResetAll();
+            oniReader = OniReader.GetSingletonInstance();
+            oniReader.ReadFile("P01_0000_1_0_20121117.oni");
+            oniReader.ShowColorVideo();
+            //oniReader.Run();
+        }
         private void Menu_Train_Click(object sender, RoutedEventArgs e)
         {
             ResetAll();

@@ -376,11 +376,11 @@ namespace CURELab.SignLanguage.HandDetector
                         //Console.WriteLine(currentSkeleton.Joints[JointType.HandLeft].Position.Y);
                         //Console.WriteLine(currentSkeleton.Joints[JointType.HipCenter].Position.Y);
                         //Console.WriteLine("-------------");
-                        if (handModel.right.GetYCenter()<hip.Y + 50 ||(handModel.intersectCenter != Rectangle.Empty && handModel.intersectCenter.Y<hip.Y + 50))
+                        if (handModel.right.GetYCenter()<hip.Y + 50 ||(handModel.IntersectRectangle != Rectangle.Empty && handModel.IntersectRectangle.Y<hip.Y + 50))
                         {
                             isSkip = false;
                         }
-                        if (!handModel.left.IsCloseTo(leftFirst) ||(handModel.intersectCenter != Rectangle.Empty && !handModel.intersectCenter.IsCloseTo(leftFirst)))
+                        if (!handModel.left.IsCloseTo(leftFirst) ||(handModel.IntersectRectangle != Rectangle.Empty && !handModel.IntersectRectangle.IsCloseTo(leftFirst)))
                         //if (currentSkeleton.Joints[JointType.HandLeft].Position.Y > currentSkeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
                         {
                             leftHandRaise = true;
@@ -414,7 +414,7 @@ namespace CURELab.SignLanguage.HandDetector
                     {
 
                         handModel.skeletonData = FrameConverter.GetFrameDataArgString(currentSkeleton);
-                        if (handModel.intersectCenter != Rectangle.Empty
+                        if (handModel.IntersectRectangle != Rectangle.Empty
                                 && !leftHandRaise)
                         {
                             //false intersect right hand behind head and left hand on initial position

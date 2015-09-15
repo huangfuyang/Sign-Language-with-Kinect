@@ -48,7 +48,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         public Rectangle right;
         public Rectangle left;
-        public Rectangle intersectCenter;
+        public Rectangle IntersectRectangle;
         // currentSkeleton data
         public string skeletonData = "";
 
