@@ -88,7 +88,7 @@ namespace CURELab.SignLanguage.HandDetector
 
 
 
-        public static bool IsCloseTo(this Point2i p1, Point2i p2, double minDis = 20)
+        public static bool IsCloseTo(this Point2i p1, Point2i p2, double minDis = 30)
         {
             return p1.Distance(p2) < minDis;
         }

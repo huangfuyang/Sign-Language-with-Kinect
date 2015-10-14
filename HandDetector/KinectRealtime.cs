@@ -252,7 +252,7 @@ namespace CURELab.SignLanguage.HandDetector
                     {
                         Console.WriteLine("RECORDING");
                         IsRecording = true;
-                        mwWindow.lbl_candidate1.Content = "錄製中";
+                        mwWindow.lbl_candidate1.Content = "Recording";
                         mwWindow.lbl_candidate1.Foreground = Brushes.Red;
                     }
                     //stop recording
@@ -264,7 +264,7 @@ namespace CURELab.SignLanguage.HandDetector
                             socket.SendEndAsync();
                         }
                         IsRecording = false;
-                        mwWindow.lbl_candidate1.Content = "等待結果";
+                        mwWindow.lbl_candidate1.Content = "Waiting response";
                         mwWindow.lbl_candidate1.Foreground = Brushes.Black;
                     }
 

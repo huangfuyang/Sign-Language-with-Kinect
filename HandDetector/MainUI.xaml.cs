@@ -50,8 +50,8 @@ namespace CURELab.SignLanguage.HandDetector
             //ServerMode();//real time recog
             //Menu_Train_Click(this, e);//train data
             //MenuItem_Test_Click(this, e);//test
-            //TrainOnlineMode();
-            OniMode();
+            TrainOnlineMode();
+            //OniMode();
 
         }
 
@@ -60,7 +60,7 @@ namespace CURELab.SignLanguage.HandDetector
             //this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
             //sensorChooserUi.KinectSensorChooser = this.sensorChooser;
             //this.sensorChooser.Start(); 
-            RegisterThreshold("V min", ref OpenCVController.VMIN, 150, 134);
+            RegisterThreshold("V min", ref OpenCVController.VMIN, 150, 133);
             //RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
             //RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
             //RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
@@ -117,7 +117,7 @@ namespace CURELab.SignLanguage.HandDetector
                 int framenumber = (int) _CCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_FRAME_COUNT);
                 while (_CCapture.Grab())
                 {
-                    var frame = _CCapture.RetrieveBgrFrame().Resize(800,600,INTER.CV_INTER_LINEAR);
+                    var frame = _CCapture.RetrieveBgrFrame().Resize(800,600,INTER.CV_INTER_LINEAR).Flip(FLIP.HORIZONTAL);
                     System.Windows.Application.Current.Dispatcher.BeginInvoke((Action) delegate()
                     {
                         viewer.Size = frame.Size;
@@ -147,6 +147,7 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 thresh = initialValue;
                 TrackBar tcb = new TrackBar(ptr);
+                tcb.Visibility = Visibility.Collapsed;
                 tcb.Max = max;
                 tcb.Margin = new Thickness(5);
                 tcb.ValueName = valuename;
@@ -180,9 +181,26 @@ namespace CURELab.SignLanguage.HandDetector
         {
             //ResetAll();
             oniReader = OniReader.GetSingletonInstance();
-            oniReader.ReadFile("P01_0000_1_0_20121117.oni");
-            oniReader.ShowColorVideo();
-            //oniReader.Run();
+            var fileNames = Directory.GetFiles(@"D:\devisign\try\", "*.zip").ToList();
+            //var fileNames = Directory.GetFiles(@"F:\DEVISIGN\DEVISIGN_L\P05_1", "*.zip").ToList();
+            int i = 0;
+            foreach (var fileName in fileNames)
+            {
+                try
+                {
+                    i++;
+                    Console.WriteLine("{0}\\{1},{2}", i, fileNames.Count, fileName);
+                    oniReader.ReadFile(fileName);
+                    oniReader.Run();
+                }
+                catch (Exception)
+                {
+                    
+                    continue;
+                }
+
+            }
+            //oniReader.ShowColorVideo();
         }
         private void Menu_Train_Click(object sender, RoutedEventArgs e)
         {

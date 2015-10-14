@@ -138,7 +138,7 @@ namespace CURELab.SignLanguage.HandDetector
         private void TrainOnline()
         {
             //ResetAll();
-            //m_KinectController = KinectTrainOnline.GetSingletonInstance(this);
+            //m_KinectController = KinectTrainOnline.GetSingletonInstance();
             //this.DataContext = m_KinectController;
         }
 

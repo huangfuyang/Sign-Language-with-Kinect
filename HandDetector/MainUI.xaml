@@ -6,7 +6,7 @@
              Width="1024" Height="800" Loaded="WindowLoaded" >
     <Grid Name="grd_main" >
         <Grid.Background>
-            <ImageBrush ImageSource="/img/VocabBack.png"/>
+            <ImageBrush ImageSource="/img/back02.png"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
@@ -20,14 +20,23 @@
             <ColumnDefinition Width="486*"/>
             <ColumnDefinition Width="71*"/>
         </Grid.ColumnDefinitions>
-        <k:KinectScrollViewer Grid.RowSpan="1"   Grid.Row="2" Name="KinectScrollViewer" Margin="111,21,48,10" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"  CanContentScroll="True">
+        <StackPanel Name="spn_key" Grid.ColumnSpan="3" Grid.Row="1" FlowDirection="LeftToRight" Orientation="Horizontal" >
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type Image}">
+                    <Setter Property="Margin" Value="10,0,0,0"/>
+                    <Setter Property="Width" Value="90"/>
+                </Style>
+            </StackPanel.Resources>
+          
+        </StackPanel>
+        <k:KinectScrollViewer Visibility="Collapsed"  Grid.Row="2" Name="KinectScrollViewer" Margin="111,21,48,10" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"  CanContentScroll="True">
             <WrapPanel HorizontalAlignment="Center" Name="panelSignList" />
         </k:KinectScrollViewer>
-        <Viewbox Grid.Row="3" Grid.Column="0" Stretch="Uniform" HorizontalAlignment="Center" Margin="181,0,121,0" Width="162">
+        <Viewbox Grid.Row="2" Grid.Column="0" Stretch="Uniform" HorizontalAlignment="Center" Margin="60,0,0,0" Width="400">
             <Image Name="img_color" Width="640" Height="480" Margin="5"/>
         </Viewbox>
         <MediaElement x:Name="me_rawImage" Grid.Row="2" Grid.Column="1" Visibility="Collapsed"/>
-        <Viewbox Grid.Row="2" Stretch="Uniform" HorizontalAlignment="Center" Grid.Column="1" Margin="48,0,33,0" Width="408">
+        <Viewbox Grid.Row="2" Stretch="Uniform" HorizontalAlignment="Center" Grid.Column="1" Margin="48,0,33,0" Width="400">
             <Image Name="img_depth" Width="640" Height="480" Margin="5"/>
         </Viewbox>
         <Grid Grid.Column="0" Grid.Row="2" Visibility="Hidden" Grid.RowSpan="3">
@@ -57,9 +66,9 @@
             </Viewbox>
         </Grid>
 
-        <StackPanel x:Name="SPn_right" Grid.Column="1" Grid.Row="3" Margin="5,0,5,10" Grid.RowSpan="2" Grid.ColumnSpan="2">
+        <StackPanel x:Name="SPn_right" Grid.Column="0" Grid.Row="3" Margin="5,0,5,10" Grid.RowSpan="2" Grid.ColumnSpan="2">
             <!--<Label HorizontalAlignment="Center" x:Name="lbl_recording" Content="Recording" Foreground="Red" FontSize="30" Visibility="{Binding Path=IsRecording, Converter={StaticResource BoolToVis}, FallbackValue=Hidden}" />-->
-            <Label HorizontalAlignment="Center" x:Name="lbl_candidate1" Content="等待中"  FontSize="50"  />
+            <Label HorizontalAlignment="Center" x:Name="lbl_candidate1" Content="Waiting"  FontSize="50"  />
             <Label HorizontalAlignment="Center" x:Name="lbl_candidate2" Content=""  FontSize="15"  Visibility="Collapsed"/>
             <Label HorizontalAlignment="Center" x:Name="lbl_candidate3" Content=""  FontSize="15"  Visibility="Collapsed"/>
 
