@@ -10,15 +10,15 @@
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
-            <RowDefinition Height="197*"/>
-            <RowDefinition Height="344*"/>
-            <RowDefinition Height="116*"/>
-            <RowDefinition Height="123*"/>
+            <RowDefinition Height="84*"/>
+            <RowDefinition Height="81*"/>
+            <RowDefinition Height="163*"/>
+            <RowDefinition Height="62*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="461*"/>
-            <ColumnDefinition Width="486*"/>
-            <ColumnDefinition Width="71*"/>
+            <ColumnDefinition Width="232*"/>
+            <ColumnDefinition Width="261*"/>
+            <ColumnDefinition Width="19*"/>
         </Grid.ColumnDefinitions>
         <StackPanel Name="spn_key" Grid.ColumnSpan="3" Grid.Row="1" FlowDirection="LeftToRight" Orientation="Horizontal" >
             <StackPanel.Resources>
@@ -27,16 +27,22 @@
                     <Setter Property="Width" Value="90"/>
                 </Style>
             </StackPanel.Resources>
-          
+
         </StackPanel>
+        <Viewbox Grid.Row="2" Width="120" Grid.Column="0" Stretch="Uniform" HorizontalAlignment="Center">
+            <Image Name="img_left"/>
+        </Viewbox>
+        <Viewbox Grid.Row="2" Width="120" Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Center">
+            <Image Name="img_right" />
+        </Viewbox>
         <k:KinectScrollViewer Visibility="Collapsed"  Grid.Row="2" Name="KinectScrollViewer" Margin="111,21,48,10" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"  CanContentScroll="True">
             <WrapPanel HorizontalAlignment="Center" Name="panelSignList" />
         </k:KinectScrollViewer>
-        <Viewbox Grid.Row="2" Grid.Column="0" Stretch="Uniform" HorizontalAlignment="Center" Margin="60,0,0,0" Width="400">
+        <Viewbox Grid.Row="3" Grid.Column="0" Stretch="Uniform" HorizontalAlignment="Center" Margin="62,0,2,0" Width="400">
             <Image Name="img_color" Width="640" Height="480" Margin="5"/>
         </Viewbox>
         <MediaElement x:Name="me_rawImage" Grid.Row="2" Grid.Column="1" Visibility="Collapsed"/>
-        <Viewbox Grid.Row="2" Stretch="Uniform" HorizontalAlignment="Center" Grid.Column="1" Margin="48,0,33,0" Width="400">
+        <Viewbox Grid.Row="3" Stretch="Uniform" HorizontalAlignment="Center" Grid.Column="1" Margin="69,0,53,0" Width="400">
             <Image Name="img_depth" Width="640" Height="480" Margin="5"/>
         </Viewbox>
         <Grid Grid.Column="0" Grid.Row="2" Visibility="Hidden" Grid.RowSpan="3">
@@ -66,12 +72,12 @@
             </Viewbox>
         </Grid>
 
-        <StackPanel x:Name="SPn_right" Grid.Column="0" Grid.Row="3" Margin="5,0,5,10" Grid.RowSpan="2" Grid.ColumnSpan="2">
+        <StackPanel x:Name="SPn_right" Grid.Column="0" Grid.Row="4" Margin="5,0,5,10" Grid.ColumnSpan="2" Orientation="Horizontal">
             <!--<Label HorizontalAlignment="Center" x:Name="lbl_recording" Content="Recording" Foreground="Red" FontSize="30" Visibility="{Binding Path=IsRecording, Converter={StaticResource BoolToVis}, FallbackValue=Hidden}" />-->
-            <Label HorizontalAlignment="Center" x:Name="lbl_candidate1" Content="Waiting"  FontSize="50"  />
-            <Label HorizontalAlignment="Center" x:Name="lbl_candidate2" Content=""  FontSize="15"  Visibility="Collapsed"/>
-            <Label HorizontalAlignment="Center" x:Name="lbl_candidate3" Content=""  FontSize="15"  Visibility="Collapsed"/>
-
+            <Label HorizontalAlignment="Right" x:Name="lbl_candidate1" Content="Waiting"  FontSize="40"  />
+            <!--<Label HorizontalAlignment="Center" x:Name="lbl_candidate2" Content=""  FontSize="15"  Visibility="Collapsed"/>
+            <Label HorizontalAlignment="Center" x:Name="lbl_candidate3" Content=""  FontSize="15"  Visibility="Collapsed"/>-->
+            
         </StackPanel>
 
         <Menu Grid.ColumnSpan="3" x:Name="menu" VerticalAlignment="Top" Height="20"

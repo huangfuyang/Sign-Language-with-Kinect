@@ -8,7 +8,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Emgu.CV;
@@ -22,6 +24,7 @@ using Brushes = System.Windows.Media.Brushes;
 using MessageBox = System.Windows.MessageBox;
 using Point = System.Drawing.Point;
 using Timer = System.Windows.Forms.Timer;
+using Image = System.Windows.Controls.Image;
 
 namespace CURELab.SignLanguage.HandDetector
 {
@@ -282,6 +285,10 @@ namespace CURELab.SignLanguage.HandDetector
                                 string fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
                                     HandshapePath, VideoFrame.ToString(), handModel.type, 'C');
                                 colorRight.Save(fileName);
+                                System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
+                                {
+                                    mwWindow.img_right.Source = colorRight.Bitmap.ToBitmapSource();
+                                }));
                                 var depthRight = handModel.RightDepth;
                                 fileName = String.Format("{0}\\{1}_{2}_{3}.jpg",
                                     HandshapePath, VideoFrame.ToString(), handModel.type, 'D');
@@ -293,12 +300,30 @@ namespace CURELab.SignLanguage.HandDetector
                                     fileName = String.Format("{0}\\{4}\\{1}_{2}_{3}.jpg",
                                         HandshapePath, VideoFrame.ToString(), handModel.type, 'C', "left");
                                     colorleft.Save(fileName);
-
+                                    System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
+                                    {
+                                        mwWindow.img_left.Source = colorleft.Bitmap.ToBitmapSource();
+                                    }));
                                     var depthleft = handModel.LeftDepth;
                                     fileName = String.Format("{0}\\{4}\\{1}_{2}_{3}.jpg",
                                         HandshapePath, VideoFrame.ToString(), handModel.type, 'D', "left");
                                     //depthleft.Save(fileName);
                                 }
+                                else
+                                {
+                                    System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
+                                    {
+                                        mwWindow.img_left.Source = new Bitmap(100,100).ToBitmapSource();
+                                    }));
+                                }
+                            }
+                            else
+                            {
+                                System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
+                                {
+                                    mwWindow.img_right.Source = new Bitmap(100,100).ToBitmapSource();
+                                    mwWindow.img_left.Source = new Bitmap(100, 100).ToBitmapSource();
+                                }));
                             }
 
                             line += GetHandModelString(handModel);
@@ -368,12 +393,15 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
         private List<SignModel> slist;
-        private string signer = "xn";
+        private string signer = "hfy";
         public override void Start()
         {
             try
             {
                 OpenFileDialog fbd = new OpenFileDialog();
+
+                #region 
+
                 //DialogResult result = fbd.ShowDialog();
                 //if (result == System.Windows.Forms.DialogResult.OK)
                 //{
@@ -395,26 +423,46 @@ namespace CURELab.SignLanguage.HandDetector
                 //    signFile.Close();
                 //    Thread t = new Thread(ControlThread);
                 //    t.Start();
-                    
+
                 //}
                 //else
+
+                #endregion
+
                 {
-                    var signFile = File.Open(@"C:\Users\fyhuang\Desktop\30.txt", FileMode.Open);
-                    StreamReader sr = new StreamReader(signFile);
-                    string line = sr.ReadLine();
+                    int start = 0;
+                    int end = 33;
                     slist = new List<SignModel>();
-                    while (!String.IsNullOrEmpty(line))
+                    string path = @"D:\Kinectdata\aaron-michael\video\";
+                    var files = Directory.GetFiles(path);
+                    for (int i = start-1; i < end; i++)
                     {
-                        var s = line.Split();
-                        SignModel model = new SignModel()
+                        if (i>=0 && i < files.Length)
                         {
-                            ID = s[1],
-                            Name = s[2]
-                        };
-                        slist.Add(model);
-                        line = sr.ReadLine();
+                            var fname = files[i].Split('\\').Last();
+                            fname = fname.Substring(0, fname.Length - 6);
+                            SignModel model = new SignModel()
+                            {
+                                ID = fname.Split()[0],
+                                Name = DataContextCollection.GetInstance().fullWordList[fname.Split()[0]],
+                                Video = files[i],
+                            };
+                            var keyframe =
+                                Directory.GetFiles(
+                                    String.Format(@"D:\Kinectdata\aaron-michael\image\{0}\handshape", fname), "*#.jpg");
+                            if (keyframe.Length > 0)
+                            {
+                                model.Images = new string[keyframe.Length];
+                                for (int j = 0; j < keyframe.Length; j++)
+                                {
+                                    model.Images[j] = keyframe[j];
+                                }
+                            }
+                            slist.Add(model);
+                        }
+                       
                     }
-                    signFile.Close();
+               
                  
                     Thread t = new Thread(ControlThread);
                     t.Start();
@@ -454,7 +502,7 @@ namespace CURELab.SignLanguage.HandDetector
                 int framenumber = (int)_CCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_FRAME_COUNT);
                 while (_CCapture.Grab())
                 {
-                    var frame = _CCapture.RetrieveBgrFrame().Resize(800, 600, INTER.CV_INTER_LINEAR).Flip(FLIP.HORIZONTAL);
+                    var frame = _CCapture.RetrieveBgrFrame().Resize(800, 600, INTER.CV_INTER_LINEAR);
                     System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate()
                     {
                         viewer.Size = frame.Size;
@@ -482,7 +530,7 @@ namespace CURELab.SignLanguage.HandDetector
         private bool TurnEnd = false;
         private bool End = false;
         private ImageViewer viewer;
-        private int repeat = 3;
+        private int repeat = 10;
         private void ControlThread()
         {
 
@@ -493,10 +541,24 @@ namespace CURELab.SignLanguage.HandDetector
                 System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                 {
                     mwWindow.lbl_candidate1.Content = String.Format("播放:{0},{1}/{2}", m.Name,i+1,slist.Count);
+                    mwWindow.spn_key.Children.Clear();
+                    if (m.Images != null)
+                    {
+                        for (int j = 0; j < m.Images.Length && j < 10; j++)
+                        {
+                            mwWindow.spn_key.Children.Add(new Image()
+                            {
+                                Source = new BitmapImage(new Uri(m.Images[j], UriKind.Absolute))
+                            });
+                        }
+                    }
                 }));
                 Thread.Sleep(1000);
-                string videoName = String.Format("Videos\\{0}.mpg", m.ID);
+                //string videoName = String.Format("Videos\\{0}.mpg", m.ID);
+                string videoName = m.Video;
                 PlayVideo(videoName);
+                // add new handshape images
+                
                 System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                 {
                     mwWindow.lbl_candidate1.Content = String.Format("播放:{0} 第二遍", m.Name);
@@ -540,5 +602,7 @@ namespace CURELab.SignLanguage.HandDetector
     {
         public string ID;
         public string Name;
+        public string Video;
+        public string[] Images;  
     }
 }

@@ -52,7 +52,7 @@ namespace CURELab.SignLanguage.HandDetector
                     while (!String.IsNullOrEmpty(line))
                     {
                         var t = line.Split();
-                        fullWordList.Add(t[1], t[4]);
+                        fullWordList.Add(t[1], t[3]);
                         line = sw.ReadLine();
                     }
                     sw.Close();

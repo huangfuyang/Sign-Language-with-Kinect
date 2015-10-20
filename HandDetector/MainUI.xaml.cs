@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Forms;
@@ -22,6 +23,7 @@ using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.UI;
 using Microsoft.Kinect;
+using HorizontalAlignment = System.Windows.HorizontalAlignment;
 
 namespace CURELab.SignLanguage.HandDetector
 {
@@ -71,7 +73,7 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 string name = row.Value;
                 string id = row.Key;
-                panelSignList.Children.Add(createKinectButton(id, name));
+                //panelSignList.Children.Add(createKinectButton(id, name));
             }
             KinectScrollViewer.ScrollToVerticalOffset(100);
             viewer = new ImageViewer();
@@ -147,13 +149,16 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 thresh = initialValue;
                 TrackBar tcb = new TrackBar(ptr);
-                tcb.Visibility = Visibility.Collapsed;
                 tcb.Max = max;
-                tcb.Margin = new Thickness(5);
+                tcb.Margin = new Thickness(0,0,0,30);
                 tcb.ValueName = valuename;
                 initialValue = initialValue > max ? max : initialValue;
                 tcb.Value = initialValue;
-                SPn_right.Children.Add(tcb);
+                Grid.SetRow(tcb, 4);
+                Grid.SetColumn(tcb, 1);
+                tcb.HorizontalAlignment = HorizontalAlignment.Right;
+                tcb.Width = 400;
+                grd_main.Children.Add(tcb);
             }
 
         }
