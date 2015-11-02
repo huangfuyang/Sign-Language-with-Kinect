@@ -10,7 +10,7 @@ namespace EducationSystem.util
             BitmapImage bitmapImage = new BitmapImage();
 
             bitmapImage.BeginInit();
-            bitmapImage.UriSource = new System.Uri(string.Format("Data/Images/SignNum/{0}.png", value), System.UriKind.RelativeOrAbsolute);
+            bitmapImage.UriSource = new System.Uri(string.Format("Images/SignNum/{0}.png", value), System.UriKind.RelativeOrAbsolute);
             bitmapImage.EndInit();
 
             return bitmapImage;
