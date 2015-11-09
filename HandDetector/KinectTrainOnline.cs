@@ -328,7 +328,7 @@ namespace CURELab.SignLanguage.HandDetector
 
                             line += GetHandModelString(handModel);
                         }
-
+                         
 
                     }
                     if (skeWriter != null)
@@ -443,6 +443,7 @@ namespace CURELab.SignLanguage.HandDetector
                             fname = fname.Substring(0, fname.Length - 6);
                             SignModel model = new SignModel()
                             {
+                                index = i,
                                 ID = fname.Split()[0],
                                 Name = DataContextCollection.GetInstance().fullWordList[fname.Split()[0]],
                                 Video = files[i],
@@ -567,7 +568,7 @@ namespace CURELab.SignLanguage.HandDetector
                 PlayVideo(videoName);
                 for (int j = 0; j < repeat; j++)
                 {
-                    currentDir = dir + m.ID + " " + signer + " " + j.ToString();
+                    currentDir = dir + m.ID + " " + signer + " " + m.index.ToString() + '_'+j.ToString();
                     Directory.CreateDirectory(currentDir);
                     FileStream file_name = File.Open(currentDir + "\\" + m.ID + ".csv", FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
                     if (skeWriter != null)
@@ -600,6 +601,7 @@ namespace CURELab.SignLanguage.HandDetector
 
     struct SignModel
     {
+        public int index;
         public string ID;
         public string Name;
         public string Video;

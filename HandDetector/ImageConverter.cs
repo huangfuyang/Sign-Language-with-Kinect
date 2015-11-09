@@ -105,16 +105,24 @@ namespace CURELab.SignLanguage.HandDetector
 
         public static BitmapSource ToBitmapSource(this Bitmap bmp)
         {
+            try
+            {
+                BitmapSource bitmapSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap
+              (
+                  bmp.GetHbitmap(),
+                  IntPtr.Zero,
+                  Int32Rect.Empty,
+                  BitmapSizeOptions.FromEmptyOptions()
+              );
 
-            BitmapSource bitmapSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap
-               (
-                   bmp.GetHbitmap(),
-                   IntPtr.Zero,
-                   Int32Rect.Empty,
-                   BitmapSizeOptions.FromEmptyOptions()
-               );
+                return bitmapSource;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
 
-            return bitmapSource;
+           
         }
 
         public static byte[] ToByteArray(this float[] array)
