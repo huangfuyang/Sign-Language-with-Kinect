@@ -32,7 +32,7 @@ namespace EducationSystem.Detectors
             {
                 Console.WriteLine("{0}", string.Join(", ", deltaX));
             }
-
+            //TODO: calculate direction
             return direction;
         }
 
