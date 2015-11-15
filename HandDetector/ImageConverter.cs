@@ -11,6 +11,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -102,7 +103,8 @@ namespace CURELab.SignLanguage.HandDetector
                 return bitmap;
             }
         }
-
+        [DllImport("gdi32")]
+        private static extern int DeleteObject(IntPtr o);
         public static BitmapSource ToBitmapSource(this Bitmap bmp)
         {
 
@@ -115,6 +117,23 @@ namespace CURELab.SignLanguage.HandDetector
                );
 
             return bitmapSource;
+        }
+
+        public static BitmapSource ToBitmapSource(IImage image)
+        {
+            using (System.Drawing.Bitmap source = image.Bitmap)
+            {
+                IntPtr ptr = source.GetHbitmap(); //obtain the Hbitmap
+
+                BitmapSource bs = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                    ptr,
+                    IntPtr.Zero,
+                    Int32Rect.Empty,
+                    System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
+
+                DeleteObject(ptr); //release the HBitmap
+                return bs;
+            }
         }
 
         public static byte[] ToByteArray(this float[] array)

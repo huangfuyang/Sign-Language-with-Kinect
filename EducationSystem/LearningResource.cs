@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using EducationSystem.SignNumGame;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Bson;
-
+using Newtonsoft.Json.Linq;
+using CURELab.SignLanguage.HandDetector;
 namespace EducationSystem
 {
     public class LearningResource
@@ -23,6 +23,7 @@ namespace EducationSystem
             }
             return _singleton;
         }
+
 
         private void LoadVocab()
         {
@@ -49,57 +50,60 @@ namespace EducationSystem
             {
                 frame_text = File.ReadAllText(frame_text);
             }
-            var js = JsonConvert.DeserializeObject<Dictionary<string,JsonData>>(frame_text);
-            
+            var js = JsonConvert.DeserializeObject(frame_text) as JObject;
 
             // load videos
             string path = @"D:\Kinectdata\aaron-michael\video\";
             var files = Directory.GetFiles(path);
             foreach (var file in files)
             {
-                var fname = file.Split('\\').Last();
-                fname = fname.Substring(0, fname.Length - 6);
-                VideoModel model = new VideoModel()
+                try
                 {
-                    ID = fname.Split()[0],
-                    Name = fullWordList[fname.Split()[0]].Item2,
-                    Chinese = fullWordList[fname.Split()[0]].Item1,
-                    Path = fname123
-
-                };
-                if (js.ContainsKey(fname.Split()[0]))
-                {
-                    VideoModels.Add(model);
-                    foreach (var jsonData in js[fname.Split()[0]].frames)
+                    var fname = file.Split('\\').Last();
+                    fname = fname.Substring(0, fname.Length - 6);
+                    JToken item;
+                    if (js.TryGetValue(fname.Split()[0], out item))
                     {
-                        model.KeyFrames.Add(new KeyFrame()
+                        VideoModel model = new VideoModel()
                         {
-                            //TODO
-                            FrameNumber = 0,
-                            LeftHandShape = "",
-                            LeftPosition = new Point(jsonData.pos[2], jsonData.pos[3]),
-                            RightPosition = new Point(jsonData.pos[0], jsonData.pos[1]),
-                            RightHandShape = "",
-                            Type = jsonData.type
-                        });
+                            ID = fname.Split()[0],
+                            Name = fullWordList[fname.Split()[0]].Item2,
+                            Chinese = fullWordList[fname.Split()[0]].Item1,
+                            Path = file
+
+                        };
+                        VideoModels.Add(model);
+                        foreach (var frame in item)
+                        {
+                            model.KeyFrames.Add(new KeyFrame()
+                            {
+                                FrameNumber = (int)frame["frame"],
+                                LeftHandShape = "",
+                                LeftPosition = new Point((int)frame["pos"][2], (int)frame["pos"][3]),
+                                RightPosition = new Point((int)frame["pos"][0], (int)frame["pos"][1]),
+                                RightHandShape = "",
+                                Type = frame["type"].ToObject<HandEnum>()
+                            });
+                        }
                     }
+
+                    //var keyframe =
+                    //    Directory.GetFiles(
+                    //        String.Format(@"D:\Kinectdata\aaron-michael\image\{0}\handshape", fname), "*#.jpg");
+                    //if (keyframe.Length > 0)
+                    //{
+                    //    model.Images = new string[keyframe.Length];
+                    //    for (int j = 0; j < keyframe.Length; j++)
+                    //    {
+                    //        model.Images[j] = keyframe[j];
+                    //    }
+                    //}
                 }
-                //var keyframe =
-                //    Directory.GetFiles(
-                //        String.Format(@"D:\Kinectdata\aaron-michael\image\{0}\handshape", fname), "*#.jpg");
-                //if (keyframe.Length > 0)
-                //{
-                //    model.Images = new string[keyframe.Length];
-                //    for (int j = 0; j < keyframe.Length; j++)
-                //    {
-                //        model.Images[j] = keyframe[j];
-                //    }
-                //}
-
-                
+                catch (Exception)
+                {
+                    continue;
+                }
             }
-
-
         }
 
         public List<VideoModel> VideoModels; 
@@ -107,6 +111,10 @@ namespace EducationSystem
         {
             VideoModels = new List<VideoModel>();
             LoadVocab();
+        }
+        public static bool IsPropertyExist(dynamic settings, string name)
+        {
+            return settings.GetType().GetProperty(name) != null;
         }
     }
 }
