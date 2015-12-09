@@ -42,7 +42,7 @@
                     <TransformGroup>
                         <ScaleTransform/>
                         <SkewTransform/>
-                        <RotateTransform Angle="48.588"/>
+                        <RotateTransform Angle="0"/>
                         <TranslateTransform/>
                     </TransformGroup>
                 </Image.RenderTransform>
@@ -94,7 +94,7 @@
         </WrapPanel>
         <Grid Grid.Column="1" Grid.Row="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="100"/>
+                <RowDefinition Height="60"/>
                 <RowDefinition Height="100"/>
                 <RowDefinition Height="100"/>
                 <RowDefinition/>

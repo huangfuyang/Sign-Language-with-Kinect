@@ -111,6 +111,7 @@ namespace EducationSystem
 
 
         private ShowFeatureMatchedPageFramesHandler framesHandler;
+        private VideoModel currentModel;
 
         public ShowFeatureMatchedPage()
         {
@@ -170,6 +171,7 @@ namespace EducationSystem
             //viewer.Show();
             //Thread t = new Thread(new ParameterizedThreadStart(PlayVideo));
             //t.Start(dc.Path);
+            currentModel = dc;
             SignState = dc.KeyFrames[0].FrameNumber.ToString();
             MediaMain.Source = new Uri(dc.Path);
             MediaMain.Play();
@@ -349,6 +351,11 @@ namespace EducationSystem
 
         }
 
+        private void MoveArror(Point from, Point to)
+        {
+            
+        }
+
         private void KBtn_Play_Click(object sender, RoutedEventArgs e)
         {
             if (MediaMain.HasVideo)
@@ -358,6 +365,11 @@ namespace EducationSystem
                     //IsPlaying = true;
                     MediaMain.Stop();
                     MediaMain.Play();
+                    if (currentModel != null)
+                    {
+                        MoveArror(currentModel.KeyFrames[0].RightPosition,currentModel.KeyFrames[1].RightPosition);
+
+                    }
                 }
                 //else
                 //{
