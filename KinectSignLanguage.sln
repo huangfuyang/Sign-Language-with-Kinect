@@ -1,5 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecognitionSystem", "RecognitionSystem\RecognitionSystem.csproj", "{01AF7E2C-4D9A-4C47-A9FF-C97BE82F7A5D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LauncherKinect", "LauncherKinect\LauncherKinect.csproj", "{8121846D-923E-4BB0-8647-30DA753D156E}"

@@ -159,8 +159,8 @@ namespace CURELab.SignLanguage.HandDetector
 
         private bool Intersect = false;
 
-        Point RightHandCenter = new Point();
-        Point LeftHandCenter = new Point();
+        Point LastRightHandCenter = new Point();
+        Point LastLeftHandCenter = new Point();
         int hogSize = 4356;
         Image<Gray, Byte> grayImg;
         public unsafe HandShapeModel FindHandPart(
@@ -592,10 +592,18 @@ namespace CURELab.SignLanguage.HandDetector
                     break;
                 case 3:
                     clist = clist.OrderBy(x => x.GetCenter().DistanceTo(head)).ToList();
-                    var tlist = clist.Skip(1).OrderBy(x => x.GetXCenter()).ToList();
-                    rightRec = tlist[1];
-                    leftRec = tlist[0];
                     headRec = clist[0];
+                    List<Rectangle> tlist;
+                    if (pre_right.IsEmpty)
+                    {
+                        tlist = clist.Skip(1).OrderByDescending(x => x.GetXCenter()).ToList();
+                    }
+                    else
+                    {
+                        tlist = clist.Skip(1).OrderBy(x => x.GetCenter().DistanceTo(pre_right.GetCenter())).ToList();
+                    }
+                    rightRec = tlist[0];
+                    leftRec = tlist[1];
                     headMinDepth = headDepth - CullThresh;
                     colorImg.FillConvexPoly(headRec.GetPoints(), new Gray(0));
                     if (!rightRec.IsCloseTo(headRec, 2) && !leftRec.IsCloseTo(headRec, 2))
@@ -633,6 +641,11 @@ namespace CURELab.SignLanguage.HandDetector
                 default:
                     break;
 
+            }
+
+            if (handModel != null)
+            {
+                pre_right = handModel.right;
             }
             //Console.WriteLine("{0} {1}",leftRec.X,rightRec.X);
             foreach (var rect in clist)
@@ -1316,15 +1329,15 @@ namespace CURELab.SignLanguage.HandDetector
 
             if (handEnum == HandEnum.Right)
             {
-                RightHandCenter = center;
+                LastRightHandCenter = center;
             }
             if (handEnum == HandEnum.Left)
             {
-                LeftHandCenter = center;
+                LastLeftHandCenter = center;
             }
             if (handEnum == HandEnum.Intersect)
             {
-                RightHandCenter = center;
+                LastRightHandCenter = center;
             }
         }
 
@@ -1578,11 +1591,17 @@ namespace CURELab.SignLanguage.HandDetector
 
         public void Reset()
         {
+            ResetTracking();
+            headMinDepth = 0;
+            Intersect = false;
+        }
+
+        public void ResetTracking()
+        {
             headRec = new Rectangle(new Point(320, 0), new Size());
             rightRec = new Rectangle(new Point(640, 480), new Size());
             leftRec = new Rectangle(new Point(0, 480), new Size());
-            headMinDepth = 0;
-            Intersect = false;
+            pre_right = Rectangle.Empty;
         }
         #region INotifyPropertyChanged 成员
 

@@ -37,7 +37,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             mwWindow = mw;
             viewer = new ImageViewer();
-
+            base.Reset();
         }
 
         public static KinectController GetSingletonInstance(MainUI mw)
@@ -430,8 +430,8 @@ namespace CURELab.SignLanguage.HandDetector
                 #endregion
 
                 {
-                    int start = 0;
-                    int end = 33;
+                    int start = 65;
+                    int end = 100;
                     slist = new List<SignModel>();
                     string path = @"D:\Kinectdata\aaron-michael\video\";
                     var files = Directory.GetFiles(path);
@@ -503,19 +503,26 @@ namespace CURELab.SignLanguage.HandDetector
                 int framenumber = (int)_CCapture.GetCaptureProperty(Emgu.CV.CvEnum.CAP_PROP.CV_CAP_PROP_FRAME_COUNT);
                 while (_CCapture.Grab())
                 {
-                    var frame = _CCapture.RetrieveBgrFrame().Resize(800, 600, INTER.CV_INTER_LINEAR);
-                    System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+                    try
                     {
-                        viewer.Size = frame.Size;
-                        viewer.Image = frame;
-                    });
+                        var frame = _CCapture.RetrieveBgrFrame().Resize(800, 600, INTER.CV_INTER_LINEAR);
+                        System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+                        {
+                            viewer.Size = frame.Size;
+                            viewer.Image = frame;
+                        });
+                    }
+                    catch (Exception)
+                    {
+                        continue;
+                    }
+                   
                     Thread.Sleep(1000 / FrameRate);
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return;
             }
             finally
             {
@@ -566,6 +573,7 @@ namespace CURELab.SignLanguage.HandDetector
                 }));
                 Thread.Sleep(500);
                 PlayVideo(videoName);
+                m_OpenCVController.ResetTracking();
                 for (int j = 0; j < repeat; j++)
                 {
                     currentDir = dir + m.ID + " " + signer + " " + m.index.ToString() + '_'+j.ToString();
