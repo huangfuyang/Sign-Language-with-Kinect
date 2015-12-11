@@ -554,13 +554,17 @@ namespace CURELab.SignLanguage.HandDetector
                     var B = colorPixels[colorIndex];
                     var G = colorPixels[colorIndex + 1];
                     var R = colorPixels[colorIndex + 2];
-                    //var Y = ((66*R + 129*G + 25*B + 128) >> 8) + 16;
+                    var Y = ((66 * R + 129 * G + 25 * B + 128) >> 8) + 16;
                     var U = ((-38 * R - 74 * G + 112 * B + 128) >> 8) + 128;
                     var V = ((112 * R - 94 * G - 18 * B + 128) >> 8) + 128;
+                    //var Y = 0.299 *  R + 0.587 * G + 0.114 * B;
+                    //var U = -0.169 * R - 0.331*  G + 0.5 * B;
+                    //var V = 0.5 *    R - 0.419 * G - 0.081 * B;
                     var d = depthMap[colorIndex / bytePerPixel].Depth;
                     //if (!(U > 100 && U < 129 && V > 140 && V < 170))//aaron
                     //if (!(U > 100 && U < 135 && V > VMIN && V < 170) || channel == 4 && colorPixels[colorIndex + 3] == 0)//Micheal
                     if (!(U > 95 && U < 135 && V > VMIN && V < 170) || d > headDepth + 200) //realtime
+                    //if (!((Y < 20 || Y < 180 && Y > 170) && U > 55 && U < 140) || d > headDepth + 200) //realtime YCC
                     //if (!(U > 95 && U < 135 && V > 137 && V < 170) || colorPixels[colorIndex + 3] == 0) //realtime with hole filling
                     {
                         colorPixels[colorIndex] = 0;

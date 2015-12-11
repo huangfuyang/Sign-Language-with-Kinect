@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -227,6 +228,14 @@ namespace CURELab.SignLanguage.HandDetector
                     }
                     byte[] processImg;
                     HandShapeModel handModel = null;
+                    //var image = new Image<Bgra, Byte>(width, height); //specify the width and height here
+                    //image.Bytes = colorPixels; //your byte array                    System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+                    //var yccimage = image.Convert<Hsv, byte>();
+                    //System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+                    //{
+                    //    viewer.Size = yccimage.Size;
+                    //    viewer.Image = yccimage;
+                    //});
                     handModel = m_OpenCVController.FindHandFromColor(depthImg, colorPixels, _mappedDepthLocations, headPosition, headDepth, out processImg, 4);
                     if (handModel == null)
                     {
@@ -328,13 +337,20 @@ namespace CURELab.SignLanguage.HandDetector
 
                             line += GetHandModelString(handModel);
                         }
-                         
 
+                        if (skeWriter != null)
+                        {
+                            try
+                            {
+                                skeWriter.WriteLine(line);
+                            }
+                            catch (Exception)
+                            {
+                                return;
+                            }
+                        }
                     }
-                    if (skeWriter != null)
-                    {
-                        skeWriter.WriteLine(line);
-                    }
+                    
                     //*******************upadte UI
                     if (ShowFinal)
                     {
@@ -430,8 +446,8 @@ namespace CURELab.SignLanguage.HandDetector
                 #endregion
 
                 {
-                    int start = 65;
-                    int end = 100;
+                    int start = 13;
+                    int end = 30;
                     slist = new List<SignModel>();
                     string path = @"D:\Kinectdata\aaron-michael\video\";
                     var files = Directory.GetFiles(path);
@@ -442,7 +458,7 @@ namespace CURELab.SignLanguage.HandDetector
                             var fname = files[i].Split('\\').Last();
                             fname = fname.Substring(0, fname.Length - 6);
                             SignModel model = new SignModel()
-                            {
+                            { 
                                 index = i,
                                 ID = fname.Split()[0],
                                 Name = DataContextCollection.GetInstance().fullWordList[fname.Split()[0]],
@@ -512,9 +528,10 @@ namespace CURELab.SignLanguage.HandDetector
                             viewer.Image = frame;
                         });
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        continue;
+                        Console.WriteLine(e);
+                        return;
                     }
                    
                     Thread.Sleep(1000 / FrameRate);
@@ -574,9 +591,13 @@ namespace CURELab.SignLanguage.HandDetector
                 Thread.Sleep(500);
                 PlayVideo(videoName);
                 m_OpenCVController.ResetTracking();
+                System.Windows.Application.Current.Dispatcher.BeginInvoke((Action)delegate()
+                {
+                    viewer.Show();
+                });
                 for (int j = 0; j < repeat; j++)
                 {
-                    currentDir = dir + m.ID + " " + signer + " " + m.index.ToString() + '_'+j.ToString();
+                    currentDir = dir + m.ID + " " + signer + " " + m.index.ToString() + '_' + j.ToString() + ' ' + DateTime.Today.ToString("yyyy-M-d");
                     Directory.CreateDirectory(currentDir);
                     FileStream file_name = File.Open(currentDir + "\\" + m.ID + ".csv", FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
                     if (skeWriter != null)
