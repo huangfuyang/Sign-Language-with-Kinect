@@ -5,10 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
-using EducationSystem.SignNumGame;
+using System.Windows.Media.Imaging;
+using Emgu.CV;
+using Emgu.CV.Structure;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using CURELab.SignLanguage.HandDetector;
+using Point = System.Windows.Point;
+
 namespace EducationSystem
 {
     public class LearningResource
@@ -62,7 +66,7 @@ namespace EducationSystem
                     var fname = file.Split('\\').Last();
                     fname = fname.Substring(0, fname.Length - 6);
                     JToken item;
-                    if (js.TryGetValue(fname.Split()[0], out item))
+                    if (js.TryGetValue(fname, out item))
                     {
                         VideoModel model = new VideoModel()
                         {
@@ -73,17 +77,34 @@ namespace EducationSystem
 
                         };
                         VideoModels.Add(model);
+         
                         foreach (var frame in item)
                         {
+                            var framenumber = (int) frame["frame"];
                             model.KeyFrames.Add(new KeyFrame()
                             {
-                                FrameNumber = (int)frame["frame"],
-                                LeftHandShape = "",
+                                FrameNumber = framenumber,
                                 LeftPosition = new Point((int)frame["pos"][2], (int)frame["pos"][3]),
                                 RightPosition = new Point((int)frame["pos"][0], (int)frame["pos"][1]),
-                                RightHandShape = "",
                                 Type = frame["type"].ToObject<HandEnum>()
                             });
+                            //load key images
+                            var rightimages = Directory.GetFiles(
+                                    String.Format(@"D:\Kinectdata\aaron-michael\image\{0}\handshape", fname), framenumber + "*.jpg");
+                            var leftimages = Directory.GetFiles(
+                                    String.Format(@"D:\Kinectdata\aaron-michael\image\{0}\handshape\left", fname), framenumber + "*.jpg");
+                            // try right image
+                            if (rightimages.Length>0)
+                            {
+                                var i = new Image<Rgb, byte>(rightimages[0]);
+                                model.KeyFrames.Last().RightImage = ImageConverter.ToBitmapSource(i);
+                            }
+                            // try left image
+                            if (leftimages.Length > 0)
+                            {
+                                var i = new Image<Rgb, byte>(leftimages[0]);
+                                model.KeyFrames.Last().LeftImage = ImageConverter.ToBitmapSource(i);
+                            }
                         }
                     }
 

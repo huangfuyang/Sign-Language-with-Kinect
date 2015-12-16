@@ -4,14 +4,20 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms.VisualStyles;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using EducationSystem.Detectors;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.UI;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit.Controls;
+using System.Timers;
+using MessageBox = System.Windows.Forms.MessageBox;
+using Timer = System.Timers.Timer;
+
 namespace EducationSystem
 {
     /// <summary>
@@ -112,7 +118,7 @@ namespace EducationSystem
 
         private ShowFeatureMatchedPageFramesHandler framesHandler;
         private VideoModel currentModel;
-
+        private Shape SignArrow;
         public ShowFeatureMatchedPage()
         {
             InitializeComponent();
@@ -121,7 +127,7 @@ namespace EducationSystem
         public ObservableCollection<FeatureViewModel> FeatureList { get; set; }
 
         private ImageViewer viewer;
-
+        private Timer timer_guide;
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             this.FeatureList = new ObservableCollection<FeatureViewModel>();
@@ -136,7 +142,7 @@ namespace EducationSystem
             this.framesHandler = new ShowFeatureMatchedPageFramesHandler(this);
             this.framesHandler.RegisterCallbackToSensor(KinectState.Instance.CurrentKinectSensor);
             KinectState.Instance.KinectRegion.IsCursorVisible = false;
-            
+
             //load signs
             foreach (var row in LearningResource.GetSingleton().VideoModels)
             {
@@ -146,7 +152,87 @@ namespace EducationSystem
             }
             KinectScrollViewer.ScrollToVerticalOffset(100);
             viewer = new ImageViewer();
+            timer_guide = new Timer()
+            {
+                Interval = 20
+            };
+            timer_guide.Elapsed += timer_guide_Elapsed;
         }
+
+        private int GetCurrentFrame()
+        {
+            int r = 0;
+            if (MediaMain.HasVideo)
+            {
+                r = (int)Math.Round(MediaMain.Position.TotalMilliseconds / 33.333);
+            }
+
+            return r;
+        }
+
+        private void RemoveArrow()
+        {
+            if (BodyPartCanvas.Children.Contains(SignArrow))
+            {
+                BodyPartCanvas.Children.Remove(SignArrow);
+            }
+        }
+
+        private int CurrentKeyFrame = 0;
+        void timer_guide_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            this.Dispatcher.Invoke((Action)(() =>
+            {
+                if (currentModel != null)
+                {
+                    var frame = GetCurrentFrame();
+                    int startframe = -1;
+                    int endframe = -1;
+                    for (int i = 0; i < currentModel.KeyFrames.Count; i++)
+                    {
+                        if (frame >= currentModel.KeyFrames[i].FrameNumber)
+                        {
+                            startframe = i;
+                            endframe = i+1;
+                        }
+                    }
+                    //if (CurrentKeyFrame != startframe)
+                    //{
+                    //    CurrentKeyFrame = startframe;
+                    //}
+                    //if current frame fall in start or end
+                    if (startframe == -1 || endframe >= currentModel.KeyFrames.Count)
+                    {   
+                        RemoveArrow();
+                    }
+                    else
+                    {
+                        MoveArror(currentModel.KeyFrames[startframe].RightPosition, currentModel.KeyFrames[endframe].RightPosition);
+                    }
+                    // set state
+                    SignState = currentModel.KeyFrames[startframe].Type.ToString();
+                    // image
+                    if (currentModel.KeyFrames[startframe].RightImage != null)
+                    {
+                        img_right.Source = currentModel.KeyFrames[startframe].RightImage;
+                    }
+                    else
+                    {
+                        img_right.Source = null;
+                    }
+                    if (currentModel.KeyFrames[startframe].LeftImage != null)
+                    {
+                        img_left.Source = currentModel.KeyFrames[startframe].LeftImage;
+                    }
+                    else
+                    {
+                        img_left.Source = null;
+                    }
+                }
+            }));
+
+        }
+
 
         private KinectTileButton createKinectButton(VideoModel dc)
         {
@@ -163,6 +249,51 @@ namespace EducationSystem
             return button;
         }
 
+        private static Shape DrawLinkArrow(Point p1, Point p2)
+        {
+            p1 = p1 * new Matrix(0.75, 0, 0, 0.75, 0, 0);
+            p2 = p2 * new Matrix(0.75, 0, 0, 0.75, 0, 0);
+            GeometryGroup lineGroup = new GeometryGroup();
+            double theta = Math.Atan2((p2.Y - p1.Y), (p2.X - p1.X)) * 180 / Math.PI;
+
+            PathGeometry pathGeometry = new PathGeometry();
+            PathFigure pathFigure = new PathFigure();
+            //            Point p = new Point(p1.X + ((p2.X - p1.X) / 1.35), p1.Y + ((p2.Y - p1.Y) / 1.35));
+            Point p = p2;
+            pathFigure.StartPoint = p;
+
+            Point lpoint = new Point(p.X + 6, p.Y + 15);
+            Point rpoint = new Point(p.X - 6, p.Y + 15);
+            LineSegment seg1 = new LineSegment();
+            seg1.Point = lpoint;
+            pathFigure.Segments.Add(seg1);
+
+            LineSegment seg2 = new LineSegment();
+            seg2.Point = rpoint;
+            pathFigure.Segments.Add(seg2);
+
+            LineSegment seg3 = new LineSegment();
+            seg3.Point = p;
+            pathFigure.Segments.Add(seg3);
+
+            pathGeometry.Figures.Add(pathFigure);
+            RotateTransform transform = new RotateTransform();
+            transform.Angle = theta + 90;
+            transform.CenterX = p.X;
+            transform.CenterY = p.Y;
+            pathGeometry.Transform = transform;
+            lineGroup.Children.Add(pathGeometry);
+
+            LineGeometry connectorGeometry = new LineGeometry();
+            connectorGeometry.StartPoint = p1;
+            connectorGeometry.EndPoint = p2;
+            lineGroup.Children.Add(connectorGeometry);
+            Path path = new Path { Data = lineGroup, StrokeThickness = 2 };
+            path.Stroke = path.Fill = Brushes.Black;
+            path.Opacity = 0.5;
+            return path;
+        }
+
         private void btnSignWord_Click(object sender, RoutedEventArgs e)
         {
             KinectTileButton button = (KinectTileButton)sender;
@@ -172,10 +303,18 @@ namespace EducationSystem
             //Thread t = new Thread(new ParameterizedThreadStart(PlayVideo));
             //t.Start(dc.Path);
             currentModel = dc;
-            SignState = dc.KeyFrames[0].FrameNumber.ToString();
-            MediaMain.Source = new Uri(dc.Path);
-            MediaMain.Play();
-            MediaMain.Pause();
+            if (dc.KeyFrames.Count>0)
+            {
+                
+                MediaMain.Source = new Uri(dc.Path);
+                MediaMain.Play();
+                timer_guide.Start();
+            }
+            else
+            {
+                MessageBox.Show("This word is not prepared");
+            }
+            
 
         }
         Capture _CCapture = null;
@@ -353,31 +492,14 @@ namespace EducationSystem
 
         private void MoveArror(Point from, Point to)
         {
-            
-        }
-
-        private void KBtn_Play_Click(object sender, RoutedEventArgs e)
-        {
-            if (MediaMain.HasVideo)
+            if (SignArrow != null)
             {
-                //if (!IsPlaying)
-                {
-                    //IsPlaying = true;
-                    MediaMain.Stop();
-                    MediaMain.Play();
-                    if (currentModel != null)
-                    {
-                        MoveArror(currentModel.KeyFrames[0].RightPosition,currentModel.KeyFrames[1].RightPosition);
-
-                    }
-                }
-                //else
-                //{
-                //    IsPlaying = false;
-                //    MediaMain.Pause();
-                //}
+                RemoveArrow();
             }
-
+            SignArrow = DrawLinkArrow(from, to);
+            BodyPartCanvas.Children.Add(SignArrow);
         }
+
+
     }
 }

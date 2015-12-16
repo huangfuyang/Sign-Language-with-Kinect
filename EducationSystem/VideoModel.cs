@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using EducationSystem.SignNumGame;
+using System.Windows.Media.Imaging;
 using CURELab.SignLanguage.HandDetector;
+using System.Windows;
+using Emgu.CV;
+using Emgu.CV.Structure;
+
 namespace EducationSystem
 {
     public class FrameData
@@ -24,8 +28,14 @@ namespace EducationSystem
         public HandEnum Type { get; set; }
         public Point RightPosition { get; set; }
         public Point LeftPosition  { get; set; }
-        public string RightHandShape { get; set; }
-        public string LeftHandShape { get; set; }
+        public BitmapSource RightImage { get; set; }
+        public BitmapSource LeftImage { get; set; }
+
+        public KeyFrame ()
+        {
+            RightImage = null;
+            LeftImage = null;
+        }
     }
     public class VideoModel
     {
