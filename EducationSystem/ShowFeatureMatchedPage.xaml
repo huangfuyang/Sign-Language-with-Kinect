@@ -35,7 +35,7 @@
 				StrokeThickness="0"
 				Stroke="#FF0000FF"
 				Visibility="Hidden"/>
-            <MediaElement Width="480" Name="MediaMain" LoadedBehavior="Manual" UnloadedBehavior="Manual" HorizontalAlignment="Stretch" VerticalAlignment="Top" Stretch="Fill" />
+            <MediaElement ScrubbingEnabled="True" Width="480" Name="MediaMain" LoadedBehavior="Manual" UnloadedBehavior="Manual" HorizontalAlignment="Stretch" VerticalAlignment="Top" Stretch="Fill" Loaded="MediaMain_OnLoaded"/>
 
             <Image Visibility="Collapsed" Name="ImgVideo" Opacity="0.5"  Source="Images/ArrowRed.png" RenderTransformOrigin="0.5,0.5" >
                 <Image.RenderTransform>
@@ -98,9 +98,10 @@
                 <RowDefinition Height="100"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <Image Name="img_left" Width="150" HorizontalAlignment="Left" Margin="20,0,0,0"></Image>
-            <Image Name="img_right" Width="150" HorizontalAlignment="Right" Margin="0,0,20,0"></Image>
-            <Label FontSize="32" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Background="#7FFFFFFF">
+            <Image Name="img_left" Width="150" HorizontalAlignment="Left" Margin="10,0,0,0"></Image>
+            <Image Name="img_right" Width="150" HorizontalAlignment="Right" Margin="0,0,10,0"></Image>
+            <Image Name="img_intersect" Width="150" HorizontalAlignment="Left" Margin="167,0,0,0"></Image>
+            <Label Visibility="Collapsed" FontSize="22" HorizontalContentAlignment="Center" Width="120" Margin="184,110,185,0" VerticalContentAlignment="Bottom" Background="#7FFFFFFF">
                 <Label.Content>
                     <AccessText TextWrapping="Wrap" Text="{Binding SignState}"/>
                 </Label.Content>
@@ -111,7 +112,7 @@
                 </Label.Content>
             </Label>
             <!--<k:KinectCircleButton Name="Btn_Play" Grid.Row="1" Content="Play" Click="Btn_Play_Click"></k:KinectCircleButton>-->
-            
+
             <ProgressBar Grid.Row="3" Value="{Binding NumOfFeatureCompleted}" Maximum="{Binding NumOfFeature}" Foreground="#7F01D328" BorderBrush="{x:Null}" Background="{x:Null}" Margin="5"/>
 
         </Grid>

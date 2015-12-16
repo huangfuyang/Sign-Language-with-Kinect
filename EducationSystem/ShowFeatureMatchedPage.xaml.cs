@@ -8,6 +8,7 @@ using System.Windows.Forms.VisualStyles;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using CURELab.SignLanguage.HandDetector;
 using EducationSystem.Detectors;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
@@ -118,7 +119,8 @@ namespace EducationSystem
 
         private ShowFeatureMatchedPageFramesHandler framesHandler;
         private VideoModel currentModel;
-        private Shape SignArrow;
+        private Shape RightSignArrow;
+        private Shape LeftSignArrow;
         public ShowFeatureMatchedPage()
         {
             InitializeComponent();
@@ -170,15 +172,15 @@ namespace EducationSystem
             return r;
         }
 
-        private void RemoveArrow()
+        private void RemoveArrow(ref Shape s)
         {
-            if (BodyPartCanvas.Children.Contains(SignArrow))
+            if (BodyPartCanvas.Children.Contains(s))
             {
-                BodyPartCanvas.Children.Remove(SignArrow);
+                BodyPartCanvas.Children.Remove(s);
             }
         }
 
-        private int CurrentKeyFrame = 0;
+        private int CurrentKeyFrame = -1;
         void timer_guide_Elapsed(object sender, ElapsedEventArgs e)
         {
             this.Dispatcher.Invoke((Action)(() =>
@@ -196,43 +198,151 @@ namespace EducationSystem
                             endframe = i+1;
                         }
                     }
-                    //if (CurrentKeyFrame != startframe)
-                    //{
-                    //    CurrentKeyFrame = startframe;
-                    //}
+                   
                     //if current frame fall in start or end
                     if (startframe == -1 || endframe >= currentModel.KeyFrames.Count)
-                    {   
-                        RemoveArrow();
-                    }
-                    else
                     {
-                        MoveArror(currentModel.KeyFrames[startframe].RightPosition, currentModel.KeyFrames[endframe].RightPosition);
-                    }
-                    // set state
-                    SignState = currentModel.KeyFrames[startframe].Type.ToString();
-                    // image
-                    if (currentModel.KeyFrames[startframe].RightImage != null)
-                    {
-                        img_right.Source = currentModel.KeyFrames[startframe].RightImage;
-                    }
-                    else
-                    {
+                        //remove arrow
+                        RemoveArrow(ref RightSignArrow);
+                        RemoveArrow(ref LeftSignArrow);
+                        // set state
+                        SignState = "Finish";
+                        NumOfFeatureCompleted = startframe;
+                        CurrectWaitingState = "完成";
+                        // remove image
                         img_right.Source = null;
-                    }
-                    if (currentModel.KeyFrames[startframe].LeftImage != null)
-                    {
-                        img_left.Source = currentModel.KeyFrames[startframe].LeftImage;
+                        img_left.Source = null;
+                        CurrentKeyFrame = -1;
+                        timer_guide.Stop();
+                        return;
                     }
                     else
                     {
-                        img_left.Source = null;
+                        // set state
+                        SignState = currentModel.KeyFrames[endframe].Type.ToString();
+                        // draw arrow
+                        if (currentModel.KeyFrames[endframe].Type == HandEnum.Both || currentModel.KeyFrames[endframe].Type == HandEnum.Intersect)
+                        {
+                            MoveArror(ref RightSignArrow, currentModel.KeyFrames[startframe].RightPosition, currentModel.KeyFrames[endframe].RightPosition);
+                            MoveArror(ref LeftSignArrow, currentModel.KeyFrames[startframe].LeftPosition, currentModel.KeyFrames[endframe].LeftPosition);
+                        }
+                        else if (currentModel.KeyFrames[endframe].Type == HandEnum.Right)
+                        {
+                            MoveArror(ref RightSignArrow, currentModel.KeyFrames[startframe].RightPosition, currentModel.KeyFrames[endframe].RightPosition);
+                            RemoveArrow(ref LeftSignArrow);
+                        }
+                        
+                        // image
+                        if (currentModel.KeyFrames[endframe].Type == HandEnum.Intersect)
+                        {
+                            img_intersect.Source = currentModel.KeyFrames[endframe].RightImage;
+                            img_right.Source = null;
+                            img_left.Source = null;
+                        }
+                        else if (currentModel.KeyFrames[endframe].Type == HandEnum.Both)
+                        {
+                            img_right.Source = currentModel.KeyFrames[endframe].RightImage;
+                            img_left.Source = currentModel.KeyFrames[endframe].LeftImage;
+                            img_intersect.Source = null;
+                        }
+                        else if (currentModel.KeyFrames[endframe].Type == HandEnum.Right)
+                        {
+                            img_right.Source = currentModel.KeyFrames[endframe].RightImage;
+                            img_left.Source = null;
+                            img_intersect.Source = null;
+                        }
+                    }
+                    if (CurrentKeyFrame != startframe)
+                    {
+                        CurrentKeyFrame = startframe;
+                        NumOfFeatureCompleted = CurrentKeyFrame;
+                        CurrectWaitingState = "第" + (NumOfFeatureCompleted+1) + "步";
+                        switch (currentModel.KeyFrames[endframe].Type)
+                        {
+                            case HandEnum.Both:
+                                CurrectWaitingState += "分別移動你的《左右手》到箭頭所示位置，并做出相應手勢";
+                                break;
+                            case HandEnum.Intersect:
+                                CurrectWaitingState += "移動你的《雙手》到箭頭所示位置，并做出相應手勢";
+                                break;
+                            case HandEnum.Right:
+                                CurrectWaitingState += "移動你的《右手》到箭頭所示位置，并做出相應手勢";
+                                break;
+                        }
+                        MediaMain.Pause();
+                        timer_guide.Stop();
+                        new Thread(() =>
+                        {
+                            Thread.Sleep(5000);
+                            timer_guide.Start();
+                            Application.Current.Dispatcher.Invoke(() => MediaMain.Play());
+                        }).Start();
+
                     }
                 }
             }));
 
         }
 
+        private static Shape DrawLinkArrow(Point p1, Point p2)
+        {
+            p1 = p1 * new Matrix(0.75, 0, 0, 0.75, 0, 0);
+            p2 = p2 * new Matrix(0.75, 0, 0, 0.75, 0, 0);
+            GeometryGroup lineGroup = new GeometryGroup();
+            double theta = Math.Atan2((p2.Y - p1.Y), (p2.X - p1.X)) * 180 / Math.PI;
+
+            //PathGeometry pathGeometry = new PathGeometry();
+            //PathFigure pathFigure = new PathFigure();
+            //            Point p = new Point(p1.X + ((p2.X - p1.X) / 1.35), p1.Y + ((p2.Y - p1.Y) / 1.35));
+            Point p = p2;
+            //pathFigure.StartPoint = p;
+
+            Point lpoint = new Point(p.X + 6, p.Y + 15);
+            Point rpoint = new Point(p.X - 6, p.Y + 15);
+            //LineSegment seg1 = new LineSegment();
+            //seg1.Point = lpoint;
+            //pathFigure.Segments.Add(seg1);
+
+            //LineSegment seg2 = new LineSegment();
+            //seg2.Point = rpoint;
+            //pathFigure.Segments.Add(seg2);
+
+            //LineSegment seg3 = new LineSegment();
+            //seg3.Point = p;
+            //pathFigure.Segments.Add(seg3);
+
+            RotateTransform transform = new RotateTransform();
+            transform.Angle = theta + 90;
+            transform.CenterX = p.X;
+            transform.CenterY = p.Y;
+
+            LineGeometry lGeometry = new LineGeometry();
+            lGeometry.StartPoint = p;
+            lGeometry.EndPoint = lpoint;
+            lGeometry.Transform = transform;
+            lineGroup.Children.Add(lGeometry);
+            LineGeometry rGeometry = new LineGeometry();
+            rGeometry.StartPoint = p;
+            rGeometry.EndPoint = rpoint;
+            rGeometry.Transform = transform;
+            lineGroup.Children.Add(rGeometry);
+
+            //pathGeometry.Figures.Add(pathFigure);
+
+
+            //pathGeometry.Transform = transform;
+            //lineGroup.Children.Add(pathGeometry);
+
+
+            LineGeometry connectorGeometry = new LineGeometry();
+            connectorGeometry.StartPoint = p1;
+            connectorGeometry.EndPoint = p2;
+            lineGroup.Children.Add(connectorGeometry);
+            Path path = new Path { Data = lineGroup, StrokeThickness = 2 };
+            path.Stroke = path.Fill = Brushes.Black;
+            path.Opacity = 0.8;
+            return path;
+        }
 
         private KinectTileButton createKinectButton(VideoModel dc)
         {
@@ -249,51 +359,7 @@ namespace EducationSystem
             return button;
         }
 
-        private static Shape DrawLinkArrow(Point p1, Point p2)
-        {
-            p1 = p1 * new Matrix(0.75, 0, 0, 0.75, 0, 0);
-            p2 = p2 * new Matrix(0.75, 0, 0, 0.75, 0, 0);
-            GeometryGroup lineGroup = new GeometryGroup();
-            double theta = Math.Atan2((p2.Y - p1.Y), (p2.X - p1.X)) * 180 / Math.PI;
-
-            PathGeometry pathGeometry = new PathGeometry();
-            PathFigure pathFigure = new PathFigure();
-            //            Point p = new Point(p1.X + ((p2.X - p1.X) / 1.35), p1.Y + ((p2.Y - p1.Y) / 1.35));
-            Point p = p2;
-            pathFigure.StartPoint = p;
-
-            Point lpoint = new Point(p.X + 6, p.Y + 15);
-            Point rpoint = new Point(p.X - 6, p.Y + 15);
-            LineSegment seg1 = new LineSegment();
-            seg1.Point = lpoint;
-            pathFigure.Segments.Add(seg1);
-
-            LineSegment seg2 = new LineSegment();
-            seg2.Point = rpoint;
-            pathFigure.Segments.Add(seg2);
-
-            LineSegment seg3 = new LineSegment();
-            seg3.Point = p;
-            pathFigure.Segments.Add(seg3);
-
-            pathGeometry.Figures.Add(pathFigure);
-            RotateTransform transform = new RotateTransform();
-            transform.Angle = theta + 90;
-            transform.CenterX = p.X;
-            transform.CenterY = p.Y;
-            pathGeometry.Transform = transform;
-            lineGroup.Children.Add(pathGeometry);
-
-            LineGeometry connectorGeometry = new LineGeometry();
-            connectorGeometry.StartPoint = p1;
-            connectorGeometry.EndPoint = p2;
-            lineGroup.Children.Add(connectorGeometry);
-            Path path = new Path { Data = lineGroup, StrokeThickness = 2 };
-            path.Stroke = path.Fill = Brushes.Black;
-            path.Opacity = 0.5;
-            return path;
-        }
-
+ 
         private void btnSignWord_Click(object sender, RoutedEventArgs e)
         {
             KinectTileButton button = (KinectTileButton)sender;
@@ -305,9 +371,10 @@ namespace EducationSystem
             currentModel = dc;
             if (dc.KeyFrames.Count>0)
             {
-                
                 MediaMain.Source = new Uri(dc.Path);
-                MediaMain.Play();
+                CurrentKeyFrame = -1;
+                NumOfFeature = dc.KeyFrames.Count - 1;
+                NumOfFeatureCompleted = 0;
                 timer_guide.Start();
             }
             else
@@ -383,7 +450,7 @@ namespace EducationSystem
                     {
                         isTracked = true;
                         bodyPartForHands = detector.decide(skeleton);
-                        prickSignDetector.Update(skeleton);
+                        //prickSignDetector.Update(skeleton);
 
                         Joint hand1 = skeleton.Joints[isRightHandPrimary ? JointType.HandRight : JointType.HandLeft];
                         Joint hand2 = skeleton.Joints[isRightHandPrimary ? JointType.HandLeft : JointType.HandRight];
@@ -490,16 +557,23 @@ namespace EducationSystem
 
         }
 
-        private void MoveArror(Point from, Point to)
+        private void MoveArror(ref Shape s, Point from, Point to)
         {
-            if (SignArrow != null)
+            if (s != null)
             {
-                RemoveArrow();
+                RemoveArrow(ref s);
             }
-            SignArrow = DrawLinkArrow(from, to);
-            BodyPartCanvas.Children.Add(SignArrow);
+            s = DrawLinkArrow(from, to);
+            BodyPartCanvas.Children.Add(s);
         }
 
 
+
+        private void MediaMain_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            var s = sender as MediaElement;
+            s.Play();
+            s.Pause();
+        }
     }
 }

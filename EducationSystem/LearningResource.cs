@@ -49,7 +49,8 @@ namespace EducationSystem
                 wl.Close();
             }
             //load key frames
-            string frame_text = "Data\\Education.txt";
+            //string frame_text = "Data\\Education.txt";
+            string frame_text = "Data\\data.json";
             if (File.Exists(frame_text))
             {
                 frame_text = File.ReadAllText(frame_text);
@@ -77,7 +78,13 @@ namespace EducationSystem
 
                         };
                         VideoModels.Add(model);
-         
+                        model.KeyFrames.Add(new KeyFrame()
+                        {
+                            FrameNumber = 0,
+                            RightPosition = new Point(370, 380),
+                            LeftPosition = new Point(260,370),
+                            Type = HandEnum.None
+                        });
                         foreach (var frame in item)
                         {
                             var framenumber = (int) frame["frame"];
