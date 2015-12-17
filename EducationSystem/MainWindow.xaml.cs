@@ -1,5 +1,7 @@
 ﻿using System.Windows;
+using CURELab.SignLanguage.HandDetector;
 using Microsoft.Kinect.Toolkit;
+using Newtonsoft.Json.Linq;
 
 namespace EducationSystem
 {
@@ -15,6 +17,7 @@ namespace EducationSystem
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            ConsoleManager.Show();
             KinectSensorChooser sensorChooser = (KinectSensorChooser)this.Resources["sensorChooser"];
             var resource = LearningResource.GetSingleton();
 
@@ -23,7 +26,8 @@ namespace EducationSystem
             KinectState.Instance.PropertyChanged += KinectState_PropertyChanged;
             sensorChooser.KinectChanged += KinectState.Instance.OnKinectChanged;
             sensorChooser.Start();
-        }
+            var socket = SocketManager.GetInstance("137.189.90.112", 51243);
+        }   
 
         void KinectState_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {

@@ -36,7 +36,7 @@ namespace CURELab.SignLanguage.HandDetector
     public class OpenCVController : INotifyPropertyChanged
     {
         public static double CANNY_THRESH;
-        public static double VMIN = 134;
+        public static double VMIN = 137;
         public static double CANNY_CONNECT_THRESH;
         public HOGDescriptor Hog_Descriptor;
         private ImageViewer viewer;
@@ -60,6 +60,15 @@ namespace CURELab.SignLanguage.HandDetector
             return singletonInstance ?? (singletonInstance = new OpenCVController());
         }
 
+        public void StartDebug()
+        {
+            viewer.Show();
+        }
+
+        public void StopDebug()
+        {
+            viewer.Hide();
+        }
 
         public void CalHistogram(Bitmap bmp)
         {
@@ -302,6 +311,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             byte[] t;
             var r = FindHandFromColor(depthImage, colorPixels, depthMap, head, headDepth,out t,channel);
+            t = null;
             return r;
         }
 
@@ -819,7 +829,7 @@ namespace CURELab.SignLanguage.HandDetector
         private Image<T, Byte> GetSubImage<T>(Image<T, Byte> image, MCvBox2D box, float angle) where T : struct, IColor
         {
 
-            if (box.Equals(MCvBox2D.Empty))
+            if (box.Equals(MCvBox2D.Empty) || image == null)
             {
                 return null;
             }
@@ -868,7 +878,7 @@ namespace CURELab.SignLanguage.HandDetector
         private Image<T, Byte> GetBinarySubImageByRect<T>(Image<T, Byte> image, Rectangle rect) where T : struct, IColor
         {
 
-            if (rect == null)
+            if (rect == null || image == null)
             {
                 return null;
             }
@@ -883,7 +893,7 @@ namespace CURELab.SignLanguage.HandDetector
         private Image<Rgb , Byte> GetSubImageByRect<T>(Image<T, Byte> image, Rectangle rect) where T : struct, IColor
         {
 
-            if (rect == null)
+            if (rect == null || image == null)
             {
                 return null;
             }

@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
+using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
@@ -12,15 +15,28 @@ using CURELab.SignLanguage.HandDetector;
 using EducationSystem.Detectors;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
 using Emgu.CV.UI;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit.Controls;
 using System.Timers;
+using Newtonsoft.Json.Linq;
+using Brushes = System.Windows.Media.Brushes;
+using ImageConverter = CURELab.SignLanguage.HandDetector.ImageConverter;
 using MessageBox = System.Windows.Forms.MessageBox;
+using Point = System.Windows.Point;
+using SystemColors = System.Windows.SystemColors;
 using Timer = System.Timers.Timer;
 
 namespace EducationSystem
 {
+    enum GuideState
+    {
+        StartPlay,
+        EndPlay,
+        StartGuide,
+        EndGuide
+    }
     /// <summary>
     /// Interaction logic for ShowFeatureMatchedPage.xaml
     /// </summary>
@@ -116,11 +132,11 @@ namespace EducationSystem
             set { SetValue(CurrentFrameBitmapSourceProperty, value); }
         }
 
-
         private ShowFeatureMatchedPageFramesHandler framesHandler;
         private VideoModel currentModel;
         private Shape RightSignArrow;
         private Shape LeftSignArrow;
+        private SocketManager socket;
         public ShowFeatureMatchedPage()
         {
             InitializeComponent();
@@ -130,6 +146,52 @@ namespace EducationSystem
 
         private ImageViewer viewer;
         private Timer timer_guide;
+        private GuideState _state;
+        private GuideState State
+        {
+            get { return _state; }
+            set
+            {
+                _state = value;
+                switch (value)
+                {
+                    case GuideState.StartPlay:
+                        btn_Perform.Visibility = Visibility.Collapsed;
+                        btn_Replay.Visibility = Visibility.Collapsed;
+                        KinectState.Instance.KinectRegion.IsCursorVisible = true;
+                        framesHandler.UnregisterCallbacks(KinectState.Instance.CurrentKinectSensor);
+                        break;
+                    case GuideState.EndPlay:
+                        btn_Replay.Visibility = Visibility.Visible;
+                        btn_Perform.Visibility = Visibility.Visible;
+                        KinectState.Instance.KinectRegion.IsCursorVisible = true;
+                        framesHandler.UnregisterCallbacks(KinectState.Instance.CurrentKinectSensor);
+                        break;
+                    case GuideState.StartGuide:
+                        KinectScrollViewer.Visibility = Visibility.Collapsed;
+                        img_guide_intersect.Visibility = Visibility.Visible;
+                        img_guide_left.Visibility = Visibility.Visible;
+                        img_guide_right.Visibility = Visibility.Visible;
+                        btn_Perform.Visibility = Visibility.Collapsed;
+                        btn_Replay.Visibility = Visibility.Collapsed;
+                        KinectState.Instance.KinectRegion.IsCursorVisible = false;
+                        framesHandler.RegisterCallbackToSensor(KinectState.Instance.CurrentKinectSensor);
+                        break;
+                    case GuideState.EndGuide:
+                        KinectScrollViewer.Visibility = Visibility.Visible;
+                        img_guide_intersect.Visibility = Visibility.Collapsed;
+                        img_guide_left.Visibility = Visibility.Collapsed;
+                        img_guide_right.Visibility = Visibility.Collapsed;
+                        btn_Perform.Visibility = Visibility.Visible;
+                        btn_Replay.Visibility = Visibility.Visible;
+                        KinectState.Instance.KinectRegion.IsCursorVisible = true;
+                        framesHandler.UnregisterCallbacks(KinectState.Instance.CurrentKinectSensor);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             this.FeatureList = new ObservableCollection<FeatureViewModel>();
@@ -137,13 +199,12 @@ namespace EducationSystem
             this.FeatureList.Add(new FeatureViewModel("Dominant Hand Y", "0"));
             this.FeatureList.Add(new FeatureViewModel("Region", "0"));
             this.DataContext = this;
-
+            socket = SocketManager.GetInstance();
             DominantHandPointLeft = 300;
             DotSize = 5;
 
             this.framesHandler = new ShowFeatureMatchedPageFramesHandler(this);
-            this.framesHandler.RegisterCallbackToSensor(KinectState.Instance.CurrentKinectSensor);
-            KinectState.Instance.KinectRegion.IsCursorVisible = false;
+            KinectState.Instance.KinectRegion.IsCursorVisible = true;
 
             //load signs
             foreach (var row in LearningResource.GetSingleton().VideoModels)
@@ -159,8 +220,34 @@ namespace EducationSystem
                 Interval = 20
             };
             timer_guide.Elapsed += timer_guide_Elapsed;
+            State = GuideState.StartPlay;
+            // register data receive event
+            socket.DataReceivedEvent += SocketOnDataReceivedEvent;
+            // opencv
+            //RegisterThreshold("V min", ref OpenCVController.VMIN, 150, OpenCVController.VMIN);
         }
 
+        private void SocketOnDataReceivedEvent(string msg)
+        {
+            Console.WriteLine(msg);
+        }
+
+        //private unsafe void RegisterThreshold(string valuename, ref double thresh, double max, double initialValue)
+        //{
+
+        //    fixed (double* ptr = &thresh)
+        //    {
+        //        thresh = initialValue;
+        //        TrackBar tcb = new TrackBar(ptr);
+        //        tcb.Max = max;
+        //        tcb.Margin = new Thickness(5);
+        //        tcb.ValueName = valuename;
+        //        initialValue = initialValue > max ? max : initialValue;
+        //        tcb.Value = initialValue;
+        //        SPn_right.Children.Add(tcb);
+        //    }
+
+        //}
         private int GetCurrentFrame()
         {
             int r = 0;
@@ -195,10 +282,10 @@ namespace EducationSystem
                         if (frame >= currentModel.KeyFrames[i].FrameNumber)
                         {
                             startframe = i;
-                            endframe = i+1;
+                            endframe = i + 1;
                         }
                     }
-                   
+
                     //if current frame fall in start or end
                     if (startframe == -1 || endframe >= currentModel.KeyFrames.Count)
                     {
@@ -214,6 +301,7 @@ namespace EducationSystem
                         img_left.Source = null;
                         CurrentKeyFrame = -1;
                         timer_guide.Stop();
+                        State = GuideState.EndPlay;
                         return;
                     }
                     else
@@ -231,7 +319,7 @@ namespace EducationSystem
                             MoveArror(ref RightSignArrow, currentModel.KeyFrames[startframe].RightPosition, currentModel.KeyFrames[endframe].RightPosition);
                             RemoveArrow(ref LeftSignArrow);
                         }
-                        
+
                         // image
                         if (currentModel.KeyFrames[endframe].Type == HandEnum.Intersect)
                         {
@@ -256,17 +344,17 @@ namespace EducationSystem
                     {
                         CurrentKeyFrame = startframe;
                         NumOfFeatureCompleted = CurrentKeyFrame;
-                        CurrectWaitingState = "第" + (NumOfFeatureCompleted+1) + "步";
+                        CurrectWaitingState = "第" + (NumOfFeatureCompleted + 1) + "步";
                         switch (currentModel.KeyFrames[endframe].Type)
                         {
                             case HandEnum.Both:
-                                CurrectWaitingState += "分別移動你的《左右手》到箭頭所示位置，并做出相應手勢";
+                                CurrectWaitingState += "分別移動你的【左右手】到箭頭所示位置，并做出相應手勢";
                                 break;
                             case HandEnum.Intersect:
-                                CurrectWaitingState += "移動你的《雙手》到箭頭所示位置，并做出相應手勢";
+                                CurrectWaitingState += "移動你的【雙手】到箭頭所示位置，并做出相應手勢";
                                 break;
                             case HandEnum.Right:
-                                CurrectWaitingState += "移動你的《右手》到箭頭所示位置，并做出相應手勢";
+                                CurrectWaitingState += "移動你的【右手】到箭頭所示位置，并做出相應手勢";
                                 break;
                         }
                         MediaMain.Pause();
@@ -359,7 +447,7 @@ namespace EducationSystem
             return button;
         }
 
- 
+
         private void btnSignWord_Click(object sender, RoutedEventArgs e)
         {
             KinectTileButton button = (KinectTileButton)sender;
@@ -369,19 +457,20 @@ namespace EducationSystem
             //Thread t = new Thread(new ParameterizedThreadStart(PlayVideo));
             //t.Start(dc.Path);
             currentModel = dc;
-            if (dc.KeyFrames.Count>0)
+            if (dc.KeyFrames.Count > 0)
             {
                 MediaMain.Source = new Uri(dc.Path);
                 CurrentKeyFrame = -1;
                 NumOfFeature = dc.KeyFrames.Count - 1;
                 NumOfFeatureCompleted = 0;
+                State = GuideState.StartPlay;
                 timer_guide.Start();
             }
             else
             {
                 MessageBox.Show("This word is not prepared");
             }
-            
+
 
         }
         Capture _CCapture = null;
@@ -423,104 +512,7 @@ namespace EducationSystem
 
         }
 
-        private class ShowFeatureMatchedPageFramesHandler : AbstractKinectFramesHandler
-        {
-            private BodyPartDetector detector = new BodyPartDetector();
-            private PrickSignDetector prickSignDetector;
-            private ShowFeatureMatchedPage showFeatureMatchedPage;
-            private ReaderWriterLockSlim frameLock;
-            private bool isRightHandPrimary = true;
-
-            public ShowFeatureMatchedPageFramesHandler(ShowFeatureMatchedPage showFeatureMatchedPage)
-            {
-                this.showFeatureMatchedPage = showFeatureMatchedPage;
-                this.frameLock = new ReaderWriterLockSlim();
-                this.prickSignDetector = new PrickSignDetector(showFeatureMatchedPage);
-            }
-
-            public override void SkeletonFrameCallback(long timestamp, int frameNumber, Skeleton[] skeletonData)
-            {
-                bool isTracked = false;
-                Tuple<BodyPart, BodyPart> bodyPartForHands = null;
-                Point relativePosition = new Point();
-
-                foreach (Skeleton skeleton in skeletonData)
-                {
-                    if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
-                    {
-                        isTracked = true;
-                        bodyPartForHands = detector.decide(skeleton);
-                        //prickSignDetector.Update(skeleton);
-
-                        Joint hand1 = skeleton.Joints[isRightHandPrimary ? JointType.HandRight : JointType.HandLeft];
-                        Joint hand2 = skeleton.Joints[isRightHandPrimary ? JointType.HandLeft : JointType.HandRight];
-                        Joint shoulderLeft = skeleton.Joints[JointType.ShoulderLeft];
-                        Joint shoulderCenter = skeleton.Joints[JointType.ShoulderCenter];
-                        Joint shoulderRight = skeleton.Joints[JointType.ShoulderRight];
-
-                        if (hand1.Position.X > shoulderCenter.Position.X)
-                        {
-                            relativePosition.X = (hand1.Position.X - shoulderCenter.Position.X) / (shoulderRight.Position.X - shoulderCenter.Position.X);
-                        }
-                        else
-                        {
-                            relativePosition.X = -(hand1.Position.X - shoulderCenter.Position.X) / (shoulderLeft.Position.X - shoulderCenter.Position.X);
-                        }
-
-                        relativePosition.Y = 0;
-
-                        foreach (FeatureViewModel viewModel in showFeatureMatchedPage.FeatureList)
-                        {
-                            if ("Dominant Hand X".Equals(viewModel.FeatureName))
-                            {
-                                viewModel.Value = relativePosition.X.ToString();
-                            }
-                            else if ("Dominant Hand Y".Equals(viewModel.FeatureName))
-                            {
-                                viewModel.Value = relativePosition.Y.ToString();
-                            }
-                            else if ("Region".Equals(viewModel.FeatureName))
-                            {
-                                viewModel.Value = bodyPartForHands.Item1.ToString();
-                            }
-                        }
-                    }
-                }
-
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    if (isTracked && bodyPartForHands != null)
-                    {
-                        showFeatureMatchedPage.DominantHandPointLeft = 421 + (int)(relativePosition.X * (467 - 375) / 2);
-                        showFeatureMatchedPage.DominantHandPointTop = 135 - (int)(relativePosition.Y * (135 - 65) / 2);
-                        showFeatureMatchedPage.FeatureDataGrid.Items.Refresh();
-                        showFeatureMatchedPage.BodyPart = bodyPartForHands.Item1.ToString();
-                    }
-                    else
-                    {
-                        showFeatureMatchedPage.BodyPart = "";
-                    }
-                });
-            }
-
-            public override void ColorFrameCallback(long timestamp, int frameNumber, byte[] colorPixels)
-            {
-                if (colorPixels != null && colorPixels.Length > 0)
-                {
-                    frameLock.EnterWriteLock();
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        if (showFeatureMatchedPage.PlayScreenBitmap == null)
-                        {
-                            showFeatureMatchedPage.PlayScreenBitmap = new WriteableBitmap(640, 480, 96.0, 96.0, PixelFormats.Bgr32, null);
-                        }
-
-                        showFeatureMatchedPage.PlayScreenBitmap.WritePixels(new Int32Rect(0, 0, 640, 480), colorPixels, 640 * sizeof(int), 0);
-                    });
-                    frameLock.ExitWriteLock();
-                }
-            }
-        }
+      
 
         private void drawRegionOnCanvas(BodyPart bodyPart)
         {
@@ -575,5 +567,216 @@ namespace EducationSystem
             s.Play();
             s.Pause();
         }
+
+        private void Btn_Replay_OnClick(object sender, RoutedEventArgs e)
+        {
+            CurrentKeyFrame = -1;
+            NumOfFeatureCompleted = 0;
+            State = GuideState.StartPlay;
+            MediaMain.Position = TimeSpan.FromSeconds(0);
+            timer_guide.Start();
+        }
+
+        private void Btn_Perform_OnClick(object sender, RoutedEventArgs e)
+        {
+            State = GuideState.StartGuide;
+            var j = new JObject();
+            j["label"] = "guide";
+            j["wordname"] = currentModel.ID;
+            socket.SendDataAsync(j.ToString());
+        }
+
+        private class ShowFeatureMatchedPageFramesHandler : AbstractKinectFramesHandler
+        {
+            private BodyPartDetector detector = new BodyPartDetector();
+            private PrickSignDetector prickSignDetector;
+            private ShowFeatureMatchedPage showFeatureMatchedPage;
+            private ReaderWriterLockSlim frameLock;
+            private bool isRightHandPrimary = true;
+            private Skeleton skeleton;
+            private byte[] colorPixels;
+            private DepthImagePoint[] depthMap;
+            private DepthImagePixel[] depthPixels;
+            private System.Drawing.Point headPosition;
+            private int headDepth;
+
+            public ShowFeatureMatchedPageFramesHandler(ShowFeatureMatchedPage showFeatureMatchedPage)
+            {
+                this.showFeatureMatchedPage = showFeatureMatchedPage;
+                this.frameLock = new ReaderWriterLockSlim();
+                this.prickSignDetector = new PrickSignDetector(showFeatureMatchedPage);
+                OpenCVController.GetSingletonInstance().StartDebug();
+                
+            }
+
+            private HandShapeModel GenerateTest(Skeleton skl)
+            {
+                var model = new HandShapeModel(HandEnum.Right);
+                model.right = new System.Drawing.Rectangle(0, 0, 0, 0);
+                model.left = new System.Drawing.Rectangle(0, 0, 0, 0);
+                model.skeletonData = FrameConverter.GetFrameDataArgString(sensor, skl);
+                return model;
+            }
+
+            public override void DepthFrameCallback(long timestamp, int frameNumber, DepthImagePixel[] depthPixel)
+            {
+                if (depthMap == null)
+                {
+                    depthMap = new DepthImagePoint[sensor.DepthStream.FramePixelDataLength];
+                }
+                this.depthPixels = depthPixel;
+                sensor.CoordinateMapper.MapColorFrameToDepthFrame(
+                             sensor.ColorStream.Format, sensor.DepthStream.Format,
+                             depthPixel,
+                             this.depthMap);
+            }
+
+            public override void SkeletonFrameCallback(long timestamp, int frameNumber, Skeleton[] skeletonData)
+            {
+                bool isTracked = false;
+                Tuple<BodyPart, BodyPart> bodyPartForHands = null;
+                Point relativePosition = new Point();
+                bool leftHandRaise = false;
+
+                foreach (Skeleton skeleton in skeletonData)
+                {
+                    if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
+                    {
+                        isTracked = true;
+                        //bodyPartForHands = detector.decide(skeleton);
+                        //prickSignDetector.Update(skeleton);
+
+                        Joint hand1 = skeleton.Joints[isRightHandPrimary ? JointType.HandRight : JointType.HandLeft];
+                        Joint hand2 = skeleton.Joints[isRightHandPrimary ? JointType.HandLeft : JointType.HandRight];
+                        Joint shoulderLeft = skeleton.Joints[JointType.ShoulderLeft];
+                        Joint shoulderCenter = skeleton.Joints[JointType.ShoulderCenter];
+                        Joint shoulderRight = skeleton.Joints[JointType.ShoulderRight];
+                        if (skeleton.Joints[JointType.Head].TrackingState == JointTrackingState.Tracked)
+                        {
+                            SkeletonPoint head = skeleton.Joints[JointType.Head].Position;
+                            headPosition = SkeletonPointToScreen(head);
+                            try
+                            {
+                                headDepth = depthPixels[headPosition.X + headPosition.Y * 640].Depth;
+                            }
+                            catch (Exception)
+                            {
+                                Console.WriteLine(headPosition.X);
+                                Console.WriteLine(headPosition.Y);
+                                Console.WriteLine(headPosition.X + headPosition.Y * 640);
+                                return;
+                            }
+                        }
+                        if (hand2.Position.Y > skeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
+                        {
+                            leftHandRaise = true;
+                        }
+
+                        if (hand1.Position.X > shoulderCenter.Position.X)
+                        {
+                            relativePosition.X = (hand1.Position.X - shoulderCenter.Position.X) / (shoulderRight.Position.X - shoulderCenter.Position.X);
+                        }
+                        else
+                        {
+                            relativePosition.X = -(hand1.Position.X - shoulderCenter.Position.X) / (shoulderLeft.Position.X - shoulderCenter.Position.X);
+                        }
+
+                        relativePosition.Y = 0;
+
+                        var handModel = OpenCVController.GetSingletonInstance()
+                            .FindHandFromColor(null, colorPixels, depthMap, headPosition, headDepth, 4);
+                        if (handModel != null && handModel.type != HandEnum.None)
+                        {
+                            if (handModel.intersectCenter != System.Drawing.Rectangle.Empty
+                                && !leftHandRaise)
+                            {
+                                //false intersect right hand behind head and left hand on initial position
+                                // to overcome the problem of right hand lost and left hand recognized as intersected.
+                            }
+                            else
+                            {
+                                if (!leftHandRaise && handModel.type == HandEnum.Both)
+                                {
+                                    handModel.type = HandEnum.Right;
+                                }
+                                Console.WriteLine(handModel.type);
+                                Application.Current.Dispatcher.Invoke(() =>
+                                {
+                                    switch (handModel.type)
+                                    {
+                                        case HandEnum.Right:
+                                            showFeatureMatchedPage.img_guide_right.Source = handModel.RightColor.Bitmap.ToBitmapSource();
+                                            break;
+                                        case HandEnum.Both:
+                                            showFeatureMatchedPage.img_guide_right.Source = handModel.RightColor.Bitmap.ToBitmapSource();
+                                            showFeatureMatchedPage.img_guide_left.Source = handModel.LeftColor.Bitmap.ToBitmapSource();
+                                            break;
+                                        case HandEnum.Intersect:
+                                            showFeatureMatchedPage.img_guide_intersect.Source = handModel.RightColor.Bitmap.ToBitmapSource();
+                                            break;
+                                        default:
+                                            return;
+                                    }
+                                });
+                                
+                                SocketManager.GetInstance().SendDataAsync(handModel);
+                            }
+                        }
+                        Console.WriteLine("tracked");
+                        //foreach (FeatureViewModel viewModel in showFeatureMatchedPage.FeatureList)
+                        //{
+                        //    if ("Dominant Hand X".Equals(viewModel.FeatureName))
+                        //    {
+                        //        viewModel.Value = relativePosition.X.ToString();
+                        //    }
+                        //    else if ("Dominant Hand Y".Equals(viewModel.FeatureName))
+                        //    {
+                        //        viewModel.Value = relativePosition.Y.ToString();
+                        //    }
+                        //    else if ("Region".Equals(viewModel.FeatureName))
+                        //    {
+                        //        viewModel.Value = bodyPartForHands.Item1.ToString();
+                        //    }
+                        //}
+                    }
+                }
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    if (isTracked && bodyPartForHands != null)
+                    {
+                        showFeatureMatchedPage.DominantHandPointLeft = 421 + (int)(relativePosition.X * (467 - 375) / 2);
+                        showFeatureMatchedPage.DominantHandPointTop = 135 - (int)(relativePosition.Y * (135 - 65) / 2);
+                        showFeatureMatchedPage.FeatureDataGrid.Items.Refresh();
+                        showFeatureMatchedPage.BodyPart = bodyPartForHands.Item1.ToString();
+                    }
+                    else
+                    {
+                        showFeatureMatchedPage.BodyPart = "";
+                    }
+                });
+            }
+
+            public override void ColorFrameCallback(long timestamp, int frameNumber, byte[] colorPixels)
+            {
+                if (colorPixels != null && colorPixels.Length > 0)
+                {
+                    frameLock.EnterWriteLock();
+                    this.colorPixels = colorPixels;
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        if (showFeatureMatchedPage.PlayScreenBitmap == null)
+                        {
+                            showFeatureMatchedPage.PlayScreenBitmap = new WriteableBitmap(640, 480, 96.0, 96.0, PixelFormats.Bgr32, null);
+                        }
+
+                        showFeatureMatchedPage.PlayScreenBitmap.WritePixels(new Int32Rect(0, 0, 640, 480), colorPixels, 640 * sizeof(int), 0);
+                    });
+                    frameLock.ExitWriteLock();
+                }
+            }
+        }
+
     }
+
 }

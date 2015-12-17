@@ -16,8 +16,10 @@ using System.Threading;
 
 namespace CURELab.SignLanguage.HandDetector
 {
+    public delegate void DataReceivedDelegate(string msg);
     public class SocketManager
     {
+        public event DataReceivedDelegate DataReceivedEvent;
         private static SocketManager Instance;
         private TcpClient client;
         private NetworkStream ns;
@@ -58,13 +60,40 @@ namespace CURELab.SignLanguage.HandDetector
                 SendQueue = new Queue<string>();
                 sendThread = new Thread(new ThreadStart(SendThreadCall));
                 sendThread.Start();
+                new Thread(OnReceived).Start();
             }
             catch (Exception)
             {
                 Console.WriteLine("not connected");
-                throw;
             }
             
+        }
+
+        private void OnReceived()
+        {
+            while (true)
+            {
+                if (ns != null)
+                {
+                    try
+                    {
+                        byte[] myReadBuffer = new byte[1024];
+                        var numberOfBytesRead = ns.Read(myReadBuffer, 0, myReadBuffer.Length);
+                        var s = Encoding.ASCII.GetString(myReadBuffer, 0, numberOfBytesRead);
+                        if (DataReceivedEvent!=null)
+                        {
+                            DataReceivedEvent(s.Trim());
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        ns.Close();
+                        ns = null;
+                    }
+                }
+                Thread.Sleep(5);
+            }
         }
 
         public string GetResponse()
@@ -178,6 +207,15 @@ namespace CURELab.SignLanguage.HandDetector
             lock (SendQueue)
             {
                 SendQueue.Enqueue(data);
+                //Console.WriteLine("{0} items", SendQueue.Count);
+            }
+        }
+
+        public void SendDataAsync(string model)
+        {
+            lock (SendQueue)
+            {
+                SendQueue.Enqueue(model + SPLIT);
                 //Console.WriteLine("{0} items", SendQueue.Count);
             }
         }

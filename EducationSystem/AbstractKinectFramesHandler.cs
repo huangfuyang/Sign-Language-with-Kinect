@@ -22,6 +22,7 @@ namespace EducationSystem
         private HandPointer capturedHandPointer;
         private HandPointer grippedHandpointer;
 
+        protected KinectSensor sensor;
         public AbstractKinectFramesHandler(bool isRegisterAllFrameReady = true)
             : this(KinectState.Instance.KinectRegion, isRegisterAllFrameReady)
         {
@@ -35,8 +36,18 @@ namespace EducationSystem
             this.isRegisterAllFrameReady = isRegisterAllFrameReady;
         }
 
+        public void UnregisterCallbacks(KinectSensor sensor)
+        {
+            sensor.AllFramesReady -= sensor_AllFramesReady;
+            sensor.SkeletonFrameReady -= sensor_SkeletonFrameReady;
+            sensor.DepthFrameReady -= sensor_DepthFrameReady;
+            sensor.ColorFrameReady -= sensor_ColorFrameReady;
+        }
+
         public void RegisterCallbackToSensor(KinectSensor sensor)
         {
+            UnregisterCallbacks(sensor);
+            this.sensor = sensor;
             if (isRegisterAllFrameReady)
             {
                 sensor.AllFramesReady += sensor_AllFramesReady;
@@ -232,6 +243,7 @@ namespace EducationSystem
             }
         }
 
+
         private void handleDepthImageFrame(DepthImageFrame depthFrame)
         {
             using (depthFrame)
@@ -258,6 +270,14 @@ namespace EducationSystem
                     ThreadPool.QueueUserWorkItem(new WaitCallback(o => ColorFrameCallback(colorFrame.Timestamp, colorFrame.FrameNumber, colorPixels)));
                 }
             }
+        }
+
+        protected System.Drawing.Point SkeletonPointToScreen(SkeletonPoint skelpoint)
+        {
+            // Convert point to depth space.  
+            // We are not using depth directly, but we do want the points in our 640x480 output resolution.
+            DepthImagePoint depthPoint = sensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skelpoint, DepthImageFormat.Resolution640x480Fps30);
+            return new System.Drawing.Point(depthPoint.X, depthPoint.Y);
         }
     }
 }

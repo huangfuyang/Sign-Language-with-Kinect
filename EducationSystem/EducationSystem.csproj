@@ -105,6 +105,7 @@
     <Compile Include="AbstractKinectFramesHandler.cs" />
     <Compile Include="ActiveUserDetector.cs" />
     <Compile Include="ConsoleManager.cs" />
+    <Compile Include="DataTransfer.cs" />
     <Compile Include="Detectors\AbstractDetector.cs" />
     <Compile Include="Detectors\BodyPartDetector.cs" />
     <Compile Include="Detectors\ReleaseHandDetector.cs" />

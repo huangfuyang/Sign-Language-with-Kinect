@@ -5,7 +5,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace CURELab.SignLanguage.StaticTools
+namespace EducationSystem
 {
     public static class ConsoleManager
     {
