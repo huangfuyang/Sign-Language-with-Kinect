@@ -105,7 +105,7 @@ namespace CURELab.SignLanguage.HandDetector
                     var skeletons = new Skeleton[skeletonFrame.SkeletonArrayLength];
                     //Console.WriteLine("ske:{0}", skeletonFrame.Timestamp);
                     skeletonFrame.CopySkeletonDataTo(skeletons);
-                   // this.backgroundRemovedColorStream.ProcessSkeleton(skeletons, skeletonFrame.Timestamp);
+                    // this.backgroundRemovedColorStream.ProcessSkeleton(skeletons, skeletonFrame.Timestamp);
                     ChooseSkeleton(skeletons);
                     if (currentSkeleton != null)
                     {
@@ -136,7 +136,7 @@ namespace CURELab.SignLanguage.HandDetector
                             new System.Windows.Int32Rect(0, 0, this.ColorWriteBitmap.PixelWidth,
                                 this.ColorWriteBitmap.PixelHeight),
                             this.colorPixels,
-                            this.ColorWriteBitmap.PixelWidth*sizeof (int),
+                            this.ColorWriteBitmap.PixelWidth * sizeof(int),
                             0);
                     }));
                 }
@@ -322,7 +322,7 @@ namespace CURELab.SignLanguage.HandDetector
                                 {
                                     System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                                     {
-                                        mwWindow.img_left.Source = new Bitmap(100,100).ToBitmapSource();
+                                        mwWindow.img_left.Source = new Bitmap(100, 100).ToBitmapSource();
                                     }));
                                 }
                             }
@@ -330,7 +330,7 @@ namespace CURELab.SignLanguage.HandDetector
                             {
                                 System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                                 {
-                                    mwWindow.img_right.Source = new Bitmap(100,100).ToBitmapSource();
+                                    mwWindow.img_right.Source = new Bitmap(100, 100).ToBitmapSource();
                                     mwWindow.img_left.Source = new Bitmap(100, 100).ToBitmapSource();
                                 }));
                             }
@@ -350,7 +350,7 @@ namespace CURELab.SignLanguage.HandDetector
                             }
                         }
                     }
-                    
+
                     //*******************upadte UI
                     if (ShowFinal)
                     {
@@ -360,7 +360,7 @@ namespace CURELab.SignLanguage.HandDetector
                                 new System.Windows.Int32Rect(0, 0, this.DepthWriteBitmap.PixelWidth,
                                     this.DepthWriteBitmap.PixelHeight),
                                 processImg,
-                                this.DepthWriteBitmap.PixelWidth*sizeof (int),
+                                this.DepthWriteBitmap.PixelWidth * sizeof(int),
                                 0);
                         }));
                     }
@@ -372,7 +372,7 @@ namespace CURELab.SignLanguage.HandDetector
                                 new System.Windows.Int32Rect(0, 0, this.DepthWriteBitmap.PixelWidth,
                                     this.DepthWriteBitmap.PixelHeight),
                                 colorPixels,
-                                this.DepthWriteBitmap.PixelWidth*sizeof (int),
+                                this.DepthWriteBitmap.PixelWidth * sizeof(int),
                                 0);
                         }));
                     }
@@ -409,56 +409,57 @@ namespace CURELab.SignLanguage.HandDetector
         }
 
         private List<SignModel> slist;
-        private string signer = "hfy";
+        private string signer = "lzz";
         public override void Start()
         {
-            try
+
+            OpenFileDialog fbd = new OpenFileDialog();
+
+            #region
+
+            //DialogResult result = fbd.ShowDialog();
+            //if (result == System.Windows.Forms.DialogResult.OK)
+            //{
+            //    var signFile = fbd.OpenFile();
+            //    StreamReader sr = new StreamReader(signFile);
+            //    string line = sr.ReadLine();
+            //    slist = new List<SignModel>();
+            //    while (!String.IsNullOrEmpty(line))
+            //    {
+            //        var s = line.Split();
+            //        SignModel model = new SignModel()
+            //        {
+            //            ID = s[1],
+            //            Name = s[3]
+            //        };
+            //        slist.Add(model);
+            //        line = sr.ReadLine();
+            //    }
+            //    signFile.Close();
+            //    Thread t = new Thread(ControlThread);
+            //    t.Start();
+
+            //}
+            //else
+
+            #endregion
+
             {
-                OpenFileDialog fbd = new OpenFileDialog();
-
-                #region 
-
-                //DialogResult result = fbd.ShowDialog();
-                //if (result == System.Windows.Forms.DialogResult.OK)
-                //{
-                //    var signFile = fbd.OpenFile();
-                //    StreamReader sr = new StreamReader(signFile);
-                //    string line = sr.ReadLine();
-                //    slist = new List<SignModel>();
-                //    while (!String.IsNullOrEmpty(line))
-                //    {
-                //        var s = line.Split();
-                //        SignModel model = new SignModel()
-                //        {
-                //            ID = s[1],
-                //            Name = s[3]
-                //        };
-                //        slist.Add(model);
-                //        line = sr.ReadLine();
-                //    }
-                //    signFile.Close();
-                //    Thread t = new Thread(ControlThread);
-                //    t.Start();
-
-                //}
-                //else
-
-                #endregion
-
+                int start = 200;
+                int end = 300;
+                slist = new List<SignModel>();
+                string path = @"D:\Kinectdata\aaron-michael\video\";
+                var files = Directory.GetFiles(path);
+                for (int i = start - 1; i < end; i++)
                 {
-                    int start = 13;
-                    int end = 30;
-                    slist = new List<SignModel>();
-                    string path = @"D:\Kinectdata\aaron-michael\video\";
-                    var files = Directory.GetFiles(path);
-                    for (int i = start-1; i < end; i++)
+                    try
                     {
-                        if (i>=0 && i < files.Length)
+                        if (i >= 0 && i < files.Length)
                         {
                             var fname = files[i].Split('\\').Last();
                             fname = fname.Substring(0, fname.Length - 6);
                             SignModel model = new SignModel()
-                            { 
+                            {
                                 index = i,
                                 ID = fname.Split()[0],
                                 Name = DataContextCollection.GetInstance().fullWordList[fname.Split()[0]],
@@ -477,20 +478,21 @@ namespace CURELab.SignLanguage.HandDetector
                             }
                             slist.Add(model);
                         }
-                       
                     }
-               
-                 
-                    Thread t = new Thread(ControlThread);
-                    t.Start();
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        continue;
+                    }
                 }
 
 
+                Thread t = new Thread(ControlThread);
+                t.Start();
             }
-            catch (Exception)
-            {
-                Console.WriteLine("could not open file");
-            }
+
+
+
         }
         private Timer My_Timer = new Timer();
         Capture _CCapture = null;
@@ -533,7 +535,7 @@ namespace CURELab.SignLanguage.HandDetector
                         Console.WriteLine(e);
                         return;
                     }
-                   
+
                     Thread.Sleep(1000 / FrameRate);
                 }
             }
@@ -559,13 +561,13 @@ namespace CURELab.SignLanguage.HandDetector
         private void ControlThread()
         {
 
-            string dir = @"D:\TrainingData\" + signer+"\\";
+            string dir = @"D:\TrainingData\" + signer + "\\";
             for (int i = 0; i < slist.Count; i++)
             {
                 var m = slist[i];
                 System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                 {
-                    mwWindow.lbl_candidate1.Content = String.Format("播放:{0},{1}/{2}", m.Name,i+1,slist.Count);
+                    mwWindow.lbl_candidate1.Content = String.Format("播放:{0},{1}/{2}", m.Name, i + 1, slist.Count);
                     mwWindow.spn_key.Children.Clear();
                     if (m.Images != null)
                     {
@@ -583,7 +585,7 @@ namespace CURELab.SignLanguage.HandDetector
                 string videoName = m.Video;
                 PlayVideo(videoName);
                 // add new handshape images
-                
+
                 System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(delegate
                 {
                     mwWindow.lbl_candidate1.Content = String.Format("播放:{0} 第二遍", m.Name);
@@ -634,6 +636,6 @@ namespace CURELab.SignLanguage.HandDetector
         public string ID;
         public string Name;
         public string Video;
-        public string[] Images;  
+        public string[] Images;
     }
 }
