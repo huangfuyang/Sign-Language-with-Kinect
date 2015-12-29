@@ -232,6 +232,7 @@ namespace CURELab.SignLanguage.HandDetector
                     PointF leftVector = PointF.Empty;
                     bool isSkip = true;
                     bool leftHandRaise = false;
+                    bool rightHandRaise = false;
                     HandShapeModel handModel = null;
                     //if (!isSkip)
                     {
@@ -262,7 +263,17 @@ namespace CURELab.SignLanguage.HandDetector
                         {
                             isSkip = false;
                         }
-
+                        if (currentSkeleton.Joints[JointType.HandRight].Position.Y >
+                            currentSkeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
+                        //if (handModel.right.GetYCenter() < hip.Y + 50 || (handModel.IntersectRectangle != Rectangle.Empty && handModel.IntersectRectangle.Y < hip.Y + 50))
+                        {
+                            rightHandRaise = true;
+                        }
+                        if (currentSkeleton.Joints[JointType.HandLeft].Position.Y >
+                            currentSkeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
+                        {
+                            leftHandRaise = true;
+                        }
                         //if (currentSkeleton.Joints[JointType.HandLeft].Position.Y >currentSkeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
                         //{
                             //leftHandRaise = true;
@@ -287,12 +298,13 @@ namespace CURELab.SignLanguage.HandDetector
                             rightFirst = handModel.right;
                             leftFirst = handModel.left;
                         }
-                        //if (handModel.IntersectRectangle != Rectangle.Empty
-                        //        && !leftHandRaise)
-                        //{
-                        //    //false intersect right hand behind head and left hand on initial position
-                        //}
-                        //else
+                        if (handModel.IntersectRectangle != Rectangle.Empty
+                                 && !leftHandRaise)
+                        {
+                            //false intersect right hand behind head and left hand on initial position
+                            // to overcome the problem of right hand lost and left hand recognized as intersected.
+                        }
+                        else
                         {
                             if (handModel.type == HandEnum.Intersect)
                             {
