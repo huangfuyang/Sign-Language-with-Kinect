@@ -62,7 +62,7 @@ namespace CURELab.SignLanguage.HandDetector
             //this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
             //sensorChooserUi.KinectSensorChooser = this.sensorChooser;
             //this.sensorChooser.Start(); 
-            RegisterThreshold("V min", ref OpenCVController.VMIN, 150, 133);
+            RegisterThreshold("V min", ref OpenCVController.VMIN, 150, 137);
             //RegisterThreshold("cannyThresh", ref OpenCVController.CANNY_CONNECT_THRESH, 100, 22);
             //RegisterThreshold("play speed", ref OpenNIController.SPEED, 2, 1);
             //RegisterThreshold("diff", ref KinectController.DIFF, 10, 7);
@@ -211,17 +211,7 @@ namespace CURELab.SignLanguage.HandDetector
         {
             ResetAll();
             m_KinectController = KinectTrainer.GetSingletonInstance();
-            this.DataContext = m_KinectController;
-            m_KinectController.Initialize();
-            this.img_color.Source = m_KinectController.ColorWriteBitmap;
-            this.img_depth.Source = m_KinectController.DepthWriteBitmap;
-            FolderBrowserDialog fbd = new FolderBrowserDialog();
-            DialogResult result = fbd.ShowDialog();
-            if (result == System.Windows.Forms.DialogResult.OK)
-                (m_KinectController as KinectTrainer).OpenDir(fbd.SelectedPath);
-
-            //fbd.SelectedPath = @"D:\Kinect data\test\";
-            //lbl_folder.Content = files.Length.ToString();
+    
         }
 
         private void Menu_Kinect_Click(object sender, RoutedEventArgs e)
@@ -269,6 +259,8 @@ namespace CURELab.SignLanguage.HandDetector
             this.DataContext = m_KinectController;
             this.img_color.Source = m_KinectController.ColorWriteBitmap;
             this.img_depth.Source = m_KinectController.DepthWriteBitmap;
+
+           
         }
 
         public void ChangeSensor(KinectSensor _sensor)

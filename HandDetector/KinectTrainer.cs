@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using System.Windows.Media.TextFormatting;
 using Emgu.CV;
@@ -55,6 +57,47 @@ namespace CURELab.SignLanguage.HandDetector
                 singleInstance = new KinectTrainer();
             }
             return singleInstance;
+        }
+
+        public override void Initialize(KinectSensor _sensor)
+        {
+            // Look through all sensors and start the first connected one.
+            // This requires that a Kinect is connected at the time of app startup.
+            // To make your app robust against plug/unplug, 
+            // it is recommended to use KinectSensorChooser provided in Microsoft.Kinect.Toolkit (See components in Toolkit Browser).
+            sensor = _sensor;
+            ShowFinal = true;
+
+            if (null != sensor)
+            {
+                // Turn on the color stream to receive color frames
+                //this.backgroundRemovedColorStream = new BackgroundRemovedColorStream(sensor);
+                //this.backgroundRemovedColorStream.Enable(ColorFormat, DepthFormat);
+                //this.backgroundRemovedColorStream.BackgroundRemovedFrameReady += this.BackgroundRemovedFrameReadyHandler;
+                //sensor.DepthStream.Range = DepthRange.Near;
+                // Allocate space to put the pixels we'll receive           
+                this.colorPixels = new byte[sensor.ColorStream.FramePixelDataLength];
+                this.depthPixels = new byte[sensor.DepthStream.FramePixelDataLength];
+                // Allocate space to put the depth pixels we'll receive
+                this.depthImagePixels = new DepthImagePixel[sensor.DepthStream.FramePixelDataLength];
+                _mappedColorLocations = new ColorImagePoint[sensor.DepthStream.FramePixelDataLength];
+                _mappedDepthLocations = new DepthImagePoint[sensor.DepthStream.FramePixelDataLength];
+                // This is the bitmap we'll display on-screen
+                this.ColorWriteBitmap = new WriteableBitmap(sensor.ColorStream.FrameWidth, sensor.ColorStream.FrameHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgr32, null);
+                this.DepthWriteBitmap = new WriteableBitmap(sensor.DepthStream.FrameWidth, sensor.DepthStream.FrameHeight, 96.0, 96.0, System.Windows.Media.PixelFormats.Bgr32, null);
+                // Add an event handler to be called whenever there is new frame data
+                this.Status = Properties.Resources.Connected;
+
+                this.colorizer = new Colorizer(AngleRotateTan, 800, 3000);
+                headPosition = new Point(320, 0);
+                headDepth = 800;
+            }
+
+            if (null == sensor)
+            {
+                this.Status = Properties.Resources.NoKinectReady;
+            }
+
         }
 
         /// <summary>
@@ -301,6 +344,7 @@ namespace CURELab.SignLanguage.HandDetector
                         if (handModel.IntersectRectangle != Rectangle.Empty
                                  && !leftHandRaise)
                         {
+
                             //false intersect right hand behind head and left hand on initial position
                             // to overcome the problem of right hand lost and left hand recognized as intersected.
                         }
@@ -373,6 +417,17 @@ namespace CURELab.SignLanguage.HandDetector
                 skeWriter.WriteLine(line);
             }
             CurrentFrame++;
+        }
+
+        public override void Start()
+        {
+            FolderBrowserDialog fbd = new FolderBrowserDialog();
+            DialogResult result = fbd.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+                OpenDir(fbd.SelectedPath);
+
+            //fbd.SelectedPath = @"D:\Kinect data\test\";
+            //lbl_folder.Content = files.Length.ToString();
         }
 
         protected string GetHandModelString(HandShapeModel model)
