@@ -445,8 +445,8 @@ namespace CURELab.SignLanguage.HandDetector
             #endregion
 
             {
-                int start = 200;
-                int end = 300;
+                int start = 569;
+                int end = 700;
                 slist = new List<SignModel>();
                 string path = @"D:\Kinectdata\aaron-michael\video\";
                 var files = Directory.GetFiles(path);

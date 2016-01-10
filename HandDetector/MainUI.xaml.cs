@@ -50,9 +50,9 @@ namespace CURELab.SignLanguage.HandDetector
             //Menu_Kinect_Click(this, e);  //test
             //Menu_TrainHand_Click(this, e);//train hand shape
             //ServerMode();//real time recog
-            Menu_Train_Click(null,null);//train data
+            //Menu_Train_Click(null,null);//train data
             //MenuItem_Test_Click(this, e);//test
-            //TrainOnlineMode();
+            TrainOnlineMode();
             //OniMode();
 
         }
