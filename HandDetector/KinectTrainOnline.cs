@@ -445,7 +445,7 @@ namespace CURELab.SignLanguage.HandDetector
             #endregion
 
             {
-                int start = 569;
+                int start = 152;
                 int end = 700;
                 slist = new List<SignModel>();
                 string path = @"D:\Kinectdata\aaron-michael\video\";

@@ -562,7 +562,8 @@ namespace CURELab.SignLanguage.HandDetector
                     //var V = 0.5 *    R - 0.419 * G - 0.081 * B;
                     var d = depthMap[colorIndex / bytePerPixel].Depth;
                     //if (!(U > 100 && U < 129 && V > 140 && V < 170))//aaron
-                    if (!(U > 100 && U < 135 && V > VMIN && V < 170) || channel == 4 && colorPixels[colorIndex + 3] == 0)//Micheal
+                    if (!(U > 100 && U < 135 && V > VMIN && V < 170) || channel == 4 && d > headDepth + 200)//Micheal
+                    //if (!(U > 100 && U < 135 && V > VMIN && V < 170) || channel == 4 && colorPixels[colorIndex + 3] == 0)//Micheal old
                     //if (!(U > 95 && U < 135 && V > VMIN && V < 170) || d > headDepth + 200) //realtime
                     //if (!((Y < 20 || Y < 180 && Y > 170) && U > 55 && U < 140) || d > headDepth + 200) //realtime YCC
                     //if (!(U > 95 && U < 135 && V > 137 && V < 170) || colorPixels[colorIndex + 3] == 0) //realtime with hole filling

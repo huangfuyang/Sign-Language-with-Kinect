@@ -251,7 +251,6 @@ namespace CURELab.SignLanguage.HandDetector
                             Console.WriteLine(headPosition.X);
                             Console.WriteLine(headPosition.Y);
                             Console.WriteLine(headPosition.X + headPosition.Y * 640);
-                            return;
                         }
                     }
                     //Console.WriteLine("mapping:{0}", sw.ElapsedMilliseconds);
@@ -347,6 +346,7 @@ namespace CURELab.SignLanguage.HandDetector
 
                             //false intersect right hand behind head and left hand on initial position
                             // to overcome the problem of right hand lost and left hand recognized as intersected.
+                            line += "null,null";
                         }
                         else
                         {
@@ -396,8 +396,11 @@ namespace CURELab.SignLanguage.HandDetector
                             
                             line += GetHandModelString(handModel);
                         }
-                       
 
+                    }
+                    else
+                    {
+                        line += "null";                        
                     }
                     depthImg.Dispose();
                     //Console.WriteLine("save:{0}", sw.ElapsedMilliseconds);
