@@ -400,7 +400,7 @@ namespace CURELab.SignLanguage.HandDetector
                     }
                     else
                     {
-                        line += "null";                        
+                        line += ",null";                        
                     }
                     depthImg.Dispose();
                     //Console.WriteLine("save:{0}", sw.ElapsedMilliseconds);

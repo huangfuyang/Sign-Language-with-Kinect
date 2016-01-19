@@ -67,7 +67,7 @@ namespace CURELab.SignLanguage.HandDetector
             //Menu_Server_Click(this, e);//real time recog
             //Menu_Train_Click(this, e);//train data
             //MenuItem_Test_Click(this, e);//test
-            //TrainOnline();
+            TrainOnline();
 
 
             MathNet.Numerics.LinearAlgebra.Matrix<double> A = DenseMatrix.OfArray(new double[,] {

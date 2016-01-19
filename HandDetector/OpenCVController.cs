@@ -661,7 +661,7 @@ namespace CURELab.SignLanguage.HandDetector
             viewer.Image = colorImg;
             processImg = colorImg.Convert<Bgra, byte>().Bytes;
             if (handModel != null &&
-                !handModel.right.IsCloseTo(handModel.left, 20) &&
+                !handModel.right.IsCloseTo(handModel.left, 40) &&
                 handModel.type == HandEnum.Intersect)
             {
                 return null;
