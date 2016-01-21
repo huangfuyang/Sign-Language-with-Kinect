@@ -80,9 +80,11 @@ namespace EducationSystem
 
                     try
                     {
-                        args.NewSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
-                        args.NewSensor.DepthStream.Range = DepthRange.Near;
-                        args.NewSensor.SkeletonStream.EnableTrackingInNearRange = true;
+                        //args.NewSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Seated;
+                        //args.NewSensor.DepthStream.Range = DepthRange.Near;
+                        //args.NewSensor.SkeletonStream.EnableTrackingInNearRange = true;
+                        args.NewSensor.SkeletonStream.TrackingMode = SkeletonTrackingMode.Default;
+                        args.NewSensor.DepthStream.Range = DepthRange.Default;
                     }
                     catch (InvalidOperationException)
                     {

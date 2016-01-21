@@ -36,7 +36,7 @@ namespace CURELab.SignLanguage.HandDetector
     public class OpenCVController : INotifyPropertyChanged
     {
         public static double CANNY_THRESH;
-        public static double VMIN = 137;
+        public static double VMIN = 133;
         public static double CANNY_CONNECT_THRESH;
         public HOGDescriptor Hog_Descriptor;
         private ImageViewer viewer;

@@ -1,0 +1,38 @@
+﻿<Window x:Class="CURELab.SignLanguage.HandDetector.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:CURELab.SignLanguage.HandDetector"
+        xmlns:k="http://schemas.microsoft.com/kinect/2013"
+        Title="Sign Language Recognition System" Height="768" Width="1024" Loaded="WindowLoaded" Closing="WindowClosing" ResizeMode="NoResize">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Window.Resources>
+    <Grid Name="grd_main" >
+        <Grid.Background>
+            <ImageBrush ImageSource="/img/back01.png"/>
+        </Grid.Background>
+
+        <k:KinectRegion Name="kinectRegion" >
+            <Grid Name="kinectRegionGrid" >
+                <k:KinectTileButton x:Name="btnRecog" Content="開始使用" FontSize="58" Width="500" Height="200" Margin="358,377,160,163" Click="btnRecog_Click" Foreground="Black">
+                    <k:KinectTileButton.Background>
+                        <SolidColorBrush Color="Azure" Opacity="0.1" />
+                    </k:KinectTileButton.Background>
+                </k:KinectTileButton>
+            </Grid>
+        </k:KinectRegion>
+        <k:KinectSensorChooserUI HorizontalAlignment="Right" VerticalAlignment="Top" Name="sensorChooserUi"/>
+        <k:KinectUserViewer  VerticalAlignment="Top" HorizontalAlignment="Center" k:KinectRegion.KinectRegion="{Binding ElementName=kinectRegion}" Height="100" UserColoringMode="HighlightPrimary"  PrimaryUserColor="Red"/>
+        <TextBlock Name ="tbk_main" HorizontalAlignment="Left" TextAlignment="Center" VerticalAlignment="Top" TextWrapping="Wrap" Margin="361,100,0,0" FontSize="50pt" FontWeight="Light" Foreground="#FF5a5b5b" Width="428" Height="172" >
+            歡迎使用<LineBreak />手語翻譯系統
+        </TextBlock>
+        <!--<StatusBar HorizontalAlignment="Stretch" Name="statusBar" VerticalAlignment="Bottom" Background="White" Height="28" >
+            <StatusBarItem Padding="0 0 0 10">
+                <TextBlock Name="statusBarText" Text="{Binding Path=Status, Mode=OneWay}" Margin="5 2 0 0"></TextBlock>
+            </StatusBarItem>
+            <StatusBarItem Padding="0 0 0 10">
+                <TextBlock Name="statusBarKinectStudio" Margin="5 2 0 0"></TextBlock>
+            </StatusBarItem>
+        </StatusBar>-->
+    </Grid>
+</Window>

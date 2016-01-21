@@ -48,7 +48,7 @@ namespace CURELab.SignLanguage.HandDetector
                 client = new TcpClient();
                 IPAddress ipa = IPAddress.Parse(addr);
                 IPEndPoint ipe = new IPEndPoint(ipa, port);
-
+                SendQueue = new Queue<string>();
                 client.Connect(ipe);
 
                 if (client.Connected)
@@ -57,9 +57,8 @@ namespace CURELab.SignLanguage.HandDetector
                     ns = client.GetStream();
                     sw = new StreamWriter(ns);
                 }
-                SendQueue = new Queue<string>();
-                sendThread = new Thread(new ThreadStart(SendThreadCall));
-                sendThread.Start();
+               
+                new Thread(SendThreadCall).Start();
                 new Thread(OnReceived).Start();
             }
             catch (Exception)
@@ -71,7 +70,7 @@ namespace CURELab.SignLanguage.HandDetector
 
         private void OnReceived()
         {
-            while (true)
+            while (client.Connected)
             {
                 if (ns != null)
                 {
@@ -79,10 +78,17 @@ namespace CURELab.SignLanguage.HandDetector
                     {
                         byte[] myReadBuffer = new byte[1024];
                         var numberOfBytesRead = ns.Read(myReadBuffer, 0, myReadBuffer.Length);
-                        var s = Encoding.ASCII.GetString(myReadBuffer, 0, numberOfBytesRead);
+                        var s = Encoding.ASCII.GetString(myReadBuffer, 0, numberOfBytesRead).Trim();
                         if (DataReceivedEvent!=null)
                         {
-                            DataReceivedEvent(s.Trim());
+                            if (!String.IsNullOrEmpty(s))
+                            {
+                                var cs = s.Split(new string[] { SPLIT }, StringSplitOptions.RemoveEmptyEntries);
+                                foreach (var s1 in cs)
+                                {
+                                    DataReceivedEvent(s1);
+                                }
+                            }
                         }
                     }
                     catch (Exception e)
@@ -94,6 +100,7 @@ namespace CURELab.SignLanguage.HandDetector
                 }
                 Thread.Sleep(5);
             }
+            DataReceivedEvent("connection aborted");
         }
 
         public string GetResponse()
@@ -184,21 +191,27 @@ namespace CURELab.SignLanguage.HandDetector
                     }
                     if (data != null)
                     {
-                        lock (sw)
+                        if (client.Connected)
                         {
-                            sw.Write(data);
-                            sw.Flush();
-                            //Console.WriteLine("{0} char sent {1} msg left", data.Length, count);
+                            lock (sw)
+                            {
+                                sw.Write(data);
+                                sw.Flush();
+                                //Console.WriteLine("{0} char sent {1} msg left", data.Length, count);
+                            }
                         }
+                        else
+                        {
+                            Console.WriteLine("cannot send. connection aborted");
+                        }
+                        
                     }
                 }
                 catch (Exception e )
                 {
                     Console.WriteLine(e);
                 }
-                
                 Thread.Sleep(5);
-        
             }
         }
         public void SendDataAsync(HandShapeModel model)

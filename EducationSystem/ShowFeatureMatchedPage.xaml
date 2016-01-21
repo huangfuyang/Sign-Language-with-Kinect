@@ -26,8 +26,13 @@
         <k:KinectScrollViewer Grid.Column="1"  Grid.Row="1" Name="KinectScrollViewer" Margin="41,21,33,10" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"  CanContentScroll="True">
             <WrapPanel HorizontalAlignment="Center" Name="panelSignList" />
         </k:KinectScrollViewer>
-        <Image  Name="KinectViewImage" Grid.Column="1" Grid.Row="0"/>
-        <Canvas  Margin="0,10,0,0" Name="BodyPartCanvas" Grid.Column="0" Grid.Row="0" x:FieldModifier="public" Background="#7FFFFFFF">
+        <Canvas Grid.Column="1" Grid.Row="0">
+            <Image  Name="KinectViewImage" Width="480" />
+            <Image  Name="RightGuider" Source="Images/red-ring.png" Width="30" Height="30"/>
+            <Image  Name="LefttGuider" Source="Images/red-ring.png" Width="30" Height="30"/>
+        </Canvas>
+       
+        <Canvas Name="BodyPartCanvas" Grid.Column="0" Grid.Row="0" x:FieldModifier="public" Background="#7FFFFFFF">
             <Image Visibility="Collapsed"  Source="Images/BodyDiagram.png" Width="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}}"  Height="{Binding ActualHeight, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}}" />
             <Ellipse
 				Canvas.Top="{Binding DominantHandPointTop}"
@@ -106,7 +111,7 @@
             <Image Name="img_left" Width="150" HorizontalAlignment="Left" Margin="10,0,0,0"></Image>
             <Image Name="img_right" Width="150" HorizontalAlignment="Right" Margin="0,0,10,0"></Image>
             <Image Name="img_intersect" Width="150" HorizontalAlignment="Left" Margin="167,0,0,0"></Image>
-            <k:KinectTileButton Visibility="Collapsed" Background="BlanchedAlmond"  Name="btn_Replay" Grid.Row="0" Content="再看一次" HorizontalAlignment="Left" Height="Auto" Width="210" Click="Btn_Replay_OnClick"></k:KinectTileButton>
+            <k:KinectTileButton Visibility="Collapsed" Background="BlanchedAlmond"  Name="btn_Replay" Grid.Row="0" Content="打分" HorizontalAlignment="Left" Height="Auto" Width="210" Click="Btn_Replay_OnClick"></k:KinectTileButton>
             <k:KinectTileButton Visibility="Collapsed" Background="Cyan"  Name="btn_Perform" Grid.Row="0" Content="跟著做" HorizontalAlignment="Right" Height="Auto" Width="210" Click="Btn_Perform_OnClick"></k:KinectTileButton>
             <Label Visibility="Collapsed" FontSize="22" HorizontalContentAlignment="Center" Width="120" Margin="184,110,185,0" VerticalContentAlignment="Bottom" Background="#7FFFFFFF">
                 <Label.Content>

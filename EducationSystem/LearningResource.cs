@@ -50,7 +50,8 @@ namespace EducationSystem
             }
             //load key frames
             //string frame_text = "Data\\Education.txt";
-            string frame_text = "Data\\data.json";
+            //string frame_text = "Data\\data.json";
+            string frame_text = "Data\\education_fy.txt";
             if (File.Exists(frame_text))
             {
                 frame_text = File.ReadAllText(frame_text);
@@ -91,8 +92,10 @@ namespace EducationSystem
                             model.KeyFrames.Add(new KeyFrame()
                             {
                                 FrameNumber = framenumber,
-                                LeftPosition = new Point((int)frame["pos"][2], (int)frame["pos"][3]),
                                 RightPosition = new Point((int)frame["pos"][0], (int)frame["pos"][1]),
+                                LeftPosition = new Point((int)frame["pos"][2], (int)frame["pos"][3]),
+                                RightPositionRel = new Point((double)frame["pos"][4], (double)frame["pos"][5]),
+                                LeftPositionRel = new Point((double)frame["pos"][6], (double)frame["pos"][7]),
                                 Type = frame["type"].ToObject<HandEnum>()
                             });
                             //load key images

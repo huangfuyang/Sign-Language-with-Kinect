@@ -281,6 +281,7 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\ArrowRed.png" />
+    <Resource Include="Images\red-ring.png" />
     <Content Include="x86\cudart32_65.dll" />
     <Content Include="x86\cufft32_65.dll" />
     <Content Include="x86\cvextern.dll" />

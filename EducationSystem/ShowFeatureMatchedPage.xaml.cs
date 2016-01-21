@@ -30,12 +30,14 @@ using Timer = System.Timers.Timer;
 
 namespace EducationSystem
 {
-    enum GuideState
+    public enum GuideState
     {
         StartPlay,
         EndPlay,
         StartGuide,
-        EndGuide
+        EndGuide,
+        StartEvaluation,
+        EndEvaluation
     }
     /// <summary>
     /// Interaction logic for ShowFeatureMatchedPage.xaml
@@ -147,10 +149,10 @@ namespace EducationSystem
         private ImageViewer viewer;
         private Timer timer_guide;
         private GuideState _state;
-        private GuideState State
+        public  GuideState State
         {
             get { return _state; }
-            set
+            private set
             {
                 _state = value;
                 switch (value)
@@ -160,12 +162,28 @@ namespace EducationSystem
                         btn_Replay.Visibility = Visibility.Collapsed;
                         KinectState.Instance.KinectRegion.IsCursorVisible = true;
                         framesHandler.UnregisterCallbacks(KinectState.Instance.CurrentKinectSensor);
+                        RightGuider.Visibility = Visibility.Collapsed;
+                        LefttGuider.Visibility = Visibility.Collapsed;
                         break;
                     case GuideState.EndPlay:
                         btn_Replay.Visibility = Visibility.Visible;
                         btn_Perform.Visibility = Visibility.Visible;
                         KinectState.Instance.KinectRegion.IsCursorVisible = true;
                         framesHandler.UnregisterCallbacks(KinectState.Instance.CurrentKinectSensor);
+                        RightGuider.Visibility = Visibility.Collapsed;
+                        LefttGuider.Visibility = Visibility.Collapsed;
+                        break;
+                    case GuideState.StartEvaluation:
+                        KinectScrollViewer.Visibility = Visibility.Collapsed;
+                        img_guide_intersect.Visibility = Visibility.Visible;
+                        img_guide_left.Visibility = Visibility.Visible;
+                        img_guide_right.Visibility = Visibility.Visible;
+                        btn_Perform.Visibility = Visibility.Collapsed;
+                        btn_Replay.Visibility = Visibility.Collapsed;
+                        KinectState.Instance.KinectRegion.IsCursorVisible = false;
+                        framesHandler.RegisterCallbackToSensor(KinectState.Instance.CurrentKinectSensor);
+                        RightGuider.Visibility = Visibility.Collapsed;
+                        LefttGuider.Visibility = Visibility.Collapsed;
                         break;
                     case GuideState.StartGuide:
                         KinectScrollViewer.Visibility = Visibility.Collapsed;
@@ -176,7 +194,10 @@ namespace EducationSystem
                         btn_Replay.Visibility = Visibility.Collapsed;
                         KinectState.Instance.KinectRegion.IsCursorVisible = false;
                         framesHandler.RegisterCallbackToSensor(KinectState.Instance.CurrentKinectSensor);
+                        RightGuider.Visibility = Visibility.Visible;
+                        LefttGuider.Visibility = Visibility.Visible;
                         break;
+                    case GuideState.EndEvaluation:
                     case GuideState.EndGuide:
                         KinectScrollViewer.Visibility = Visibility.Visible;
                         img_guide_intersect.Visibility = Visibility.Collapsed;
@@ -186,6 +207,8 @@ namespace EducationSystem
                         btn_Replay.Visibility = Visibility.Visible;
                         KinectState.Instance.KinectRegion.IsCursorVisible = true;
                         framesHandler.UnregisterCallbacks(KinectState.Instance.CurrentKinectSensor);
+                        RightGuider.Visibility = Visibility.Collapsed;
+                        LefttGuider.Visibility = Visibility.Collapsed;
                         break;
                     default:
                         break;
@@ -229,7 +252,14 @@ namespace EducationSystem
 
         private void SocketOnDataReceivedEvent(string msg)
         {
+            Console.WriteLine("***********************");
             Console.WriteLine(msg);
+            if (msg.ToLower() == "finish" || msg.ToLower() == "next")
+            {
+                CurrentKeyFrame++;
+                Console.WriteLine("{0}/{1} steps completed",CurrentKeyFrame-1,currentModel.KeyFrames.Count-1);
+            }
+            Console.WriteLine("***********************");
         }
 
         //private unsafe void RegisterThreshold(string valuename, ref double thresh, double max, double initialValue)
@@ -265,6 +295,24 @@ namespace EducationSystem
             {
                 BodyPartCanvas.Children.Remove(s);
             }
+        }
+
+        private void MoveGuider(Point right, Point left)
+        {
+            right = right * new Matrix(0.75, 0, 0, 0.75, 0, 0);
+            left = left * new Matrix(0.75, 0, 0, 0.75, 0, 0);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                //Canvas.SetLeft(RightGuider, right.X - RightGuider.Width);
+                //Canvas.SetTop(RightGuider, right.Y - RightGuider.Height);
+                //Canvas.SetTop(LefttGuider, left.Y - LefttGuider.Width);
+                //Canvas.SetLeft(LefttGuider, left.X - LefttGuider.Height);
+                Canvas.SetLeft(RightGuider, right.X );
+                Canvas.SetTop(RightGuider, right.Y );
+                Canvas.SetTop(LefttGuider, left.Y );
+                Canvas.SetLeft(LefttGuider, left.X);
+            });
+           
         }
 
         private int CurrentKeyFrame = -1;
@@ -570,11 +618,17 @@ namespace EducationSystem
 
         private void Btn_Replay_OnClick(object sender, RoutedEventArgs e)
         {
-            CurrentKeyFrame = -1;
-            NumOfFeatureCompleted = 0;
-            State = GuideState.StartPlay;
-            MediaMain.Position = TimeSpan.FromSeconds(0);
-            timer_guide.Start();
+            //CurrentKeyFrame = -1;
+            //NumOfFeatureCompleted = 0;
+            //State = GuideState.StartPlay;
+            //MediaMain.Position = TimeSpan.FromSeconds(0);
+            //timer_guide.Start();
+            CurrentKeyFrame = 0;
+            State = GuideState.StartEvaluation;
+            var j = new JObject();
+            j["label"] = "evaluation";
+            j["wordname"] = currentModel.ID;
+            socket.SendDataAsync(j.ToString());
         }
 
         private void Btn_Perform_OnClick(object sender, RoutedEventArgs e)
@@ -584,6 +638,7 @@ namespace EducationSystem
             j["label"] = "guide";
             j["wordname"] = currentModel.ID;
             socket.SendDataAsync(j.ToString());
+            CurrentKeyFrame = 1;
         }
 
         private class ShowFeatureMatchedPageFramesHandler : AbstractKinectFramesHandler
@@ -631,13 +686,15 @@ namespace EducationSystem
                              this.depthMap);
             }
 
+            private bool IsRecording = false;
+
             public override void SkeletonFrameCallback(long timestamp, int frameNumber, Skeleton[] skeletonData)
             {
                 bool isTracked = false;
                 Tuple<BodyPart, BodyPart> bodyPartForHands = null;
                 Point relativePosition = new Point();
+                bool rightHandRaise = false;
                 bool leftHandRaise = false;
-
                 foreach (Skeleton skeleton in skeletonData)
                 {
                     if (skeleton.TrackingState == SkeletonTrackingState.Tracked)
@@ -658,6 +715,33 @@ namespace EducationSystem
                             try
                             {
                                 headDepth = depthPixels[headPosition.X + headPosition.Y * 640].Depth;
+                                // move guider
+                                if (showFeatureMatchedPage.State == GuideState.StartGuide)
+                                {
+                                    if (showFeatureMatchedPage.CurrentKeyFrame < showFeatureMatchedPage.currentModel.KeyFrames.Count)
+                                    {
+                                        var keyframe = showFeatureMatchedPage.currentModel.KeyFrames[showFeatureMatchedPage.CurrentKeyFrame];
+                                        var s_right = SkeletonPointToColor(shoulderRight.Position);
+                                        var s_left = SkeletonPointToColor(shoulderLeft.Position);
+                                        var c_head = SkeletonPointToColor(head);
+                                        var hip = SkeletonPointToColor(skeleton.Joints[JointType.HipCenter].Position);
+                                        var rightP = new Point()
+                                        {
+                                            X = keyframe.RightPositionRel.X * (s_right.X - s_left.X) + c_head.X,
+                                            Y = keyframe.RightPositionRel.Y*(hip.Y - c_head.Y) + c_head.Y
+                                        };
+                                        var leftP = new Point()
+                                        {
+                                            X = keyframe.LeftPositionRel.X * (s_right.X - s_left.X) + c_head.X,
+                                            Y = keyframe.LeftPositionRel.Y*(hip.Y - c_head.Y) + c_head.Y
+                                        };
+                                        showFeatureMatchedPage.MoveGuider(rightP,leftP);
+                                    }
+                                    else
+                                    {
+                                        showFeatureMatchedPage.State = GuideState.EndGuide;
+                                    }
+                                }
                             }
                             catch (Exception)
                             {
@@ -666,6 +750,12 @@ namespace EducationSystem
                                 Console.WriteLine(headPosition.X + headPosition.Y * 640);
                                 return;
                             }
+
+                            
+                        }
+                        if (hand1.Position.Y > skeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
+                        {
+                            rightHandRaise = true;
                         }
                         if (hand2.Position.Y > skeleton.Joints[JointType.HipCenter].Position.Y - 0.12)
                         {
@@ -682,9 +772,33 @@ namespace EducationSystem
                         }
 
                         relativePosition.Y = 0;
-
+                        if (colorPixels == null || depthMap == null)
+                        {
+                            return;
+                        }
                         var handModel = OpenCVController.GetSingletonInstance()
                             .FindHandFromColor(null, colorPixels, depthMap, headPosition, headDepth, 4);
+                        if (handModel == null)
+                        {
+                             handModel = new HandShapeModel(HandEnum.None);
+                        }
+                        //start recording
+                        if (!IsRecording && rightHandRaise)
+                        {
+                            Console.WriteLine("RECORDING");
+                            IsRecording = true;
+                        }
+                        //stop recording
+                        if (IsRecording && handModel.type != HandEnum.None && !rightHandRaise && !leftHandRaise && showFeatureMatchedPage.State == GuideState.StartEvaluation)
+                        {
+                            Console.WriteLine("END");
+                            if (SocketManager.GetInstance() != null)
+                            {
+                                SocketManager.GetInstance().SendEndAsync();
+                            }
+                            IsRecording = false;
+                        }
+
                         if (handModel != null && handModel.type != HandEnum.None)
                         {
                             if (handModel.intersectCenter != System.Drawing.Rectangle.Empty
@@ -717,12 +831,13 @@ namespace EducationSystem
                                         default:
                                             return;
                                     }
-                                });
-                                
+                                }); 
+                                handModel.skeletonData = FrameConverter.GetFrameDataArgString(sensor, skeleton);
                                 SocketManager.GetInstance().SendDataAsync(handModel);
                             }
                         }
-                        Console.WriteLine("tracked");
+                        //Console.WriteLine("tracked");
+                        break;
                         //foreach (FeatureViewModel viewModel in showFeatureMatchedPage.FeatureList)
                         //{
                         //    if ("Dominant Hand X".Equals(viewModel.FeatureName))

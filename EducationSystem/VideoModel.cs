@@ -27,7 +27,9 @@ namespace EducationSystem
         public int FrameNumber { get; set; }
         public HandEnum Type { get; set; }
         public Point RightPosition { get; set; }
-        public Point LeftPosition  { get; set; }
+        public Point RightPositionRel { get; set; }
+        public Point LeftPositionRel { get; set; }
+        public Point LeftPosition { get; set; }
         public BitmapSource RightImage { get; set; }
         public BitmapSource LeftImage { get; set; }
 
