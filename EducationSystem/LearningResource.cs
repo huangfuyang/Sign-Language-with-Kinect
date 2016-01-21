@@ -59,7 +59,7 @@ namespace EducationSystem
             var js = JsonConvert.DeserializeObject(frame_text) as JObject;
 
             // load videos
-            string path = @"D:\Kinectdata\aaron-michael\video\";
+            string path = @"videos\";
             var files = Directory.GetFiles(path);
             foreach (var file in files)
             {
@@ -100,9 +100,9 @@ namespace EducationSystem
                             });
                             //load key images
                             var rightimages = Directory.GetFiles(
-                                    String.Format(@"D:\Kinectdata\aaron-michael\image\{0}\handshape", fname), framenumber + "*.jpg");
+                                    String.Format(@"images\{0}\handshape", fname), framenumber + "*.jpg");
                             var leftimages = Directory.GetFiles(
-                                    String.Format(@"D:\Kinectdata\aaron-michael\image\{0}\handshape\left", fname), framenumber + "*.jpg");
+                                    String.Format(@"images\{0}\handshape\left", fname), framenumber + "*.jpg");
                             // try right image
                             if (rightimages.Length>0)
                             {

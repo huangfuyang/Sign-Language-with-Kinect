@@ -118,7 +118,7 @@
                     <AccessText TextWrapping="Wrap" Text="{Binding SignState}"/>
                 </Label.Content>
             </Label>
-            <Label Grid.Row="1" FontSize="32" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"  Background="#7FFFFFFF">
+            <Label Grid.Row="1" FontSize="32" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"  Background="#7FFFFFFF" Margin="5,10,-5,72" Grid.RowSpan="2">
                 <Label.Content>
                     <AccessText TextWrapping="Wrap" Text="{Binding CurrectWaitingState}"/>
                 </Label.Content>

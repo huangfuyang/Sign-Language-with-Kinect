@@ -57,8 +57,18 @@ namespace CURELab.SignLanguage.HandDetector
             {
                 left = EncodeImage(hand.LeftColor);
             }
-            var pos = String.Format("{0},{1},{2},{3}",
-                hand.right.GetXCenter(), hand.right.GetYCenter(), hand.left.GetXCenter(), hand.left.GetYCenter());
+            string pos;
+            if (hand.type == HandEnum.Intersect)
+            {
+                pos = String.Format("{0},{1},{2},{3}",
+             hand.intersectCenter.GetXCenter(), hand.intersectCenter.GetYCenter(), hand.intersectCenter.GetXCenter(), hand.intersectCenter.GetYCenter());
+
+            }
+            else
+            {
+                pos = String.Format("{0},{1},{2},{3}",
+            hand.right.GetXCenter(), hand.right.GetYCenter(), hand.left.GetXCenter(), hand.left.GetYCenter());
+            }
             var frame = new FrameData()
             {
                 right = right,

@@ -196,6 +196,7 @@ namespace EducationSystem
                         framesHandler.RegisterCallbackToSensor(KinectState.Instance.CurrentKinectSensor);
                         RightGuider.Visibility = Visibility.Visible;
                         LefttGuider.Visibility = Visibility.Visible;
+                        CurrectWaitingState = "start";
                         break;
                     case GuideState.EndEvaluation:
                     case GuideState.EndGuide:
@@ -254,10 +255,17 @@ namespace EducationSystem
         {
             Console.WriteLine("***********************");
             Console.WriteLine(msg);
-            if (msg.ToLower() == "finish" || msg.ToLower() == "next")
+            if (msg.ToLower() == "next")
             {
                 CurrentKeyFrame++;
-                Console.WriteLine("{0}/{1} steps completed",CurrentKeyFrame-1,currentModel.KeyFrames.Count-1);
+                KeyFrameChange(CurrentKeyFrame);
+            }
+            if (msg.ToLower() == "finish")
+            {
+                CurrentKeyFrame++;
+                string c = string.Format("恭喜你，完成了");
+                Console.WriteLine(c);
+                CurrectWaitingState = c;
             }
             Console.WriteLine("***********************");
         }
@@ -368,43 +376,13 @@ namespace EducationSystem
                             RemoveArrow(ref LeftSignArrow);
                         }
 
-                        // image
-                        if (currentModel.KeyFrames[endframe].Type == HandEnum.Intersect)
-                        {
-                            img_intersect.Source = currentModel.KeyFrames[endframe].RightImage;
-                            img_right.Source = null;
-                            img_left.Source = null;
-                        }
-                        else if (currentModel.KeyFrames[endframe].Type == HandEnum.Both)
-                        {
-                            img_right.Source = currentModel.KeyFrames[endframe].RightImage;
-                            img_left.Source = currentModel.KeyFrames[endframe].LeftImage;
-                            img_intersect.Source = null;
-                        }
-                        else if (currentModel.KeyFrames[endframe].Type == HandEnum.Right)
-                        {
-                            img_right.Source = currentModel.KeyFrames[endframe].RightImage;
-                            img_left.Source = null;
-                            img_intersect.Source = null;
-                        }
+                        SetSampleImage(endframe);
                     }
                     if (CurrentKeyFrame != startframe)
                     {
                         CurrentKeyFrame = startframe;
                         NumOfFeatureCompleted = CurrentKeyFrame;
-                        CurrectWaitingState = "第" + (NumOfFeatureCompleted + 1) + "步";
-                        switch (currentModel.KeyFrames[endframe].Type)
-                        {
-                            case HandEnum.Both:
-                                CurrectWaitingState += "分別移動你的【左右手】到箭頭所示位置，并做出相應手勢";
-                                break;
-                            case HandEnum.Intersect:
-                                CurrectWaitingState += "移動你的【雙手】到箭頭所示位置，并做出相應手勢";
-                                break;
-                            case HandEnum.Right:
-                                CurrectWaitingState += "移動你的【右手】到箭頭所示位置，并做出相應手勢";
-                                break;
-                        }
+                        KeyFrameChange(CurrentKeyFrame+1);                        
                         MediaMain.Pause();
                         timer_guide.Stop();
                         new Thread(() =>
@@ -418,6 +396,31 @@ namespace EducationSystem
                 }
             }));
 
+        }
+
+        private void SetSampleImage(int frame)
+        {
+            if (currentModel != null && currentModel.KeyFrames.Count > frame)
+            {
+                if (currentModel.KeyFrames[frame].Type == HandEnum.Intersect)
+                {
+                    img_intersect.Source = currentModel.KeyFrames[frame].RightImage;
+                    img_right.Source = null;
+                    img_left.Source = null;
+                }
+                else if (currentModel.KeyFrames[frame].Type == HandEnum.Both)
+                {
+                    img_right.Source = currentModel.KeyFrames[frame].RightImage;
+                    img_left.Source = currentModel.KeyFrames[frame].LeftImage;
+                    img_intersect.Source = null;
+                }
+                else if (currentModel.KeyFrames[frame].Type == HandEnum.Right)
+                {
+                    img_right.Source = currentModel.KeyFrames[frame].RightImage;
+                    img_left.Source = null;
+                    img_intersect.Source = null;
+                }
+            }
         }
 
         private static Shape DrawLinkArrow(Point p1, Point p2)
@@ -507,7 +510,7 @@ namespace EducationSystem
             currentModel = dc;
             if (dc.KeyFrames.Count > 0)
             {
-                MediaMain.Source = new Uri(dc.Path);
+                MediaMain.Source = new Uri(dc.Path,UriKind.Relative);
                 CurrentKeyFrame = -1;
                 NumOfFeature = dc.KeyFrames.Count - 1;
                 NumOfFeatureCompleted = 0;
@@ -631,6 +634,29 @@ namespace EducationSystem
             socket.SendDataAsync(j.ToString());
         }
 
+        private void KeyFrameChange(int frame)
+        {
+            if (currentModel != null && currentModel.KeyFrames.Count > frame && frame >= 0)
+            {
+                SetSampleImage(frame);
+
+                CurrectWaitingState = String.Format("第{0}/{1}步", frame, currentModel.KeyFrames.Count-1);
+                switch (currentModel.KeyFrames[frame].Type)
+                {
+                    case HandEnum.Both:
+                        CurrectWaitingState += "分別移動你的【左右手】到箭頭所示位置，并做出相應手勢";
+                        break;
+                    case HandEnum.Intersect:
+                        CurrectWaitingState += "移動你的【雙手】到箭頭所示位置，并做出相應手勢";
+                        break;
+                    case HandEnum.Right:
+                        CurrectWaitingState += "移動你的【右手】到箭頭所示位置，并做出相應手勢";
+                        break;
+                }
+            }
+            
+        }
+
         private void Btn_Perform_OnClick(object sender, RoutedEventArgs e)
         {
             State = GuideState.StartGuide;
@@ -639,6 +665,7 @@ namespace EducationSystem
             j["wordname"] = currentModel.ID;
             socket.SendDataAsync(j.ToString());
             CurrentKeyFrame = 1;
+            KeyFrameChange(CurrentKeyFrame);
         }
 
         private class ShowFeatureMatchedPageFramesHandler : AbstractKinectFramesHandler
@@ -813,7 +840,7 @@ namespace EducationSystem
                                 {
                                     handModel.type = HandEnum.Right;
                                 }
-                                Console.WriteLine(handModel.type);
+                                //Console.WriteLine(handModel.type);
                                 Application.Current.Dispatcher.Invoke(() =>
                                 {
                                     switch (handModel.type)
