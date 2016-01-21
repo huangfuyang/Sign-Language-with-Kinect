@@ -178,7 +178,6 @@ FakesAssemblies/
 # Custom Ignore Rule
 Thumbs.db
 
-EducationSystem/Images
 HandShapeDetector/data
 HandShapeDetector/result
 HandShapeDetector/.idea/scopes/scope_settings.xml
