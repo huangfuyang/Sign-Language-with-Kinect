@@ -964,11 +964,19 @@ namespace EducationSystem
                                 }); 
                                 handModel.skeletonData = FrameConverter.GetFrameDataArgString(sensor, skeleton);
                                 counter++;
-                                if (counter >= 5)
+                                if (showFeatureMatchedPage.State == GuideState.StartGuide)
                                 {
-                                    counter = 0;
+                                    if (counter >= 5)
+                                    {
+                                        counter = 0;
+                                        SocketManager.GetInstance().SendDataAsync(handModel);
+                                    }
+                                }
+                                else
+                                {
                                     SocketManager.GetInstance().SendDataAsync(handModel);
                                 }
+                               
                             }
                         }
                         //Console.WriteLine("tracked");
