@@ -192,6 +192,7 @@ namespace EducationSystem
                         btn_Replay.Visibility = Visibility.Collapsed;
                         KinectState.Instance.KinectRegion.IsCursorVisible = false;
                         CurrectWaitingState = "2秒鐘后開始錄製";
+                        framesHandler.IsRecording = false;
                         new Thread(() =>
                         {
                             Thread.Sleep(2000);
@@ -283,6 +284,7 @@ namespace EducationSystem
                 {
                     var js = JsonConvert.DeserializeObject(msg) as JObject;
                     string type = js["type"].ToString();
+                    Console.WriteLine(msg);
                     if (type == "guide")
                     {
                         int p = (int)js["position"];
@@ -801,7 +803,8 @@ namespace EducationSystem
                              this.depthMap);
             }
 
-            private bool IsRecording = false;
+            public bool IsRecording = false;
+            private int counter = 0;
 
             public override void SkeletonFrameCallback(long timestamp, int frameNumber, Skeleton[] skeletonData)
             {
@@ -897,19 +900,6 @@ namespace EducationSystem
                         {
                              handModel = new HandShapeModel(HandEnum.None);
                         }
-                        //start recording
-                        if (!IsRecording && rightHandRaise)
-                        {
-                            if (showFeatureMatchedPage.State == GuideState.StartEvaluation)
-                            {
-                                Application.Current.Dispatcher.Invoke(() =>
-                                {
-                                    showFeatureMatchedPage.CurrectWaitingState = "RECORDING";
-                                });
-                            }
-                            Console.WriteLine("RECORDING");
-                            IsRecording = true;
-                        }
                         //stop recording
                         if (IsRecording && handModel.type != HandEnum.None && !rightHandRaise && !leftHandRaise && showFeatureMatchedPage.State == GuideState.StartEvaluation)
                         {
@@ -924,6 +914,20 @@ namespace EducationSystem
                             }
                             IsRecording = false;
                         }
+                        //start recording
+                        if (!IsRecording && rightHandRaise)
+                        {
+                            if (showFeatureMatchedPage.State == GuideState.StartEvaluation)
+                            {
+                                Application.Current.Dispatcher.Invoke(() =>
+                                {
+                                    showFeatureMatchedPage.CurrectWaitingState = "RECORDING";
+                                });
+                            }
+                            Console.WriteLine("RECORDING");
+                            IsRecording = true;
+                        }
+                       
 
                         if (handModel != null && handModel.type != HandEnum.None)
                         {
@@ -959,7 +963,12 @@ namespace EducationSystem
                                     }
                                 }); 
                                 handModel.skeletonData = FrameConverter.GetFrameDataArgString(sensor, skeleton);
-                                SocketManager.GetInstance().SendDataAsync(handModel);
+                                counter++;
+                                if (counter >= 5)
+                                {
+                                    counter = 0;
+                                    SocketManager.GetInstance().SendDataAsync(handModel);
+                                }
                             }
                         }
                         //Console.WriteLine("tracked");
