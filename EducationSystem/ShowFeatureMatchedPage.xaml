@@ -28,8 +28,8 @@
         </k:KinectScrollViewer>
         <Canvas Grid.Column="1" Grid.Row="0">
             <Image  Name="KinectViewImage" Width="480" />
-            <Image  Name="RightGuider" Source="Images/red-ring.png" Width="30" Height="30"/>
-            <Image  Name="LefttGuider" Source="Images/red-ring.png" Width="30" Height="30"/>
+            <Ellipse  Name="RightGuider" Width="30" Height="30" StrokeThickness="4" Stroke="Red"/>
+            <Ellipse  Name="LefttGuider" Width="30" Height="30" StrokeThickness="4" Stroke="Red"/>
         </Canvas>
        
         <Canvas Name="BodyPartCanvas" Grid.Column="0" Grid.Row="0" x:FieldModifier="public" Background="#7FFFFFFF">

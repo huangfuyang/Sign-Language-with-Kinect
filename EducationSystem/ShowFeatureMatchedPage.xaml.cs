@@ -20,6 +20,7 @@ using Emgu.CV.UI;
 using Microsoft.Kinect;
 using Microsoft.Kinect.Toolkit.Controls;
 using System.Timers;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Brushes = System.Windows.Media.Brushes;
 using ImageConverter = CURELab.SignLanguage.HandDetector.ImageConverter;
@@ -160,6 +161,9 @@ namespace EducationSystem
                     case GuideState.StartPlay:
                         btn_Perform.Visibility = Visibility.Collapsed;
                         btn_Replay.Visibility = Visibility.Collapsed;
+                        img_left.Visibility = Visibility.Visible;
+                        img_intersect.Visibility = Visibility.Visible;
+                        img_right.Visibility = Visibility.Visible;
                         KinectState.Instance.KinectRegion.IsCursorVisible = true;
                         framesHandler.UnregisterCallbacks(KinectState.Instance.CurrentKinectSensor);
                         RightGuider.Visibility = Visibility.Collapsed;
@@ -172,16 +176,31 @@ namespace EducationSystem
                         framesHandler.UnregisterCallbacks(KinectState.Instance.CurrentKinectSensor);
                         RightGuider.Visibility = Visibility.Collapsed;
                         LefttGuider.Visibility = Visibility.Collapsed;
+                        img_left.Visibility = Visibility.Collapsed;
+                        img_intersect.Visibility = Visibility.Collapsed;
+                        img_right.Visibility = Visibility.Collapsed;
                         break;
                     case GuideState.StartEvaluation:
                         KinectScrollViewer.Visibility = Visibility.Collapsed;
                         img_guide_intersect.Visibility = Visibility.Visible;
                         img_guide_left.Visibility = Visibility.Visible;
                         img_guide_right.Visibility = Visibility.Visible;
+                        img_left.Visibility = Visibility.Visible;
+                        img_intersect.Visibility = Visibility.Visible;
+                        img_right.Visibility = Visibility.Visible;
                         btn_Perform.Visibility = Visibility.Collapsed;
                         btn_Replay.Visibility = Visibility.Collapsed;
                         KinectState.Instance.KinectRegion.IsCursorVisible = false;
-                        framesHandler.RegisterCallbackToSensor(KinectState.Instance.CurrentKinectSensor);
+                        CurrectWaitingState = "2秒鐘后開始錄製";
+                        new Thread(() =>
+                        {
+                            Thread.Sleep(2000);
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                framesHandler.RegisterCallbackToSensor(KinectState.Instance.CurrentKinectSensor);
+                                CurrectWaitingState = string.Format("請打出【{0}】的手語", currentModel.Chinese);
+                            });
+                        }).Start();
                         RightGuider.Visibility = Visibility.Collapsed;
                         LefttGuider.Visibility = Visibility.Collapsed;
                         break;
@@ -190,13 +209,15 @@ namespace EducationSystem
                         img_guide_intersect.Visibility = Visibility.Visible;
                         img_guide_left.Visibility = Visibility.Visible;
                         img_guide_right.Visibility = Visibility.Visible;
+                        img_left.Visibility = Visibility.Visible;
+                        img_intersect.Visibility = Visibility.Visible;
+                        img_right.Visibility = Visibility.Visible;
                         btn_Perform.Visibility = Visibility.Collapsed;
                         btn_Replay.Visibility = Visibility.Collapsed;
                         KinectState.Instance.KinectRegion.IsCursorVisible = false;
                         framesHandler.RegisterCallbackToSensor(KinectState.Instance.CurrentKinectSensor);
                         RightGuider.Visibility = Visibility.Visible;
                         LefttGuider.Visibility = Visibility.Visible;
-                        CurrectWaitingState = "start";
                         break;
                     case GuideState.EndEvaluation:
                     case GuideState.EndGuide:
@@ -204,6 +225,9 @@ namespace EducationSystem
                         img_guide_intersect.Visibility = Visibility.Collapsed;
                         img_guide_left.Visibility = Visibility.Collapsed;
                         img_guide_right.Visibility = Visibility.Collapsed;
+                        img_left.Visibility = Visibility.Collapsed;
+                        img_intersect.Visibility = Visibility.Collapsed;
+                        img_right.Visibility = Visibility.Collapsed;
                         btn_Perform.Visibility = Visibility.Visible;
                         btn_Replay.Visibility = Visibility.Visible;
                         KinectState.Instance.KinectRegion.IsCursorVisible = true;
@@ -253,21 +277,76 @@ namespace EducationSystem
 
         private void SocketOnDataReceivedEvent(string msg)
         {
-            Console.WriteLine("***********************");
-            Console.WriteLine(msg);
-            if (msg.ToLower() == "next")
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                CurrentKeyFrame++;
-                KeyFrameChange(CurrentKeyFrame);
-            }
-            if (msg.ToLower() == "finish")
-            {
-                CurrentKeyFrame++;
-                string c = string.Format("恭喜你，完成了");
-                Console.WriteLine(c);
-                CurrectWaitingState = c;
-            }
-            Console.WriteLine("***********************");
+                try
+                {
+                    var js = JsonConvert.DeserializeObject(msg) as JObject;
+                    string type = js["type"].ToString();
+                    if (type == "guide")
+                    {
+                        int p = (int)js["position"];
+                        int s = (int)js["handshape"];
+                        // p right s wrong
+                        if (p == 1 && s == 0)
+                        {
+                            RightGuider.Stroke = Brushes.Gold;
+                            LefttGuider.Stroke = Brushes.Gold;
+                        }
+
+                        if (p == 0 && s == 0)
+                        {
+                            RightGuider.Stroke = Brushes.Red;
+                            LefttGuider.Stroke = Brushes.Red;
+                        }
+
+                        if (p == 1 && s == 1)
+                        {
+                            RightGuider.Stroke = Brushes.Red;
+                            LefttGuider.Stroke = Brushes.Red;
+                            CurrentKeyFrame++;
+                            KeyFrameChange(CurrentKeyFrame);
+                        }
+                    }
+                    else //"evaluation
+                    {
+                        string m = "";
+                        int c = 1;
+                        foreach (var frame in js["data"])
+                        {
+                            m += "第" +c+ "帧：";
+                            c += 1;
+                            int p = (int)frame["position"];
+                            int s = (int)frame["handshape"];
+
+                            if (p == 1 && s == 0)
+                            {
+                                m += "位置正确,手型错误";
+                            }
+                            if (p == 0 && s== 0)
+                            {
+                                m += "位置不正确";
+                            }
+                            if (p == 1 && s == 1)
+                            {
+                                m += "完全正确";
+                            }
+                            m += "\n";
+                        }
+                        CurrectWaitingState = m;
+                        Console.WriteLine(m);
+                        State = GuideState.EndEvaluation;
+                    }
+                    
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("***********************");
+                    Console.WriteLine(msg);
+                    Console.WriteLine("***********************");
+                }
+                
+            });
         }
 
         //private unsafe void RegisterThreshold(string valuename, ref double thresh, double max, double initialValue)
@@ -477,8 +556,8 @@ namespace EducationSystem
             connectorGeometry.StartPoint = p1;
             connectorGeometry.EndPoint = p2;
             lineGroup.Children.Add(connectorGeometry);
-            Path path = new Path { Data = lineGroup, StrokeThickness = 2 };
-            path.Stroke = path.Fill = Brushes.Black;
+            Path path = new Path { Data = lineGroup, StrokeThickness = 3 };
+            path.Stroke = path.Fill = Brushes.Red;
             path.Opacity = 0.8;
             return path;
         }
@@ -628,6 +707,7 @@ namespace EducationSystem
             //timer_guide.Start();
             CurrentKeyFrame = 0;
             State = GuideState.StartEvaluation;
+            
             var j = new JObject();
             j["label"] = "evaluation";
             j["wordname"] = currentModel.ID;
@@ -654,6 +734,11 @@ namespace EducationSystem
                         break;
                 }
             }
+            else
+            {
+                CurrectWaitingState = String.Format("完成了");
+                State = GuideState.EndGuide;
+            }
             
         }
 
@@ -666,6 +751,8 @@ namespace EducationSystem
             socket.SendDataAsync(j.ToString());
             CurrentKeyFrame = 1;
             KeyFrameChange(CurrentKeyFrame);
+            RightGuider.Stroke = Brushes.Red;
+            LefttGuider.Stroke = Brushes.Red;
         }
 
         private class ShowFeatureMatchedPageFramesHandler : AbstractKinectFramesHandler
@@ -677,6 +764,7 @@ namespace EducationSystem
             private bool isRightHandPrimary = true;
             private Skeleton skeleton;
             private byte[] colorPixels;
+            private byte[] colorPixelsToShow;
             private DepthImagePoint[] depthMap;
             private DepthImagePixel[] depthPixels;
             private System.Drawing.Point headPosition;
@@ -688,7 +776,7 @@ namespace EducationSystem
                 this.frameLock = new ReaderWriterLockSlim();
                 this.prickSignDetector = new PrickSignDetector(showFeatureMatchedPage);
                 OpenCVController.GetSingletonInstance().StartDebug();
-                
+                colorPixelsToShow = new byte[4*640*480];
             }
 
             private HandShapeModel GenerateTest(Skeleton skl)
@@ -812,12 +900,23 @@ namespace EducationSystem
                         //start recording
                         if (!IsRecording && rightHandRaise)
                         {
+                            if (showFeatureMatchedPage.State == GuideState.StartEvaluation)
+                            {
+                                Application.Current.Dispatcher.Invoke(() =>
+                                {
+                                    showFeatureMatchedPage.CurrectWaitingState = "RECORDING";
+                                });
+                            }
                             Console.WriteLine("RECORDING");
                             IsRecording = true;
                         }
                         //stop recording
                         if (IsRecording && handModel.type != HandEnum.None && !rightHandRaise && !leftHandRaise && showFeatureMatchedPage.State == GuideState.StartEvaluation)
                         {
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                showFeatureMatchedPage.CurrectWaitingState = "END";
+                            });
                             Console.WriteLine("END");
                             if (SocketManager.GetInstance() != null)
                             {
@@ -905,6 +1004,7 @@ namespace EducationSystem
                 {
                     frameLock.EnterWriteLock();
                     this.colorPixels = colorPixels;
+                    colorPixels.CopyTo(colorPixelsToShow,0);
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         if (showFeatureMatchedPage.PlayScreenBitmap == null)
@@ -912,7 +1012,7 @@ namespace EducationSystem
                             showFeatureMatchedPage.PlayScreenBitmap = new WriteableBitmap(640, 480, 96.0, 96.0, PixelFormats.Bgr32, null);
                         }
 
-                        showFeatureMatchedPage.PlayScreenBitmap.WritePixels(new Int32Rect(0, 0, 640, 480), colorPixels, 640 * sizeof(int), 0);
+                        showFeatureMatchedPage.PlayScreenBitmap.WritePixels(new Int32Rect(0, 0, 640, 480), colorPixelsToShow, 640 * sizeof(int), 0);
                     });
                     frameLock.ExitWriteLock();
                 }
