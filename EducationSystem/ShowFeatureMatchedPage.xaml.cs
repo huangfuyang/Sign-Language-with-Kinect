@@ -927,7 +927,8 @@ namespace EducationSystem
                             Console.WriteLine("RECORDING");
                             IsRecording = true;
                         }
-                       
+
+                        counter++;
 
                         if (handModel != null && handModel.type != HandEnum.None)
                         {
@@ -949,13 +950,22 @@ namespace EducationSystem
                                     switch (handModel.type)
                                     {
                                         case HandEnum.Right:
+                                            showFeatureMatchedPage.img_guide_right.Visibility = Visibility.Visible;
+                                            showFeatureMatchedPage.img_guide_left.Visibility = Visibility.Collapsed;
+                                            showFeatureMatchedPage.img_guide_intersect.Visibility = Visibility.Collapsed;
                                             showFeatureMatchedPage.img_guide_right.Source = handModel.RightColor.Bitmap.ToBitmapSource();
                                             break;
                                         case HandEnum.Both:
+                                            showFeatureMatchedPage.img_guide_right.Visibility = Visibility.Visible;
+                                            showFeatureMatchedPage.img_guide_left.Visibility = Visibility.Visible;
+                                            showFeatureMatchedPage.img_guide_intersect.Visibility = Visibility.Collapsed;
                                             showFeatureMatchedPage.img_guide_right.Source = handModel.RightColor.Bitmap.ToBitmapSource();
                                             showFeatureMatchedPage.img_guide_left.Source = handModel.LeftColor.Bitmap.ToBitmapSource();
                                             break;
                                         case HandEnum.Intersect:
+                                            showFeatureMatchedPage.img_guide_right.Visibility = Visibility.Collapsed;
+                                            showFeatureMatchedPage.img_guide_left.Visibility = Visibility.Collapsed;
+                                            showFeatureMatchedPage.img_guide_intersect.Visibility = Visibility.Visible;
                                             showFeatureMatchedPage.img_guide_intersect.Source = handModel.RightColor.Bitmap.ToBitmapSource();
                                             break;
                                         default:
@@ -963,10 +973,9 @@ namespace EducationSystem
                                     }
                                 }); 
                                 handModel.skeletonData = FrameConverter.GetFrameDataArgString(sensor, skeleton);
-                                counter++;
                                 if (showFeatureMatchedPage.State == GuideState.StartGuide)
                                 {
-                                    if (counter >= 5)
+                                    if (counter >= 10)
                                     {
                                         counter = 0;
                                         SocketManager.GetInstance().SendDataAsync(handModel);
