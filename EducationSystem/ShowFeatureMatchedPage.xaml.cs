@@ -34,7 +34,9 @@ namespace EducationSystem
     public enum GuideState
     {
         StartPlay,
+        StartPlayTwice,
         EndPlay,
+        EndPlayTwice,
         StartGuide,
         EndGuide,
         StartEvaluation,
@@ -135,20 +137,30 @@ namespace EducationSystem
             set { SetValue(CurrentFrameBitmapSourceProperty, value); }
         }
 
+        private int wordlist = 0;
         private ShowFeatureMatchedPageFramesHandler framesHandler;
         private VideoModel currentModel;
         private Shape RightSignArrow;
         private Shape LeftSignArrow;
         private SocketManager socket;
-        public ShowFeatureMatchedPage()
+        public ShowFeatureMatchedPage(int index)
         {
             InitializeComponent();
+            wordlist = index;
         }
 
         public ObservableCollection<FeatureViewModel> FeatureList { get; set; }
 
         private ImageViewer viewer;
         private Timer timer_guide;
+        private int currentWordCount = 0;
+        private int total = 0;
+        private bool NextReady = true;
+        private int guideTime = 0;
+        private int evaluateTime = 0;
+        private int playTime = 0;
+        private int sleepTime = 5000;
+        private Timer controlTimer;
         private GuideState _state;
         public  GuideState State
         {
@@ -159,8 +171,9 @@ namespace EducationSystem
                 switch (value)
                 {
                     case GuideState.StartPlay:
-                        btn_Perform.Visibility = Visibility.Collapsed;
-                        btn_Replay.Visibility = Visibility.Collapsed;
+                    case GuideState.StartPlayTwice:
+                        btn_Guide.Visibility = Visibility.Collapsed;
+                        btn_Evaluate.Visibility = Visibility.Collapsed;
                         img_left.Visibility = Visibility.Visible;
                         img_intersect.Visibility = Visibility.Visible;
                         img_right.Visibility = Visibility.Visible;
@@ -170,8 +183,9 @@ namespace EducationSystem
                         LefttGuider.Visibility = Visibility.Collapsed;
                         break;
                     case GuideState.EndPlay:
-                        btn_Replay.Visibility = Visibility.Visible;
-                        btn_Perform.Visibility = Visibility.Visible;
+                    case GuideState.EndPlayTwice:
+                        btn_Evaluate.Visibility = Visibility.Visible;
+                        btn_Guide.Visibility = Visibility.Visible;
                         KinectState.Instance.KinectRegion.IsCursorVisible = true;
                         framesHandler.UnregisterCallbacks(KinectState.Instance.CurrentKinectSensor);
                         RightGuider.Visibility = Visibility.Collapsed;
@@ -188,8 +202,8 @@ namespace EducationSystem
                         img_left.Visibility = Visibility.Visible;
                         img_intersect.Visibility = Visibility.Visible;
                         img_right.Visibility = Visibility.Visible;
-                        btn_Perform.Visibility = Visibility.Collapsed;
-                        btn_Replay.Visibility = Visibility.Collapsed;
+                        btn_Guide.Visibility = Visibility.Collapsed;
+                        btn_Evaluate.Visibility = Visibility.Collapsed;
                         KinectState.Instance.KinectRegion.IsCursorVisible = false;
                         CurrectWaitingState = "2秒鐘后開始錄製";
                         framesHandler.IsRecording = false;
@@ -213,8 +227,8 @@ namespace EducationSystem
                         img_left.Visibility = Visibility.Visible;
                         img_intersect.Visibility = Visibility.Visible;
                         img_right.Visibility = Visibility.Visible;
-                        btn_Perform.Visibility = Visibility.Collapsed;
-                        btn_Replay.Visibility = Visibility.Collapsed;
+                        btn_Guide.Visibility = Visibility.Collapsed;
+                        btn_Evaluate.Visibility = Visibility.Collapsed;
                         KinectState.Instance.KinectRegion.IsCursorVisible = false;
                         framesHandler.RegisterCallbackToSensor(KinectState.Instance.CurrentKinectSensor);
                         RightGuider.Visibility = Visibility.Visible;
@@ -229,8 +243,8 @@ namespace EducationSystem
                         img_left.Visibility = Visibility.Collapsed;
                         img_intersect.Visibility = Visibility.Collapsed;
                         img_right.Visibility = Visibility.Collapsed;
-                        btn_Perform.Visibility = Visibility.Visible;
-                        btn_Replay.Visibility = Visibility.Visible;
+                        btn_Guide.Visibility = Visibility.Visible;
+                        btn_Evaluate.Visibility = Visibility.Visible;
                         KinectState.Instance.KinectRegion.IsCursorVisible = true;
                         framesHandler.UnregisterCallbacks(KinectState.Instance.CurrentKinectSensor);
                         RightGuider.Visibility = Visibility.Collapsed;
@@ -254,12 +268,11 @@ namespace EducationSystem
 
             this.framesHandler = new ShowFeatureMatchedPageFramesHandler(this);
             KinectState.Instance.KinectRegion.IsCursorVisible = true;
-
+            total = LearningResource.GetSingleton().VideoModels[wordlist].Count;
             //load signs
-            foreach (var row in LearningResource.GetSingleton().VideoModels)
+            foreach (var row in LearningResource.GetSingleton().VideoModels[wordlist])
             {
                 //load button
-
                 panelSignList.Children.Add(createKinectButton(row));
             }
             KinectScrollViewer.ScrollToVerticalOffset(100);
@@ -274,6 +287,84 @@ namespace EducationSystem
             socket.DataReceivedEvent += SocketOnDataReceivedEvent;
             // opencv
             //RegisterThreshold("V min", ref OpenCVController.VMIN, 150, OpenCVController.VMIN);
+            controlTimer = new Timer(100);
+            controlTimer.Elapsed += controlTimer_Elapsed;
+            controlTimer.Start();
+        }
+
+        private bool startNew = true;
+        void controlTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            if (State == GuideState.StartPlay && NextReady && playTime == 0)
+            {
+                playTime = 1;
+                NextReady = false;
+                Application.Current.Dispatcher.Invoke(
+                    () => btnSignWord_Click(panelSignList.Children[currentWordCount], null));
+            }
+            if (State == GuideState.EndPlay && playTime == 1)
+            {
+                sleepTime = 0;
+                playTime = 2;
+                new Thread(() =>
+                {
+                    Thread.Sleep(2000);
+                    Application.Current.Dispatcher.Invoke(
+                        () => btnSignWord_Click(panelSignList.Children[currentWordCount], null));
+                }).Start();
+            }
+            // start guide
+            if (State == GuideState.EndPlayTwice && playTime == 2)
+            {
+                playTime = -1;
+                Application.Current.Dispatcher.Invoke(() => State = GuideState.StartGuide);
+                new Thread(() =>
+                {
+                    Thread.Sleep(2000);
+                    Application.Current.Dispatcher.Invoke(
+                        () => Btn_Guide_OnClick(btn_Guide, null));
+                }).Start();
+            }
+
+            if (State == GuideState.EndGuide)
+            {
+                Application.Current.Dispatcher.Invoke(() => State = GuideState.StartEvaluation);
+                new Thread(() =>
+                {
+                    Thread.Sleep(2000);
+                    Application.Current.Dispatcher.Invoke(
+                        () => Btn_Evaluate_OnClick(btn_Guide, null));
+                }).Start();
+            }
+
+            if (State == GuideState.EndEvaluation && !NextReady)
+            {
+                NextReady = true;
+                new Thread(() =>
+                {
+                    Thread.Sleep(2000);
+                    Application.Current.Dispatcher.Invoke(StartNewWord);
+                    currentWordCount++;
+                    if (currentWordCount >= total)
+                    {
+                        controlTimer.Stop();
+                        MessageBox.Show("Finish all");
+                        return;
+                    }
+                }).Start();
+            }
+
+        }
+
+
+        void StartNewWord()
+        {
+            NextReady = true;
+            guideTime = 0;
+            evaluateTime = 0;
+            playTime = 0;
+            sleepTime = 5000;
+            State = GuideState.StartPlay;
         }
 
         private void SocketOnDataReceivedEvent(string msg)
@@ -314,13 +405,15 @@ namespace EducationSystem
                     {
                         string m = "";
                         int c = 1;
+                        int correct = 1;
                         foreach (var frame in js["data"])
                         {
                             m += "第" +c+ "帧：";
                             c += 1;
                             int p = (int)frame["position"];
                             int s = (int)frame["handshape"];
-
+                            correct &= p;
+                            correct &= s;
                             if (p == 1 && s == 0)
                             {
                                 m += "位置正确,手型错误";
@@ -337,7 +430,14 @@ namespace EducationSystem
                         }
                         CurrectWaitingState = m;
                         Console.WriteLine(m);
-                        State = GuideState.EndEvaluation;
+                        if (correct == 1)
+                        {
+                            evaluateTime ++;
+                        }
+                        if (evaluateTime >= 3)
+                        {
+                            State = GuideState.EndEvaluation;
+                        }
                     }
                     
                 }
@@ -438,7 +538,15 @@ namespace EducationSystem
                         img_left.Source = null;
                         CurrentKeyFrame = -1;
                         timer_guide.Stop();
-                        State = GuideState.EndPlay;
+                        if (playTime == 1)
+                        {
+                            State = GuideState.EndPlay;
+                        }
+                        else
+                        {
+                            State = GuideState.EndPlayTwice;                     
+                        }
+
                         return;
                     }
                     else
@@ -468,7 +576,7 @@ namespace EducationSystem
                         timer_guide.Stop();
                         new Thread(() =>
                         {
-                            Thread.Sleep(5000);
+                            Thread.Sleep(sleepTime);
                             timer_guide.Start();
                             Application.Current.Dispatcher.Invoke(() => MediaMain.Play());
                         }).Start();
@@ -596,6 +704,7 @@ namespace EducationSystem
                 NumOfFeature = dc.KeyFrames.Count - 1;
                 NumOfFeatureCompleted = 0;
                 State = GuideState.StartPlay;
+                lbl_Name.Content = string.Format("{0}/{1} {2} 第{3}遍",currentWordCount+1,total, dc.Chinese,playTime);
                 timer_guide.Start();
             }
             else
@@ -700,7 +809,7 @@ namespace EducationSystem
             s.Pause();
         }
 
-        private void Btn_Replay_OnClick(object sender, RoutedEventArgs e)
+        private void Btn_Evaluate_OnClick(object sender, RoutedEventArgs e)
         {
             //CurrentKeyFrame = -1;
             //NumOfFeatureCompleted = 0;
@@ -710,8 +819,7 @@ namespace EducationSystem
             CurrentKeyFrame = 0;
             State = GuideState.StartEvaluation;
             
-            var j = new JObject();
-            j["label"] = "evaluation";
+            var j = new JObject(); 
             j["wordname"] = currentModel.ID;
             socket.SendDataAsync(j.ToString());
         }
@@ -726,13 +834,13 @@ namespace EducationSystem
                 switch (currentModel.KeyFrames[frame].Type)
                 {
                     case HandEnum.Both:
-                        CurrectWaitingState += "分別移動你的【左右手】到箭頭所示位置，并做出相應手勢";
+                        CurrectWaitingState += "移動你的【左手】和【右手】到所示位置，并做出上圖中的手勢";
                         break;
                     case HandEnum.Intersect:
-                        CurrectWaitingState += "移動你的【雙手】到箭頭所示位置，并做出相應手勢";
+                        CurrectWaitingState += "移動你的【雙手】到所示位置，并做出上圖中的手勢";
                         break;
                     case HandEnum.Right:
-                        CurrectWaitingState += "移動你的【右手】到箭頭所示位置，并做出相應手勢";
+                        CurrectWaitingState += "移動你的【右手】到箭頭所示位置，并做出上圖中的手勢";
                         break;
                 }
             }
@@ -744,7 +852,7 @@ namespace EducationSystem
             
         }
 
-        private void Btn_Perform_OnClick(object sender, RoutedEventArgs e)
+        private void Btn_Guide_OnClick(object sender, RoutedEventArgs e)
         {
             State = GuideState.StartGuide;
             var j = new JObject();

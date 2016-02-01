@@ -111,21 +111,22 @@
             <Image Name="img_left" Width="150" HorizontalAlignment="Left" Margin="10,0,0,0"></Image>
             <Image Name="img_right" Width="150" HorizontalAlignment="Right" Margin="0,0,10,0"></Image>
             <Image Name="img_intersect" Width="150" HorizontalAlignment="Left" Margin="167,0,0,0"></Image>
-            <k:KinectTileButton Visibility="Collapsed" Background="BlanchedAlmond"  Name="btn_Replay" Grid.Row="0" Content="打分" HorizontalAlignment="Left" Height="Auto" Width="210" Click="Btn_Replay_OnClick"></k:KinectTileButton>
-            <k:KinectTileButton Visibility="Collapsed" Background="Cyan"  Name="btn_Perform" Grid.Row="0" Content="跟著做" HorizontalAlignment="Right" Height="Auto" Width="210" Click="Btn_Perform_OnClick"></k:KinectTileButton>
+            <k:KinectTileButton Visibility="Collapsed" Background="BlanchedAlmond"  Name="btn_Evaluate" Grid.Row="0" Content="打分" HorizontalAlignment="Left" Height="Auto" Width="210" Click="Btn_Evaluate_OnClick"></k:KinectTileButton>
+            <k:KinectTileButton Visibility="Collapsed" Background="Cyan"  Name="btn_Guide" Grid.Row="0" Content="跟著做" HorizontalAlignment="Right" Height="Auto" Width="210" Click="Btn_Guide_OnClick"></k:KinectTileButton>
             <Label Visibility="Collapsed" FontSize="22" HorizontalContentAlignment="Center" Width="120" Margin="184,110,185,0" VerticalContentAlignment="Bottom" Background="#7FFFFFFF">
                 <Label.Content>
                     <AccessText TextWrapping="Wrap" Text="{Binding SignState}"/>
                 </Label.Content>
             </Label>
-            <Label Grid.Row="1" FontSize="32" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"  Background="#7FFFFFFF" Margin="5,10,-5,72" Grid.RowSpan="2">
+            <Label Grid.Row="1" FontSize="32" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"  Background="#7FFFFFFF"  >
                 <Label.Content>
                     <AccessText TextWrapping="Wrap" Text="{Binding CurrectWaitingState}"/>
                 </Label.Content>
             </Label>
             <!--<k:KinectCircleButton Name="Btn_Play" Grid.Row="1" Content="Play" Click="Btn_Play_Click"></k:KinectCircleButton>-->
-
-            <ProgressBar Grid.Row="3" Value="{Binding NumOfFeatureCompleted}" Maximum="{Binding NumOfFeature}" Foreground="#7F01D328" BorderBrush="{x:Null}" Background="{x:Null}" Margin="5"/>
+            <Label x:Name="lbl_Name" Grid.Row="2" FontSize="40" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+            </Label>
+            <!--<ProgressBar Grid.Row="3" Value="{Binding NumOfFeatureCompleted}" Maximum="{Binding NumOfFeature}" Foreground="#7F01D328" BorderBrush="{x:Null}" Background="{x:Null}" Margin="5"/>-->
 
         </Grid>
         <DataGrid Name="FeatureDataGrid" Grid.Column="1" Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{Binding FeatureList}" x:FieldModifier="public" Visibility="Collapsed">

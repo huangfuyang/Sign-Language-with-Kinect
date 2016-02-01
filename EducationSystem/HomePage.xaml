@@ -24,8 +24,8 @@
 			<ColumnDefinition Width="1.618*"/>
 			<ColumnDefinition Width="400"/>
 		</Grid.ColumnDefinitions>
-		
-		<Grid Grid.Row="1" Grid.Column="2">
+		<Label Grid.ColumnSpan="2" FontSize="60" HorizontalAlignment="Center">Choose Word List</Label>
+		<!--<Grid Grid.Row="1" Grid.Column="2">
 			<Grid.RowDefinitions>
 				<RowDefinition />
 				<RowDefinition />
@@ -35,7 +35,7 @@
 				<ColumnDefinition/>
 			</Grid.ColumnDefinitions>
 
-			<k:KinectTileButton x:Name="btnRecognition" Width="Auto" Height="Auto" Grid.Row="0" Grid.Column="0" BorderThickness="0" Click="btnRecognition_Click">
+            <k:KinectTileButton x:Name="btnRecognition" Width="Auto" Height="Auto" Grid.Row="0" Grid.Column="0" BorderThickness="0" Click="btnRecognition_Click">
 				<k:KinectTileButton.Background>
 					<ImageBrush ImageSource="Images/MainMenuItem1.png" Stretch="Uniform"/>
 				</k:KinectTileButton.Background>
@@ -50,7 +50,43 @@
 					<ImageBrush ImageSource="Images/MainMenuItem3.png" Stretch="Uniform"/>
 				</k:KinectTileButton.Background>
 			</k:KinectTileButton>
-		</Grid>
-		
-	</Grid>
+		</Grid>-->
+        <Grid Grid.Row="1" Grid.Column="0" RowSpan="2" ColumnSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.Resources>
+                <Style TargetType="k:KinectTileButton">
+                    <Setter Property="Background" Value="BlanchedAlmond"></Setter>
+                    <Setter Property="Width" Value="200"></Setter>
+                    <Setter Property="Height" Value="Auto"></Setter>
+                    <Setter Property="Margin" Value="1"></Setter>
+                </Style>
+            </Grid.Resources>
+            <k:KinectTileButton Name="btn_0" Grid.Row="0" Grid.Column="0"  Content="0-50" Click="btn_Click" ></k:KinectTileButton>
+            <k:KinectTileButton Name="btn_1" Grid.Row="0" Grid.Column="1"  Content="51-100" Click="btn_Click"></k:KinectTileButton>
+            <k:KinectTileButton Name="btn_2" Grid.Row="0" Grid.Column="2"  Content="101-150" Click="btn_Click"></k:KinectTileButton>
+
+            <k:KinectTileButton Name="btn_3" Grid.Row="1" Grid.Column="0"  Content="151-200" Click="btn_Click"></k:KinectTileButton>
+            <k:KinectTileButton Name="btn_4" Grid.Row="1" Grid.Column="1"  Content="201-250" Click="btn_Click"></k:KinectTileButton>
+            <k:KinectTileButton Name="btn_5" Grid.Row="1" Grid.Column="2"  Content="251-300" Click="btn_Click"></k:KinectTileButton>
+
+            <k:KinectTileButton Name="btn_6" Grid.Row="2" Grid.Column="0"  Content="301-350" Click="btn_Click"></k:KinectTileButton>
+            <k:KinectTileButton Name="btn_7" Grid.Row="2" Grid.Column="1"  Content="351-400" Click="btn_Click"></k:KinectTileButton>
+            <k:KinectTileButton Name="btn_8" Grid.Row="2" Grid.Column="2"  Content="401-450" Click="btn_Click"></k:KinectTileButton>
+
+            <k:KinectTileButton Name="btn_9" Grid.Row="3" Grid.Column="0"  Content="451-500" Click="btn_Click"></k:KinectTileButton>
+            <k:KinectTileButton Name="btn_10" Grid.Row="3" Grid.Column="1"  Content="501-550" Click="btn_Click"></k:KinectTileButton>
+            <k:KinectTileButton Name="btn_11" Grid.Row="3" Grid.Column="2"  Content="551-600" Click="btn_Click"></k:KinectTileButton>
+
+        </Grid>
+    </Grid>
 </Page>
